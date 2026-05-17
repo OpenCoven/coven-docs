@@ -1,0 +1,44 @@
+# Welcome to Coven
+
+**Persistent AI familiars.** Composable. Observable. Publishable.
+
+Coven is a framework for building AI agents with memory, personality, and purpose. Each familiar is persistent, tool-aware, and deeply integrated into your workspace.
+
+## Getting Started
+
+- [Quick Start](/docs/getting-started) — Set up your first familiar in 5 minutes
+- [Concepts](/docs/concepts) — Understand how Coven works
+- [Harness](/docs/harness) — Build your own harness
+
+## Core Ideas
+
+### Persistent Familiars
+Your AI companions persist across sessions. They remember context, learn from interactions, and grow with your work.
+
+### Composable
+Coven pieces fit together naturally. Combine tools, skills, and workflows without friction.
+
+### Observable
+Every action is traced. See what your familiars are doing, why, and when things go wrong.
+
+### Publishable
+Turn your familiar workflows into products. Ship them as APIs, CLIs, or integrations.
+
+## Examples
+
+```typescript
+// Spawn a familiar
+const myFamiliar = await coven.spawn({
+  name: 'Nova',
+  personality: 'warm, mystical, practical',
+  tools: ['exec', 'web_search', 'image'],
+});
+
+// Send a message
+const response = await myFamiliar.chat('What can you see in this image?');
+console.log(response);
+```
+
+---
+
+Explore the full documentation. Questions? Join the [Discord](https://discord.gg/opencoven).
