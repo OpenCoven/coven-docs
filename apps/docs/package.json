@@ -1,0 +1,23 @@
+{
+  "name": "coven-docs-site",
+  "version": "1.0.0",
+  "description": "Coven documentation built with Fumadocs",
+  "scripts": {
+    "dev": "fumadocs-cli preview",
+    "build": "fumadocs-cli build",
+    "export": "fumadocs-cli export"
+  },
+  "dependencies": {
+    "fumadocs-ui": "^15.0.0",
+    "fumadocs-core": "^15.0.0",
+    "next": "^15.0.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.0",
+    "@types/node": "^20.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0"
+  }
+}

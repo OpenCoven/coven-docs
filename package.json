@@ -1,0 +1,11 @@
+{
+  "name": "coven-docs",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Coven documentation site",
+  "license": "MIT",
+  "packageManager": "pnpm@10.14.0",
+  "workspaces": [
+    "apps/*"
+  ]
+}
