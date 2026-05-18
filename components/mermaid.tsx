@@ -363,8 +363,8 @@ export function Mermaid({ chart, caption }: MermaidProps) {
           flex: 1;
           overflow: auto;
           display: flex;
-          align-items: flex-start;
-          justify-content: center;
+          align-items: safe center;
+          justify-content: safe center;
           padding: 2rem;
         }
 
@@ -372,7 +372,7 @@ export function Mermaid({ chart, caption }: MermaidProps) {
           width: 100%;
           max-width: 1280px;
           transition: transform 0.15s ease;
-          transform-origin: top center;
+          transform-origin: center center;
         }
 
         .mermaid-overlay-caption {
