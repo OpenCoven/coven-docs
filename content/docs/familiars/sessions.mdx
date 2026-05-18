@@ -27,6 +27,7 @@ The current store records session status as a string.
     { state: '`running`', category: 'Live', meaning: 'The harness process is active under daemon supervision.' },
     { state: '`completed`', category: 'Terminal', meaning: 'The harness exited successfully.' },
     { state: '`failed`', category: 'Terminal', meaning: 'Setup or launch failed before normal completion.' },
+    { state: '`killed`', category: 'Terminal', meaning: 'The daemon accepted a live kill request and recorded a kill event.' },
     { state: '`orphaned`', category: 'Recovery', meaning: 'A previous daemon stopped while a session was still marked running.' },
   ]}
 />
@@ -43,11 +44,13 @@ stateDiagram-v2
 
   running --> completed: exit 0
   running --> failed: exit non-zero
+  running --> killed: POST /api/v1/sessions/:id/kill
   running --> orphaned: daemon restart
 
   state Terminal {
     completed
     failed
+    killed
     orphaned
   }
 
@@ -58,7 +61,7 @@ stateDiagram-v2
   archived --> [*]: coven sacrifice --yes
 ```
 
-The diagram above is normative for the v0 store. `running` sessions cannot be archived or sacrificed directly — kill them or wait for exit first. `created → running` is the only transition that requires PTY spawn; every other transition is a store-only state change managed by the Rust daemon. `coven summon` restores an archived session to whichever terminal status it held before archival (`completed`, `failed`, or `orphaned`).
+The diagram above is normative for the v0 store. `running` sessions cannot be archived or sacrificed directly — kill them or wait for exit first. `created → running` is the only transition that requires PTY spawn; every other transition is a store-only state change managed by the Rust daemon. `coven summon` restores an archived session to whichever terminal status it held before archival (`completed`, `failed`, `killed`, or `orphaned`).
 
 ## Launch Path
 
@@ -132,6 +135,15 @@ Detached records should not be presented as completed agent work.
 `coven attach <session-id>` replays known event output and follows live output when the session is still active.
 
 For a completed session, attach acts like a log viewer. For a running session, attach also forwards input to the live daemon session.
+
+## Live Input And Kill
+
+Live session control is available through the daemon API:
+
+- `POST /api/v1/sessions/:id/input` with `{ "data": "..." }` forwards input to a verified `running` session and records an `input` event.
+- `POST /api/v1/sessions/:id/kill` stops a verified `running` session, changes its status to `killed`, and records a `kill` event.
+
+Both endpoints return `202 { "ok": true, "accepted": true }` on success. Unknown session ids return `404 session_not_found`. Existing sessions that are `completed`, `failed`, `killed`, archived, or `orphaned` return `409 session_not_live`; clients should show those records as replay/log surfaces instead of input targets.
 
 ## Session Browser Behavior
 

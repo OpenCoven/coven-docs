@@ -8,6 +8,7 @@ read_when:
 ---
 
 import { DocsDataTable } from '@/components/docs-data-table';
+import { GlossolaliaConceptMap } from '@/components/glossolalia-concepts';
 
 # Glossolalia
 
@@ -21,16 +22,10 @@ After that, use the table filters to jump by concept. **Related terms** are the 
 
 Start here. These terms name the layers people usually confuse when they are new to the project.
 
-<DocsDataTable
+<GlossolaliaConceptMap
   caption="Core Coven concepts"
+  intro="Start here if you are new to Coven. These names define the system boundary before you get into APIs, lifecycle details, or trust rules."
   searchPlaceholder="Filter core concepts..."
-  preserveOrder
-  columns={[
-    { key: 'term', label: 'Term' },
-    { key: 'definition', label: 'Plain-English definition' },
-    { key: 'why', label: 'Why it matters' },
-    { key: 'related', label: 'Related terms' },
-  ]}
   rows={[
     { term: 'OpenCoven', definition: 'The broader project family and organization around Coven, CastCodes, Cast Agent, Cast Codes, and integrations.', why: 'Use this when talking about the ecosystem, not one runtime process.', related: 'Coven, CastCodes, Cast Agent, OpenClaw Plugin' },
     { term: 'Coven', definition: 'The local runtime substrate and command-line product for launching and supervising agent work.', why: 'This owns local sessions, harness runs, logs, and the daemon API.', related: 'coven, Daemon, Session, Harness' },
