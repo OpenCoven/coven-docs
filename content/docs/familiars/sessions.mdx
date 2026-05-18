@@ -42,28 +42,30 @@ Archive state is stored separately as `archived_at`. A completed or failed sessi
 
 ```mermaid
 stateDiagram-v2
-  [*] --> created: coven run / POST /sessions
-  created --> running: PTY spawn succeeds
-  created --> failed: validation fails / PTY spawn errors
-  running --> completed: harness exits 0
-  running --> failed: harness exits non-zero
-  running --> orphaned: daemon stops while running
+  direction TB
+  [*] --> created: coven run
 
-  completed --> archived: coven archive
-  failed --> archived: coven archive
-  orphaned --> archived: coven archive
+  created --> running: PTY spawn ok
+  created --> failed: spawn / validation error
 
-  archived --> completed: coven summon (was completed)
-  archived --> failed: coven summon (was failed)
-  archived --> orphaned: coven summon (was orphaned)
+  running --> completed: exit 0
+  running --> failed: exit non-zero
+  running --> orphaned: daemon restart
 
-  completed --> [*]: coven sacrifice --yes
-  failed --> [*]: coven sacrifice --yes
-  orphaned --> [*]: coven sacrifice --yes
+  state Terminal {
+    completed
+    failed
+    orphaned
+  }
+
+  Terminal --> archived: coven archive
+  archived --> Terminal: coven summon
+
+  Terminal --> [*]: coven sacrifice --yes
   archived --> [*]: coven sacrifice --yes
 ```
 
-The diagram above is normative for the v0 store. `running` sessions cannot be archived or sacrificed directly — kill them or wait for exit first. `created → running` is the only transition that requires PTY spawn; every other transition is a store-only state change managed by the Rust daemon.
+The diagram above is normative for the v0 store. `running` sessions cannot be archived or sacrificed directly — kill them or wait for exit first. `created → running` is the only transition that requires PTY spawn; every other transition is a store-only state change managed by the Rust daemon. `coven summon` restores an archived session to whichever terminal status it held before archival (`completed`, `failed`, or `orphaned`).
 
 ## Launch Path
 

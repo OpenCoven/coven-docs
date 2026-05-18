@@ -3,6 +3,8 @@ title: "Harnesses API"
 description: "Manage harnesses — the AI providers that power your familiars."
 ---
 
+import { DocsDataTable } from '@/components/docs-data-table';
+
 # Harnesses
 
 A **harness** is an AI provider adapter that powers one or more familiars. Coven supports multiple harness types: `openclaw`, `claude_code`, `codex`, `hermes`, and custom adapters.
@@ -127,13 +129,22 @@ DELETE /v1/harnesses/:id
 
 ## Harness Kinds
 
-| Kind | Description |
-|------|-------------|
-| `openclaw` | OpenClaw gateway (default, recommended) |
-| `claude_code` | Anthropic Claude Code interactive PTY |
-| `codex` | OpenAI Codex CLI |
-| `hermes` | Hermes local runner |
-| `custom` | Custom adapter via OpenCoven SDK |
+<DocsDataTable
+  caption="Supported harness kinds"
+  searchPlaceholder="Filter harness kinds..."
+  columns={[
+    { key: 'kind', label: 'Kind' },
+    { key: 'category', label: 'Category', filter: true },
+    { key: 'description', label: 'Description' },
+  ]}
+  rows={[
+    { kind: '`openclaw`', category: 'Gateway', description: 'OpenClaw gateway (default, recommended).' },
+    { kind: '`claude_code`', category: 'Interactive PTY', description: 'Anthropic Claude Code interactive PTY.' },
+    { kind: '`codex`', category: 'CLI', description: 'OpenAI Codex CLI.' },
+    { kind: '`hermes`', category: 'Local runner', description: 'Hermes local runner.' },
+    { kind: '`custom`', category: 'Extension', description: 'Custom adapter via OpenCoven SDK.' },
+  ]}
+/>
 
 import { FamiliarSchemaDiagram } from '@/components/familiar-schema-diagram';
 

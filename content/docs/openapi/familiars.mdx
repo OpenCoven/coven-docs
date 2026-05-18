@@ -3,6 +3,8 @@ title: "Familiars API"
 description: "Create, list, update, and delete familiar agents. Each familiar is bound to a harness."
 ---
 
+import { DocsDataTable } from '@/components/docs-data-table';
+
 # Familiars
 
 A **familiar** is a persistent AI agent with memory, personality, and tool access. Every familiar is bound to a **harness** — the AI provider that powers it (e.g. OpenClaw, Claude Code, Codex, Hermes).
@@ -51,14 +53,24 @@ Content-Type: application/json
 }
 ```
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `name` | string | ✓ | Display name for the familiar |
-| `harness_id` | string | ✓ | ID of the harness to bind to |
-| `model` | string | ✓ | Model override (e.g. `openai/gpt-5.5`) |
-| `personality` | string | | Personality/tone description |
-| `tools` | string[] | | Allowed tool IDs |
-| `channels` | string[] | | Active channel bindings |
+<DocsDataTable
+  caption="Create-a-familiar request body fields"
+  searchPlaceholder="Filter fields..."
+  columns={[
+    { key: 'field', label: 'Field' },
+    { key: 'type', label: 'Type', filter: true },
+    { key: 'required', label: 'Required', filter: true },
+    { key: 'description', label: 'Description' },
+  ]}
+  rows={[
+    { field: '`name`', type: 'string', required: 'Required', description: 'Display name for the familiar.' },
+    { field: '`harness_id`', type: 'string', required: 'Required', description: 'ID of the harness to bind to.' },
+    { field: '`model`', type: 'string', required: 'Required', description: 'Model override (e.g. `openai/gpt-5.5`).' },
+    { field: '`personality`', type: 'string', required: 'Optional', description: 'Personality / tone description.' },
+    { field: '`tools`', type: 'string[]', required: 'Optional', description: 'Allowed tool IDs.' },
+    { field: '`channels`', type: 'string[]', required: 'Optional', description: 'Active channel bindings.' },
+  ]}
+/>
 
 ## Update a Familiar
 

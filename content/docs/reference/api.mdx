@@ -42,18 +42,28 @@ The current public API contract is the named **`coven.daemon.v1`** contract serv
 
 Versioned clients should use the `/api/v1` prefix:
 
-| Endpoint | Purpose |
-|---|---|
-| `GET /api/v1/api-version` | Read the active API version and supported versions |
-| `GET /api/v1/health` | Check daemon health and metadata |
-| `GET /api/v1/capabilities` | Discover daemon/control-plane capabilities and policy hints |
-| `POST /api/v1/actions` | Route a policy-shaped control-plane action |
-| `GET /api/v1/sessions` | List active sessions |
-| `POST /api/v1/sessions` | Launch a session |
-| `GET /api/v1/sessions/:id` | Fetch one session |
-| `GET /api/v1/events?sessionId=...` | Read session events |
-| `POST /api/v1/sessions/:id/input` | Forward input to a live session |
-| `POST /api/v1/sessions/:id/kill` | Kill a live session |
+<DocsDataTable
+  caption="coven.daemon.v1 endpoint reference"
+  searchPlaceholder="Filter endpoints..."
+  columns={[
+    { key: 'method', label: 'Method', filter: true },
+    { key: 'path', label: 'Path' },
+    { key: 'surface', label: 'Surface', filter: true },
+    { key: 'purpose', label: 'Purpose' },
+  ]}
+  rows={[
+    { method: 'GET',  path: '`/api/v1/api-version`',              surface: 'Meta',     purpose: 'Read the active API version and supported versions.' },
+    { method: 'GET',  path: '`/api/v1/health`',                   surface: 'Meta',     purpose: 'Check daemon health and metadata.' },
+    { method: 'GET',  path: '`/api/v1/capabilities`',             surface: 'Meta',     purpose: 'Discover daemon / control-plane capabilities and policy hints.' },
+    { method: 'POST', path: '`/api/v1/actions`',                  surface: 'Control',  purpose: 'Route a policy-shaped control-plane action.' },
+    { method: 'GET',  path: '`/api/v1/sessions`',                 surface: 'Sessions', purpose: 'List active sessions.' },
+    { method: 'POST', path: '`/api/v1/sessions`',                 surface: 'Sessions', purpose: 'Launch a session.' },
+    { method: 'GET',  path: '`/api/v1/sessions/:id`',             surface: 'Sessions', purpose: 'Fetch one session.' },
+    { method: 'GET',  path: '`/api/v1/events?sessionId=...`',     surface: 'Events',   purpose: 'Read session events.' },
+    { method: 'POST', path: '`/api/v1/sessions/:id/input`',       surface: 'Sessions', purpose: 'Forward input to a live session.' },
+    { method: 'POST', path: '`/api/v1/sessions/:id/kill`',        surface: 'Sessions', purpose: 'Kill a live session.' },
+  ]}
+/>
 
 Unversioned routes currently remain as legacy aliases during the early MVP window, but new clients should not rely on them.
 
