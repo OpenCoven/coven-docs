@@ -53,6 +53,52 @@ The current implementation expects the prompt to be the final command argument a
   ]}
 />
 
+## Compatibility Matrix
+
+<DocsDataTable
+  caption="Harness compatibility expectations"
+  searchPlaceholder="Filter compatibility expectations..."
+  columns={[
+    { key: 'surface', label: 'Surface' },
+    { key: 'codex', label: 'Codex (`codex`)' },
+    { key: 'claude', label: 'Claude Code (`claude`)' },
+    { key: 'newHarnessRequirement', label: 'Requirement for another harness' },
+  ]}
+  rows={[
+    { surface: 'Provider auth', codex: '`codex login`; Coven does not read tokens.', claude: '`claude doctor`; Coven does not read tokens.', newHarnessRequirement: 'Auth remains provider-owned. No API key, OAuth token, account id, or org id is added to Coven requests.' },
+    { surface: 'Command construction', codex: 'Program `codex`; prompt is an argv element after fixed prefix args.', claude: 'Program `claude`; prompt is an argv element after fixed prefix args.', newHarnessRequirement: 'Build with argv APIs only. No prompt execution through `sh -c` or equivalent shell interpolation.' },
+    { surface: 'Project root and cwd', codex: 'Daemon validates `projectRoot` and `cwd` before launch.', claude: 'Daemon validates `projectRoot` and `cwd` before launch.', newHarnessRequirement: 'Launch must fail closed when cwd resolves outside the project root.' },
+    { surface: 'PTY lifecycle', codex: 'Daemon spawns and owns the PTY, input writer, and killer handle.', claude: 'Daemon spawns and owns the PTY, input writer, and killer handle.', newHarnessRequirement: 'Adapter must work under daemon-owned PTY supervision and return clear spawn failures.' },
+    { surface: 'Event replay', codex: 'Output and exit data are appended to the SQLite event log.', claude: 'Output and exit data are appended to the SQLite event log.', newHarnessRequirement: 'Output must be replayable through `GET /api/v1/events` and `coven attach` after process exit.' },
+    { surface: 'Live input', codex: '`POST /api/v1/sessions/:id/input` writes `{ data }` to the live PTY.', claude: '`POST /api/v1/sessions/:id/input` writes `{ data }` to the live PTY.', newHarnessRequirement: 'Live input must either work through the daemon PTY writer or be explicitly documented as unsupported before public support.' },
+    { surface: 'Live kill', codex: '`POST /api/v1/sessions/:id/kill` uses the daemon killer handle and records `killed`.', claude: '`POST /api/v1/sessions/:id/kill` uses the daemon killer handle and records `killed`.', newHarnessRequirement: 'Kill must terminate only a daemon-verified running session and return `409 session_not_live` otherwise.' },
+    { surface: 'Client compatibility', codex: 'Covered by API/session docs and local smoke coverage.', claude: 'Covered by API/session docs and local smoke coverage.', newHarnessRequirement: 'Update docs, daemon tests, smoke coverage, and client/plugin compatibility fixtures before advertising support.' },
+  ]}
+/>
+
+## Current, Future, and Unsupported Adapters
+
+<DocsDataTable
+  caption="Harness support status"
+  searchPlaceholder="Filter harness support..."
+  columns={[
+    { key: 'name', label: 'Name' },
+    { key: 'status', label: 'Status', filter: true },
+    { key: 'reason', label: 'Reason' },
+  ]}
+  rows={[
+    { name: '`codex`', status: 'Current', reason: 'Built-in adapter and harness id in the daemon.' },
+    { name: '`claude`', status: 'Current', reason: 'Built-in adapter and harness id in the daemon.' },
+    { name: 'Hermes', status: 'Future / planned', reason: 'Documented as a candidate, not a current daemon adapter.' },
+    { name: 'Aider', status: 'Future / planned', reason: 'Documented as a candidate, not a current daemon adapter.' },
+    { name: 'Gemini CLI', status: 'Future / planned', reason: 'Documented as a candidate, not a current daemon adapter.' },
+    { name: 'OpenCode', status: 'Future / planned', reason: 'Documented as a candidate, not a current daemon adapter.' },
+    { name: 'Custom local harness', status: 'Future / design', reason: 'Requires a policy and compatibility story before broad support.' },
+    { name: 'OpenClaw', status: 'Not a Coven harness', reason: 'OpenClaw integration is an external client/plugin path through `@opencoven/coven`, not a daemon harness id.' },
+    { name: 'Generic command adapter', status: 'Not supported in v0', reason: 'Arbitrary commands need explicit policy, approval, and audit behavior before they can be safe.' },
+  ]}
+/>
+
 ## Adapter Requirements
 
 Before adding a new harness, confirm the readiness checks below.
@@ -161,14 +207,16 @@ A harness skipping any stage is **not** ready for public support, even if it app
 ## Harness Adapter Model
 
 <Mermaid chart={`
-graph LR
-    F[Familiar] -->|bound to| H[Harness]
-    H -->|adapter| OC[OpenClaw]
-    H -->|adapter| CC[Claude Code]
-    H -->|adapter| CX[Codex]
-    H -->|adapter| HE[Hermes]
-    H -->|adapter| CU[Custom SDK]
-    OC --> M1[openai/gpt-5.5]
-    CC --> M2[anthropic/claude-sonnet]
-    CX --> M3[openai/gpt-5.5]
+flowchart LR
+    Request["coven run / POST /api/v1/sessions"] --> Daemon["Coven daemon\nproject + cwd + harness validation"]
+    Daemon --> Current["Current adapters"]
+    Current --> Codex["codex\nCodex CLI"]
+    Current --> Claude["claude\nClaude Code CLI"]
+    Daemon -. future .-> Future["Future adapters\nHermes / Aider / Gemini / OpenCode / custom"]
+    OpenClaw["OpenClaw"] --> Plugin["@opencoven/coven\nexternal client plugin"]
+    Plugin --> Daemon
+
+    style Daemon fill:#9A8ECD,stroke:#D4B5FF,color:#1A1825
+    style Current fill:#3D3547,stroke:#9A8ECD,color:#fff
+    style Future fill:#3D3547,stroke:#9A8ECD,color:#fff
 `} />
