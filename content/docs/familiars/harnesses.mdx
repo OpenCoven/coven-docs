@@ -10,11 +10,11 @@ read_when:
   - Evaluating a future harness adapter
 description: "The harness adapter shape Coven uses today, the bar for adding new harnesses, and how Codex and Claude Code map onto the v0 adapter surface."
 
-# Harness adapter guide
+# Harness Adapter Guide
 
 Coven v0 supports Codex and Claude Code. This guide describes the current adapter shape and the bar for adding more harnesses.
 
-## Current adapter shape
+## Current Adapter Shape
 
 A built-in harness adapter defines:
 
@@ -27,7 +27,7 @@ A built-in harness adapter defines:
 
 The current implementation expects the prompt to be the final command argument after any fixed prefix args.
 
-## Built-in harnesses
+## Built-in Harnesses
 
 ### Codex
 
@@ -57,7 +57,7 @@ npm install -g @anthropic-ai/claude-code
 claude doctor
 ```
 
-## Adapter requirements
+## Adapter Requirements
 
 Before adding a new harness, confirm:
 
@@ -69,13 +69,13 @@ Before adding a new harness, confirm:
 - failure modes are understandable in `coven doctor`;
 - tests cover command construction and missing executable behavior.
 
-## What not to add yet
+## What Not to Add Yet
 
 Avoid generic arbitrary command adapters until Coven has explicit policy and approval behavior for them.
 
 Arbitrary commands are more dangerous than named harness adapters because they can blur the difference between "run a coding agent in this project" and "execute whatever string a client sent." Keep v0 narrow.
 
-## Future harness evaluation checklist
+## Future Harness Evaluation Checklist
 
 For a candidate harness, document:
 
@@ -92,13 +92,13 @@ For a candidate harness, document:
 - known exit codes;
 - minimum safe smoke test.
 
-## Session identity mapping
+## Session Identity Mapping
 
 Some harnesses have their own upstream session ids. Coven's session id remains the local runtime id.
 
 If upstream ids become useful, store them as metadata rather than replacing Coven's own id. Clients should be able to rely on a stable Coven id for attach, events, archive, summon, and sacrifice.
 
-## Suggested adapter maturity stages
+## Suggested Adapter Maturity Stages
 
 1. **Research note** - document CLI shape and risks.
 2. **Command construction tests** - prove argv construction is safe.
@@ -131,7 +131,7 @@ A harness skipping any stage is **not** ready for public support, even if it app
 
 import { Mermaid } from '@/components/mermaid';
 
-## Harness adapter model
+## Harness Adapter Model
 
 <Mermaid chart={`
 graph LR

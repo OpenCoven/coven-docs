@@ -7,7 +7,7 @@ description: "Create, list, update, and delete familiar agents. Each familiar is
 
 A **familiar** is a persistent AI agent with memory, personality, and tool access. Every familiar is bound to a **harness** — the AI provider that powers it (e.g. OpenClaw, Claude Code, Codex, Hermes).
 
-## List familiars
+## List Familiars
 
 ```http
 GET /v1/familiars
@@ -29,13 +29,13 @@ GET /v1/familiars
 }
 ```
 
-## Get a familiar
+## Get a Familiar
 
 ```http
 GET /v1/familiars/:id
 ```
 
-## Create a familiar
+## Create a Familiar
 
 ```http
 POST /v1/familiars
@@ -60,7 +60,7 @@ Content-Type: application/json
 | `tools` | string[] | | Allowed tool IDs |
 | `channels` | string[] | | Active channel bindings |
 
-## Update a familiar
+## Update a Familiar
 
 ```http
 PATCH /v1/familiars/:id
@@ -74,7 +74,7 @@ Content-Type: application/json
 
 > Changing `harness_id` migrates the familiar to a new harness. Active sessions are preserved.
 
-## Delete a familiar
+## Delete a Familiar
 
 ```http
 DELETE /v1/familiars/:id

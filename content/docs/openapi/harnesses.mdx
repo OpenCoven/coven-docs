@@ -9,7 +9,7 @@ A **harness** is an AI provider adapter that powers one or more familiars. Coven
 
 Each familiar is bound to exactly one harness. You can migrate a familiar between harnesses at any time.
 
-## List harnesses
+## List Harnesses
 
 ```http
 GET /v1/harnesses
@@ -38,7 +38,7 @@ GET /v1/harnesses
 }
 ```
 
-## Get a harness
+## Get a Harness
 
 ```http
 GET /v1/harnesses/:id
@@ -60,7 +60,7 @@ GET /v1/harnesses/:id
 }
 ```
 
-## Register a harness
+## Register a Harness
 
 ```http
 POST /v1/harnesses
@@ -82,7 +82,7 @@ Content-Type: application/json
 | `kind` | string | ✓ | `openclaw` \| `claude_code` \| `codex` \| `hermes` \| `custom` |
 | `config` | object | ✓ | Harness-specific configuration |
 
-## Update a harness
+## Update a Harness
 
 ```http
 PATCH /v1/harnesses/:id
@@ -96,7 +96,7 @@ Content-Type: application/json
 }
 ```
 
-## Harness health check
+## Harness Health Check
 
 ```http
 GET /v1/harnesses/:id/health
@@ -111,13 +111,13 @@ GET /v1/harnesses/:id/health
 }
 ```
 
-## List familiars on a harness
+## List Familiars on a Harness
 
 ```http
 GET /v1/harnesses/:id/familiars
 ```
 
-## Deregister a harness
+## Deregister a Harness
 
 ```http
 DELETE /v1/harnesses/:id
@@ -125,7 +125,7 @@ DELETE /v1/harnesses/:id
 
 > Familiars bound to this harness must be migrated first. Returns `409` if active familiars exist.
 
-## Harness kinds
+## Harness Kinds
 
 | Kind | Description |
 |------|-------------|
@@ -135,42 +135,8 @@ DELETE /v1/harnesses/:id
 | `hermes` | Hermes local runner |
 | `custom` | Custom adapter via OpenCoven SDK |
 
-import { Mermaid } from '@/components/mermaid';
+import { FamiliarSchemaDiagram } from '@/components/familiar-schema-diagram';
 
-## Familiar–Harness relationship
+## Familiar–Harness Relationship
 
-<Mermaid chart={`
-erDiagram
-    HARNESS {
-        string id
-        string name
-        string kind
-        string status
-        object config
-    }
-    FAMILIAR {
-        string id
-        string name
-        string harness_id
-        string model
-        string personality
-        array tools
-        array channels
-    }
-    SESSION {
-        string id
-        string familiar_id
-        string status
-        string channel
-    }
-    MEMORY {
-        string id
-        string familiar_id
-        string kind
-        string content
-    }
-
-    HARNESS ||--o{ FAMILIAR : "powers"
-    FAMILIAR ||--o{ SESSION : "has"
-    FAMILIAR ||--o{ MEMORY : "stores"
-`} />
+<FamiliarSchemaDiagram />

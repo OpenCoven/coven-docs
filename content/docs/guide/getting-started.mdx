@@ -10,11 +10,11 @@ read_when:
   - Verifying a local Coven daemon and harness setup
 description: "Install Coven, launch your first project-scoped Codex or Claude Code session, and verify the daemon, store, and harnesses with coven doctor."
 
-# Getting started with Coven
+# Getting Started with Coven
 
 This guide takes a new user from a fresh checkout or npm install to a visible project-scoped agent session.
 
-## What Coven is
+## What Coven Is
 
 Coven is a local-first runtime for coding-agent harnesses. It runs supported CLIs such as Codex and Claude Code inside explicit project boundaries, records session metadata and events, and exposes the work through a CLI, TUI, and local socket API.
 
@@ -22,7 +22,7 @@ The short promise:
 
 > One project. Any harness. Visible work.
 
-## Install paths
+## Install Paths
 
 Use the npm wrapper when you want the fastest public install:
 
@@ -64,7 +64,7 @@ npm install -g @anthropic-ai/claude-code
 claude doctor
 ```
 
-## First run
+## First Run
 
 From a project directory:
 
@@ -92,7 +92,7 @@ coven doctor
 - built-in harness availability; and
 - next steps for missing setup.
 
-## Run a session
+## Run a Session
 
 Start the daemon, then launch a harness session from a repository or project directory:
 
@@ -121,7 +121,7 @@ coven run codex "inspect this package" --cwd packages/cli
 
 Coven rejects outside-root working directories. Clients may validate for nicer UX, but the Rust daemon is the authority.
 
-## Browse sessions
+## Browse Sessions
 
 In an interactive terminal:
 
@@ -146,7 +146,7 @@ coven sessions --json
 coven sessions --json --all
 ```
 
-## Attach, archive, summon, and sacrifice
+## Attach, Archive, Summon, and Sacrifice
 
 Lower-level session verbs remain available:
 
@@ -159,7 +159,7 @@ coven sacrifice <session-id> --yes
 
 Archive is reversible. Summon restores an archived session to the active list. Sacrifice is destructive and refuses live sessions.
 
-## Stop the daemon
+## Stop the Daemon
 
 ```sh
 coven daemon stop
@@ -171,7 +171,7 @@ Use `restart` when the socket or daemon state looks stale:
 coven daemon restart
 ```
 
-## Diagnostics and relief
+## Diagnostics and Relief
 
 `coven pc` is a macOS-first system diagnostics and relief tool surfaced through the Coven CLI. All read operations are side-effect free.
 
@@ -201,7 +201,7 @@ Safety constraints in v1:
 - Process arguments are redacted by default; pass `--verbose` to inspect them.
 - No `sudo`, no LaunchAgent mutation, no system service control.
 
-## End-to-end flow
+## End-to-end Flow
 
 ```mermaid
 flowchart LR
@@ -218,7 +218,7 @@ flowchart LR
 The "install → doctor → daemon → run → sessions" loop is the entire happy path for a first session. Everything else in this guide is fallback or troubleshooting.
 
 
-## Contributor verification loop
+## Contributor Verification Loop
 
 Before opening a PR:
 

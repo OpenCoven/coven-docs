@@ -41,7 +41,7 @@ Definitions follow alphabetically.
 
 Agent Client Protocol. In this repo, ACP appears as an integration surface for external agent runtimes and OpenClaw compatibility. Coven itself is not an ACP implementation; the external OpenClaw plugin maps between OpenClaw runtime events and Coven sessions.
 
-## API version
+## API Version
 
 The named compatibility contract exposed by the daemon socket API. Current stable value: `coven.daemon.v1`.
 
@@ -61,7 +61,7 @@ Any process or UI that talks to the Coven daemon, including the CLI, comux, Open
 
 The cockpit layer for visible agent work, panes, worktrees, review, and merge flow. comux can consume Coven sessions but is not the Coven runtime.
 
-## Control plane
+## Control Plane
 
 The daemon layer that exposes capabilities and routes known action ids to owned adapters.
 
@@ -97,11 +97,11 @@ A supported coding-agent CLI that Coven can launch and supervise.
 
 The broader ecosystem and organization around Coven, comux, and related integrations.
 
-## OpenClaw plugin
+## OpenClaw Plugin
 
 The external package `@opencoven/coven`, which lets OpenClaw use Coven through the socket API. It is not part of OpenClaw core.
 
-## Project root
+## Project Root
 
 The explicit repository or project boundary for a session.
 
@@ -133,6 +133,6 @@ The local HTTP-over-Unix-socket API exposed by the daemon.
 
 Restore an archived session to the active list and then replay/follow it.
 
-## Future coordination
+## Future Coordination
 
 Multi-harness handoff and task routing are not current public CLI/API features. They should be documented only as roadmap work until implemented.

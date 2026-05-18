@@ -14,7 +14,7 @@ description: "How a Coven session moves through created, running, completed, fai
 
 This document explains what happens from `coven run` through completion, replay, archive, summon, and deletion.
 
-## Lifecycle states
+## Lifecycle States
 
 The current store records session status as a string. Common states include:
 
@@ -51,7 +51,7 @@ stateDiagram-v2
 
 The diagram above is normative for the v0 store. `running` sessions cannot be archived or sacrificed directly — kill them or wait for exit first. `created → running` is the only transition that requires PTY spawn; every other transition is a store-only state change managed by the Rust daemon.
 
-## Launch path
+## Launch Path
 
 The normal launch flow:
 
@@ -101,19 +101,19 @@ sequenceDiagram
   end
 ```
 
-## Detached records
+## Detached Records
 
 `coven run ... --detach` creates the session record without launching the harness. This is useful for testing and development flows that need a ledger record without starting an external process.
 
 Detached records should not be presented as completed agent work.
 
-## Attach and replay
+## Attach and Replay
 
 `coven attach <session-id>` replays known event output and follows live output when the session is still active.
 
 For a completed session, attach acts like a log viewer. For a running session, attach also forwards input to the live daemon session.
 
-## Session browser behavior
+## Session Browser Behavior
 
 `coven sessions` chooses output mode based on context:
 
@@ -157,13 +157,13 @@ The command refuses live sessions. The interactive browser asks the user to type
 
 Use sacrifice only when the session and its logs should be removed from the local ledger.
 
-## Orphan recovery
+## Orphan Recovery
 
 If the daemon starts and finds sessions that were marked `running` from a previous daemon lifetime, those sessions are marked `orphaned`.
 
 An orphaned session means Coven no longer owns a live process for that record. The event log may still be useful, but live input and kill operations should fail.
 
-## Event durability
+## Event Durability
 
 Events are append-only records in SQLite. This gives clients a stable replay source even when the original PTY process has exited.
 
@@ -171,7 +171,7 @@ Do not intentionally write secrets, environment dumps, private URLs, or token-be
 
 import { Mermaid } from '@/components/mermaid';
 
-## Session lifecycle
+## Session Lifecycle
 
 <Mermaid chart={`
 sequenceDiagram

@@ -10,11 +10,11 @@ read_when:
   - Adding a client, bridge, or automation path
 description: "Coven's local-first safety boundary: trust the Rust daemon, treat clients as untrusted, and keep harness provider credentials out of the runtime."
 
-# Coven safety model
+# Coven Safety Model
 
 Coven is local-first, but local does not mean harmless. It can launch agent harnesses in real repositories, forward input to live processes, and preserve logs. This document states the safety boundaries that docs, clients, and code should preserve.
 
-## Trust boundary
+## Trust Boundary
 
 The Rust daemon is the authority boundary.
 
@@ -56,7 +56,7 @@ flowchart TB
 
 Anything in **UntrustedZone** can lie, drift, or be replaced. Anything in **TrustedZone** is the Rust daemon's job and must fail closed on unknowns. The arrow direction is the only direction a sensitive decision is allowed to flow: from untrusted into the boundary, where it is revalidated.
 
-## Authentication and local access
+## Authentication and Local Access
 
 Coven's current auth solution is a same-user local access model, not a network authentication protocol.
 
@@ -69,7 +69,7 @@ Coven's current auth solution is a same-user local access model, not a network a
 
 The detailed contract lives in [Authentication and local access](/AUTH).
 
-## Core rules
+## Core Rules
 
 - Launch only with an explicit project root.
 - Canonicalize `projectRoot` and `cwd` before comparing paths.
@@ -81,7 +81,7 @@ The detailed contract lives in [Authentication and local access](/AUTH).
 - Treat the socket API as a local product contract, not a private implementation detail.
 - Fail closed on unknown API versions, unknown action ids, unsupported harnesses, and invalid session ids.
 
-## Data and secrets
+## Data and Secrets
 
 Coven should not require repository-stored secrets.
 
@@ -99,7 +99,7 @@ Do not commit runtime state:
 
 Docs and examples must use placeholders such as `/path/to/project`, `/Users/example`, `session-1`, and `intent-1`.
 
-## Event log caution
+## Event Log Caution
 
 The event log records harness output. A harness may print sensitive data if the user asks it to inspect a sensitive repository or command output includes secrets.
 
@@ -111,7 +111,7 @@ Recommended user guidance:
 - Use throwaway projects for demos and smoke tests.
 - Run `python scripts/check-secrets.py` before publishing docs, fixtures, or release artifacts.
 
-## Local socket posture
+## Local Socket Posture
 
 The daemon API runs over a local Unix socket. It is intended for same-user local clients.
 
@@ -125,7 +125,7 @@ Hardening priorities:
 - event pagination; and
 - compatibility tests for external clients.
 
-## Live session control
+## Live Session Control
 
 Live input and kill requests require a valid live session id.
 
@@ -136,7 +136,7 @@ Expected behavior:
 - destructive session deletion refuses running sessions;
 - interactive deletion requires explicit confirmation.
 
-## Desktop automation and local UI control
+## Desktop Automation and Local UI Control
 
 Future desktop automation adapters should be treated as privileged local capabilities.
 
@@ -154,7 +154,7 @@ The split should remain:
 client intent -> Coven policy/control plane -> adapter -> desktop/app
 ```
 
-## External actions
+## External Actions
 
 Coven should ask or require host-level policy before actions that leave the machine or affect external services, including:
 

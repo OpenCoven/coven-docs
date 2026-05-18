@@ -10,11 +10,11 @@ read_when:
   - Avoiding client-side policy drift
 description: "How comux, OpenMeow, OpenClaw, and other clients should talk to the Coven daemon socket API without duplicating runtime policy or authority."
 
-# Client integration guide
+# Client Integration Guide
 
 Coven is a runtime substrate. Clients should present, route, and observe work without taking over the authority boundary.
 
-## Integration rule
+## Integration Rule
 
 Talk to Coven through the local socket API. Do not duplicate Coven's path, harness, live-session, or deletion policy in a way that can drift from the daemon.
 
@@ -48,7 +48,7 @@ sequenceDiagram
 
 Clients should treat the handshake as **mandatory before any other request**. Skipping it means depending on undefined response shapes from a future daemon version.
 
-## Client responsibilities
+## Client Responsibilities
 
 Clients may own:
 
@@ -89,7 +89,7 @@ Good comux responsibilities:
 
 comux should remain useful when Coven is not installed. If Coven is missing, present clear installation and fallback states instead of assuming the daemon exists.
 
-## OpenClaw plugin
+## OpenClaw Plugin
 
 OpenClaw integration belongs in the external `@opencoven/coven` package, not OpenClaw core.
 
@@ -111,7 +111,7 @@ The plugin should not:
 - assume unversioned routes are stable; or
 - widen project-root permissions.
 
-## OpenMeow and intake surfaces
+## OpenMeow and Intake Surfaces
 
 OpenMeow-like clients are best treated as intake and presentation layers.
 
@@ -126,7 +126,7 @@ Useful responsibilities:
 
 Avoid making intake clients the automation engine. Reusable automation should live behind Coven capabilities and actions so the policy boundary stays centralized.
 
-## Desktop clients and control rooms
+## Desktop Clients and Control Rooms
 
 A native control room can make Coven easier to operate by showing:
 
@@ -145,7 +145,7 @@ Use `coven sessions --json` for active sessions and `coven sessions --json --all
 
 The control room should still use the same socket API and capability handshake as other clients.
 
-## Desktop automation adapters
+## Desktop Automation Adapters
 
 Desktop automation is useful when an app has no clean API. It is also powerful enough to need clear policy.
 
@@ -163,7 +163,7 @@ user request
 
 Do not let UI clients bind directly to OS automation libraries and then call that "Coven integration." The reusable boundary should be Coven's control plane.
 
-## Compatibility expectations
+## Compatibility Expectations
 
 For every integration:
 
@@ -174,7 +174,7 @@ For every integration:
 - test against representative daemon responses;
 - update `docs/API-CONTRACT.md` when response shapes change.
 
-## Error handling
+## Error Handling
 
 A good client should translate daemon errors into action-oriented UI:
 

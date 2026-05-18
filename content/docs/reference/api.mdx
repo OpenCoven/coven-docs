@@ -57,7 +57,7 @@ Unversioned routes currently remain as legacy aliases during the early MVP windo
 
 Unknown `/api/<version>/...` prefixes fail closed with an `unsupported API version` JSON response.
 
-## Health response
+## Health Response
 
 `GET /api/v1/health` returns the API version alongside daemon status:
 
@@ -82,7 +82,7 @@ Unknown `/api/<version>/...` prefixes fail closed with an `unsupported API versi
 
 When no daemon metadata is available, `daemon` is `null`.
 
-## Control-plane capabilities
+## Control-plane Capabilities
 
 `GET /api/v1/capabilities` is the discovery point for first-party clients such as OpenMeow. It returns capability ids, adapter ownership, availability, policy hints, and action ids. This keeps clients from hard-coding what the daemon can do.
 
@@ -109,7 +109,7 @@ When no daemon metadata is available, `daemon` is `null`.
 }
 ```
 
-## Control-plane actions
+## Control-plane Actions
 
 `POST /api/v1/actions` accepts an OpenMeow-style intent envelope. The daemon routes only known actions; unknown actions fail closed before any adapter can run.
 
@@ -140,7 +140,7 @@ Immediately completed safe actions return `200` with an event-shaped payload tha
 }
 ```
 
-## Compatibility rules
+## Compatibility Rules
 
 - Additive JSON fields are allowed in `v1` responses.
 - Existing required fields should not be removed or renamed inside `v1`.

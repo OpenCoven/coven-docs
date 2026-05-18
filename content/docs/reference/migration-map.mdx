@@ -9,7 +9,7 @@ This page tracks the gap between the original `OpenCoven/coven/docs` corpus and 
 
 The goal is to keep the docs honest: current runtime behavior should be documented as current, while future hosted APIs, distributed orchestration, and harness handoffs should be labeled as roadmap work until shipped.
 
-## Current stack to show
+## Current Stack to Show
 
 The public homepage should expose the actual Coven runtime stack, not only the familiar-facing abstraction.
 
@@ -30,7 +30,7 @@ flowchart TB
   Pty --> Familiar --> Model
 ```
 
-## Already migrated
+## Already Migrated
 
 These areas are present in the docs site and should now be polished, not duplicated:
 
@@ -47,7 +47,7 @@ These areas are present in the docs site and should now be polished, not duplica
 | `ROADMAP.md` | Reference / Roadmap | Migrated |
 | `TROUBLESHOOTING.md` | Reference / Troubleshooting | Migrated |
 
-## Add next
+## Add Next
 
 ### Install
 
@@ -122,7 +122,7 @@ Expand the Familiars section beyond session management:
 - `familiars/orchestration.md`
 - `familiars/handoff.md`
 
-### Memory and models
+### Memory and Models
 
 Add dedicated **Memory** and **Models** sections after the core runtime pages stabilize:
 
@@ -140,7 +140,7 @@ Add dedicated **Memory** and **Models** sections after the core runtime pages st
 - `models/provider-boundary.md`
 - `models/why-coven-does-not-own-credentials.md`
 
-### Automation and capabilities
+### Automation and Capabilities
 
 Add these once the local daemon/runtime story is fully navigable:
 
@@ -167,7 +167,7 @@ Split troubleshooting into targeted help pages:
 - `help/filing-issues.md`
 - `help/community.md`
 
-## API naming note
+## API Naming Note
 
 The current **OpenCoven API** section reads like a future hosted REST API with API keys. That should be handled deliberately:
 
@@ -175,9 +175,9 @@ The current **OpenCoven API** section reads like a future hosted REST API with A
 - Rename the current hosted-style pages to **Future Hosted API** if they stay.
 - Otherwise replace them with daemon endpoint pages for health, capabilities, sessions, events, input, kill, archive, summon, and sacrifice.
 
-## Diagram backlog
+## Diagram Backlog
 
-### Runtime topology
+### Runtime Topology
 
 ```mermaid
 flowchart LR
@@ -202,7 +202,7 @@ flowchart LR
   Daemon --> Pty --> Harness
 ```
 
-### Trust boundary
+### Trust Boundary
 
 ```mermaid
 flowchart TB
@@ -217,7 +217,7 @@ flowchart TB
   Daemon --> Provider
 ```
 
-### Session lifecycle
+### Session Lifecycle
 
 ```mermaid
 stateDiagram-v2
@@ -232,7 +232,7 @@ stateDiagram-v2
   Archived --> Sacrificed
 ```
 
-### Client handshake
+### Client Handshake
 
 ```mermaid
 sequenceDiagram
@@ -251,7 +251,7 @@ sequenceDiagram
   Daemon-->>Client: event page and cursor
 ```
 
-### Harness adapter lifecycle
+### Harness Adapter Lifecycle
 
 ```mermaid
 flowchart LR
@@ -265,7 +265,7 @@ flowchart LR
   Detect --> Auth --> Command --> Spawn --> Record --> Cleanup
 ```
 
-### Troubleshooting flow
+### Troubleshooting Flow
 
 ```mermaid
 flowchart TB
@@ -293,7 +293,7 @@ flowchart TB
   Api -- yes --> Ready
 ```
 
-## Migration order
+## Migration Order
 
 1. Expand the homepage stack and link it to real docs.
 2. Add this migration map so future work has a checklist.

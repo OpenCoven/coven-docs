@@ -64,7 +64,7 @@ cargo run -p coven-cli -- doctor
 
 If you installed a native binary, make sure its directory is on `PATH`.
 
-## Harness missing
+## Harness Missing
 
 `coven doctor` prints install hints for each built-in harness.
 
@@ -88,7 +88,7 @@ Then retry:
 coven doctor
 ```
 
-## Daemon unavailable
+## Daemon Unavailable
 
 Start or restart it:
 
@@ -100,7 +100,7 @@ coven daemon restart
 
 If a client cannot connect, verify it is using the same `COVEN_HOME` as the CLI.
 
-## System health and pressure
+## System Health and Pressure
 
 If sessions feel slow, the daemon is sluggish to start, or `coven doctor` succeeds but harness work stalls, the underlying machine may be under CPU, memory, or disk pressure.
 
@@ -122,7 +122,7 @@ coven pc cache clear --confirm    # clear ~/Library/Caches + /Library/Caches
 
 `coven pc` is currently macOS-first. See [Diagnostics and relief](GETTING-STARTED.md#diagnostics-and-relief) in Getting started for the full command reference.
 
-## Stale running sessions
+## Stale Running Sessions
 
 If a daemon stopped while sessions were running, those records may become `orphaned` on the next daemon start.
 
@@ -134,7 +134,7 @@ coven sessions --all
 
 Then view logs, archive the record, or sacrifice it if it is no longer useful.
 
-## Session does not accept input
+## Session Does Not Accept Input
 
 Input only works for live daemon-owned sessions.
 
@@ -152,7 +152,7 @@ coven run codex "inspect package" --cwd packages/cli
 
 Do not use symlink tricks or parent paths to escape the project boundary.
 
-## API version rejected
+## API Version Rejected
 
 New clients should use `/api/v1`.
 
@@ -180,7 +180,7 @@ Force table mode:
 coven sessions --plain
 ```
 
-## Archive, summon, and sacrifice confusion
+## Archive, Summon, and Sacrifice Confusion
 
 - Archive hides a non-running session but keeps events.
 - Summon restores an archived session to the active list.
@@ -192,7 +192,7 @@ Use the interactive browser when possible:
 coven sessions --all --manage
 ```
 
-## Secret scan failure
+## Secret Scan Failure
 
 Run:
 
@@ -204,7 +204,7 @@ If it fails, remove the secret from the working tree. If a secret entered git hi
 
 Do not paste matched secret values into issues, logs, docs, or chat.
 
-## Contributor checks fail after docs-only edits
+## Contributor Checks Fail After Docs-only Edits
 
 At minimum run:
 

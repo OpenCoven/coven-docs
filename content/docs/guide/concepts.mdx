@@ -62,13 +62,13 @@ Current v0 harnesses:
 
 Coven does not store provider credentials. Each harness keeps using its own local authentication flow.
 
-## Project root
+## Project Root
 
 The project root is the explicit boundary for a session. Coven validates and canonicalizes the project root before launching work.
 
 The root matters because it defines where the harness is allowed to start. A client cannot widen this boundary by sending a different `cwd` or a looser config value.
 
-## Working directory
+## Working Directory
 
 The working directory is the launch directory for a harness session. It must be inside the project root after canonicalization.
 
@@ -137,7 +137,7 @@ Known client shapes:
 
 Clients are convenience layers, not trust roots.
 
-## Control plane
+## Control Plane
 
 The control plane is the capability and action-routing layer in front of future adapters.
 
@@ -186,7 +186,7 @@ before depending on other response shapes.
 
 import { Mermaid } from '@/components/mermaid';
 
-## The Coven stack
+## The Coven Stack
 
 <Mermaid chart={`
 graph TB
