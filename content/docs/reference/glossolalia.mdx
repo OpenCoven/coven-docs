@@ -7,7 +7,6 @@ read_when:
   - Aligning docs, CLI copy, API labels, and client terminology
 ---
 
-import { DocsDataTable } from '@/components/docs-data-table';
 import { GlossolaliaConceptMap } from '@/components/glossolalia-concepts';
 
 # Glossolalia
@@ -16,7 +15,7 @@ Glossolalia is Coven's shared tongue: a map of the names, boundaries, and produc
 
 Read it from top to bottom the first time. The sections move from foundation to runtime to trust boundaries, so each concept gives the next one enough context.
 
-After that, use the table filters to jump by concept. **Related terms** are the trailheads: when a word still feels fuzzy, follow those nearby terms before reaching for implementation details.
+After that, use the section filters to jump by concept. **Related terms** are the trailheads: when a word still feels fuzzy, follow those nearby terms before reaching for implementation details.
 
 ## Core Concepts
 
@@ -24,37 +23,40 @@ Start here. These terms name the layers people usually confuse when they are new
 
 <GlossolaliaConceptMap
   caption="Core Coven concepts"
+  eyebrow="Foundational order"
   intro="Start here if you are new to Coven. These names define the system boundary before you get into APIs, lifecycle details, or trust rules."
   searchPlaceholder="Filter core concepts..."
+  pathways={[
+    ['OpenCoven', 'Coven', 'CovenCLI'],
+    ['CastCodes', 'Cast Agent', 'Cast Codes'],
+  ]}
   rows={[
     { term: 'OpenCoven', definition: 'The broader project family and organization around Coven, CastCodes, Cast Agent, Cast Codes, and integrations.', why: 'Use this when talking about the ecosystem, not one runtime process.', related: 'Coven, CastCodes, Cast Agent, OpenClaw Plugin' },
-    { term: 'Coven', definition: 'The local runtime substrate and command-line product for launching and supervising agent work.', why: 'This owns local sessions, harness runs, logs, and the daemon API.', related: 'coven, Daemon, Session, Harness' },
-    { term: 'coven', definition: 'The user-facing command.', why: 'People install packages under OpenCoven names, but the command they run is always coven.', related: 'Coven, Prompt-first TUI, Daemon' },
+    { term: 'Coven', definition: 'The local runtime substrate and command-line product for launching and supervising agent work.', why: 'This owns local sessions, harness runs, logs, and the daemon API.', related: 'CovenCLI, Daemon, Session, Harness' },
+    { term: 'CovenCLI', definition: 'The user-facing command surface for the `coven` binary.', why: 'Package names live under OpenCoven, product docs say CovenCLI, and shell examples still run `coven`.', related: 'Coven, Prompt-first TUI, Daemon' },
     { term: 'CastCodes', definition: 'The first-party OpenCoven workspace for panes, files, diagnostics, agent lanes, sessions, review, and merge flow.', why: 'It is the visible cockpit for agent work, while Coven remains the local runtime boundary.', related: 'Cast Agent, Cast Codes, Client, Coven' },
     { term: 'Cast Agent', definition: 'The Coven-native substrate manager and AI agent backend inside CastCodes.', why: 'It can collect workspace context and surface Coven sessions, but it does not replace daemon validation.', related: 'CastCodes, Socket API, Daemon, Client' },
     { term: 'Cast Codes', definition: 'The portable intent grammar for switching, delegation, broadcast, status, resume, and handoff requests.', why: 'Cast Codes make intent portable across clients without becoming permission or policy.', related: 'CastCodes, Client, Daemon, Control Plane' },
   ]}
 />
-
 ## Actors / Entities
 
 These are the nouns that do work, hold identity, or represent a boundary in the system.
 
-<DocsDataTable
+<GlossolaliaConceptMap
   caption="Actors and entities"
+  eyebrow="Who does work"
+  intro="Use these names for things that act, hold identity, or bridge Coven into another system."
   searchPlaceholder="Filter actors..."
-  preserveOrder
-  columns={[
-    { key: 'term', label: 'Term' },
-    { key: 'definition', label: 'Plain-English definition' },
-    { key: 'why', label: 'Why it matters' },
-    { key: 'related', label: 'Related terms' },
+  pathways={[
+    ['Client', 'Harness', 'Provider'],
+    ['OpenClaw Plugin', 'Familiar'],
   ]}
   rows={[
     { term: 'Client', definition: 'Any process or UI that talks to the Coven daemon instead of launching harnesses directly.', why: 'Clients are convenience layers, not trust roots.', related: 'Socket API, Daemon, CastCodes, OpenClaw Plugin' },
     { term: 'Harness', definition: 'A supported coding-agent CLI that Coven can launch and supervise.', why: 'Harnesses do the agent work; Coven wraps them with project scope, PTY handling, and session records.', related: 'PTY, Session, Project Root, Provider' },
     { term: 'Provider', definition: 'The external model or agent service used by a harness.', why: 'Coven does not store provider credentials; each harness keeps its own auth flow.', related: 'Harness, Capability, Security / Trust Boundaries' },
-    { term: 'OpenClaw Plugin', definition: 'The external package @opencoven/coven, which lets OpenClaw use Coven through the socket API.', why: 'It bridges ecosystems without making Coven part of OpenClaw core.', related: 'Client, Socket API, ACP, OpenCoven' },
+    { term: 'OpenClaw Plugin', definition: 'The external package `@opencoven/coven`, which lets OpenClaw use Coven through the socket API.', why: 'It bridges ecosystems without making Coven part of OpenClaw core.', related: 'Client, Socket API, ACP, OpenCoven' },
     { term: 'Familiar', definition: 'A named agent persona with identity, memory, tools, and policy in the broader Coven and OpenCoven language.', why: 'Familiars explain the human-facing layer above raw harness processes.', related: 'Cast Agent, Harness, Session, OpenCoven' },
   ]}
 />
@@ -63,15 +65,14 @@ These are the nouns that do work, hold identity, or represent a boundary in the 
 
 These terms describe what exists while Coven is running work.
 
-<DocsDataTable
+<GlossolaliaConceptMap
   caption="Runtime concepts"
+  eyebrow="What exists at runtime"
+  intro="These terms describe the records, processes, and terminal surfaces that make a Coven run inspectable."
   searchPlaceholder="Filter runtime terms..."
-  preserveOrder
-  columns={[
-    { key: 'term', label: 'Term' },
-    { key: 'definition', label: 'Plain-English definition' },
-    { key: 'why', label: 'Why it matters' },
-    { key: 'related', label: 'Related terms' },
+  pathways={[
+    ['Daemon', 'Session', 'Event'],
+    ['Store', 'PTY', 'Prompt-first TUI'],
   ]}
   rows={[
     { term: 'Daemon', definition: 'The local Rust process that owns live session state and exposes the socket API.', why: 'The daemon is the authority boundary for launches, input, kill requests, and session state.', related: 'Socket API, Store, Control Plane, Project Root' },
@@ -79,7 +80,7 @@ These terms describe what exists while Coven is running work.
     { term: 'Event', definition: 'An append-only record for session output, exit, or metadata.', why: 'Events make work replayable after a process exits or the daemon restarts.', related: 'Session, Store, Socket API' },
     { term: 'Store', definition: 'Coven local SQLite database for session metadata and append-only event history.', why: 'It preserves runtime records without putting sockets, logs, or databases in source control.', related: 'Daemon, Session, Event, COVEN_HOME' },
     { term: 'PTY', definition: 'A pseudoterminal used to run terminal-native harnesses.', why: 'PTYs let Codex and Claude Code behave like normal CLIs while Coven records their output.', related: 'Harness, Session, Daemon' },
-    { term: 'Prompt-first TUI', definition: 'The default coven and coven tui interface for free-form task text, slash commands, and menu navigation.', why: 'It keeps the terminal interface centered on sending work, not configuring machinery first.', related: 'coven, CastCodes, Client' },
+    { term: 'Prompt-first TUI', definition: 'The default CovenCLI interface for free-form task text, slash commands, and menu navigation.', why: 'It keeps the terminal interface centered on sending work, not configuring machinery first.', related: 'CovenCLI, CastCodes, Client' },
   ]}
 />
 
@@ -87,20 +88,19 @@ These terms describe what exists while Coven is running work.
 
 These terms describe how clients and integrations talk to Coven.
 
-<DocsDataTable
+<GlossolaliaConceptMap
   caption="APIs and interfaces"
+  eyebrow="How things connect"
+  intro="These names belong at integration boundaries where clients discover, negotiate, or route work."
   searchPlaceholder="Filter interfaces..."
-  preserveOrder
-  columns={[
-    { key: 'term', label: 'Term' },
-    { key: 'definition', label: 'Plain-English definition' },
-    { key: 'why', label: 'Why it matters' },
-    { key: 'related', label: 'Related terms' },
+  pathways={[
+    ['Socket API', 'API Version', 'Capability'],
+    ['Control Plane', 'ACP'],
   ]}
   rows={[
     { term: 'Socket API', definition: 'The local HTTP-over-Unix-socket API exposed by the daemon.', why: 'It is the compatibility boundary for local clients and integrations.', related: 'Daemon, Client, API Version, Capability' },
-    { term: 'API Version', definition: 'The named compatibility contract exposed by the daemon socket API. Current stable value: coven.daemon.v1.', why: 'Versioning lets clients detect which response shapes and behaviors they can rely on.', related: 'Socket API, Client, Daemon' },
-    { term: 'Capability', definition: 'A discoverable daemon or adapter feature returned by GET /api/v1/capabilities.', why: 'Capabilities let clients show what is available without guessing.', related: 'Control Plane, Socket API, Client' },
+    { term: 'API Version', definition: 'The named compatibility contract exposed by the daemon socket API. Current stable value: `coven.daemon.v1`.', why: 'Versioning lets clients detect which response shapes and behaviors they can rely on.', related: 'Socket API, Client, Daemon' },
+    { term: 'Capability', definition: 'A discoverable daemon or adapter feature returned by `GET /api/v1/capabilities`.', why: 'Capabilities let clients show what is available without guessing.', related: 'Control Plane, Socket API, Client' },
     { term: 'Control Plane', definition: 'The daemon layer that exposes capabilities and routes known action ids to owned adapters.', why: 'It gives clients a safe discovery and action path while unknown action ids fail closed.', related: 'Capability, Daemon, Socket API' },
     { term: 'ACP', definition: 'Agent Client Protocol, used here as an integration surface for external agent runtimes and OpenClaw compatibility.', why: 'Coven is not an ACP implementation; the bridge maps external runtime events into Coven sessions.', related: 'OpenClaw Plugin, Client, Session' },
   ]}
@@ -110,15 +110,14 @@ These terms describe how clients and integrations talk to Coven.
 
 These terms describe where work is allowed to run and how completed work moves through the system.
 
-<DocsDataTable
+<GlossolaliaConceptMap
   caption="State and lifecycle terms"
+  eyebrow="How work moves"
+  intro="Use these terms when describing launch boundaries and the reversible or irreversible lifecycle of a session."
   searchPlaceholder="Filter lifecycle terms..."
-  preserveOrder
-  columns={[
-    { key: 'term', label: 'Term' },
-    { key: 'definition', label: 'Plain-English definition' },
-    { key: 'why', label: 'Why it matters' },
-    { key: 'related', label: 'Related terms' },
+  pathways={[
+    ['Project Root', 'Working Directory', 'Rituals'],
+    ['Archive', 'Summon', 'Sacrifice'],
   ]}
   rows={[
     { term: 'Project Root', definition: 'The explicit repository or project boundary for a session.', why: 'The daemon validates this boundary before launch so a client cannot silently widen scope.', related: 'Working Directory, Session, Daemon' },
@@ -134,21 +133,20 @@ These terms describe where work is allowed to run and how completed work moves t
 
 These terms keep product language honest about what can make sensitive decisions.
 
-<DocsDataTable
+<GlossolaliaConceptMap
   caption="Security and trust boundaries"
+  eyebrow="What can decide"
+  intro="These terms keep the magical language honest about authority, local state, and sharp operations."
   searchPlaceholder="Filter trust terms..."
-  preserveOrder
-  columns={[
-    { key: 'term', label: 'Term' },
-    { key: 'definition', label: 'Plain-English definition' },
-    { key: 'why', label: 'Why it matters' },
-    { key: 'related', label: 'Related terms' },
+  pathways={[
+    ['Authority Boundary', 'Trust Root', 'COVEN_HOME'],
+    ['Relief', 'CovenCLI pc'],
   ]}
   rows={[
     { term: 'Authority Boundary', definition: 'The layer allowed to validate and enforce sensitive runtime behavior.', why: 'In Coven, that layer is the daemon, not a client, Cast Code, or UI label.', related: 'Daemon, Socket API, Cast Codes, Client' },
     { term: 'Trust Root', definition: 'A component trusted to make security-relevant decisions.', why: 'Clients are not trust roots; they request, display, and guide.', related: 'Client, Daemon, Authority Boundary' },
-    { term: 'Relief', definition: 'Write-side operations in coven pc that mutate system state, such as process termination or cache deletion.', why: 'Relief operations are useful but sharp, so they require an explicit --confirm flag.', related: 'coven pc, Sacrifice, Authority Boundary' },
-    { term: 'coven pc', definition: 'A macOS-first system diagnostics and relief subcommand.', why: 'It reports CPU, memory, disk, and top processes, with write operations gated behind confirmation.', related: 'Relief, coven, Authority Boundary' },
+    { term: 'Relief', definition: 'Write-side operations in `coven pc` that mutate system state, such as process termination or cache deletion.', why: 'Relief operations are useful but sharp, so they require an explicit `--confirm` flag.', related: 'CovenCLI pc, Sacrifice, Authority Boundary' },
+    { term: 'CovenCLI pc', definition: 'A macOS-first system diagnostics and relief subcommand.', why: 'It reports CPU, memory, disk, and top processes, with write operations gated behind confirmation.', related: 'Relief, CovenCLI, Authority Boundary' },
     { term: 'COVEN_HOME', definition: 'The local directory where Coven stores daemon, socket, database, and runtime state when configured.', why: 'Runtime state belongs outside source control and should not be committed.', related: 'Store, Daemon, Socket API' },
   ]}
 />
@@ -157,15 +155,14 @@ These terms keep product language honest about what can make sensitive decisions
 
 These words carry Coven voice. Keep them precise so the docs feel like Coven without becoming vague.
 
-<DocsDataTable
+<GlossolaliaConceptMap
   caption="Project-specific language"
+  eyebrow="How Coven speaks"
+  intro="Use these words when the docs need Coven's voice, but keep them tied to a concrete product or runtime boundary."
   searchPlaceholder="Filter project language..."
-  preserveOrder
-  columns={[
-    { key: 'term', label: 'Term' },
-    { key: 'definition', label: 'Plain-English definition' },
-    { key: 'why', label: 'Why it matters' },
-    { key: 'related', label: 'Related terms' },
+  pathways={[
+    ['Cockpit', 'Substrate', 'Intent Grammar'],
+    ['Future Coordination'],
   ]}
   rows={[
     { term: 'Cockpit', definition: 'A visible workspace for steering and reviewing agent work.', why: 'Use it for CastCodes-style experience, not for daemon internals.', related: 'CastCodes, Cast Agent, Client' },

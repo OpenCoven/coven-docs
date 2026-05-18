@@ -12,7 +12,9 @@ export type GlossolaliaConcept = {
 
 type Props = {
   caption: string;
+  eyebrow?: string;
   intro: string;
+  pathways?: string[][];
   searchPlaceholder?: string;
   rows: GlossolaliaConcept[];
 };
@@ -48,10 +50,24 @@ function relatedTerms(value: string) {
   return value.split(',').map((term) => term.trim()).filter(Boolean);
 }
 
-export function GlossolaliaConceptMap({ caption, intro, searchPlaceholder = 'Filter concepts...', rows }: Props) {
+function defaultPathways(rows: GlossolaliaConcept[]) {
+  const terms = rows.slice(0, 6).map((row) => row.term);
+  return [terms.slice(0, 3), terms.slice(3, 6)].filter((group) => group.length > 0);
+}
+
+export function GlossolaliaConceptMap({
+  caption,
+  eyebrow = 'Foundational order',
+  intro,
+  pathways,
+  searchPlaceholder = 'Filter concepts...',
+  rows,
+}: Props) {
   const [query, setQuery] = useState('');
 
+  const captionId = slugify(caption) + '-caption';
   const availableSlugs = useMemo(() => new Set(rows.map((row) => slugify(row.term))), [rows]);
+  const pathwayGroups = useMemo(() => pathways ?? defaultPathways(rows), [pathways, rows]);
   const visibleRows = useMemo(() => {
     const normalizedQuery = normalize(query.trim());
     if (!normalizedQuery) return rows;
@@ -60,11 +76,11 @@ export function GlossolaliaConceptMap({ caption, intro, searchPlaceholder = 'Fil
   }, [query, rows]);
 
   return (
-    <section className={styles.shell} aria-labelledby="glossolalia-core-caption">
+    <section className={styles.shell} aria-labelledby={captionId}>
       <div className={styles.header}>
         <div>
-          <p className={styles.eyebrow}>Foundational order</p>
-          <h3 id="glossolalia-core-caption" className={styles.title}>{caption}</h3>
+          <p className={styles.eyebrow}>{eyebrow}</p>
+          <h3 id={captionId} className={styles.title}>{caption}</h3>
           <p className={styles.intro}>{intro}</p>
         </div>
         <input
@@ -76,18 +92,17 @@ export function GlossolaliaConceptMap({ caption, intro, searchPlaceholder = 'Fil
         />
       </div>
 
-      <div className={styles.pathways} aria-label="Core concept pathways">
-        <div className={styles.pathway}>
-          <span>OpenCoven</span>
-          <span>Coven</span>
-          <span>coven</span>
+      {pathwayGroups.length > 0 ? (
+        <div className={styles.pathways} aria-label={caption + ' pathways'}>
+          {pathwayGroups.map((group, groupIndex) => (
+            <div className={styles.pathway} key={group.join('|') || groupIndex}>
+              {group.map((term) => (
+                <span key={term}>{renderInline(term)}</span>
+              ))}
+            </div>
+          ))}
         </div>
-        <div className={styles.pathway}>
-          <span>CastCodes</span>
-          <span>Cast Agent</span>
-          <span>Cast Codes</span>
-        </div>
-      </div>
+      ) : null}
 
       <div className={styles.grid}>
         {visibleRows.length > 0 ? (

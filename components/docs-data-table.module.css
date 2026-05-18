@@ -3,39 +3,40 @@
  * via the ancestor chain. Light overrides under `html.light`. */
 .shell,
 .tabbed {
-  --dt-shell-bg:          rgba(8, 8, 12, 0.78);
-  --dt-shell-border:      rgba(180, 170, 235, 0.18);
-  --dt-shell-shadow:      0 18px 44px rgba(0, 0, 0, 0.24);
-  --dt-toolbar-bg:        rgba(12, 12, 18, 0.88);
-  --dt-divider:           rgba(180, 170, 235, 0.14);
+  --dt-shell-bg:          rgba(10, 10, 14, 0.62);
+  --dt-shell-border:      rgba(180, 170, 235, 0.14);
+  --dt-shell-shadow:      0 6px 22px rgba(0, 0, 0, 0.18);
+  --dt-toolbar-bg:        transparent;
+  --dt-divider:           rgba(180, 170, 235, 0.10);
 
-  --dt-input-bg:          rgba(255, 255, 255, 0.04);
-  --dt-input-border:      rgba(180, 170, 235, 0.22);
-  --dt-focus-border:      rgba(154, 142, 205, 0.72);
+  --dt-input-bg:          rgba(255, 255, 255, 0.035);
+  --dt-input-border:      rgba(180, 170, 235, 0.18);
+  --dt-focus-border:      rgba(154, 142, 205, 0.6);
   --dt-focus-ring:        rgba(154, 142, 205, 0.14);
-  --dt-select-bg:         #10111A;
+  --dt-select-bg:         rgba(16, 17, 26, 0.92);
 
-  --dt-th-bg:             #12131C;
-  --dt-th-fg:             rgba(245, 243, 255, 0.72);
-  --dt-th-border:         rgba(180, 170, 235, 0.20);
+  --dt-th-bg:             rgba(18, 19, 28, 0.92);
+  --dt-th-fg:             rgba(245, 243, 255, 0.62);
+  --dt-th-border:         rgba(180, 170, 235, 0.14);
 
-  --dt-td-fg:             rgba(245, 243, 255, 0.84);
-  --dt-td-border:         rgba(180, 170, 235, 0.10);
-  --dt-row-zebra:         rgba(255, 255, 255, 0.018);
-  --dt-row-hover:         rgba(154, 142, 205, 0.07);
+  --dt-td-fg:             rgba(245, 243, 255, 0.86);
+  --dt-td-border:         rgba(180, 170, 235, 0.07);
+  --dt-row-zebra:         transparent;
+  --dt-row-hover:         rgba(154, 142, 205, 0.06);
 
-  --dt-empty-fg:          rgba(245, 243, 255, 0.58);
-  --dt-meta-fg:           rgba(245, 243, 255, 0.52);
-  --dt-meta-border:       rgba(180, 170, 235, 0.12);
-  --dt-sort-hover-fg:     #F5F3FF;
-  --dt-direction-fg:      #9EE8D8;
+  --dt-empty-fg:          rgba(245, 243, 255, 0.55);
+  --dt-meta-fg:           rgba(245, 243, 255, 0.42);
+  --dt-meta-border:       rgba(180, 170, 235, 0.08);
+  --dt-sort-fg:           rgba(245, 243, 255, 0.32);
+  --dt-sort-hover-fg:     rgba(245, 243, 255, 0.95);
+  --dt-sort-active-fg:    #B4AAEB;
 
-  --dt-tab-bg:            rgba(255, 255, 255, 0.035);
-  --dt-tab-fg:            rgba(245, 243, 255, 0.72);
-  --dt-tab-border:        rgba(180, 170, 235, 0.18);
-  --dt-tab-hover-border:  rgba(154, 142, 205, 0.50);
-  --dt-tab-active-bg:     rgba(154, 142, 205, 0.18);
-  --dt-tab-active-border: rgba(154, 142, 205, 0.72);
+  --dt-tab-bg:            transparent;
+  --dt-tab-fg:            rgba(245, 243, 255, 0.62);
+  --dt-tab-border:        rgba(180, 170, 235, 0.14);
+  --dt-tab-hover-border:  rgba(154, 142, 205, 0.40);
+  --dt-tab-active-bg:     rgba(154, 142, 205, 0.14);
+  --dt-tab-active-border: rgba(154, 142, 205, 0.55);
   --dt-tab-active-fg:     #F5F3FF;
 }
 
@@ -51,48 +52,49 @@
 
 :global(html.light) .shell,
 :global(html.light) .tabbed {
-  --dt-shell-bg:          rgba(252, 250, 255, 0.92);
-  --dt-shell-border:      rgba(108, 90, 200, 0.22);
-  --dt-shell-shadow:      0 14px 32px rgba(108, 90, 200, 0.08);
-  --dt-toolbar-bg:        rgba(240, 235, 250, 0.92);
-  --dt-divider:           rgba(108, 90, 200, 0.18);
+  --dt-shell-bg:          rgba(253, 251, 255, 0.85);
+  --dt-shell-border:      rgba(108, 90, 200, 0.18);
+  --dt-shell-shadow:      0 2px 14px rgba(108, 90, 200, 0.06);
+  --dt-toolbar-bg:        transparent;
+  --dt-divider:           rgba(108, 90, 200, 0.14);
 
-  --dt-input-bg:          rgba(255, 255, 255, 0.85);
-  --dt-input-border:      rgba(108, 90, 200, 0.28);
-  --dt-focus-border:      rgba(108, 90, 200, 0.65);
-  --dt-focus-ring:        rgba(108, 90, 200, 0.16);
+  --dt-input-bg:          rgba(255, 255, 255, 0.92);
+  --dt-input-border:      rgba(108, 90, 200, 0.22);
+  --dt-focus-border:      rgba(108, 90, 200, 0.55);
+  --dt-focus-ring:        rgba(108, 90, 200, 0.14);
   --dt-select-bg:         #FFFFFF;
 
-  --dt-th-bg:             #EFEAF7;
-  --dt-th-fg:             rgba(31, 26, 51, 0.78);
-  --dt-th-border:         rgba(108, 90, 200, 0.25);
+  --dt-th-bg:             rgba(243, 239, 252, 0.95);
+  --dt-th-fg:             rgba(31, 26, 51, 0.68);
+  --dt-th-border:         rgba(108, 90, 200, 0.18);
 
   --dt-td-fg:             rgba(31, 26, 51, 0.92);
-  --dt-td-border:         rgba(108, 90, 200, 0.14);
-  --dt-row-zebra:         rgba(108, 90, 200, 0.035);
-  --dt-row-hover:         rgba(108, 90, 200, 0.08);
+  --dt-td-border:         rgba(108, 90, 200, 0.10);
+  --dt-row-zebra:         transparent;
+  --dt-row-hover:         rgba(108, 90, 200, 0.06);
 
-  --dt-empty-fg:          rgba(31, 26, 51, 0.55);
-  --dt-meta-fg:           rgba(31, 26, 51, 0.55);
-  --dt-meta-border:       rgba(108, 90, 200, 0.16);
-  --dt-sort-hover-fg:     #1F1A33;
-  --dt-direction-fg:      #4A8F7E;
+  --dt-empty-fg:          rgba(31, 26, 51, 0.5);
+  --dt-meta-fg:           rgba(31, 26, 51, 0.5);
+  --dt-meta-border:       rgba(108, 90, 200, 0.12);
+  --dt-sort-fg:           rgba(31, 26, 51, 0.35);
+  --dt-sort-hover-fg:     rgba(31, 26, 51, 0.92);
+  --dt-sort-active-fg:    #6C5AC8;
 
-  --dt-tab-bg:            rgba(108, 90, 200, 0.05);
-  --dt-tab-fg:            rgba(31, 26, 51, 0.7);
-  --dt-tab-border:        rgba(108, 90, 200, 0.22);
-  --dt-tab-hover-border:  rgba(108, 90, 200, 0.55);
-  --dt-tab-active-bg:     rgba(108, 90, 200, 0.15);
-  --dt-tab-active-border: rgba(108, 90, 200, 0.6);
+  --dt-tab-bg:            transparent;
+  --dt-tab-fg:            rgba(31, 26, 51, 0.6);
+  --dt-tab-border:        rgba(108, 90, 200, 0.18);
+  --dt-tab-hover-border:  rgba(108, 90, 200, 0.45);
+  --dt-tab-active-bg:     rgba(108, 90, 200, 0.12);
+  --dt-tab-active-border: rgba(108, 90, 200, 0.50);
   --dt-tab-active-fg:     #1F1A33;
 }
 
 .toolbar {
   display: grid;
   grid-template-columns: minmax(14rem, 1fr) auto;
-  gap: 0.75rem;
+  gap: 0.65rem;
   align-items: center;
-  padding: 0.85rem;
+  padding: 0.65rem 0.7rem;
   border-bottom: 1px solid var(--dt-divider);
   background: var(--dt-toolbar-bg);
 }
@@ -100,15 +102,16 @@
 .search {
   min-width: 0;
   width: 100%;
-  height: 2.35rem;
+  height: 2.1rem;
   border: 1px solid var(--dt-input-border);
   border-radius: 6px;
   background: var(--dt-input-bg);
   color: inherit;
   font: inherit;
-  font-size: 0.86rem;
+  font-size: 0.82rem;
   outline: none;
-  padding: 0 0.75rem;
+  padding: 0 0.7rem;
+  transition: border-color 120ms ease, box-shadow 120ms ease;
 }
 
 .search:focus,
@@ -126,15 +129,22 @@
 
 .select {
   max-width: 14rem;
-  height: 2.35rem;
+  height: 2.1rem;
   border: 1px solid var(--dt-input-border);
   border-radius: 6px;
   background: var(--dt-select-bg);
   color: inherit;
   font: inherit;
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   outline: none;
-  padding: 0 2rem 0 0.65rem;
+  padding: 0 1.75rem 0 0.6rem;
+  appearance: none;
+  background-image: linear-gradient(45deg, transparent 50%, currentColor 50%),
+                    linear-gradient(135deg, currentColor 50%, transparent 50%);
+  background-position: calc(100% - 0.95rem) 50%, calc(100% - 0.65rem) 50%;
+  background-size: 0.3rem 0.3rem, 0.3rem 0.3rem;
+  background-repeat: no-repeat;
+  transition: border-color 120ms ease, box-shadow 120ms ease;
 }
 
 .scroller {
@@ -163,9 +173,9 @@
   border-bottom: 1px solid var(--dt-th-border);
   background: var(--dt-th-bg);
   color: var(--dt-th-fg);
-  font-size: 0.72rem;
-  font-weight: 760;
-  letter-spacing: 0.04em;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
   text-align: left;
   text-transform: uppercase;
 }
@@ -175,38 +185,49 @@
   width: 100%;
   align-items: center;
   justify-content: space-between;
-  gap: 0.75rem;
+  gap: 0.5rem;
   border: 0;
   background: transparent;
   color: inherit;
   cursor: pointer;
   font: inherit;
   letter-spacing: inherit;
-  padding: 0.78rem 0.8rem;
+  padding: 0.65rem 0.7rem;
   text-align: left;
   text-transform: inherit;
+  transition: color 120ms ease;
 }
 
 .sort:hover {
   color: var(--dt-sort-hover-fg);
 }
 
+.sort[data-active="true"] {
+  color: var(--dt-sort-active-fg);
+}
+
 .direction {
   flex: 0 0 auto;
-  color: var(--dt-direction-fg);
+  color: var(--dt-sort-fg);
+  transition: color 120ms ease;
+}
+
+.sort:hover .direction,
+.sort[data-active="true"] .direction {
+  color: currentColor;
 }
 
 .table td {
   vertical-align: top;
   border-bottom: 1px solid var(--dt-td-border);
   color: var(--dt-td-fg);
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   line-height: 1.5;
-  padding: 0.75rem 0.8rem;
+  padding: 0.65rem 0.7rem;
 }
 
-.table tbody tr:nth-child(odd) td {
-  background: var(--dt-row-zebra);
+.table tbody tr:last-child td {
+  border-bottom: 0;
 }
 
 .table tbody tr:hover td {
@@ -220,16 +241,19 @@
 .empty {
   color: var(--dt-empty-fg);
   text-align: center;
+  padding: 1rem;
 }
 
 .meta {
   display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  padding: 0.65rem 0.85rem;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  padding: 0.5rem 0.7rem;
   border-top: 1px solid var(--dt-meta-border);
   color: var(--dt-meta-fg);
-  font-size: 0.76rem;
+  font-size: 0.72rem;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
 }
 
 .tabbed {
@@ -245,15 +269,17 @@
 
 .tab,
 .tabActive {
-  min-height: 2.1rem;
+  min-height: 2rem;
   border: 1px solid var(--dt-tab-border);
-  border-radius: 6px;
+  border-radius: 999px;
   background: var(--dt-tab-bg);
   color: var(--dt-tab-fg);
   cursor: pointer;
   font: inherit;
-  font-size: 0.82rem;
-  padding: 0 0.72rem;
+  font-size: 0.78rem;
+  font-weight: 540;
+  padding: 0 0.85rem;
+  transition: color 120ms ease, border-color 120ms ease, background 120ms ease;
 }
 
 .tab:hover {
@@ -283,5 +309,114 @@
   .select {
     max-width: none;
     flex: 1 1 12rem;
+  }
+}
+
+@media (max-width: 720px) {
+  .shell {
+    overflow: visible;
+  }
+
+  .toolbar {
+    gap: 0.65rem;
+    padding: 0.75rem;
+  }
+
+  .filters {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .select {
+    width: 100%;
+  }
+
+  .scroller {
+    overflow-x: visible;
+  }
+
+  .table {
+    min-width: 0;
+  }
+
+  .table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .table tbody {
+    display: grid;
+    gap: 0.65rem;
+    padding: 0.75rem;
+  }
+
+  .table tr {
+    display: block;
+    overflow: hidden;
+    border: 1px solid var(--dt-th-border);
+    border-radius: 8px;
+    background: var(--dt-th-bg);
+  }
+
+  .table tbody tr:hover td {
+    background: transparent;
+  }
+
+  .table tbody tr:last-child td {
+    border-bottom: 1px solid var(--dt-td-border);
+  }
+
+  .table td {
+    display: grid;
+    grid-template-columns: minmax(6.5rem, 0.38fr) minmax(0, 1fr);
+    gap: 0.75rem;
+    align-items: start;
+    border-bottom: 1px solid var(--dt-td-border);
+    padding: 0.68rem 0.75rem;
+    overflow-wrap: anywhere;
+  }
+
+  .table td:last-child {
+    border-bottom: 0;
+  }
+
+  .table td::before {
+    content: attr(data-label);
+    color: var(--dt-th-fg);
+    font-size: 0.64rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    line-height: 1.35;
+    text-transform: uppercase;
+  }
+
+  .table code {
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .empty {
+    display: block;
+    padding: 0.9rem;
+  }
+
+  .empty::before {
+    content: none;
+  }
+
+  .meta {
+    padding: 0.65rem 0.75rem;
+  }
+}
+
+@media (max-width: 460px) {
+  .table td {
+    grid-template-columns: 1fr;
+    gap: 0.32rem;
   }
 }

@@ -116,7 +116,7 @@ export function DocsDataTable(props: Props) {
             {props.rows.map((row, rowIndex) => (
               <tr key={props.columns.map((c) => row[c.key]).join('|') || rowIndex}>
                 {props.columns.map((column) => (
-                  <td key={column.key}>{renderInline(row[column.key] ?? '')}</td>
+                  <td data-label={column.label} key={column.key}>{renderInline(row[column.key] ?? '')}</td>
                 ))}
               </tr>
             ))}
@@ -173,9 +173,11 @@ function InteractiveDocsDataTable({ caption, columns, rows, searchPlaceholder = 
   }
 
   function sortIcon(key: string) {
-    if (sort.key !== key) return 'ph:arrows-down-up-duotone';
-    return sort.direction === 'asc' ? 'ph:sort-ascending-duotone' : 'ph:sort-descending-duotone';
+    if (sort.key !== key) return 'ph:dots-three-vertical-bold';
+    return sort.direction === 'asc' ? 'ph:arrow-up-bold' : 'ph:arrow-down-bold';
   }
+
+  const hasActiveFilter = query.trim().length > 0 || Object.values(filters).some(Boolean);
 
   return (
     <div className={styles.shell}>
@@ -214,14 +216,22 @@ function InteractiveDocsDataTable({ caption, columns, rows, searchPlaceholder = 
           <caption>{caption}</caption>
           <thead>
             <tr>
-              {columns.map((column) => (
-                <th key={column.key} scope="col" aria-sort={sort.key === column.key ? (sort.direction === 'asc' ? 'ascending' : 'descending') : 'none'}>
-                  <button className={styles.sort} type="button" onClick={() => updateSort(column.key)}>
-                    <span>{column.label}</span>
-                    <Icon className={styles.direction} icon={sortIcon(column.key)} width={16} aria-hidden="true" />
-                  </button>
-                </th>
-              ))}
+              {columns.map((column) => {
+                const isActive = sort.key === column.key;
+                return (
+                  <th key={column.key} scope="col" aria-sort={isActive ? (sort.direction === 'asc' ? 'ascending' : 'descending') : 'none'}>
+                    <button
+                      className={styles.sort}
+                      type="button"
+                      data-active={isActive ? 'true' : 'false'}
+                      onClick={() => updateSort(column.key)}
+                    >
+                      <span>{column.label}</span>
+                      <Icon className={styles.direction} icon={sortIcon(column.key)} width={12} aria-hidden="true" />
+                    </button>
+                  </th>
+                );
+              })}
             </tr>
           </thead>
           <tbody>
@@ -229,7 +239,7 @@ function InteractiveDocsDataTable({ caption, columns, rows, searchPlaceholder = 
               visibleRows.map((row, rowIndex) => (
                 <tr key={columns.map((column) => row[column.key]).join('|') || rowIndex}>
                   {columns.map((column) => (
-                    <td key={column.key}>{renderInline(row[column.key] ?? '')}</td>
+                    <td data-label={column.label} key={column.key}>{renderInline(row[column.key] ?? '')}</td>
                   ))}
                 </tr>
               ))
@@ -244,10 +254,11 @@ function InteractiveDocsDataTable({ caption, columns, rows, searchPlaceholder = 
         </table>
       </div>
 
-      <div className={styles.meta}>
-        <span>{visibleRows.length} visible</span>
-        <span>{rows.length} total</span>
-      </div>
+      {hasActiveFilter ? (
+        <div className={styles.meta}>
+          <span>{visibleRows.length} of {rows.length}</span>
+        </div>
+      ) : null}
     </div>
   );
 }

@@ -33,7 +33,7 @@ The versioned local socket API contract lives in [Coven Local API](/docs/referen
 
 ```mermaid
 flowchart LR
-  User[Developer] --> CLI[coven CLI / TUI]
+  User[Developer] --> CLI[CovenCLI / TUI]
   User --> CastCodes[CastCodes app]
   CLI -->|direct commands| Rust[Coven Rust CLI]
   Rust --> Daemon[Coven daemon]
@@ -65,7 +65,7 @@ flowchart LR
 ```mermaid
 sequenceDiagram
   participant U as User
-  participant C as coven CLI/TUI
+  participant C as CovenCLI/TUI
   participant D as Rust daemon
   participant S as SQLite store
   participant H as Harness PTY
@@ -172,7 +172,7 @@ Do not document future orchestration commands as user-facing until they exist in
     { key: 'behavior', label: 'Behavior' },
   ]}
   rows={[
-    { surface: '`coven` and `coven tui`', category: 'Entry point', behavior: 'Open the beginner-friendly slash-command palette.' },
+    { surface: 'CovenCLI (`coven` and `coven tui`)', category: 'Entry point', behavior: 'Open the beginner-friendly slash-command palette.' },
     { surface: '`coven doctor`', category: 'Diagnostics', behavior: 'Checks store/project/harness readiness and prints next steps.' },
     { surface: '`coven daemon start/status/restart/stop`', category: 'Daemon', behavior: 'Manages the local daemon.' },
     { surface: '`coven run codex|claude <prompt>`', category: 'Launch', behavior: 'Launches a project-scoped PTY session.' },

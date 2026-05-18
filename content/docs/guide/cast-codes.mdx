@@ -139,18 +139,8 @@ What is still roadmap or hardening work:
 
 Cast Codes should never be documented as permission to bypass the daemon.
 
-<DocsDataTable
-  caption="Cast Code authority model"
-  searchPlaceholder="Filter authority rows..."
-  columns={[
-    { key: 'question', label: 'Question' },
-    { key: 'answer', label: 'Answer' },
-  ]}
-  rows={[
-    { question: 'Who parses user intent?', answer: 'A client, Cast Agent, or future parser can parse Cast Codes.' },
-    { question: 'Who decides whether a session may launch?', answer: 'The Coven daemon validates project root, cwd, and harness id.' },
-    { question: 'Who decides whether live input or kill is allowed?', answer: 'The Coven daemon validates session id and liveness.' },
-    { question: 'Who owns external action approvals?', answer: 'The daemon/control-plane policy layer must own approval requirements.' },
-    { question: 'Can a client treat Cast Code syntax as permission?', answer: 'No. Syntax is intent; daemon validation is authority.' },
-  ]}
-/>
+- **Who parses user intent?** A client, Cast Agent, or future parser can parse Cast Codes.
+- **Who decides whether a session may launch?** The Coven daemon validates project root, cwd, and harness id.
+- **Who decides whether live input or kill is allowed?** The Coven daemon validates session id and liveness.
+- **Who owns external action approvals?** The daemon/control-plane policy layer must own approval requirements.
+- **Can a client treat Cast Code syntax as permission?** No. Syntax is intent; daemon validation is authority.

@@ -78,11 +78,22 @@ Content-Type: application/json
 }
 ```
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `name` | string | ✓ | Display name |
-| `kind` | string | ✓ | `openclaw` \| `claude_code` \| `codex` \| `hermes` \| `custom` |
-| `config` | object | ✓ | Harness-specific configuration |
+<DocsDataTable
+  caption="Register a harness request fields"
+  searchPlaceholder="Filter fields..."
+  preserveOrder
+  columns={[
+    { key: 'field', label: 'Field' },
+    { key: 'type', label: 'Type', filter: true },
+    { key: 'required', label: 'Required', filter: true },
+    { key: 'description', label: 'Description' },
+  ]}
+  rows={[
+    { field: '`name`', type: 'string', required: 'Yes', description: 'Display name.' },
+    { field: '`kind`', type: 'string', required: 'Yes', description: 'One of `openclaw`, `claude_code`, `codex`, `hermes`, or `custom`.' },
+    { field: '`config`', type: 'object', required: 'Yes', description: 'Harness-specific configuration.' },
+  ]}
+/>
 
 ## Update a Harness
 

@@ -3,6 +3,8 @@ title: "Future Hosted API"
 description: "Future hosted API placeholder. Current Coven API docs live under Reference / API."
 ---
 
+import { DocsDataTable } from '@/components/docs-data-table';
+
 # Future Hosted API
 
 This section is hidden from the main docs navigation because it describes future hosted API direction, not the current Coven runtime contract.
@@ -31,8 +33,17 @@ API-key examples are placeholders for future hosted service work.
 
 Rate limits are also future hosted-service placeholders.
 
-| Plan     | Requests/min |
-|----------|-------------|
-| Free     | 60          |
-| Pro      | 600         |
-| Team     | 6,000       |
+<DocsDataTable
+  caption="Future hosted rate limits"
+  searchPlaceholder="Filter plans..."
+  preserveOrder
+  columns={[
+    { key: 'plan', label: 'Plan' },
+    { key: 'rate', label: 'Requests / minute' },
+  ]}
+  rows={[
+    { plan: 'Free', rate: '60' },
+    { plan: 'Pro', rate: '600' },
+    { plan: 'Team', rate: '6,000' },
+  ]}
+/>

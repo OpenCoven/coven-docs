@@ -8,11 +8,12 @@ import { Mermaid } from '@/components/mermaid';
 
 # Coven Concepts
 
-This page defines the nouns used across the Coven CLI, daemon, API, docs, and client integrations.
+This page defines the nouns used across CovenCLI, the daemon, API, docs, and client integrations.
 
 ```mermaid
 flowchart TB
   OpenCoven[OpenCoven ecosystem] --> Coven[Coven runtime]
+  Coven --> CovenCLI[CovenCLI]
   OpenCoven --> CastCodes[CastCodes]
   CastCodes --> CastAgent[Cast Agent]
   CastCodes --> CastCode[Cast Codes]
@@ -46,11 +47,11 @@ Coven is the local runtime substrate. It owns project-scoped harness sessions, P
 
 Use **Coven** for the CLI, daemon, Rust crate, npm wrapper, and local session runtime.
 
-## `coven`
+## CovenCLI
 
-`coven` is the user-facing command.
+CovenCLI is the user-facing command surface for the `coven` binary.
 
-Do not tell users to run `opencoven` or `@opencoven`. The package names live under `@opencoven/*`, but the command is always `coven`.
+Do not tell users to run `opencoven` or `@opencoven`. The package names live under `@opencoven/*`, the docs name is **CovenCLI**, and the shell command remains `coven`.
 
 ## CastCodes
 
@@ -191,7 +192,7 @@ Known client shapes:
     { key: 'role', label: 'Role' },
   ]}
   rows={[
-    { client: '`coven` CLI/TUI', status: 'Current', role: 'First-party command and terminal UI.' },
+    { client: 'CovenCLI (`coven`)', status: 'Current', role: 'First-party command and terminal UI.' },
     { client: 'CastCodes', status: 'Current', role: 'First-party workspace for panes, sessions, agent substrate, and review.' },
     { client: 'Cast Agent', status: 'Current backend', role: 'CastCodes substrate manager and Coven-native agent backend.' },
     { client: '`@opencoven/coven` OpenClaw plugin', status: 'External bridge', role: 'Optional OpenClaw integration package.' },
@@ -211,24 +212,14 @@ It lets clients discover what Coven can do through `GET /api/v1/capabilities` an
 
 A capability describes a daemon-owned or adapter-owned feature that a client may present.
 
-Capability records include the fields clients need to render and route actions.
+Capability records include the fields clients need to render and route actions:
 
-<DocsDataTable
-  caption="Capability record fields"
-  searchPlaceholder="Filter capability fields..."
-  columns={[
-    { key: 'field', label: 'Field' },
-    { key: 'purpose', label: 'Purpose' },
-  ]}
-  rows={[
-    { field: 'id', purpose: 'Stable machine name for discovery and routing.' },
-    { field: 'label', purpose: 'Readable UI label.' },
-    { field: 'owning adapter', purpose: 'Identifies the runtime or adapter responsible for the capability.' },
-    { field: 'status', purpose: 'Shows whether the capability is available, planned, disabled, or missing setup.' },
-    { field: 'policy hint', purpose: 'Tells clients how cautious the UI should be.' },
-    { field: 'action ids', purpose: 'Lists daemon-recognized actions clients may request.' },
-  ]}
-/>
+- **`id`** — Stable machine name for discovery and routing.
+- **`label`** — Readable UI label.
+- **`owning adapter`** — Identifies the runtime or adapter responsible for the capability.
+- **`status`** — Shows whether the capability is available, planned, disabled, or missing setup.
+- **`policy hint`** — Tells clients how cautious the UI should be.
+- **`action ids`** — Lists daemon-recognized actions clients may request.
 
 ## Rituals
 
