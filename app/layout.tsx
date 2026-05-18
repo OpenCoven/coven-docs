@@ -1,8 +1,10 @@
 import type { Metadata } from 'next';
-import { RootProvider } from 'fumadocs-ui/provider';
+import { RootProvider } from 'fumadocs-ui/provider/next';
 import 'fumadocs-ui/style.css';
+import 'fumadocs-ui/components/image-zoom2.css';
 import { Inter } from 'next/font/google';
 import type { ReactNode } from 'react';
+import { CovenSearchDialog } from '@/components/search-dialog';
 import './globals.css';
 
 const inter = Inter({ subsets: ['latin'] });
@@ -53,7 +55,20 @@ export default function Layout({ children }: { children: ReactNode }) {
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
       </head>
       <body style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-        <RootProvider>{children}</RootProvider>
+        <RootProvider
+          search={{
+            SearchDialog: CovenSearchDialog,
+            options: {
+              links: [
+                ['Getting Started', '/docs/getting-started'],
+                ['Architecture', '/docs/architecture'],
+                ['API Reference', '/docs/api'],
+              ],
+            },
+          }}
+        >
+          {children}
+        </RootProvider>
       </body>
     </html>
   );

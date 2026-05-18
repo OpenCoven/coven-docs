@@ -133,3 +133,15 @@ aside button[class*="rounded-lg"][class*="ps-2"][class*="pe-4"] p.text-xs.text-f
   padding: 0.15em 0.35em;
   font-size: 0.875em;
 }
+
+@media print {
+  #nd-docs-layout {
+    --fd-sidebar-width: 0px !important;
+  }
+
+  #nd-sidebar,
+  [data-search-toggle],
+  [data-toc] {
+    display: none !important;
+  }
+}

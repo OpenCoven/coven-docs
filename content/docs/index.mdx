@@ -5,6 +5,8 @@ description: Persistent AI familiars. Composable. Observable. Publishable.
 
 import { Cards, Card } from 'fumadocs-ui/components/card';
 import { DocsDataTable } from '@/components/docs-data-table';
+import { GraphView } from '@/components/graph-view';
+import { buildGraph } from '@/lib/build-graph';
 
 # Welcome to Coven
 
@@ -48,3 +50,7 @@ const familiar = await coven.spawn({
 
 await familiar.chat('Remind me about the deployment at 3pm.');
 ```
+
+## Docs Map
+
+<GraphView graph={buildGraph()} />
