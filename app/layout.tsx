@@ -5,6 +5,7 @@ import 'fumadocs-ui/components/image-zoom2.css';
 import { Inter } from 'next/font/google';
 import type { ReactNode } from 'react';
 import { Analytics } from '@vercel/analytics/next';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 import { CovenSearchDialog } from '@/components/search-dialog';
 import './globals.css';
 
@@ -71,6 +72,7 @@ export default function Layout({ children }: { children: ReactNode }) {
           {children}
         </RootProvider>
         <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );
