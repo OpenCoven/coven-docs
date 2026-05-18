@@ -1,0 +1,126 @@
+---
+title: "Docs Issue Plan"
+description: "Docs-first issue and milestone text for API, install, demo, plugin, harness, platform QA, and community roadmap work."
+---
+
+import { DocsDataTable } from '@/components/docs-data-table';
+
+# Docs Issue Plan
+
+This page is the docs-first issue plan for Coven. It is not a GitHub issue tracker and it does not imply that issues or milestones have been created. If GitHub writes are authorized later, copy each row's title, scope, acceptance criteria, verification command, and links into the matching issue or milestone.
+
+## Planned Issue Groups
+
+<DocsDataTable
+  caption="Docs-first issue groups"
+  searchPlaceholder="Filter issue groups..."
+  columns={[
+    { key: 'slug', label: 'Slug' },
+    { key: 'publicTitle', label: 'Public title' },
+    { key: 'why', label: 'Why it matters' },
+    { key: 'verification', label: 'Verification command' },
+  ]}
+  rows={[
+    { slug: '`docs/api-contract`', publicTitle: 'Complete and keep current the Coven daemon API contract', why: 'Client implementers need exact request, response, versioning, and error behavior before they build against Coven.', verification: '`npm run check:fumadocs && npm run check:mermaid && npm run check:links && npm run build && git diff --check`' },
+    { slug: '`docs/install`', publicTitle: 'Make Coven installable without private context', why: 'New users need a working install path before architecture or integration docs are useful.', verification: '`npm run check:fumadocs && npm run check:links && npm run build && git diff --check`' },
+    { slug: '`docs/demo-loop`', publicTitle: 'Document the CastCodes to Coven review loop', why: 'Users need to see how intent becomes a visible session, reviewable diff, and explicit finish action.', verification: '`npm run check:links && npm run build && git diff --check`' },
+    { slug: '`docs/openclaw-plugin`', publicTitle: 'Document the external OpenClaw bridge boundary', why: 'OpenClaw users need to understand that Coven is reached through an external plugin and the daemon API remains the trust root.', verification: '`npm run check:links && npm run build && git diff --check`' },
+    { slug: '`docs/harness-compat`', publicTitle: 'Make harness adapter compatibility expectations concrete', why: 'Adapter authors need to know what a supported harness must prove before it is advertised.', verification: '`npm run check:links && npm run build && git diff --check`' },
+    { slug: '`docs/platform-qa`', publicTitle: 'QA the public docs platform surfaces', why: 'Search, graph, Mermaid, EPUB/PDF, and mobile layout must help users navigate the operational docs.', verification: '`npm run check:fumadocs && npm run check:mermaid && node scripts/check-mermaid-preview-ui.mjs && npm run check:links && npm run build && git diff --check`' },
+    { slug: '`community/roadmap-loop`', publicTitle: 'Keep roadmap and issue text aligned with shipped reality', why: 'Public contributors need an honest, current work map without aspirational claims becoming implied support.', verification: '`npm run check:links && npm run build && git diff --check`' },
+  ]}
+/>
+
+## Acceptance Criteria
+
+### docs/api-contract
+
+Scope:
+
+- Keep [Coven Local API](/docs/reference/api), [Client Integration](/docs/familiars/clients), [Session Lifecycle](/docs/familiars/sessions), [Authentication](/docs/reference/auth), and [Safety Model](/docs/reference/safety) consistent.
+- Cover health, `/api/v1/api-version`, sessions, events, input, kill, structured errors, route versioning, `apiVersion`, and `covenVersion`.
+- Mark Future Hosted API pages as non-current placeholders.
+
+Acceptance criteria:
+
+- A client implementer can write a health handshake, launch request, event poller, input call, kill call, and error mapper from the docs.
+- Unversioned routes are described only as legacy aliases.
+- Non-live session behavior is explicit for completed, failed, killed, archived, and orphaned sessions.
+
+### docs/install
+
+Scope:
+
+- Keep [Install Coven](/docs/guide/install), [Getting Started](/docs/guide/getting-started), [Troubleshooting](/docs/reference/troubleshooting), [Migration Map](/docs/reference/migration-map), and [Roadmap](/docs/reference/roadmap) aligned.
+- Cover npm, Cargo/source, macOS, Linux, Windows, WSL2, harness prerequisites, daemon/socket troubleshooting, update, and uninstall.
+- Keep Docker, Podman, and Nix marked planned/experimental until verified.
+
+Acceptance criteria:
+
+- A new user can install `coven`, run `coven doctor`, start the daemon, launch a Codex or Claude Code session, list sessions, and recover from common missing harness/socket errors.
+- Platform support statements match verified release artifacts or are clearly labeled planned/experimental.
+
+### docs/demo-loop
+
+Scope:
+
+- Keep [Cast Codes](/docs/guide/cast-codes), [Cast Agent](/docs/familiars/cast-agent), [Session Lifecycle](/docs/familiars/sessions), and [Client Integration](/docs/familiars/clients) aligned.
+- Document CastCodes project open, intent capture, Coven-backed Codex/Claude launch, visible pane/session, diff review, merge/PR/archive/sacrifice/cleanup.
+
+Acceptance criteria:
+
+- A user can explain the demo flow end to end without knowing private project context.
+- Shipped Coven runtime behavior is separated from CastCodes UI hardening and roadmap syntax.
+
+### docs/openclaw-plugin
+
+Scope:
+
+- Keep [Client Integration](/docs/familiars/clients), [Authentication](/docs/reference/auth), [Safety Model](/docs/reference/safety), [Architecture](/docs/guide/architecture), and [Roadmap](/docs/reference/roadmap) aligned.
+- Document `@opencoven/coven` as the external OpenClaw bridge direction, not OpenClaw core.
+- Keep the Coven daemon/API as the trust root.
+
+Acceptance criteria:
+
+- The docs say the bridge is opt-in, uses `GET /api/v1/health` before launch, maps ACP requests to daemon sessions, and relies on compatibility tests for stability.
+- The docs do not imply provider credential proxying, OpenClaw-core coupling, raw socket tunneling, or broad plugin stability without tests.
+
+### docs/harness-compat
+
+Scope:
+
+- Keep [Harnesses](/docs/familiars/harnesses), [Safety Model](/docs/reference/safety), [Authentication](/docs/reference/auth), [Client Integration](/docs/familiars/clients), and [Coven Local API](/docs/reference/api) aligned.
+- Document current harness ids, provider-owned auth, project/cwd validation, PTY/event replay, input/kill behavior, unsupported/future adapters, and proof requirements for new adapters.
+
+Acceptance criteria:
+
+- Adapter authors can tell whether a harness is current, future, or unsupported.
+- A third harness proof must include install detection, provider auth posture, argv construction, project-root behavior, PTY lifecycle, event replay, live input/kill behavior, and client compatibility coverage.
+
+### docs/platform-qa
+
+Scope:
+
+- Keep [Docs Platform](/docs/reference/docs-platform), search, graph, Mermaid UI, EPUB export, PDF export, and mobile layout useful.
+- Fix only scoped platform defects; do not redesign the whole site during QA.
+
+Acceptance criteria:
+
+- Search returns useful results for install/API/harness terms.
+- Graph view renders and links real docs pages.
+- Mermaid preview/fullscreen/copy behavior works.
+- EPUB route and PDF export docs remain discoverable.
+- Mobile docs pages do not hide navigation or overflow core content.
+
+### community/roadmap-loop
+
+Scope:
+
+- Keep [Roadmap](/docs/reference/roadmap), [Migration Map](/docs/reference/migration-map), and this page aligned with shipped reality.
+- Convert rows to GitHub issues/milestones only after explicit maintainer authorization.
+
+Acceptance criteria:
+
+- Public docs distinguish shipped, now, next, later, lab, planned, and experimental work.
+- Issue text includes why, scope, acceptance criteria, verification command, and relevant docs links.
+- No GitHub issues or milestones are created from this page without explicit authorization.
