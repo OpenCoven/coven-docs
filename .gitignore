@@ -32,3 +32,4 @@ Thumbs.db
 # Local-only dev probes (hardcoded localhost URLs, /tmp/ outputs)
 scripts/_local-*
 /docs/superpowers
+/.claude
