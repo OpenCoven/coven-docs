@@ -108,7 +108,7 @@ export default function HomePage() {
         <HeroTerminal />
 
         <p className={s.heroEyebrow}>
-          The framework for persistent AI agents
+          Substrate Framework for Persistent Agents
         </p>
 
         <h1 className={s.heroTitle}>
@@ -174,7 +174,7 @@ export default function HomePage() {
       <section style={{ marginBottom: '1.5rem' }}>
         <div style={{ padding: '2rem 0.25rem 1.25rem' }}>
           <h2 style={{ fontSize: '1.75rem', fontWeight: 700, letterSpacing: 0, marginBottom: '0.4rem' }}>
-            Not just another AI wrapper.
+            Coven's a Substrate, not a Harness
           </h2>
           <p style={{ color: '#888', fontSize: '0.95rem', lineHeight: 1.55 }}>
             Coven is built around the idea that AI agents deserve an identity.
@@ -261,7 +261,7 @@ export default function HomePage() {
               <span style={{ fontWeight: 700, fontSize: '1.05rem', color: '#E8E8E8', letterSpacing: 0 }}>Current implementation pieces</span>
             </div>
             <p style={{ fontSize: '0.84rem', color: '#787878', margin: 0, lineHeight: 1.55 }}>
-              Coven is a Rust runtime with a small local API, an npm launcher, and an external OpenClaw bridge.
+              Coven is a Rust runtime with a small local API, an npm launcher, and adaptable to external harness bridging.
             </p>
           </div>
           <div style={{
@@ -341,98 +341,45 @@ export default function HomePage() {
 
       {/* ── CTA footer ── */}
       <section style={{
-        position: 'relative',
-        border: BORDER,
-        borderRadius: '8px',
-        padding: '4rem 2rem',
-        overflow: 'hidden',
-        background: '#0A0A0E',
+        borderTop: BORDER,
+        padding: '3rem 0 3.5rem',
         textAlign: 'center',
-        marginBottom: '3rem',
+        marginBottom: '1.5rem',
       }}>
-        {/* Ambient glow */}
-        <div style={{
-          position: 'absolute',
-          bottom: '-60px',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          width: '600px',
-          height: '300px',
-          background: 'radial-gradient(ellipse, rgba(154,142,205,0.18) 0%, transparent 70%)',
-          pointerEvents: 'none',
-          zIndex: 0,
-        }} />
-        <div style={{
-          position: 'absolute',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          width: '800px',
-          height: '400px',
-          background: 'radial-gradient(ellipse, rgba(154,142,205,0.05) 0%, transparent 65%)',
-          pointerEvents: 'none',
-          zIndex: 0,
-        }} />
-
-        <div style={{ position: 'relative', zIndex: 1 }}>
-          {/* Kicker */}
-          <div style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '0.4rem',
-            fontSize: '0.72rem',
-            fontWeight: 600,
-            color: VIOLET,
-            letterSpacing: '0.12em',
-            textTransform: 'uppercase',
-            border: `1px solid rgba(154,142,205,0.25)`,
-            borderRadius: '999px',
-            padding: '0.3rem 0.85rem',
-            marginBottom: '1.75rem',
-          }}>
-            <Icon icon="ph:sparkle-duotone" width={12} />
-            Open source · MIT licensed
-          </div>
-
+        <div>
           <h2 style={{
-            fontSize: '2.45rem',
-            fontWeight: 700,
+            fontSize: '1.5rem',
+            fontWeight: 650,
             letterSpacing: 0,
-            lineHeight: 1.1,
-            marginBottom: '1rem',
-            color: '#F0F0F0',
+            lineHeight: 1.25,
+            marginBottom: '0.65rem',
+            color: '#E8E8E8',
           }}>
-            Ready to summon your familiar?
+            Build your first Coven familiar.
           </h2>
 
           <p style={{
-            color: '#787878',
-            marginBottom: '2.5rem',
-            fontSize: '1rem',
+            color: '#8A8A8A',
+            fontSize: '0.95rem',
             lineHeight: 1.6,
-            maxWidth: '400px',
-            margin: '0 auto 2.5rem',
+            maxWidth: '460px',
+            margin: '0 auto 1.4rem',
           }}>
-            Self-hosted, yours to fork, and built to grow with you.
+            Start with the guided setup, then drop into the API contract when you need the daemon surface.
           </p>
 
-          {/* Buttons */}
-          <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap', marginBottom: '3rem' }}>
+          <div style={{ display: 'flex', gap: '1.1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
             <Link
               href="/docs/guide/getting-started"
               className={s.ctaPrimary}
               style={{
-                background: VIOLET,
-                color: '#0A0A0A',
-                padding: '0.85rem 2rem',
-                borderRadius: '999px',
-                fontWeight: 700,
-                fontSize: '0.9rem',
+                color: VIOLET,
+                fontWeight: 650,
+                fontSize: '0.92rem',
                 textDecoration: 'none',
                 display: 'inline-flex',
                 alignItems: 'center',
-                gap: '0.4rem',
-                boxShadow: '0 0 28px rgba(154,142,205,0.3)',
+                gap: '0.35rem',
               }}
             >
               Read the docs
@@ -442,56 +389,18 @@ export default function HomePage() {
               href="/docs/openapi/overview"
               className={s.ctaSecondary}
               style={{
-                background: 'rgba(255,255,255,0.04)',
-                border: BORDER,
-                color: '#C0C0C0',
-                padding: '0.85rem 2rem',
-                borderRadius: '999px',
+                color: '#A8A8A8',
                 fontWeight: 500,
-                fontSize: '0.9rem',
+                fontSize: '0.92rem',
                 textDecoration: 'none',
                 display: 'inline-flex',
                 alignItems: 'center',
-                gap: '0.4rem',
+                gap: '0.35rem',
               }}
             >
               API Reference
+              <Icon icon="ph:arrow-right-bold" width={14} />
             </Link>
-          </div>
-
-          {/* Trust signals */}
-          <div style={{
-            display: 'flex',
-            gap: '0.75rem',
-            justifyContent: 'center',
-            flexWrap: 'wrap',
-          }}>
-            {[
-              { icon: 'ph:github-logo-duotone', label: 'GitHub', href: 'https://github.com/OpenCoven/coven' },
-              { icon: 'ph:discord-logo-duotone', label: 'Discord', href: 'https://discord.gg/opencoven' },
-              { icon: 'ph:lock-open-duotone', label: 'MIT License', href: 'https://github.com/OpenCoven/coven/blob/main/LICENSE' },
-              { icon: 'ph:hard-drives-duotone', label: 'Self-hosted', href: '/docs/guide/getting-started' },
-            ].map((t) => (
-              <Link
-                key={t.label}
-                href={t.href}
-                className={s.trustPill}
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '0.35rem',
-                  fontSize: '0.78rem',
-                  color: '#666',
-                  border: '1px solid rgba(255,255,255,0.07)',
-                  borderRadius: '999px',
-                  padding: '0.35rem 0.85rem',
-                  textDecoration: 'none',
-                }}
-              >
-                <Icon icon={t.icon} width={13} color="#666" />
-                {t.label}
-              </Link>
-            ))}
           </div>
         </div>
       </section>

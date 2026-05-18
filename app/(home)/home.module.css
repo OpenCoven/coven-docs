@@ -399,13 +399,13 @@
 }
 
 .ctaSecondary {
-  transition: background 0.15s ease, border-color 0.15s ease;
+  transition: color 0.15s ease, transform 0.15s ease;
   display: inline-flex;
   align-items: center;
 }
 .ctaSecondary:hover {
-  background: rgba(255, 255, 255, 0.07) !important;
-  border-color: rgba(154, 142, 205, 0.28) !important;
+  color: rgba(232, 232, 232, 0.95) !important;
+  transform: translateY(-1px);
 }
 
 .trustPill {
