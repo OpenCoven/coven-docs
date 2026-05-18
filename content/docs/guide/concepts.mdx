@@ -3,6 +3,9 @@ title: "Concepts"
 description: "Core ideas behind Coven and how it works."
 ---
 
+import { DocsDataTable } from '@/components/docs-data-table';
+import { Mermaid } from '@/components/mermaid';
+
 title: "Coven concepts and terminology"
 summary: "Definitions for the nouns Coven uses across the CLI, daemon, API, and clients: harnesses, sessions, projects, rituals, summon, and sacrifice."
 read_when:
@@ -57,8 +60,19 @@ A harness is an external coding-agent CLI that Coven can launch and supervise.
 
 Current v0 harnesses:
 
-- Codex, with harness id `codex`.
-- Claude Code, with harness id `claude`.
+<DocsDataTable
+  caption="Current v0 harnesses"
+  searchPlaceholder="Filter harnesses..."
+  columns={[
+    { key: 'harness', label: 'Harness' },
+    { key: 'id', label: 'Harness id' },
+    { key: 'authOwner', label: 'Auth owner' },
+  ]}
+  rows={[
+    { harness: 'Codex', id: '`codex`', authOwner: 'Codex CLI local authentication flow' },
+    { harness: 'Claude Code', id: '`claude`', authOwner: 'Claude Code CLI local authentication flow' },
+  ]}
+/>
 
 Coven does not store provider credentials. Each harness keeps using its own local authentication flow.
 
@@ -85,16 +99,27 @@ The second command is valid only when `packages/cli` resolves inside the selecte
 
 A session is a Coven-owned record of one harness run.
 
-It includes:
+It includes the record fields clients need to list, inspect, and replay work.
 
-- a stable session id;
-- project root;
-- harness id;
-- readable title;
-- status;
-- optional exit code;
-- archive state; and
-- created/updated timestamps.
+<DocsDataTable
+  caption="Session record fields"
+  searchPlaceholder="Filter session fields..."
+  columns={[
+    { key: 'field', label: 'Field' },
+    { key: 'group', label: 'Group', filter: true },
+    { key: 'purpose', label: 'Purpose' },
+  ]}
+  rows={[
+    { field: 'Stable session id', group: 'Identity', purpose: 'Lets clients attach, replay, archive, summon, or sacrifice a specific run.' },
+    { field: 'Project root', group: 'Boundary', purpose: 'Preserves the launch boundary.' },
+    { field: 'Harness id', group: 'Execution', purpose: 'Records which adapter ran the work.' },
+    { field: 'Readable title', group: 'Display', purpose: 'Makes session lists scannable.' },
+    { field: 'Status', group: 'Lifecycle', purpose: 'Shows whether the run is live, finished, failed, or orphaned.' },
+    { field: 'Optional exit code', group: 'Lifecycle', purpose: 'Captures process completion detail when available.' },
+    { field: 'Archive state', group: 'Lifecycle', purpose: 'Separates hidden archived records from active sessions.' },
+    { field: 'Created/updated timestamps', group: 'Timeline', purpose: 'Supports sorting and recency views.' },
+  ]}
+/>
 
 Session records are stored in SQLite.
 
@@ -108,15 +133,26 @@ Events include output, exit, and metadata records. They let clients replay or in
 
 The daemon is the local Rust process that owns live session state and exposes the HTTP-over-Unix-socket API.
 
-The daemon is the authority boundary. It validates:
+The daemon is the authority boundary.
 
-- launch requests;
-- project roots;
-- working directories;
-- harness ids;
-- live input;
-- kill requests; and
-- session ids.
+<DocsDataTable
+  caption="Daemon validation responsibilities"
+  searchPlaceholder="Filter daemon checks..."
+  columns={[
+    { key: 'check', label: 'Check' },
+    { key: 'riskArea', label: 'Risk area', filter: true },
+    { key: 'failurePosture', label: 'Failure posture' },
+  ]}
+  rows={[
+    { check: 'Launch requests', riskArea: 'Session creation', failurePosture: 'Reject malformed or unsupported requests before spawning.' },
+    { check: 'Project roots', riskArea: 'Filesystem policy', failurePosture: 'Require an explicit valid root.' },
+    { check: 'Working directories', riskArea: 'Filesystem policy', failurePosture: 'Reject cwd values outside the project root.' },
+    { check: 'Harness ids', riskArea: 'Harness policy', failurePosture: 'Fail closed on unsupported harnesses.' },
+    { check: 'Live input', riskArea: 'Session control', failurePosture: 'Only forward input to a verified live process.' },
+    { check: 'Kill requests', riskArea: 'Session control', failurePosture: 'Only terminate a verified live process.' },
+    { check: 'Session ids', riskArea: 'Session control', failurePosture: 'Return not found or conflict instead of guessing.' },
+  ]}
+/>
 
 ## Store
 
@@ -130,10 +166,21 @@ A client is anything that talks to Coven rather than launching harnesses directl
 
 Known client shapes:
 
-- `coven` CLI/TUI.
-- comux cockpit.
-- external OpenClaw plugin package `@opencoven/coven`.
-- future desktop intake surfaces.
+<DocsDataTable
+  caption="Known client shapes"
+  searchPlaceholder="Filter client shapes..."
+  columns={[
+    { key: 'client', label: 'Client' },
+    { key: 'status', label: 'Status', filter: true },
+    { key: 'role', label: 'Role' },
+  ]}
+  rows={[
+    { client: '`coven` CLI/TUI', status: 'Current', role: 'First-party command and terminal UI.' },
+    { client: 'comux cockpit', status: 'Current', role: 'Visible workspace for panes, sessions, and review.' },
+    { client: '`@opencoven/coven` OpenClaw plugin', status: 'External bridge', role: 'Optional OpenClaw integration package.' },
+    { client: 'Future desktop intake surfaces', status: 'Future', role: 'Local UI entrypoints that hand work into Coven.' },
+  ]}
+/>
 
 Clients are convenience layers, not trust roots.
 
@@ -147,22 +194,43 @@ It lets clients discover what Coven can do through `GET /api/v1/capabilities` an
 
 A capability describes a daemon-owned or adapter-owned feature that a client may present.
 
-Capability records include:
+Capability records include the fields clients need to render and route actions.
 
-- id;
-- label;
-- owning adapter;
-- status;
-- policy hint; and
-- action ids.
+<DocsDataTable
+  caption="Capability record fields"
+  searchPlaceholder="Filter capability fields..."
+  columns={[
+    { key: 'field', label: 'Field' },
+    { key: 'purpose', label: 'Purpose' },
+  ]}
+  rows={[
+    { field: 'id', purpose: 'Stable machine name for discovery and routing.' },
+    { field: 'label', purpose: 'Readable UI label.' },
+    { field: 'owning adapter', purpose: 'Identifies the runtime or adapter responsible for the capability.' },
+    { field: 'status', purpose: 'Shows whether the capability is available, planned, disabled, or missing setup.' },
+    { field: 'policy hint', purpose: 'Tells clients how cautious the UI should be.' },
+    { field: 'action ids', purpose: 'Lists daemon-recognized actions clients may request.' },
+  ]}
+/>
 
 ## Rituals
 
-Rituals are Coven's human-friendly session-management verbs:
+Rituals are Coven's human-friendly session-management verbs.
 
-- **Archive** hides a completed session from the active list while preserving events.
-- **Summon** restores an archived session.
-- **Sacrifice** permanently deletes a non-running session and its events.
+<DocsDataTable
+  caption="Session management rituals"
+  searchPlaceholder="Filter rituals..."
+  columns={[
+    { key: 'ritual', label: 'Ritual' },
+    { key: 'reversible', label: 'Reversible', filter: true },
+    { key: 'effect', label: 'Effect' },
+  ]}
+  rows={[
+    { ritual: '**Archive**', reversible: 'Yes', effect: 'Hides a completed session from the active list while preserving events.' },
+    { ritual: '**Summon**', reversible: 'Yes', effect: 'Restores an archived session.' },
+    { ritual: '**Sacrifice**', reversible: 'No', effect: 'Permanently deletes a non-running session and its events.' },
+  ]}
+/>
 
 Ritual names are product language. The safety behavior underneath them should stay precise and conservative.
 
@@ -183,8 +251,6 @@ GET /api/v1/health
 ```
 
 before depending on other response shapes.
-
-import { Mermaid } from '@/components/mermaid';
 
 ## The Coven Stack
 
@@ -216,4 +282,3 @@ graph TB
     FAM --> HAR
     HAR --> OC & CLA & OAI
 `} />
-

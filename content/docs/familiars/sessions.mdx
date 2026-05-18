@@ -3,6 +3,9 @@ title: "Session Lifecycle"
 description: "How sessions start, run, and end."
 ---
 
+import { DocsDataTable } from '@/components/docs-data-table';
+import { Mermaid } from '@/components/mermaid';
+
 title: "Session lifecycle"
 summary: "How a Coven session moves through created, running, completed, failed, orphaned, archived, and summoned states from coven run to replay."
 read_when:
@@ -16,13 +19,24 @@ This document explains what happens from `coven run` through completion, replay,
 
 ## Lifecycle States
 
-The current store records session status as a string. Common states include:
+The current store records session status as a string.
 
-- `created` - the session record exists before live execution begins.
-- `running` - the harness process is active under daemon supervision.
-- `completed` - the harness exited successfully.
-- `failed` - setup or launch failed before normal completion.
-- `orphaned` - a previous daemon stopped while a session was still marked running.
+<DocsDataTable
+  caption="Session lifecycle states"
+  searchPlaceholder="Filter session states..."
+  columns={[
+    { key: 'state', label: 'State' },
+    { key: 'category', label: 'Category', filter: true },
+    { key: 'meaning', label: 'Meaning' },
+  ]}
+  rows={[
+    { state: '`created`', category: 'Startup', meaning: 'The session record exists before live execution begins.' },
+    { state: '`running`', category: 'Live', meaning: 'The harness process is active under daemon supervision.' },
+    { state: '`completed`', category: 'Terminal', meaning: 'The harness exited successfully.' },
+    { state: '`failed`', category: 'Terminal', meaning: 'Setup or launch failed before normal completion.' },
+    { state: '`orphaned`', category: 'Recovery', meaning: 'A previous daemon stopped while a session was still marked running.' },
+  ]}
+/>
 
 Archive state is stored separately as `archived_at`. A completed or failed session can be hidden from the active list without changing its final status.
 
@@ -53,17 +67,28 @@ The diagram above is normative for the v0 store. `running` sessions cannot be ar
 
 ## Launch Path
 
-The normal launch flow:
+The normal launch flow keeps validation in the daemon.
 
-1. User or client sends a task through the CLI or local API.
-2. Coven resolves the project root.
-3. Coven canonicalizes the project root and working directory.
-4. Coven rejects outside-root working directories.
-5. Coven verifies the harness id is supported.
-6. Coven creates a session record in SQLite.
-7. The daemon spawns the harness in a PTY using argv APIs.
-8. Output and exit data are written as events.
-9. Session status and exit code are updated.
+<DocsDataTable
+  caption="Session launch flow"
+  searchPlaceholder="Filter launch steps..."
+  columns={[
+    { key: 'step', label: 'Step' },
+    { key: 'owner', label: 'Owner', filter: true },
+    { key: 'action', label: 'Action' },
+  ]}
+  rows={[
+    { step: '1', owner: 'User or client', action: 'Sends a task through the CLI or local API.' },
+    { step: '2', owner: 'Daemon', action: 'Resolves the project root.' },
+    { step: '3', owner: 'Daemon', action: 'Canonicalizes the project root and working directory.' },
+    { step: '4', owner: 'Daemon', action: 'Rejects outside-root working directories.' },
+    { step: '5', owner: 'Daemon', action: 'Verifies the harness id is supported.' },
+    { step: '6', owner: 'Store', action: 'Creates a session record in SQLite.' },
+    { step: '7', owner: 'Daemon', action: 'Spawns the harness in a PTY using argv APIs.' },
+    { step: '8', owner: 'Event log', action: 'Writes output and exit data as events.' },
+    { step: '9', owner: 'Store', action: 'Updates session status and exit code.' },
+  ]}
+/>
 
 The Rust layer performs the authority checks even when a TypeScript client has already validated the request for UX.
 
@@ -115,13 +140,24 @@ For a completed session, attach acts like a log viewer. For a running session, a
 
 ## Session Browser Behavior
 
-`coven sessions` chooses output mode based on context:
+`coven sessions` chooses output mode based on context.
 
-- In an interactive terminal, it opens the session browser.
-- When piped or run with `--plain`, it prints table output.
-- `--json` prints machine-readable session records for local clients.
-- `--all` includes archived sessions.
-- `--manage` forces the browser.
+<DocsDataTable
+  caption="Session browser output modes"
+  searchPlaceholder="Filter session browser modes..."
+  columns={[
+    { key: 'mode', label: 'Mode' },
+    { key: 'trigger', label: 'Trigger' },
+    { key: 'behavior', label: 'Behavior' },
+  ]}
+  rows={[
+    { mode: 'Interactive browser', trigger: 'Interactive terminal', behavior: 'Opens the session browser.' },
+    { mode: 'Plain table', trigger: 'Piped output or `--plain`', behavior: 'Prints table output for copy/paste and scripts.' },
+    { mode: 'JSON records', trigger: '`--json`', behavior: 'Prints machine-readable session records for local clients.' },
+    { mode: 'Archived included', trigger: '`--all`', behavior: 'Includes archived sessions.' },
+    { mode: 'Forced browser', trigger: '`--manage`', behavior: 'Forces the browser.' },
+  ]}
+/>
 
 The browser offers contextual actions so users do not have to memorize session ids.
 
@@ -168,8 +204,6 @@ An orphaned session means Coven no longer owns a live process for that record. T
 Events are append-only records in SQLite. This gives clients a stable replay source even when the original PTY process has exited.
 
 Do not intentionally write secrets, environment dumps, private URLs, or token-bearing command output into events. Coven cannot guarantee that harness output is secret-free, so users should avoid running untrusted prompts in sensitive repositories.
-
-import { Mermaid } from '@/components/mermaid';
 
 ## Session Lifecycle
 

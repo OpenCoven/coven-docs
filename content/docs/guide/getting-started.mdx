@@ -3,6 +3,8 @@ title: "Getting Started"
 description: "Get up and running with Coven in minutes."
 ---
 
+import { DocsDataTable } from '@/components/docs-data-table';
+
 title: "Get started with Coven"
 summary: "Install Coven, launch your first project-scoped Codex or Claude Code session, and verify the daemon, store, and harnesses with coven doctor."
 read_when:
@@ -42,17 +44,25 @@ cargo run -p coven-cli -- doctor
 
 ## Prerequisites
 
-Coven needs:
+Coven needs the local prerequisites below.
 
-- Rust stable, if building from source.
-- Git.
-- A Unix-like local runtime for the current daemon socket and PTY path.
-- At least one supported harness CLI on `PATH`.
+<DocsDataTable
+  caption="Coven prerequisites"
+  searchPlaceholder="Filter prerequisites..."
+  columns={[
+    { key: 'prerequisite', label: 'Prerequisite' },
+    { key: 'requiredWhen', label: 'Required when', filter: true },
+    { key: 'purpose', label: 'Purpose' },
+  ]}
+  rows={[
+    { prerequisite: 'Rust stable', requiredWhen: 'Building from source', purpose: 'Compiles the Rust CLI and daemon workspace.' },
+    { prerequisite: 'Git', requiredWhen: 'All installs', purpose: 'Provides repository context and source checkout support.' },
+    { prerequisite: 'Unix-like local runtime', requiredWhen: 'Current daemon path', purpose: 'Supports the local Unix socket and PTY execution path.' },
+    { prerequisite: 'Supported harness CLI on `PATH`', requiredWhen: 'Running sessions', purpose: 'Lets Coven launch Codex or Claude Code.' },
+  ]}
+/>
 
-Supported v0 harnesses:
-
-- `codex`
-- `claude`
+Supported v0 harnesses are `codex` and `claude`.
 
 Install and authenticate a harness before expecting `coven run` to work:
 
@@ -72,12 +82,23 @@ From a project directory:
 coven
 ```
 
-The default command opens the prompt-first TUI. You can either:
+The default command opens the prompt-first TUI.
 
-- type a task directly and press Enter (e.g. `fix the failing tests` or a slash command like `/run codex fix the failing tests`);
-- select a menu item with arrow keys or its single-key shortcut and press Enter;
-- press `h` or type `/help` to see natural-language and slash-command examples;
-- press `Ctrl+C` or `Esc` to quit.
+<DocsDataTable
+  caption="First-run TUI controls"
+  searchPlaceholder="Filter TUI controls..."
+  columns={[
+    { key: 'action', label: 'Action' },
+    { key: 'input', label: 'Input' },
+    { key: 'result', label: 'Result' },
+  ]}
+  rows={[
+    { action: 'Type a task', input: '`fix the failing tests` or `/run codex fix the failing tests`', result: 'Launch or route the requested work.' },
+    { action: 'Select a menu item', input: 'Arrow keys or single-key shortcut, then Enter', result: 'Runs the selected TUI action.' },
+    { action: 'Open help', input: '`h` or `/help`', result: 'Shows natural-language and slash-command examples.' },
+    { action: 'Quit', input: '`Ctrl+C` or `Esc`', result: 'Exits the TUI.' },
+  ]}
+/>
 
 If you prefer to run the explicit setup checks:
 
@@ -85,12 +106,23 @@ If you prefer to run the explicit setup checks:
 coven doctor
 ```
 
-`coven doctor` checks:
+`coven doctor` checks setup readiness before you launch work.
 
-- store readiness;
-- project detection;
-- built-in harness availability; and
-- next steps for missing setup.
+<DocsDataTable
+  caption="Doctor checks"
+  searchPlaceholder="Filter doctor checks..."
+  columns={[
+    { key: 'check', label: 'Check' },
+    { key: 'group', label: 'Group', filter: true },
+    { key: 'output', label: 'Output' },
+  ]}
+  rows={[
+    { check: 'Store readiness', group: 'State', output: 'Confirms local Coven state can be read and written.' },
+    { check: 'Project detection', group: 'Project', output: 'Shows whether Coven can identify a usable project root.' },
+    { check: 'Built-in harness availability', group: 'Harnesses', output: 'Checks Codex and Claude Code executable availability.' },
+    { check: 'Missing setup next steps', group: 'Guidance', output: 'Prints the next install or auth step.' },
+  ]}
+/>
 
 ## Run a Session
 
@@ -129,13 +161,24 @@ In an interactive terminal:
 coven sessions
 ```
 
-This opens the session browser. You can select a session and choose contextual actions:
+This opens the session browser. You can select a session and choose contextual actions.
 
-- **Rejoin** for live sessions.
-- **View Log** for completed sessions.
-- **Summon** for archived sessions.
-- **Archive** for completed visible sessions.
-- **Sacrifice** for permanent deletion of non-running sessions and events.
+<DocsDataTable
+  caption="Session browser actions"
+  searchPlaceholder="Filter session actions..."
+  columns={[
+    { key: 'action', label: 'Action' },
+    { key: 'availableFor', label: 'Available for', filter: true },
+    { key: 'effect', label: 'Effect' },
+  ]}
+  rows={[
+    { action: '**Rejoin**', availableFor: 'Live sessions', effect: 'Reattaches to active output and input.' },
+    { action: '**View Log**', availableFor: 'Completed sessions', effect: 'Replays completed output.' },
+    { action: '**Summon**', availableFor: 'Archived sessions', effect: 'Restores the record to the active list.' },
+    { action: '**Archive**', availableFor: 'Completed visible sessions', effect: 'Hides the record while preserving events.' },
+    { action: '**Sacrifice**', availableFor: 'Non-running sessions', effect: 'Permanently deletes the session and events.' },
+  ]}
+/>
 
 For scripts or copy/paste workflows:
 
@@ -194,12 +237,23 @@ coven pc cache clear --confirm    # clear ~/Library/Caches + /Library/Caches
 
 Safety constraints in v1:
 
-- All write operations require `--confirm`. There is no bypass path.
-- Termination is SIGTERM only. No SIGKILL.
-- Process identity is re-checked immediately before SIGTERM to prevent PID reuse.
-- Cache clear uses a hardcoded path list. No glob expansion.
-- Process arguments are redacted by default; pass `--verbose` to inspect them.
-- No `sudo`, no LaunchAgent mutation, no system service control.
+<DocsDataTable
+  caption="coven pc safety constraints"
+  searchPlaceholder="Filter safety constraints..."
+  columns={[
+    { key: 'constraint', label: 'Constraint' },
+    { key: 'riskArea', label: 'Risk area', filter: true },
+    { key: 'behavior', label: 'Behavior' },
+  ]}
+  rows={[
+    { constraint: 'Explicit write gate', riskArea: 'Mutation', behavior: 'All write operations require `--confirm`; there is no bypass path.' },
+    { constraint: 'SIGTERM only', riskArea: 'Process control', behavior: 'Termination never escalates to SIGKILL.' },
+    { constraint: 'PID identity re-check', riskArea: 'Process control', behavior: 'Process identity is re-checked immediately before SIGTERM to prevent PID reuse.' },
+    { constraint: 'Hardcoded cache path list', riskArea: 'Filesystem', behavior: 'Cache clear does not use glob expansion.' },
+    { constraint: 'Redacted process arguments', riskArea: 'Privacy', behavior: 'Arguments are redacted by default; pass `--verbose` to inspect them.' },
+    { constraint: 'No privileged system control', riskArea: 'System integrity', behavior: 'No `sudo`, no LaunchAgent mutation, no system service control.' },
+  ]}
+/>
 
 ## End-to-end Flow
 

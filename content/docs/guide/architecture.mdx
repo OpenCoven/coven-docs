@@ -3,6 +3,7 @@ title: "Architecture"
 description: "How Coven is structured under the hood."
 ---
 
+import { DocsDataTable } from '@/components/docs-data-table';
 import { Mermaid } from '@/components/mermaid';
 
 ## System Overview
@@ -104,14 +105,25 @@ flowchart TD
 
 ## Automation Boundary
 
-Coven is the canonical shared local runtime for reusable automation because it centralizes:
+Coven is the canonical shared local runtime for reusable automation because it centralizes the authority surfaces below.
 
-- daemon/process ownership
-- policy and permission decisions
-- config/profile storage
-- capability discovery
-- action routing and event emission
-- adapter ownership for Accessibility, AppleScript, keyboard/mouse, window, filesystem, clipboard, and app-specific bridges
+<DocsDataTable
+  caption="Automation authority surfaces"
+  searchPlaceholder="Filter automation surfaces..."
+  columns={[
+    { key: 'surface', label: 'Surface' },
+    { key: 'group', label: 'Group', filter: true },
+    { key: 'reason', label: 'Reason' },
+  ]}
+  rows={[
+    { surface: 'Daemon/process ownership', group: 'Runtime', reason: 'One process owns launch, liveness, input, and kill decisions.' },
+    { surface: 'Policy and permission decisions', group: 'Policy', reason: 'Sensitive choices fail closed at the daemon boundary.' },
+    { surface: 'Config/profile storage', group: 'State', reason: 'Clients read state instead of inventing drift-prone local copies.' },
+    { surface: 'Capability discovery', group: 'Control plane', reason: 'Clients can show only supported actions.' },
+    { surface: 'Action routing and event emission', group: 'Control plane', reason: 'Adapter actions stay inspectable and replayable.' },
+    { surface: 'Adapter ownership', group: 'Adapters', reason: 'Accessibility, AppleScript, keyboard/mouse, window, filesystem, clipboard, and app-specific bridges stay behind Coven.' },
+  ]}
+/>
 
 The intended flow is:
 
@@ -131,21 +143,43 @@ Do not document future orchestration commands as user-facing until they exist in
 
 ## Current User-facing Surface
 
-- `coven` and `coven tui` open the beginner-friendly slash-command palette.
-- `coven doctor` checks store/project/harness readiness and prints next steps.
-- `coven daemon start/status/restart/stop` manages the local daemon.
-- `coven run codex|claude <prompt>` launches a project-scoped PTY session.
-- `coven sessions` opens the human session browser in a terminal; `--plain` keeps scriptable output.
-- Session browser actions surface readable choices: **Rejoin**, **View Log**, **Summon**, **Archive**, and **Sacrifice**.
-- `coven attach|summon|archive|sacrifice <session-id>` remain explicit lower-level verbs for scripts and copy/paste workflows.
+<DocsDataTable
+  caption="Current user-facing commands"
+  searchPlaceholder="Filter command surfaces..."
+  columns={[
+    { key: 'surface', label: 'Surface' },
+    { key: 'category', label: 'Category', filter: true },
+    { key: 'behavior', label: 'Behavior' },
+  ]}
+  rows={[
+    { surface: '`coven` and `coven tui`', category: 'Entry point', behavior: 'Open the beginner-friendly slash-command palette.' },
+    { surface: '`coven doctor`', category: 'Diagnostics', behavior: 'Checks store/project/harness readiness and prints next steps.' },
+    { surface: '`coven daemon start/status/restart/stop`', category: 'Daemon', behavior: 'Manages the local daemon.' },
+    { surface: '`coven run codex|claude <prompt>`', category: 'Launch', behavior: 'Launches a project-scoped PTY session.' },
+    { surface: '`coven sessions`', category: 'Sessions', behavior: 'Opens the human session browser; `--plain` keeps scriptable output.' },
+    { surface: 'Session browser actions', category: 'Sessions', behavior: 'Surfaces **Rejoin**, **View Log**, **Summon**, **Archive**, and **Sacrifice**.' },
+    { surface: '`coven attach|summon|archive|sacrifice <session-id>`', category: 'Sessions', behavior: 'Keeps explicit lower-level verbs available for scripts and copy/paste workflows.' },
+  ]}
+/>
 
 ## Distribution Snapshot
 
-The npm wrapper packages are published for early adopters:
+The npm wrapper packages are published for early adopters.
 
-- `@opencoven/cli`
-- `@opencoven/cli-macos`
-- `@opencoven/cli-linux-x64`
-- `@opencoven/cli-windows` for Windows x64
+<DocsDataTable
+  caption="Published npm packages"
+  searchPlaceholder="Filter packages..."
+  columns={[
+    { key: 'package', label: 'Package' },
+    { key: 'target', label: 'Target', filter: true },
+    { key: 'role', label: 'Role' },
+  ]}
+  rows={[
+    { package: '`@opencoven/cli`', target: 'Universal wrapper', role: 'User-facing install entrypoint.' },
+    { package: '`@opencoven/cli-macos`', target: 'macOS', role: 'Platform binary package.' },
+    { package: '`@opencoven/cli-linux-x64`', target: 'Linux x64', role: 'Platform binary package.' },
+    { package: '`@opencoven/cli-windows`', target: 'Windows x64', role: 'Platform binary package.' },
+  ]}
+/>
 
 The source package versions stay template-like in the repo; release workflow dispatch supplies the published version and builds platform packages. Check the npm registry and GitHub releases before making version-specific release claims.

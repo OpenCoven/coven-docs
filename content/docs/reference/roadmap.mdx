@@ -3,6 +3,8 @@ title: "Roadmap"
 description: "Where Coven is headed."
 ---
 
+import { DocsDataTable, DocsTabbedTables } from '@/components/docs-data-table';
+
 title: "OpenCoven public roadmap"
 summary: "The OpenCoven public roadmap for Coven, comux, and OpenClaw integrations, with shipped, now, next, and later slices for the local agent runtime."
 read_when:
@@ -20,11 +22,22 @@ It is intentionally written as a community-facing map, not an internal promise s
 
 ## North Star
 
-OpenCoven is building a local-first agent workspace where autonomous coding harnesses can work inside explicit rooms:
+OpenCoven is building a local-first agent workspace where autonomous coding harnesses can work inside explicit rooms.
 
-- **Coven** is the runtime substrate: project-scoped harness sessions, PTYs, logs, and local APIs.
-- **comux** is the cockpit: visible panes, worktrees, agent lanes, rituals, review, and merge flow.
-- **OpenClaw integrations** are orchestration surfaces that can hand work into the same local runtime without hiding what happened.
+<DocsDataTable
+  caption="OpenCoven product layers"
+  searchPlaceholder="Filter product layers..."
+  columns={[
+    { key: 'layer', label: 'Layer' },
+    { key: 'role', label: 'Role', filter: true },
+    { key: 'meaning', label: 'Meaning' },
+  ]}
+  rows={[
+    { layer: '**Coven**', role: 'Runtime substrate', meaning: 'Project-scoped harness sessions, PTYs, logs, and local APIs.' },
+    { layer: '**comux**', role: 'Cockpit', meaning: 'Visible panes, worktrees, agent lanes, rituals, review, and merge flow.' },
+    { layer: '**OpenClaw integrations**', role: 'Orchestration surfaces', meaning: 'Hand work into the same local runtime without hiding what happened.' },
+  ]}
+/>
 
 The simple promise:
 
@@ -32,11 +45,21 @@ The simple promise:
 
 ## How to Read This Roadmap
 
-- **Shipped** means the work exists in public code or public package/release artifacts.
-- **Now** means active stabilization or near-term implementation.
-- **Next** means planned after the current stabilization slice.
-- **Later** means directionally important, but not allowed to distract from the local-first MVP.
-- **Lab** means experimental work we are exploring in public when possible, but not treating as a stable promise yet.
+<DocsDataTable
+  caption="Roadmap status legend"
+  searchPlaceholder="Filter roadmap statuses..."
+  columns={[
+    { key: 'status', label: 'Status' },
+    { key: 'meaning', label: 'Meaning' },
+  ]}
+  rows={[
+    { status: '**Shipped**', meaning: 'The work exists in public code or public package/release artifacts.' },
+    { status: '**Now**', meaning: 'Active stabilization or near-term implementation.' },
+    { status: '**Next**', meaning: 'Planned after the current stabilization slice.' },
+    { status: '**Later**', meaning: 'Directionally important, but not allowed to distract from the local-first MVP.' },
+    { status: '**Lab**', meaning: 'Experimental work explored in public when possible, but not treated as a stable promise yet.' },
+  ]}
+/>
 
 ## Current Snapshot
 
@@ -44,118 +67,116 @@ The simple promise:
 
 **Status:** early public MVP, usable by adventurous local-first developers.
 
-Shipped:
-
-- Public `OpenCoven/coven` repo.
-- Rust CLI command named `coven`.
-- Beginner-friendly `coven` / `coven tui` entrypoint.
-- `coven doctor` setup checks.
-- Local daemon lifecycle: `coven daemon start/status/restart/stop`.
-- Project-root and cwd boundary guard.
-- Built-in Codex and Claude Code harness adapters.
-- PTY-backed `coven run codex|claude <prompt>` sessions.
-- SQLite-backed session metadata and event log.
-- Session browser and rituals: **Rejoin**, **View Log**, **Summon**, **Archive**, **Sacrifice**.
-- Scriptable and human session output: `coven sessions`, `--plain`, and `--all`.
-- Local HTTP-over-Unix-socket API for clients.
-- Versioned `coven.daemon.v1` API contract with named apiVersion, machine-readable capabilities, structured errors, and monotonic event cursors. See [`docs/API-CONTRACT.md`](/API-CONTRACT).
-- Compatibility tests for the external OpenClaw bridge against versioned daemon responses.
-- First-run recovery hints for missing Codex or Claude Code CLIs.
-- Real CLI smoke coverage for daemon restart, attach replay, kill, archive, summon, and sacrifice flows.
-- Install verification and release wiring for macOS, Linux x64, and Windows x64 npm package paths.
-- Published npm wrapper packages:
-  - `@opencoven/cli`
-  - `@opencoven/cli-macos`
-  - `@opencoven/cli-linux-x64`
-- External OpenClaw bridge package kept outside OpenClaw core.
-- Architecture, operational model, product spec, brand docs, and MVP plan.
-
-Now:
-
-- Keep the versioned daemon API contract and external-client compatibility work aligned. See [`docs/API-CONTRACT.md`](/API-CONTRACT).
-- Keep the public docs aligned with the actual CLI/API surface.
-
-Next:
-
-- Turn the MVP checklist into linked GitHub issues/milestones.
-
-Later:
-
-- Generic command adapter after enough real usage.
-- Additional harness adapters such as Hermes, Aider, Gemini, OpenCode, or user-defined local harnesses.
-- Policy/approval hooks for sensitive actions.
-- Richer session artifacts and attachments.
-- **Multi-harness orchestration** (Phase 1-4, no committed timeline):
-  - Phase 1: Handoff protocol and context transfer between harnesses
-  - Phase 2: Capability discovery and intelligent task routing
-  - Phase 3: Multi-instance coordination across harnesses
-  - Phase 4: Audit dashboard and compliance tooling
-- Optional cloud/team collaboration only after the local runtime is boringly reliable.
+<DocsDataTable
+  caption="Coven roadmap snapshot"
+  searchPlaceholder="Filter Coven roadmap..."
+  columns={[
+    { key: 'item', label: 'Item' },
+    { key: 'status', label: 'Status', filter: true },
+    { key: 'area', label: 'Area', filter: true },
+  ]}
+  rows={[
+    { item: 'Public `OpenCoven/coven` repo', status: 'Shipped', area: 'Project' },
+    { item: 'Rust CLI command named `coven`', status: 'Shipped', area: 'CLI' },
+    { item: 'Beginner-friendly `coven` / `coven tui` entrypoint', status: 'Shipped', area: 'CLI/TUI' },
+    { item: '`coven doctor` setup checks', status: 'Shipped', area: 'Diagnostics' },
+    { item: 'Local daemon lifecycle: `coven daemon start/status/restart/stop`', status: 'Shipped', area: 'Daemon' },
+    { item: 'Project-root and cwd boundary guard', status: 'Shipped', area: 'Safety' },
+    { item: 'Built-in Codex and Claude Code harness adapters', status: 'Shipped', area: 'Harnesses' },
+    { item: 'PTY-backed `coven run codex|claude <prompt>` sessions', status: 'Shipped', area: 'Sessions' },
+    { item: 'SQLite-backed session metadata and event log', status: 'Shipped', area: 'Store' },
+    { item: 'Session browser and rituals: **Rejoin**, **View Log**, **Summon**, **Archive**, **Sacrifice**', status: 'Shipped', area: 'Sessions' },
+    { item: 'Scriptable and human session output: `coven sessions`, `--plain`, and `--all`', status: 'Shipped', area: 'Sessions' },
+    { item: 'Local HTTP-over-Unix-socket API for clients', status: 'Shipped', area: 'API' },
+    { item: 'Versioned `coven.daemon.v1` API contract with named apiVersion, capabilities, structured errors, and monotonic event cursors', status: 'Shipped', area: 'API' },
+    { item: 'Compatibility tests for the external OpenClaw bridge', status: 'Shipped', area: 'Compatibility' },
+    { item: 'First-run recovery hints for missing Codex or Claude Code CLIs', status: 'Shipped', area: 'Onboarding' },
+    { item: 'Real CLI smoke coverage for daemon restart, attach replay, kill, archive, summon, and sacrifice flows', status: 'Shipped', area: 'Testing' },
+    { item: 'Install verification and release wiring for macOS, Linux x64, and Windows x64 npm package paths', status: 'Shipped', area: 'Release' },
+    { item: 'Published npm wrapper packages: `@opencoven/cli`, `@opencoven/cli-macos`, `@opencoven/cli-linux-x64`', status: 'Shipped', area: 'Release' },
+    { item: 'External OpenClaw bridge package kept outside OpenClaw core', status: 'Shipped', area: 'Integration' },
+    { item: 'Architecture, operational model, product spec, brand docs, and MVP plan', status: 'Shipped', area: 'Docs' },
+    { item: 'Keep versioned daemon API contract and external-client compatibility aligned', status: 'Now', area: 'API' },
+    { item: 'Keep public docs aligned with the actual CLI/API surface', status: 'Now', area: 'Docs' },
+    { item: 'Turn the MVP checklist into linked GitHub issues/milestones', status: 'Next', area: 'Planning' },
+    { item: 'Generic command adapter after enough real usage', status: 'Later', area: 'Harnesses' },
+    { item: 'Additional harness adapters such as Hermes, Aider, Gemini, OpenCode, or user-defined local harnesses', status: 'Later', area: 'Harnesses' },
+    { item: 'Policy/approval hooks for sensitive actions', status: 'Later', area: 'Safety' },
+    { item: 'Richer session artifacts and attachments', status: 'Later', area: 'Sessions' },
+    { item: 'Phase 1: Handoff protocol and context transfer between harnesses', status: 'Later', area: 'Multi-harness orchestration' },
+    { item: 'Phase 2: Capability discovery and intelligent task routing', status: 'Later', area: 'Multi-harness orchestration' },
+    { item: 'Phase 3: Multi-instance coordination across harnesses', status: 'Later', area: 'Multi-harness orchestration' },
+    { item: 'Phase 4: Audit dashboard and compliance tooling', status: 'Later', area: 'Multi-harness orchestration' },
+    { item: 'Optional cloud/team collaboration only after the local runtime is boringly reliable', status: 'Later', area: 'Collaboration' },
+  ]}
+/>
 
 ### comux
 
 **Status:** early public product, useful as a standalone terminal cockpit and becoming the first visual Coven client.
 
-Shipped:
-
-- Public `comux` npm package and CLI command.
-- tmux cockpit for visible parallel work.
-- Git worktree isolation per agent lane.
-- Agent launcher registry with multiple coding CLIs.
-- Multi-select agent launches.
-- Pane menu for inspect, merge, PR, attach, and cleanup flows.
-- File browser, code preview, and diff-oriented review affordances.
-- Project sidebar, pane visibility controls, and reopen flows.
-- Rituals for repeatable project setups.
-- Lifecycle hook docs and generated hook reference.
-- Docs site and public README/spec/smoke docs.
-- Coven session visibility and launch integration through the local bridge path.
-- OpenClaw repair ritual direction started publicly.
-
-Now:
-
-- Stabilize the Coven session UX in comux: list, open, launch, attach/rejoin, and unavailable states.
-- Keep comux useful without Coven installed.
-- Continue dogfooding comux-on-comux for branch/worktree hygiene.
-- Tighten review/merge flows so agent output stays explicit and inspectable.
-
-Next:
-
-- Promote a crisp `comux + Coven` demo loop:
-  1. Open project in comux.
-  2. Launch a Coven-backed Codex or Claude session.
-  3. Watch it as a visible pane/session.
-  4. Inspect files and diffs.
-  5. Merge, PR, archive, or clean up explicitly.
-- Add public issues for rough edges discovered during dogfooding.
-- Improve onboarding for tmux, agent CLI detection, and Coven availability.
-- Make Discord updates easy to generate from shipped commits and roadmap issues.
-
-Lab:
-
-- Native macOS cockpit exploration.
-- Desktop shortcuts and faster project/session switching.
+<DocsDataTable
+  caption="comux roadmap snapshot"
+  searchPlaceholder="Filter comux roadmap..."
+  columns={[
+    { key: 'item', label: 'Item' },
+    { key: 'status', label: 'Status', filter: true },
+    { key: 'area', label: 'Area', filter: true },
+  ]}
+  rows={[
+    { item: 'Public `comux` npm package and CLI command', status: 'Shipped', area: 'Project' },
+    { item: 'tmux cockpit for visible parallel work', status: 'Shipped', area: 'Cockpit' },
+    { item: 'Git worktree isolation per agent lane', status: 'Shipped', area: 'Worktrees' },
+    { item: 'Agent launcher registry with multiple coding CLIs', status: 'Shipped', area: 'Launchers' },
+    { item: 'Multi-select agent launches', status: 'Shipped', area: 'Launchers' },
+    { item: 'Pane menu for inspect, merge, PR, attach, and cleanup flows', status: 'Shipped', area: 'Review' },
+    { item: 'File browser, code preview, and diff-oriented review affordances', status: 'Shipped', area: 'Review' },
+    { item: 'Project sidebar, pane visibility controls, and reopen flows', status: 'Shipped', area: 'Workspace UI' },
+    { item: 'Rituals for repeatable project setups', status: 'Shipped', area: 'Automation' },
+    { item: 'Lifecycle hook docs and generated hook reference', status: 'Shipped', area: 'Docs' },
+    { item: 'Docs site and public README/spec/smoke docs', status: 'Shipped', area: 'Docs' },
+    { item: 'Coven session visibility and launch integration through the local bridge path', status: 'Shipped', area: 'Coven integration' },
+    { item: 'OpenClaw repair ritual direction started publicly', status: 'Shipped', area: 'OpenClaw' },
+    { item: 'Stabilize Coven session UX in comux: list, open, launch, attach/rejoin, and unavailable states', status: 'Now', area: 'Coven integration' },
+    { item: 'Keep comux useful without Coven installed', status: 'Now', area: 'Fallbacks' },
+    { item: 'Continue dogfooding comux-on-comux for branch/worktree hygiene', status: 'Now', area: 'Dogfooding' },
+    { item: 'Tighten review/merge flows so agent output stays explicit and inspectable', status: 'Now', area: 'Review' },
+    { item: 'Demo step 1: open project in comux', status: 'Next', area: 'Demo loop' },
+    { item: 'Demo step 2: launch a Coven-backed Codex or Claude session', status: 'Next', area: 'Demo loop' },
+    { item: 'Demo step 3: watch it as a visible pane/session', status: 'Next', area: 'Demo loop' },
+    { item: 'Demo step 4: inspect files and diffs', status: 'Next', area: 'Demo loop' },
+    { item: 'Demo step 5: merge, PR, archive, or clean up explicitly', status: 'Next', area: 'Demo loop' },
+    { item: 'Add public issues for rough edges discovered during dogfooding', status: 'Next', area: 'Community' },
+    { item: 'Improve onboarding for tmux, agent CLI detection, and Coven availability', status: 'Next', area: 'Onboarding' },
+    { item: 'Make Discord updates easy to generate from shipped commits and roadmap issues', status: 'Next', area: 'Community' },
+    { item: 'Native macOS cockpit exploration', status: 'Lab', area: 'Desktop' },
+    { item: 'Desktop shortcuts and faster project/session switching', status: 'Lab', area: 'Desktop' },
+  ]}
+/>
 
 ### OpenClaw Integration Path
 
 **Status:** opt-in bridge direction, not bundled into OpenClaw core.
 
-Shipped:
-
-- Technical OpenClaw bridge spike completed and intentionally parked before merging into core.
-- External `@opencoven/coven` plugin direction established so OpenClaw core stays clean.
-- Local socket/API boundary makes Coven the authority layer.
-
-Now:
-
-- Treat the Coven API as the compatibility boundary.
-- Add compatibility tests before encouraging broad plugin usage.
-- Keep OpenClaw copy honest: orchestration sits above Coven; it does not replace the runtime substrate.
-
-Next:
-
-- Publicly document the supported plugin path once API versioning lands.
-- Add a demo showing a task moving from intake to Coven runtime to comux review.
+<DocsDataTable
+  caption="OpenClaw integration roadmap snapshot"
+  searchPlaceholder="Filter OpenClaw integration roadmap..."
+  columns={[
+    { key: 'item', label: 'Item' },
+    { key: 'status', label: 'Status', filter: true },
+    { key: 'area', label: 'Area', filter: true },
+  ]}
+  rows={[
+    { item: 'Technical OpenClaw bridge spike completed and intentionally parked before merging into core', status: 'Shipped', area: 'Bridge spike' },
+    { item: 'External `@opencoven/coven` plugin direction established so OpenClaw core stays clean', status: 'Shipped', area: 'Package boundary' },
+    { item: 'Local socket/API boundary makes Coven the authority layer', status: 'Shipped', area: 'Architecture' },
+    { item: 'Treat the Coven API as the compatibility boundary', status: 'Now', area: 'API' },
+    { item: 'Add compatibility tests before encouraging broad plugin usage', status: 'Now', area: 'Testing' },
+    { item: 'Keep OpenClaw copy honest: orchestration sits above Coven; it does not replace the runtime substrate', status: 'Now', area: 'Messaging' },
+    { item: 'Publicly document the supported plugin path once API versioning lands', status: 'Next', area: 'Docs' },
+    { item: 'Add a demo showing a task moving from intake to Coven runtime to comux review', status: 'Next', area: 'Demo' },
+  ]}
+/>
 
 ## Milestone Map
 
@@ -183,96 +204,137 @@ Colour coding mirrors maturity: filled lavender is shipped or stabilising; outli
 
 ## Public Milestones
 
-### Milestone A — Local Runtime Foundation
-
-Status: **mostly shipped**
-
-- [x] Public repo and docs
-- [x] `coven` CLI
-- [x] Project-root safety
-- [x] Codex and Claude adapters
-- [x] PTY sessions
-- [x] SQLite session/event ledger
-- [x] Daemon lifecycle
-- [x] Local sessions/events API
-- [x] Versioned API contract
-- [x] Compatibility tests for external clients
-
-### Milestone B — Visible Cockpit Foundation
-
-Status: **shipped, stabilizing**
-
-- [x] Public `comux` package
-- [x] tmux panes
-- [x] git worktrees
-- [x] agent launcher registry
-- [x] file browser / diff review
-- [x] rituals
-- [x] merge and PR-oriented pane menu
-- [x] Coven session visibility
-- [ ] Coven attach/rejoin UX polish
-- [ ] documented end-to-end comux + Coven demo
-
-### Milestone C — Transparent Community Loop
-
-Status: **now**
-
-- [x] Public roadmap document
-- [ ] GitHub milestone labels for `roadmap`, `now`, `next`, `later`, `area:coven`, `area:comux`, `good first issue`, `help wanted`
-- [ ] First public Discord roadmap post
-- [ ] Weekly shipped/building/next update cadence
-- [ ] Public issue board linked from Discord
-
-### Milestone D — Harness Expansion
-
-Status: **next/later**
-
-- [x] Future harness research started
-- [x] Adapter contract documented
-- [ ] Generic command adapter design from real usage
-- [ ] Third harness proof
-- [ ] Harness compatibility docs
-
-### Milestone E — Intake to Runtime to Review
-
-Status: **next/lab**
-
-- [ ] OpenClaw intake creates or requests a Coven task
-- [ ] Coven owns the session and event log
-- [ ] comux shows the session for review
-- [ ] user explicitly merges, PRs, archives, or deletes work
-
-### Milestone F — Multi-harness Orchestration (Phase 1-4)
-
-Status: **planned, no committed start date**
-
-**Phase 1: Handoff Protocol (Weeks 1-2)**
-- [ ] Handoff API design and TypeScript implementation
-- [ ] Context transfer format and validation
-- [ ] Harness-to-harness explicit handoff (e.g., OpenClaw → Claude Code)
-- [ ] Handoff ledger (PostgreSQL)
-- [ ] End-to-end test: Cody hands off test failure to Claude for file editing
-
-**Phase 2: Capability Discovery & Router (Weeks 3-4)**
-- [ ] Harness capability registry and declaration
-- [ ] Task router: auto-select best-fit harness
-- [ ] Load balancing and fallback chains
-- [ ] SLA enforcement and timeout handling
-- [ ] Test: "Fix this bug" routes to best-fit harness automatically
-
-**Phase 3: Multi-Instance Coordination (Weeks 5-6)**
-- [ ] Distributed context store (Redis + PostgreSQL)
-- [ ] Harness registration and health heartbeat
-- [ ] Task affinity routing (resource constraints)
-- [ ] Scale to multiple Coven instances per user
-- [ ] Test: Local + remote harnesses coordinate without collision
-
-**Phase 4: Audit & Observability (Weeks 7-8)**
-- [ ] Audit dashboard: task timeline and handoff trace
-- [ ] Compliance export (redacted traces)
-- [ ] Prometheus metrics and alerting
-- [ ] Full visibility into orchestrated work
-- [ ] Test: Legal/compliance can query full history
+<DocsTabbedTables
+  tabs={[
+    {
+      id: 'milestone-a',
+      label: 'A. Runtime',
+      caption: 'Milestone A - Local Runtime Foundation',
+      searchPlaceholder: 'Filter runtime milestone...',
+      columns: [
+        { key: 'item', label: 'Item' },
+        { key: 'status', label: 'Status', filter: true },
+      ],
+      rows: [
+        { item: 'Public repo and docs', status: 'Done' },
+        { item: '`coven` CLI', status: 'Done' },
+        { item: 'Project-root safety', status: 'Done' },
+        { item: 'Codex and Claude adapters', status: 'Done' },
+        { item: 'PTY sessions', status: 'Done' },
+        { item: 'SQLite session/event ledger', status: 'Done' },
+        { item: 'Daemon lifecycle', status: 'Done' },
+        { item: 'Local sessions/events API', status: 'Done' },
+        { item: 'Versioned API contract', status: 'Done' },
+        { item: 'Compatibility tests for external clients', status: 'Done' },
+      ],
+    },
+    {
+      id: 'milestone-b',
+      label: 'B. Cockpit',
+      caption: 'Milestone B - Visible Cockpit Foundation',
+      searchPlaceholder: 'Filter cockpit milestone...',
+      columns: [
+        { key: 'item', label: 'Item' },
+        { key: 'status', label: 'Status', filter: true },
+      ],
+      rows: [
+        { item: 'Public `comux` package', status: 'Done' },
+        { item: 'tmux panes', status: 'Done' },
+        { item: 'git worktrees', status: 'Done' },
+        { item: 'agent launcher registry', status: 'Done' },
+        { item: 'file browser / diff review', status: 'Done' },
+        { item: 'rituals', status: 'Done' },
+        { item: 'merge and PR-oriented pane menu', status: 'Done' },
+        { item: 'Coven session visibility', status: 'Done' },
+        { item: 'Coven attach/rejoin UX polish', status: 'Open' },
+        { item: 'documented end-to-end comux + Coven demo', status: 'Open' },
+      ],
+    },
+    {
+      id: 'milestone-c',
+      label: 'C. Community',
+      caption: 'Milestone C - Transparent Community Loop',
+      searchPlaceholder: 'Filter community milestone...',
+      columns: [
+        { key: 'item', label: 'Item' },
+        { key: 'status', label: 'Status', filter: true },
+      ],
+      rows: [
+        { item: 'Public roadmap document', status: 'Done' },
+        { item: 'GitHub milestone labels for `roadmap`, `now`, `next`, `later`, `area:coven`, `area:comux`, `good first issue`, `help wanted`', status: 'Open' },
+        { item: 'First public Discord roadmap post', status: 'Open' },
+        { item: 'Weekly shipped/building/next update cadence', status: 'Open' },
+        { item: 'Public issue board linked from Discord', status: 'Open' },
+      ],
+    },
+    {
+      id: 'milestone-d',
+      label: 'D. Harnesses',
+      caption: 'Milestone D - Harness Expansion',
+      searchPlaceholder: 'Filter harness milestone...',
+      columns: [
+        { key: 'item', label: 'Item' },
+        { key: 'status', label: 'Status', filter: true },
+      ],
+      rows: [
+        { item: 'Future harness research started', status: 'Done' },
+        { item: 'Adapter contract documented', status: 'Done' },
+        { item: 'Generic command adapter design from real usage', status: 'Open' },
+        { item: 'Third harness proof', status: 'Open' },
+        { item: 'Harness compatibility docs', status: 'Open' },
+      ],
+    },
+    {
+      id: 'milestone-e',
+      label: 'E. Intake',
+      caption: 'Milestone E - Intake to Runtime to Review',
+      searchPlaceholder: 'Filter intake milestone...',
+      columns: [
+        { key: 'item', label: 'Item' },
+        { key: 'status', label: 'Status', filter: true },
+      ],
+      rows: [
+        { item: 'OpenClaw intake creates or requests a Coven task', status: 'Open' },
+        { item: 'Coven owns the session and event log', status: 'Open' },
+        { item: 'comux shows the session for review', status: 'Open' },
+        { item: 'user explicitly merges, PRs, archives, or deletes work', status: 'Open' },
+      ],
+    },
+    {
+      id: 'milestone-f',
+      label: 'F. Orchestration',
+      caption: 'Milestone F - Multi-harness Orchestration',
+      searchPlaceholder: 'Filter orchestration phases...',
+      columns: [
+        { key: 'phase', label: 'Phase', filter: true },
+        { key: 'item', label: 'Item' },
+        { key: 'status', label: 'Status', filter: true },
+      ],
+      rows: [
+        { phase: 'Phase 1: Handoff Protocol', item: 'Handoff API design and TypeScript implementation', status: 'Open' },
+        { phase: 'Phase 1: Handoff Protocol', item: 'Context transfer format and validation', status: 'Open' },
+        { phase: 'Phase 1: Handoff Protocol', item: 'Harness-to-harness explicit handoff, e.g. OpenClaw to Claude Code', status: 'Open' },
+        { phase: 'Phase 1: Handoff Protocol', item: 'Handoff ledger, PostgreSQL', status: 'Open' },
+        { phase: 'Phase 1: Handoff Protocol', item: 'End-to-end test: Cody hands off test failure to Claude for file editing', status: 'Open' },
+        { phase: 'Phase 2: Capability Discovery & Router', item: 'Harness capability registry and declaration', status: 'Open' },
+        { phase: 'Phase 2: Capability Discovery & Router', item: 'Task router: auto-select best-fit harness', status: 'Open' },
+        { phase: 'Phase 2: Capability Discovery & Router', item: 'Load balancing and fallback chains', status: 'Open' },
+        { phase: 'Phase 2: Capability Discovery & Router', item: 'SLA enforcement and timeout handling', status: 'Open' },
+        { phase: 'Phase 2: Capability Discovery & Router', item: 'Test: "Fix this bug" routes to best-fit harness automatically', status: 'Open' },
+        { phase: 'Phase 3: Multi-Instance Coordination', item: 'Distributed context store, Redis + PostgreSQL', status: 'Open' },
+        { phase: 'Phase 3: Multi-Instance Coordination', item: 'Harness registration and health heartbeat', status: 'Open' },
+        { phase: 'Phase 3: Multi-Instance Coordination', item: 'Task affinity routing, resource constraints', status: 'Open' },
+        { phase: 'Phase 3: Multi-Instance Coordination', item: 'Scale to multiple Coven instances per user', status: 'Open' },
+        { phase: 'Phase 3: Multi-Instance Coordination', item: 'Test: Local + remote harnesses coordinate without collision', status: 'Open' },
+        { phase: 'Phase 4: Audit & Observability', item: 'Audit dashboard: task timeline and handoff trace', status: 'Open' },
+        { phase: 'Phase 4: Audit & Observability', item: 'Compliance export, redacted traces', status: 'Open' },
+        { phase: 'Phase 4: Audit & Observability', item: 'Prometheus metrics and alerting', status: 'Open' },
+        { phase: 'Phase 4: Audit & Observability', item: 'Full visibility into orchestrated work', status: 'Open' },
+        { phase: 'Phase 4: Audit & Observability', item: 'Test: Legal/compliance can query full history', status: 'Open' },
+      ],
+    },
+  ]}
+/>
 
 ## Discord Transparency Model
 
@@ -280,9 +342,19 @@ We should keep Discord updates lightweight and repeatable.
 
 ### Suggested Channels
 
-- `#roadmap` or a forum-style `Roadmap` channel for milestone threads.
-- `#dev-updates` for weekly summaries.
-- `#help-wanted` for scoped issues that community members can actually pick up.
+<DocsDataTable
+  caption="Discord transparency channels"
+  searchPlaceholder="Filter Discord channels..."
+  columns={[
+    { key: 'channel', label: 'Channel' },
+    { key: 'purpose', label: 'Purpose' },
+  ]}
+  rows={[
+    { channel: '`#roadmap` or forum-style `Roadmap`', purpose: 'Milestone threads.' },
+    { channel: '`#dev-updates`', purpose: 'Weekly summaries.' },
+    { channel: '`#help-wanted`', purpose: 'Scoped issues that community members can actually pick up.' },
+  ]}
+/>
 
 ### Weekly Update Template
 
@@ -309,12 +381,22 @@ We should keep Discord updates lightweight and repeatable.
 
 ### Rules for Honest Updates
 
-- Do not promise dates unless we are already in release mode.
-- Link shipped work to commits, releases, issues, or docs.
-- Mark experiments as **Lab** instead of pretending they are committed roadmap items.
-- Separate **Coven runtime**, **comux cockpit**, and **OpenClaw intake** so people understand the architecture.
-- Prefer small public issues over giant vague tasks.
-- Ask for help only when the task has a clear acceptance condition.
+<DocsDataTable
+  caption="Rules for honest updates"
+  searchPlaceholder="Filter update rules..."
+  columns={[
+    { key: 'rule', label: 'Rule' },
+    { key: 'reason', label: 'Reason' },
+  ]}
+  rows={[
+    { rule: 'Do not promise dates unless we are already in release mode.', reason: 'Avoid turning direction into false commitments.' },
+    { rule: 'Link shipped work to commits, releases, issues, or docs.', reason: 'Make progress independently verifiable.' },
+    { rule: 'Mark experiments as **Lab** instead of pretending they are committed roadmap items.', reason: 'Keep explorations distinct from promises.' },
+    { rule: 'Separate **Coven runtime**, **comux cockpit**, and **OpenClaw intake**.', reason: 'Help people understand the architecture.' },
+    { rule: 'Prefer small public issues over giant vague tasks.', reason: 'Make contribution paths real.' },
+    { rule: 'Ask for help only when the task has a clear acceptance condition.', reason: 'Respect community attention.' },
+  ]}
+/>
 
 ## First Public Discord Post
 

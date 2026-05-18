@@ -3,6 +3,9 @@ title: "Harness Adapters"
 description: "Connecting different AI providers as harnesses."
 ---
 
+import { DocsDataTable } from '@/components/docs-data-table';
+import { Mermaid } from '@/components/mermaid';
+
 title: "Harness adapter guide"
 summary: "The harness adapter shape Coven uses today, the bar for adding new harnesses, and how Codex and Claude Code map onto the v0 adapter surface."
 read_when:
@@ -16,58 +19,69 @@ Coven v0 supports Codex and Claude Code. This guide describes the current adapte
 
 ## Current Adapter Shape
 
-A built-in harness adapter defines:
+A built-in harness adapter defines a compact launch contract.
 
-- stable Coven harness id;
-- user-facing label;
-- executable name to detect on `PATH`;
-- prompt argument shape for interactive mode;
-- prompt argument shape for non-interactive mode; and
-- install/authentication hint for `coven doctor`.
+<DocsDataTable
+  caption="Harness adapter fields"
+  searchPlaceholder="Filter adapter fields..."
+  columns={[
+    { key: 'field', label: 'Field' },
+    { key: 'purpose', label: 'Purpose' },
+    { key: 'consumer', label: 'Consumer', filter: true },
+  ]}
+  rows={[
+    { field: 'Stable Coven harness id', purpose: 'Names the adapter in CLI and API requests.', consumer: 'CLI/API' },
+    { field: 'User-facing label', purpose: 'Gives clients a readable display name.', consumer: 'Client UI' },
+    { field: 'Executable name', purpose: 'Lets `coven doctor` detect the CLI on `PATH`.', consumer: 'Doctor' },
+    { field: 'Interactive prompt args', purpose: 'Defines the fixed argv prefix for live PTY sessions.', consumer: 'Launcher' },
+    { field: 'Non-interactive prompt args', purpose: 'Defines the fixed argv prefix for one-shot output capture.', consumer: 'Launcher' },
+    { field: 'Install/authentication hint', purpose: 'Explains the next setup step when detection fails.', consumer: 'Doctor' },
+  ]}
+/>
 
 The current implementation expects the prompt to be the final command argument after any fixed prefix args.
 
 ## Built-in Harnesses
 
-### Codex
-
-- Harness id: `codex`
-- Executable: `codex`
-- Interactive prefix args: none
-- Non-interactive prefix args: `exec --skip-git-repo-check --color never`
-
-Setup hint:
-
-```sh
-npm install -g @openai/codex
-codex login
-```
-
-### Claude Code
-
-- Harness id: `claude`
-- Executable: `claude`
-- Interactive prefix args: none
-- Non-interactive prefix args: `--print`
-
-Setup hint:
-
-```sh
-npm install -g @anthropic-ai/claude-code
-claude doctor
-```
+<DocsDataTable
+  caption="Built-in harness adapters"
+  searchPlaceholder="Filter built-in harnesses..."
+  columns={[
+    { key: 'harness', label: 'Harness', filter: true },
+    { key: 'id', label: 'Harness id' },
+    { key: 'executable', label: 'Executable' },
+    { key: 'interactiveArgs', label: 'Interactive prefix args' },
+    { key: 'nonInteractiveArgs', label: 'Non-interactive prefix args' },
+    { key: 'setup', label: 'Setup hint' },
+  ]}
+  rows={[
+    { harness: 'Codex', id: '`codex`', executable: '`codex`', interactiveArgs: 'None', nonInteractiveArgs: '`exec --skip-git-repo-check --color never`', setup: '`npm install -g @openai/codex`; `codex login`' },
+    { harness: 'Claude Code', id: '`claude`', executable: '`claude`', interactiveArgs: 'None', nonInteractiveArgs: '`--print`', setup: '`npm install -g @anthropic-ai/claude-code`; `claude doctor`' },
+  ]}
+/>
 
 ## Adapter Requirements
 
-Before adding a new harness, confirm:
+Before adding a new harness, confirm the readiness checks below.
 
-- the CLI can be detected safely on `PATH`;
-- the prompt can be passed without shell interpolation;
-- the process can run from a validated project cwd;
-- output can be captured through PTY/session events;
-- authentication stays in the harness provider's normal local flow;
-- failure modes are understandable in `coven doctor`;
-- tests cover command construction and missing executable behavior.
+<DocsDataTable
+  caption="Adapter readiness requirements"
+  searchPlaceholder="Filter adapter requirements..."
+  columns={[
+    { key: 'requirement', label: 'Requirement' },
+    { key: 'riskArea', label: 'Risk area', filter: true },
+    { key: 'acceptance', label: 'Acceptance signal' },
+  ]}
+  rows={[
+    { requirement: 'CLI detection on `PATH`', riskArea: 'Setup', acceptance: '`coven doctor` can find the executable safely.' },
+    { requirement: 'Prompt passed without shell interpolation', riskArea: 'Command safety', acceptance: 'Launcher builds argv directly and keeps the prompt as data.' },
+    { requirement: 'Validated project cwd', riskArea: 'Filesystem policy', acceptance: 'The process starts only after project-root and cwd checks pass.' },
+    { requirement: 'PTY/session event capture', riskArea: 'Observability', acceptance: 'Output and exit data become replayable session events.' },
+    { requirement: 'Provider-owned authentication', riskArea: 'Credentials', acceptance: 'Login remains in the harness provider flow.' },
+    { requirement: '`coven doctor` failure clarity', riskArea: 'Setup', acceptance: 'Missing auth or executable states include actionable hints.' },
+    { requirement: 'Command and missing-executable tests', riskArea: 'Regression coverage', acceptance: 'Tests prove safe argv construction and understandable failures.' },
+  ]}
+/>
 
 ## What Not to Add Yet
 
@@ -77,20 +91,31 @@ Arbitrary commands are more dangerous than named harness adapters because they c
 
 ## Future Harness Evaluation Checklist
 
-For a candidate harness, document:
+For a candidate harness, document the evaluation packet.
 
-- install command;
-- executable name;
-- local auth flow;
-- one-shot prompt command;
-- interactive command;
-- resume/session command, if any;
-- non-interactive output mode;
-- whether stdin prompt injection is needed;
-- whether the CLI can disable color/control sequences;
-- whether the CLI can avoid shell quoting hazards;
-- known exit codes;
-- minimum safe smoke test.
+<DocsDataTable
+  caption="Future harness evaluation packet"
+  searchPlaceholder="Filter evaluation fields..."
+  columns={[
+    { key: 'field', label: 'Field' },
+    { key: 'group', label: 'Group', filter: true },
+    { key: 'whyItMatters', label: 'Why it matters' },
+  ]}
+  rows={[
+    { field: 'Install command', group: 'Setup', whyItMatters: 'Users need a repeatable path to get the CLI.' },
+    { field: 'Executable name', group: 'Setup', whyItMatters: 'Doctor detection needs the exact binary name.' },
+    { field: 'Local auth flow', group: 'Credentials', whyItMatters: 'Provider credentials must stay outside Coven.' },
+    { field: 'One-shot prompt command', group: 'Launch shape', whyItMatters: 'Non-interactive runs need predictable output capture.' },
+    { field: 'Interactive command', group: 'Launch shape', whyItMatters: 'Live PTY sessions need a stable argv shape.' },
+    { field: 'Resume/session command', group: 'Session continuity', whyItMatters: 'Native upstream session ids may become useful metadata.' },
+    { field: 'Non-interactive output mode', group: 'Output', whyItMatters: 'Clients need clean logs without terminal control noise.' },
+    { field: 'stdin prompt injection requirement', group: 'Launch shape', whyItMatters: 'stdin prompts have different safety and replay behavior.' },
+    { field: 'Color/control sequence controls', group: 'Output', whyItMatters: 'Replay and docs output should stay readable.' },
+    { field: 'Shell quoting hazards', group: 'Command safety', whyItMatters: 'Adapters must avoid `sh -c` style prompt execution.' },
+    { field: 'Known exit codes', group: 'Error handling', whyItMatters: 'Clients can translate failures into useful next steps.' },
+    { field: 'Minimum safe smoke test', group: 'Regression coverage', whyItMatters: 'Public support needs proof beyond a maintainer machine.' },
+  ]}
+/>
 
 ## Session Identity Mapping
 
@@ -100,12 +125,23 @@ If upstream ids become useful, store them as metadata rather than replacing Cove
 
 ## Suggested Adapter Maturity Stages
 
-1. **Research note** - document CLI shape and risks.
-2. **Command construction tests** - prove argv construction is safe.
-3. **Doctor detection** - add install/auth hints.
-4. **Launch smoke** - prove a session can run in a temporary project.
-5. **Attach/replay smoke** - prove events can be replayed.
-6. **Client compatibility** - update docs and integration tests.
+<DocsDataTable
+  caption="Adapter maturity stages"
+  searchPlaceholder="Filter maturity stages..."
+  columns={[
+    { key: 'stage', label: 'Stage' },
+    { key: 'name', label: 'Name' },
+    { key: 'proof', label: 'Proof required' },
+  ]}
+  rows={[
+    { stage: '1', name: 'Research note', proof: 'Document CLI shape and risks.' },
+    { stage: '2', name: 'Command construction tests', proof: 'Prove argv construction is safe.' },
+    { stage: '3', name: 'Doctor detection', proof: 'Add install and authentication hints.' },
+    { stage: '4', name: 'Launch smoke', proof: 'Prove a session can run in a temporary project.' },
+    { stage: '5', name: 'Attach/replay smoke', proof: 'Prove events can be replayed.' },
+    { stage: '6', name: 'Client compatibility', proof: 'Update docs and integration tests.' },
+  ]}
+/>
 
 Do not skip from research directly to public support.
 
@@ -128,8 +164,6 @@ flowchart LR
 ```
 
 A harness skipping any stage is **not** ready for public support, even if it appears to work on a maintainer's machine.
-
-import { Mermaid } from '@/components/mermaid';
 
 ## Harness Adapter Model
 

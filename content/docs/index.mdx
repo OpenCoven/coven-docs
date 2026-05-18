@@ -4,6 +4,7 @@ description: Persistent AI familiars. Composable. Observable. Publishable.
 ---
 
 import { Cards, Card } from 'fumadocs-ui/components/card';
+import { DocsDataTable } from '@/components/docs-data-table';
 
 # Welcome to Coven
 
@@ -18,11 +19,22 @@ import { Cards, Card } from 'fumadocs-ui/components/card';
 
 ## What Makes Coven Different?
 
-- **Persistent familiars** — agents with memory, personality, and continuity across sessions
-- **Tool access** — web, exec, files, messaging, calendar, and more
-- **Multi-channel** — Telegram, Discord, iMessage, WhatsApp, and custom channels
-- **Observable** — every action traced, inspectable, and auditable
-- **Open** — self-hosted, extensible, yours
+<DocsDataTable
+  caption="Coven differentiators"
+  searchPlaceholder="Filter differentiators..."
+  columns={[
+    { key: 'pillar', label: 'Pillar' },
+    { key: 'group', label: 'Group', filter: true },
+    { key: 'meaning', label: 'Meaning' },
+  ]}
+  rows={[
+    { pillar: '**Persistent familiars**', group: 'Identity', meaning: 'Agents carry memory, personality, and continuity across sessions.' },
+    { pillar: '**Tool access**', group: 'Capabilities', meaning: 'Familiars can use web, exec, files, messaging, calendar, and more.' },
+    { pillar: '**Multi-channel**', group: 'Presence', meaning: 'The same work can surface through Telegram, Discord, iMessage, WhatsApp, and custom channels.' },
+    { pillar: '**Observable**', group: 'Trust', meaning: 'Actions are traced, inspectable, and auditable.' },
+    { pillar: '**Open**', group: 'Ownership', meaning: 'The system is self-hosted, extensible, and yours.' },
+  ]}
+/>
 
 ```typescript
 // Your familiar, your workspace

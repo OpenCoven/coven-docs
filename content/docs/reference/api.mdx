@@ -3,6 +3,8 @@ title: "API Reference"
 description: "Full API documentation."
 ---
 
+import { DocsDataTable } from '@/components/docs-data-table';
+
 title: "Coven local socket API"
 summary: "The Coven local HTTP API served over a Unix socket: health, capabilities, actions, sessions, events, and input forwarding under /api/v1."
 read_when:
@@ -140,8 +142,19 @@ Immediately completed safe actions return `200` with an event-shaped payload tha
 
 ## Compatibility Rules
 
-- Additive JSON fields are allowed in `v1` responses.
-- Existing required fields should not be removed or renamed inside `v1`.
-- Breaking response-shape or behavior changes require a new API version prefix.
-- External clients should call `/api/v1/health` before assuming compatibility.
-- Daemon changes that affect `/api/v1/health`, `/api/v1/sessions`, `/api/v1/events`, input, or kill behavior should update client compatibility tests in the same repo.
+<DocsDataTable
+  caption="API compatibility rules"
+  searchPlaceholder="Filter compatibility rules..."
+  columns={[
+    { key: 'rule', label: 'Rule' },
+    { key: 'riskArea', label: 'Risk area', filter: true },
+    { key: 'clientOrMaintainerAction', label: 'Client or maintainer action' },
+  ]}
+  rows={[
+    { rule: 'Additive JSON fields are allowed in `v1` responses.', riskArea: 'Forward compatibility', clientOrMaintainerAction: 'Clients should ignore unknown optional fields when safe.' },
+    { rule: 'Existing required fields should not be removed or renamed inside `v1`.', riskArea: 'Breaking changes', clientOrMaintainerAction: 'Keep required response shapes stable for versioned clients.' },
+    { rule: 'Breaking response-shape or behavior changes require a new API version prefix.', riskArea: 'Versioning', clientOrMaintainerAction: 'Move incompatible behavior behind a new route prefix.' },
+    { rule: 'External clients should call `/api/v1/health` before assuming compatibility.', riskArea: 'Handshake', clientOrMaintainerAction: 'Check daemon availability and API version first.' },
+    { rule: 'Daemon changes that affect `/api/v1/health`, `/api/v1/sessions`, `/api/v1/events`, input, or kill behavior should update client compatibility tests in the same repo.', riskArea: 'Contract drift', clientOrMaintainerAction: 'Update tests with the API-affecting change.' },
+  ]}
+/>

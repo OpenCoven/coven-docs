@@ -24,6 +24,15 @@ type Props = {
   searchPlaceholder?: string;
 };
 
+type TableSpec = Props & {
+  id: string;
+  label: string;
+};
+
+type TabbedProps = {
+  tabs: TableSpec[];
+};
+
 const markerPattern = /([\u0060][^\u0060]+[\u0060]|\*\*[^*]+\*\*)/g;
 const tick = String.fromCharCode(96);
 
@@ -165,6 +174,42 @@ export function DocsDataTable({ caption, columns, rows, searchPlaceholder = 'Fil
       <div className={styles.meta}>
         <span>{visibleRows.length} visible</span>
         <span>{rows.length} total</span>
+      </div>
+    </div>
+  );
+}
+
+export function DocsTabbedTables({ tabs }: TabbedProps) {
+  const [activeId, setActiveId] = useState(tabs[0]?.id ?? '');
+  const active = tabs.find((tab) => tab.id === activeId) ?? tabs[0];
+
+  if (!active) return null;
+
+  return (
+    <div className={styles.tabbed}>
+      <div className={styles.tablist} role="tablist" aria-label="Table views">
+        {tabs.map((tab) => (
+          <button
+            className={tab.id === active.id ? styles.tabActive : styles.tab}
+            key={tab.id}
+            type="button"
+            role="tab"
+            aria-selected={tab.id === active.id}
+            aria-controls={'table-panel-' + tab.id}
+            id={'table-tab-' + tab.id}
+            onClick={() => setActiveId(tab.id)}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+      <div id={'table-panel-' + active.id} role="tabpanel" aria-labelledby={'table-tab-' + active.id}>
+        <DocsDataTable
+          caption={active.caption}
+          columns={active.columns}
+          rows={active.rows}
+          searchPlaceholder={active.searchPlaceholder}
+        />
       </div>
     </div>
   );
