@@ -19,7 +19,7 @@ GET /v1/familiars
     {
       "id": "fam_nova",
       "name": "Nova",
-      "harness_id": "hrn_openclaw",
+      "harness_id": "harness_openclaw",
       "model": "openai/gpt-5.5",
       "status": "active",
       "channels": ["telegram", "discord"],
@@ -43,7 +43,7 @@ Content-Type: application/json
 
 {
   "name": "Sage",
-  "harness_id": "hrn_openclaw",
+  "harness_id": "harness_openclaw",
   "model": "openai/gpt-5.5",
   "personality": "analytical, direct, research-oriented",
   "tools": ["web_search", "exec", "memory"],
@@ -67,7 +67,7 @@ PATCH /v1/familiars/:id
 Content-Type: application/json
 
 {
-  "harness_id": "hrn_claude_code",
+  "harness_id": "harness_claude_code",
   "model": "anthropic/claude-sonnet-4-5"
 }
 ```

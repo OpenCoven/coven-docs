@@ -19,7 +19,7 @@ GET /v1/harnesses
 {
   "harnesses": [
     {
-      "id": "hrn_openclaw",
+      "id": "harness_openclaw",
       "name": "OpenClaw",
       "kind": "openclaw",
       "status": "healthy",
@@ -27,7 +27,7 @@ GET /v1/harnesses
       "created_at": "2026-05-01T00:00:00Z"
     },
     {
-      "id": "hrn_claude_code",
+      "id": "harness_claude_code",
       "name": "Claude Code",
       "kind": "claude_code",
       "status": "healthy",
@@ -46,7 +46,7 @@ GET /v1/harnesses/:id
 
 ```json
 {
-  "id": "hrn_openclaw",
+  "id": "harness_openclaw",
   "name": "OpenClaw",
   "kind": "openclaw",
   "status": "healthy",
@@ -104,7 +104,7 @@ GET /v1/harnesses/:id/health
 
 ```json
 {
-  "id": "hrn_openclaw",
+  "id": "harness_openclaw",
   "status": "healthy",
   "latency_ms": 42,
   "last_check": "2026-05-17T20:00:00Z"
