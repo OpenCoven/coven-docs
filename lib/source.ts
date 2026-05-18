@@ -7,13 +7,12 @@ const lucideIcons = {
   LuBookOpen: icons.BookOpen,
   LuRocket: icons.Rocket,
   LuZap: icons.Zap,
-  LuWand2: icons.Wand2,
+  LuWand: icons.Wand,
   LuCpu: icons.Cpu,
   LuShield: icons.Shield,
-  LuCode2: icons.Code2,
+  LuCode: icons.Code,
   LuNetwork: icons.Network,
   LuUsers: icons.Users,
-  LuMemoryStick: icons.MemoryStick,
 };
 
 export const source = loader({
