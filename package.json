@@ -15,6 +15,7 @@
     "fumadocs-mdx": "11.6.0",
     "fumadocs-ui": "15.2.8",
     "lucide-react": "^0.488.0",
+    "mermaid": "^11.15.0",
     "next": "15.3.8",
     "next-themes": "^0.4.6",
     "react": "^19",

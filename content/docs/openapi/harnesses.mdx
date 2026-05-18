@@ -134,3 +134,43 @@ DELETE /v1/harnesses/:id
 | `codex` | OpenAI Codex CLI |
 | `hermes` | Hermes local runner |
 | `custom` | Custom adapter via OpenCoven SDK |
+
+import { Mermaid } from '@/components/mermaid';
+
+## Familiar–Harness relationship
+
+<Mermaid chart={`
+erDiagram
+    HARNESS {
+        string id
+        string name
+        string kind
+        string status
+        object config
+    }
+    FAMILIAR {
+        string id
+        string name
+        string harness_id
+        string model
+        string personality
+        array tools
+        array channels
+    }
+    SESSION {
+        string id
+        string familiar_id
+        string status
+        string channel
+    }
+    MEMORY {
+        string id
+        string familiar_id
+        string kind
+        string content
+    }
+
+    HARNESS ||--o{ FAMILIAR : "powers"
+    FAMILIAR ||--o{ SESSION : "has"
+    FAMILIAR ||--o{ MEMORY : "stores"
+`} />

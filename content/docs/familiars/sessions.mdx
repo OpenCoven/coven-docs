@@ -168,3 +168,27 @@ An orphaned session means Coven no longer owns a live process for that record. T
 Events are append-only records in SQLite. This gives clients a stable replay source even when the original PTY process has exited.
 
 Do not intentionally write secrets, environment dumps, private URLs, or token-bearing command output into events. Coven cannot guarantee that harness output is secret-free, so users should avoid running untrusted prompts in sensitive repositories.
+
+import { Mermaid } from '@/components/mermaid';
+
+## Session lifecycle
+
+<Mermaid chart={`
+sequenceDiagram
+    participant U as User
+    participant C as Channel
+    participant F as Familiar
+    participant H as Harness
+    participant T as Tools
+
+    U->>C: Send message
+    C->>F: Route to familiar
+    F->>F: Load memory context
+    F->>H: Forward with context
+    H->>T: Call tools (optional)
+    T-->>H: Tool results
+    H-->>F: Model response
+    F->>F: Update memory
+    F-->>C: Reply
+    C-->>U: Deliver
+`} />

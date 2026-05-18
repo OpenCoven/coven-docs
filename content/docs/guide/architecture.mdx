@@ -3,8 +3,22 @@ title: "Architecture"
 description: "How Coven is structured under the hood."
 ---
 
-title: "Coven runtime architecture"
-summary: "How the Coven Rust daemon, CLI, TUI, comux cockpit, and OpenClaw plugin compose around the local socket API, PTY adapters, and event store."
+import { Mermaid } from '@/components/mermaid';
+
+## System Overview
+
+<Mermaid chart={`
+flowchart TD
+    U[You] -->|message| CH[Channel\nTelegram / Discord / iMessage]
+    CH --> FAM[Familiar\nNova, Sage, Echo...]
+    FAM --> HAR[Harness\nOpenClaw / Claude Code / Codex]
+    FAM --> MEM[(Memory\nfiles + vectors)]
+    HAR --> TOOLS[Tools\nweb_search / exec / calendar]
+    HAR --> MODEL[AI Model\ngpt-5.5 / claude-sonnet]
+    FAM -->|delegate| SUB[Subagent\nCody / Kitty]
+    SUB --> HAR
+`} />
+
 read_when:
   - Understanding the Coven runtime topology
   - Designing a client around the local socket API

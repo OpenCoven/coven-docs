@@ -183,3 +183,37 @@ GET /api/v1/health
 ```
 
 before depending on other response shapes.
+
+import { Mermaid } from '@/components/mermaid';
+
+## The Coven stack
+
+<Mermaid chart={`
+graph TB
+    subgraph You
+        U[User / Developer]
+    end
+    subgraph Channels
+        TG[Telegram]
+        DC[Discord]
+        IM[iMessage]
+        API[REST API]
+    end
+    subgraph Coven
+        FAM[Familiar\nPersistent • Tool-aware • Has memory]
+        HAR[Harness\nAI provider adapter]
+        MEM[(Memory\nFiles + Vectors)]
+    end
+    subgraph Providers
+        OC[OpenClaw]
+        CLA[Claude]
+        OAI[OpenAI]
+    end
+
+    U --> TG & DC & IM & API
+    TG & DC & IM & API --> FAM
+    FAM <--> MEM
+    FAM --> HAR
+    HAR --> OC & CLA & OAI
+`} />
+

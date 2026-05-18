@@ -128,3 +128,20 @@ flowchart LR
 ```
 
 A harness skipping any stage is **not** ready for public support, even if it appears to work on a maintainer's machine.
+
+import { Mermaid } from '@/components/mermaid';
+
+## Harness adapter model
+
+<Mermaid chart={`
+graph LR
+    F[Familiar] -->|bound to| H[Harness]
+    H -->|adapter| OC[OpenClaw]
+    H -->|adapter| CC[Claude Code]
+    H -->|adapter| CX[Codex]
+    H -->|adapter| HE[Hermes]
+    H -->|adapter| CU[Custom SDK]
+    OC --> M1[openai/gpt-5.5]
+    CC --> M2[anthropic/claude-sonnet]
+    CX --> M3[openai/gpt-5.5]
+`} />
