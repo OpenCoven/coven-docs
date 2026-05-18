@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Icon } from '@iconify/react';
 import styles from './docs-data-table.module.css';
 
@@ -57,7 +57,77 @@ function renderInline(value: string) {
   });
 }
 
-export function DocsDataTable({ caption, columns, rows, searchPlaceholder = 'Filter table...', preserveOrder = false }: Props) {
+// Outer wrapper: renders a static, non-interactive table until the user
+// scrolls near it (or it's already above the fold). Then activates the
+// full interactive implementation. The static placeholder preserves layout
+// (no CLS), preserves SEO (every row is in SSR HTML), and skips ~30 icon
+// components + all sort/filter/search state until the table is actually
+// needed. Above-the-fold tables activate on the first effect tick.
+export function DocsDataTable(props: Props) {
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const [active, setActive] = useState(false);
+
+  useEffect(() => {
+    if (active) return;
+    const el = wrapRef.current;
+    if (!el) return;
+    if (typeof IntersectionObserver === 'undefined') {
+      setActive(true);
+      return;
+    }
+    // If already visible (or within 400 px of the viewport), activate now.
+    const rect = el.getBoundingClientRect();
+    if (rect.top < (window.innerHeight || 800) + 400) {
+      setActive(true);
+      return;
+    }
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) {
+          setActive(true);
+          io.disconnect();
+        }
+      },
+      { rootMargin: '400px' },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [active]);
+
+  if (active) {
+    return <InteractiveDocsDataTable {...props} />;
+  }
+
+  return (
+    <div ref={wrapRef} className={styles.shell} aria-busy="true">
+      <div className={styles.scroller}>
+        <table className={styles.table}>
+          <caption>{props.caption}</caption>
+          <thead>
+            <tr>
+              {props.columns.map((column) => (
+                <th key={column.key} scope="col">
+                  <span>{column.label}</span>
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {props.rows.map((row, rowIndex) => (
+              <tr key={props.columns.map((c) => row[c.key]).join('|') || rowIndex}>
+                {props.columns.map((column) => (
+                  <td key={column.key}>{renderInline(row[column.key] ?? '')}</td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+function InteractiveDocsDataTable({ caption, columns, rows, searchPlaceholder = 'Filter table...', preserveOrder = false }: Props) {
   const [query, setQuery] = useState('');
   const [filters, setFilters] = useState<Record<string, string>>({});
   const [sort, setSort] = useState<SortState>({ key: preserveOrder ? '' : (columns[0]?.key ?? ''), direction: 'asc' });
