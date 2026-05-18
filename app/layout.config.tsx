@@ -12,8 +12,23 @@ export const baseOptions: BaseLayoutProps = {
   },
   links: [
     {
-      text: 'Docs',
-      url: '/docs',
+      text: 'Guide',
+      url: '/docs/guide/getting-started',
+      active: 'nested-url',
+    },
+    {
+      text: 'Familiars',
+      url: '/docs/familiars/sessions',
+      active: 'nested-url',
+    },
+    {
+      text: 'Reference',
+      url: '/docs/reference/api',
+      active: 'nested-url',
+    },
+    {
+      text: 'OpenCoven API',
+      url: '/docs/openapi/overview',
       active: 'nested-url',
     },
     {

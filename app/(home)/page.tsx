@@ -38,7 +38,7 @@ export default function HomePage() {
       </p>
 
       <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', justifyContent: 'center' }}>
-        <Link href="/docs" style={{
+        <Link href="/docs/guide/getting-started" style={{
           background: 'linear-gradient(135deg, #9A8ECD, #7A6FB3)',
           color: '#fff',
           padding: '0.75rem 1.75rem',

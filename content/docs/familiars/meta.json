@@ -1,0 +1,7 @@
+{
+  "title": "Familiars",
+  "description": "Sessions, harnesses, and integrations",
+  "root": true,
+  "icon": "LuUsers",
+  "pages": ["sessions", "harnesses", "clients"]
+}

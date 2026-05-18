@@ -1,0 +1,44 @@
+---
+title: "Tools API"
+description: "List available tools and invoke them programmatically."
+---
+
+# Tools
+
+## List available tools
+
+```http
+GET /v1/tools
+```
+
+```json
+{
+  "tools": [
+    { "id": "web_search", "description": "Search the web", "parameters": ["query"] },
+    { "id": "exec", "description": "Run shell commands", "parameters": ["command"] },
+    { "id": "memory", "description": "Read/write familiar memory", "parameters": ["action", "key", "value"] },
+    { "id": "image", "description": "Analyze images", "parameters": ["url"] }
+  ]
+}
+```
+
+## Invoke a tool
+
+```http
+POST /v1/tools/:id/invoke
+Content-Type: application/json
+
+{
+  "familiar_id": "fam_nova",
+  "parameters": {
+    "query": "latest AI research"
+  }
+}
+```
+
+```json
+{
+  "result": "...",
+  "took_ms": 342
+}
+```

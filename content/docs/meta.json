@@ -1,24 +1,3 @@
 {
-  "title": "Coven",
-  "pages": [
-    "index",
-    "getting-started",
-    "concepts",
-    "architecture",
-    "---",
-    "Familiars & Sessions",
-    "sessions",
-    "harnesses",
-    "clients",
-    "---",
-    "Reference",
-    "api",
-    "auth",
-    "safety",
-    "glossary",
-    "roadmap",
-    "---",
-    "Help",
-    "troubleshooting"
-  ]
+  "pages": ["guide", "familiars", "reference", "openapi"]
 }

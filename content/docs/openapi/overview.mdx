@@ -1,0 +1,32 @@
+---
+title: "API Overview"
+description: "OpenCoven REST API — base URL, auth, and conventions."
+---
+
+# OpenCoven API
+
+Base URL: `https://api.coven.dev/v1`
+
+## Authentication
+
+All requests require a bearer token:
+
+```http
+Authorization: Bearer <your-api-key>
+```
+
+Generate API keys at [coven.dev/settings/keys](https://coven.dev/settings/keys).
+
+## Conventions
+
+- All responses are JSON
+- Timestamps are ISO 8601 UTC
+- Errors return `{ "error": { "code": string, "message": string } }`
+
+## Rate Limits
+
+| Plan     | Requests/min |
+|----------|-------------|
+| Free     | 60          |
+| Pro      | 600         |
+| Team     | 6,000       |

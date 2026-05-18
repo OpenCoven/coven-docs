@@ -1,0 +1,58 @@
+---
+title: "Familiars API"
+description: "Create, list, update, and delete familiar agents."
+---
+
+# Familiars
+
+## List familiars
+
+```http
+GET /v1/familiars
+```
+
+```json
+{
+  "familiars": [
+    {
+      "id": "fam_nova",
+      "name": "Nova",
+      "model": "openai/gpt-5.5",
+      "status": "active",
+      "created_at": "2026-05-01T00:00:00Z"
+    }
+  ]
+}
+```
+
+## Get a familiar
+
+```http
+GET /v1/familiars/:id
+```
+
+## Create a familiar
+
+```http
+POST /v1/familiars
+Content-Type: application/json
+
+{
+  "name": "Sage",
+  "model": "openai/gpt-5.5",
+  "personality": "analytical, direct, research-oriented",
+  "tools": ["web_search", "exec", "memory"]
+}
+```
+
+## Update a familiar
+
+```http
+PATCH /v1/familiars/:id
+```
+
+## Delete a familiar
+
+```http
+DELETE /v1/familiars/:id
+```

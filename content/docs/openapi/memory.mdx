@@ -1,0 +1,43 @@
+---
+title: "Memory API"
+description: "Read and write to familiar memory."
+---
+
+# Memory
+
+## Get memory
+
+```http
+GET /v1/familiars/:id/memory
+```
+
+```json
+{
+  "entries": [
+    {
+      "id": "mem_001",
+      "content": "Val prefers dark mode and pnpm.",
+      "kind": "preference",
+      "created_at": "2026-05-01T00:00:00Z"
+    }
+  ]
+}
+```
+
+## Add memory entry
+
+```http
+POST /v1/familiars/:id/memory
+Content-Type: application/json
+
+{
+  "content": "User's timezone is America/Chicago.",
+  "kind": "fact"
+}
+```
+
+## Delete memory entry
+
+```http
+DELETE /v1/familiars/:id/memory/:entry_id
+```
