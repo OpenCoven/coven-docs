@@ -97,127 +97,42 @@ const packages = [
 
 export default function HomePage() {
   return (
-    <main style={{
-      width: '100%',
-      maxWidth: '1400px',
-      margin: '0 auto',
-      padding: '1.5rem',
-      color: '#E8E8E8',
-    }}>
+    <main className={s.homeMain}>
 
       {/* ── Hero card ── */}
-      <section style={{
-        position: 'relative',
-        minHeight: '600px',
-        height: '70vh',
-        maxHeight: '900px',
-        border: BORDER,
-        borderRadius: '1.25rem',
-        overflow: 'hidden',
-        background: `radial-gradient(ellipse 100% 80% at 60% 50%, rgba(154,142,205,0.1) 0%, transparent 70%), #0A0A0A`,
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        padding: '3rem',
-        marginBottom: '1.5rem',
-      }}>
+      <section className={s.heroPanel}>
         {/* Background grid lines */}
-        <div style={{
-          position: 'absolute', inset: 0, opacity: 0.035,
-          backgroundImage: 'linear-gradient(rgba(154,142,205,1) 1px, transparent 1px), linear-gradient(90deg, rgba(154,142,205,1) 1px, transparent 1px)',
-          backgroundSize: '48px 48px',
-          pointerEvents: 'none',
-        }} />
+        <div className={s.heroGridBg} />
 
         {/* Animated terminal card — hidden on mobile via CSS */}
         <HeroTerminal />
 
-        <p style={{
-          fontSize: '0.75rem',
-          fontWeight: 600,
-          color: VIOLET,
-          letterSpacing: '0.1em',
-          textTransform: 'uppercase',
-          padding: '0.35rem 0.75rem',
-          border: `1px solid rgba(154,142,205,0.3)`,
-          borderRadius: '999px',
-          width: 'fit-content',
-          marginBottom: '1.75rem',
-          position: 'relative',
-        }}>
+        <p className={s.heroEyebrow}>
           The framework for persistent AI agents
         </p>
 
-        <h1 style={{
-          fontSize: 'clamp(2.5rem, 5vw, 4.5rem)',
-          fontWeight: 700,
-          letterSpacing: '-2px',
-          lineHeight: 1.05,
-          marginBottom: '1.5rem',
-          maxWidth: '800px',
-        }}>
-          Build AI familiars that{' '}
-          <span style={{ color: VIOLET }}>remember</span>,{' '}
-          <span style={{ color: VIOLET }}>reason</span>,{' '}
+        <h1 className={s.heroTitle}>
+          Summon Familiars that{' '}
+          <span style={{ color: VIOLET }}>Recall</span>,{' '}
+          <span style={{ color: VIOLET }}>Reason</span>,{' '}
           and{' '}
-          <span style={{ color: VIOLET }}>act</span>.
+          <span style={{ color: VIOLET }}>React</span>.
         </h1>
 
-        <p style={{
-          fontSize: '1.15rem',
-          color: '#888',
-          maxWidth: '560px',
-          lineHeight: 1.65,
-          marginBottom: '2.5rem',
-        }}>
+        <p className={s.heroLead}>
           Coven is an open-source framework for persistent AI agents with memory, personality, and tool access. Not chatbots. Familiars.
         </p>
 
-        <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', alignItems: 'center' }}>
-          <Link href="/docs/guide/getting-started" style={{
-            background: VIOLET,
-            color: '#0A0A0A',
-            padding: '0.75rem 1.5rem',
-            borderRadius: '999px',
-            fontWeight: 700,
-            fontSize: '0.9rem',
-            textDecoration: 'none',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.4rem',
-          }}>
+        <div className={s.heroActions}>
+          <Link href="/docs/guide/getting-started" className={s.heroButtonPrimary}>
             Get Started
             <Icon icon="ph:arrow-right-bold" width={14} />
           </Link>
-          <Link href="https://github.com/OpenCoven/coven" target="_blank" style={{
-            background: 'rgba(255,255,255,0.05)',
-            border: BORDER,
-            color: '#B0B0B0',
-            padding: '0.75rem 1.5rem',
-            borderRadius: '999px',
-            fontWeight: 500,
-            fontSize: '0.9rem',
-            textDecoration: 'none',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.4rem',
-          }}>
+          <Link href="https://github.com/OpenCoven/coven" target="_blank" className={s.heroButtonSecondary}>
             <Icon icon="ph:github-logo-duotone" width={16} />
             GitHub
           </Link>
-          <Link href="https://discord.gg/opencoven" target="_blank" style={{
-            background: 'rgba(255,255,255,0.05)',
-            border: BORDER,
-            color: '#B0B0B0',
-            padding: '0.75rem 1.5rem',
-            borderRadius: '999px',
-            fontWeight: 500,
-            fontSize: '0.9rem',
-            textDecoration: 'none',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.4rem',
-          }}>
+          <Link href="https://discord.gg/opencoven" target="_blank" className={s.heroButtonSecondary}>
             <Icon icon="ph:discord-logo-duotone" width={16} />
             Discord
           </Link>
@@ -225,86 +140,31 @@ export default function HomePage() {
       </section>
 
       {/* ── Editorial tagline + Quick install ── */}
-      <section style={{
-        padding: '3.5rem 0 2rem',
-        maxWidth: '820px',
-      }}>
-        <p style={{
-          fontSize: 'clamp(1.35rem, 2.8vw, 1.9rem)',
-          fontWeight: 300,
-          lineHeight: 1.6,
-          color: '#787878',
-          letterSpacing: '-0.4px',
-          marginBottom: '2.5rem',
-        }}>
+      <section className={s.introSection}>
+        <p className={s.introCopy}>
           Coven gives your AI agents{' '}
-          <span style={{ color: '#E8E8E8', fontWeight: 500 }}>persistent memory</span>,{' '}
-          <span style={{ color: '#E8E8E8', fontWeight: 500 }}>distinct personality</span>, and{' '}
-          <span style={{ color: '#E8E8E8', fontWeight: 500 }}>real tool access</span>{' '}
+          <span>persistent memory</span>,{' '}
+          <span>distinct personality</span>, and{' '}
+          <span>real tool access</span>{' '}
           — then puts them everywhere you work. Every agent is a{' '}
-          <span style={{ color: VIOLET, fontWeight: 600 }}>familiar</span>: named, remembered, and yours.
+          <span>familiar</span>: named, remembered, and yours.
         </p>
 
         {/* Install bar — grouped tightly under the tagline */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'stretch',
-          gap: '0',
-          border: BORDER,
-          borderRadius: '0.875rem',
-          overflow: 'hidden',
-          background: '#0A0A0E',
-          maxWidth: '640px',
-        }}>
+        <div className={s.installBar}>
           {/* Badge */}
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.4rem',
-            padding: '0 1rem',
-            background: VIOLET_DIM,
-            borderRight: `1px solid rgba(154,142,205,0.18)`,
-            fontFamily: 'Monaco, ui-monospace, monospace',
-            fontSize: '0.7rem',
-            fontWeight: 700,
-            color: VIOLET,
-            letterSpacing: '0.1em',
-            textTransform: 'uppercase',
-            flexShrink: 0,
-            whiteSpace: 'nowrap',
-          }}>
+          <div className={s.installBadge}>
             <Icon icon="ph:terminal-window-duotone" width={14} />
             npm
           </div>
 
           {/* Command */}
-          <div style={{
-            flex: 1,
-            fontFamily: 'Monaco, ui-monospace, monospace',
-            fontSize: '0.88rem',
-            color: '#C8C8C8',
-            padding: '0.85rem 1.1rem',
-            userSelect: 'all',
-            cursor: 'text',
-            letterSpacing: '0.01em',
-          }}>
+          <div className={s.installCommand}>
             create opencoven-app
           </div>
 
           {/* Guide link */}
-          <Link href="/docs/guide/getting-started" style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.3rem',
-            padding: '0 1.1rem',
-            borderLeft: `1px solid rgba(154,142,205,0.14)`,
-            color: VIOLET,
-            fontSize: '0.8rem',
-            fontWeight: 600,
-            textDecoration: 'none',
-            flexShrink: 0,
-            whiteSpace: 'nowrap',
-          }}>
+          <Link href="/docs/guide/getting-started" className={s.installGuide}>
             Full guide <Icon icon="ph:arrow-right" width={12} />
           </Link>
         </div>
@@ -313,7 +173,7 @@ export default function HomePage() {
       {/* ── Feature grid ── */}
       <section style={{ marginBottom: '1.5rem' }}>
         <div style={{ padding: '2rem 0.25rem 1.25rem' }}>
-          <h2 style={{ fontSize: '1.75rem', fontWeight: 700, letterSpacing: '-0.5px', marginBottom: '0.4rem' }}>
+          <h2 style={{ fontSize: '1.75rem', fontWeight: 700, letterSpacing: 0, marginBottom: '0.4rem' }}>
             Not just another AI wrapper.
           </h2>
           <p style={{ color: '#888', fontSize: '0.95rem', lineHeight: 1.55 }}>
@@ -343,7 +203,7 @@ export default function HomePage() {
                 <Icon icon="ph:stack-duotone" width={16} color={VIOLET} />
               </div>
               <div>
-                <div style={{ fontWeight: 700, fontSize: '0.95rem', color: '#E8E8E8', letterSpacing: '-0.2px' }}>The runtime stack</div>
+                <div style={{ fontWeight: 700, fontSize: '0.95rem', color: '#E8E8E8', letterSpacing: 0 }}>The runtime stack</div>
                 <div style={{ fontSize: '0.75rem', color: '#666', marginTop: '1px' }}>Local-first layers, from clients to harnesses</div>
               </div>
             </div>
@@ -366,7 +226,7 @@ export default function HomePage() {
                 <Icon icon="ph:arrows-clockwise-duotone" width={16} color={VIOLET} />
               </div>
               <div>
-                <div style={{ fontWeight: 700, fontSize: '0.95rem', color: '#E8E8E8', letterSpacing: '-0.2px' }}>Message lifecycle</div>
+                <div style={{ fontWeight: 700, fontSize: '0.95rem', color: '#E8E8E8', letterSpacing: 0 }}>Message lifecycle</div>
                 <div style={{ fontSize: '0.75rem', color: '#666', marginTop: '1px' }}>Click a step to trace the path</div>
               </div>
             </div>
@@ -380,7 +240,7 @@ export default function HomePage() {
 
       <section style={{
         border: BORDER,
-        borderRadius: '1.5rem',
+        borderRadius: '8px',
         overflow: 'hidden',
         background: '#0A0A0E',
         marginBottom: '1.5rem',
@@ -398,7 +258,7 @@ export default function HomePage() {
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
               <Icon icon="ph:squares-four-duotone" width={20} color={VIOLET} />
-              <span style={{ fontWeight: 700, fontSize: '1.05rem', color: '#E8E8E8', letterSpacing: '-0.2px' }}>Current implementation pieces</span>
+              <span style={{ fontWeight: 700, fontSize: '1.05rem', color: '#E8E8E8', letterSpacing: 0 }}>Current implementation pieces</span>
             </div>
             <p style={{ fontSize: '0.84rem', color: '#787878', margin: 0, lineHeight: 1.55 }}>
               Coven is a Rust runtime with a small local API, an npm launcher, and an external OpenClaw bridge.
@@ -483,7 +343,7 @@ export default function HomePage() {
       <section style={{
         position: 'relative',
         border: BORDER,
-        borderRadius: '1.5rem',
+        borderRadius: '8px',
         padding: '4rem 2rem',
         overflow: 'hidden',
         background: '#0A0A0E',
@@ -535,9 +395,9 @@ export default function HomePage() {
           </div>
 
           <h2 style={{
-            fontSize: 'clamp(1.75rem, 4vw, 2.75rem)',
+            fontSize: '2.45rem',
             fontWeight: 700,
-            letterSpacing: '-1.5px',
+            letterSpacing: 0,
             lineHeight: 1.1,
             marginBottom: '1rem',
             color: '#F0F0F0',

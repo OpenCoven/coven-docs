@@ -1,3 +1,278 @@
+/* ─── Page shell + hero ───────────────────────────────────────────────────── */
+
+.homeMain {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 1rem 1.5rem 1.5rem;
+  color: #e8e8e8;
+}
+
+.heroPanel {
+  position: relative;
+  min-height: 520px;
+  max-height: 760px;
+  border: 1px solid rgba(154, 142, 205, 0.14);
+  border-radius: 8px;
+  overflow: hidden;
+  background:
+    linear-gradient(120deg, rgba(154, 142, 205, 0.12), rgba(110, 203, 138, 0.05) 52%, rgba(12, 12, 16, 0.94)),
+    #08080b;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 3.5rem 28rem 3.5rem 3rem;
+  margin-bottom: 1rem;
+  isolation: isolate;
+}
+
+.heroGridBg {
+  position: absolute;
+  inset: 0;
+  opacity: 0.028;
+  background-image:
+    linear-gradient(rgba(154, 142, 205, 1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(154, 142, 205, 1) 1px, transparent 1px);
+  background-size: 48px 48px;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.heroEyebrow {
+  width: fit-content;
+  margin: 0 0 1.25rem;
+  border: 1px solid rgba(154, 142, 205, 0.32);
+  border-radius: 999px;
+  padding: 0.38rem 0.78rem;
+  color: #b9afe8;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.heroTitle {
+  max-width: 760px;
+  margin: 0 0 1.25rem;
+  color: #f4f2ff;
+  font-size: 4rem;
+  font-weight: 760;
+  letter-spacing: 0;
+  line-height: 1.04;
+}
+
+.heroLead {
+  max-width: 600px;
+  margin: 0 0 2rem;
+  color: #b9b9c2;
+  font-size: 1.08rem;
+  line-height: 1.65;
+}
+
+.heroActions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.heroButtonPrimary,
+.heroButtonSecondary {
+  min-height: 42px;
+  border-radius: 999px;
+  padding: 0.75rem 1.45rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  font-size: 0.9rem;
+  text-decoration: none;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.15s ease;
+}
+
+.heroButtonPrimary {
+  background: #b4aaeb;
+  color: #07070a;
+  font-weight: 750;
+}
+
+.heroButtonPrimary:hover {
+  color: #07070a;
+  background: #c5bcff;
+  transform: translateY(-1px);
+}
+
+.heroButtonSecondary {
+  border: 1px solid rgba(154, 142, 205, 0.22);
+  background: rgba(255, 255, 255, 0.06);
+  color: #d3d0df;
+  font-weight: 600;
+}
+
+.heroButtonSecondary:hover {
+  border-color: rgba(154, 142, 205, 0.42);
+  background: rgba(154, 142, 205, 0.13);
+  color: #f2f0ff;
+  transform: translateY(-1px);
+}
+
+.introSection {
+  max-width: 900px;
+  padding: 2.25rem 0 2rem;
+}
+
+.introCopy {
+  margin: 0 0 1.75rem;
+  color: #aaaab4;
+  font-size: 1.45rem;
+  font-weight: 360;
+  letter-spacing: 0;
+  line-height: 1.58;
+}
+
+.introCopy span {
+  color: #f0eefc;
+  font-weight: 650;
+}
+
+.introCopy span:last-child {
+  color: #b4aaeb;
+}
+
+.installBar {
+  display: flex;
+  align-items: stretch;
+  max-width: 650px;
+  border: 1px solid rgba(154, 142, 205, 0.18);
+  border-radius: 8px;
+  overflow: hidden;
+  background: #0a0a0e;
+}
+
+.installBadge,
+.installCommand,
+.installGuide {
+  min-height: 46px;
+  display: flex;
+  align-items: center;
+}
+
+.installBadge {
+  flex-shrink: 0;
+  gap: 0.4rem;
+  padding: 0 1rem;
+  border-right: 1px solid rgba(154, 142, 205, 0.18);
+  background: rgba(154, 142, 205, 0.16);
+  color: #b4aaeb;
+  font-family: Monaco, ui-monospace, monospace;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.installCommand {
+  flex: 1;
+  min-width: 0;
+  padding: 0.85rem 1.1rem;
+  color: #e3e3e8;
+  cursor: text;
+  font-family: Monaco, ui-monospace, monospace;
+  font-size: 0.88rem;
+  letter-spacing: 0;
+  user-select: all;
+  white-space: nowrap;
+  overflow-x: auto;
+}
+
+.installGuide {
+  flex-shrink: 0;
+  gap: 0.3rem;
+  padding: 0 1.1rem;
+  border-left: 1px solid rgba(154, 142, 205, 0.14);
+  color: #b4aaeb;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.installGuide:hover {
+  color: #c5bcff;
+  background: rgba(154, 142, 205, 0.08);
+}
+
+@media (max-width: 1180px) {
+  .heroPanel {
+    padding-right: 22rem;
+  }
+
+  .heroTitle {
+    font-size: 3.35rem;
+  }
+}
+
+@media (max-width: 980px) {
+  .heroPanel {
+    min-height: auto;
+    padding: 3rem 2rem;
+  }
+
+  .heroTitle {
+    font-size: 3rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .homeMain {
+    padding: 0.75rem;
+  }
+
+  .heroPanel {
+    padding: 2rem 1.1rem;
+  }
+
+  .heroTitle {
+    font-size: 2.35rem;
+    line-height: 1.08;
+  }
+
+  .heroLead {
+    font-size: 1rem;
+  }
+
+  .heroActions,
+  .heroButtonPrimary,
+  .heroButtonSecondary,
+  .installBar,
+  .installGuide {
+    width: 100%;
+  }
+
+  .introSection {
+    padding: 1.8rem 0 1.5rem;
+  }
+
+  .introCopy {
+    font-size: 1.18rem;
+  }
+
+  .installBar {
+    flex-wrap: wrap;
+  }
+
+  .installCommand {
+    flex-basis: calc(100% - 78px);
+  }
+
+  .installGuide {
+    justify-content: center;
+    border-top: 1px solid rgba(154, 142, 205, 0.14);
+    border-left: 0;
+  }
+}
+
 /* ─── Feature grid ────────────────────────────────────────────────────────── */
 
 .fg {
@@ -6,7 +281,7 @@
   gap: 1px;
   background: rgba(154, 142, 205, 0.13);
   border: 1px solid rgba(154, 142, 205, 0.14);
-  border-radius: 1.25rem;
+  border-radius: 8px;
   overflow: hidden;
 }
 @media (max-width: 900px) {
@@ -155,18 +430,26 @@
 
 .heroTerminal {
   position: absolute;
-  right: 3rem;
+  right: 2.75rem;
   top: 50%;
   transform: translateY(-50%);
-  width: 340px;
-  border: 1px solid rgba(154, 142, 205, 0.18);
-  border-radius: 1rem;
-  background: rgba(10, 10, 14, 0.92);
+  width: 390px;
+  border: 1px solid rgba(154, 142, 205, 0.24);
+  border-radius: 8px;
+  background: rgba(8, 8, 12, 0.94);
   backdrop-filter: blur(12px);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.28);
   overflow: hidden;
   font-family: 'Monaco', 'Menlo', ui-monospace, monospace;
-  font-size: 0.78rem;
+  font-size: 0.82rem;
   line-height: 1.7;
+}
+@media (max-width: 1180px) {
+  .heroTerminal {
+    right: 2rem;
+    width: 320px;
+    font-size: 0.76rem;
+  }
 }
 @media (max-width: 900px) {
   .heroTerminal { display: none; }
@@ -189,7 +472,7 @@
 
 .heroTerminalBody {
   padding: 1rem 1.1rem;
-  color: #888;
+  color: #b4b4bd;
 }
 
 .termPrompt {
@@ -197,11 +480,11 @@
 }
 
 .termOut {
-  color: #6ECB8A;
+  color: #82d79d;
 }
 
 .termMuted {
-  color: #555;
+  color: #77727f;
 }
 
 @keyframes blink {

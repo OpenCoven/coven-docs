@@ -211,7 +211,7 @@ export function FeatureGrid({ features }: { features: Feature[] }) {
 
           {/* Title row */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.45rem' }}>
-            <span style={{ fontWeight: 700, fontSize: '0.95rem', color: '#E8E8E8', letterSpacing: '-0.2px' }}>
+            <span style={{ fontWeight: 700, fontSize: '0.95rem', color: '#E8E8E8', letterSpacing: 0 }}>
               {f.title}
             </span>
             <span className={s.fcArrow}>
