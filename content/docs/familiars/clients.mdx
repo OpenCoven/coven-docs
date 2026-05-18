@@ -106,7 +106,43 @@ Cast Codes are portable intent syntax that CastCodes and Cast Agent can parse. T
 
 ## OpenClaw Plugin
 
-OpenClaw integration belongs in the external `@opencoven/coven` package, not OpenClaw core.
+OpenClaw integration belongs in the external `@opencoven/coven` package, not OpenClaw core. Treat this as the supported bridge direction, not permission to move Coven code into OpenClaw or to bypass the local daemon.
+
+The package installs an opt-in OpenClaw plugin with plugin id `opencoven-coven` and ACP backend id `coven`. The intended install path is through ClawHub:
+
+```sh
+openclaw plugins install clawhub:@opencoven/coven
+```
+
+For local development from the Coven repo:
+
+```sh
+openclaw plugins install ./packages/openclaw-coven --force
+```
+
+The bridge is a client of Coven. Its first runtime step should be the same as every other client: connect to the configured local socket, call `GET /api/v1/health`, verify `apiVersion === "coven.daemon.v1"`, then depend only on documented `/api/v1` behavior.
+
+```mermaid
+sequenceDiagram
+  participant OC as OpenClaw
+  participant Plugin as @opencoven/coven plugin
+  participant Daemon as Coven daemon
+  participant Harness as Codex / Claude Code
+
+  OC->>Plugin: ACP runtime request
+  Plugin->>Plugin: validate config + socket trust anchor
+  Plugin->>Daemon: GET /api/v1/health
+  alt incompatible or unavailable
+    Daemon--xPlugin: error / incompatible apiVersion
+    Plugin-->>OC: fail closed or use explicit configured fallback
+  else compatible
+    Daemon-->>Plugin: coven.daemon.v1 + capabilities
+    Plugin->>Daemon: POST /api/v1/sessions
+    Daemon->>Harness: spawn validated PTY
+    Daemon-->>Plugin: session record + events
+    Plugin-->>OC: mapped ACP runtime events
+  end
+```
 
 <DocsDataTable
   caption="OpenClaw plugin contract"
@@ -119,8 +155,10 @@ OpenClaw integration belongs in the external `@opencoven/coven` package, not Ope
   ]}
   rows={[
     { expectation: 'Register an optional Coven backend', posture: 'Do', boundary: 'Integration', reason: 'OpenClaw can opt into Coven without making Coven a core dependency.' },
+    { expectation: 'Require explicit plugin/backend selection', posture: 'Do', boundary: 'Configuration', reason: 'The bridge should be intentional, visible, and reversible.' },
     { expectation: 'Validate config for UX', posture: 'Do', boundary: 'Client experience', reason: 'Fast feedback belongs in the plugin, but it is not enforcement.' },
     { expectation: 'Connect to the local socket', posture: 'Do', boundary: 'Transport', reason: 'The socket API is the supported compatibility layer.' },
+    { expectation: 'Handshake with GET /api/v1/health before launch', posture: 'Do', boundary: 'API compatibility', reason: 'apiVersion and capabilities decide whether the plugin can safely operate.' },
     { expectation: 'Launch sessions through POST /api/v1/sessions', posture: 'Do', boundary: 'Launch authority', reason: 'The daemon must own project, cwd, harness, and liveness validation.' },
     { expectation: 'Map Coven events into OpenClaw runtime events', posture: 'Do', boundary: 'Runtime bridge', reason: 'OpenClaw should observe and present Coven work without hiding provenance.' },
     { expectation: 'Preserve fallback behavior only when explicitly configured', posture: 'Do', boundary: 'Operational fallback', reason: 'Fallbacks should be deliberate, visible, and testable.' },
@@ -132,6 +170,10 @@ OpenClaw integration belongs in the external `@opencoven/coven` package, not Ope
     { expectation: 'Widen project-root permissions', posture: 'Do not', boundary: 'Filesystem policy', reason: 'Only daemon validation can decide the actual launch boundary.' },
   ]}
 />
+
+Compatibility is the stability gate. The plugin source lives with the Coven daemon so fixture-backed tests can change in the same work slice as API-affecting daemon changes. When `/api/v1/health`, `/api/v1/sessions`, `/api/v1/events`, input, or kill behavior changes, update the bridge fixtures and compatibility tests before claiming broad plugin stability.
+
+The current bridge scope is Codex and Claude Code. Future harness ids must be explicitly configured only after the Rust daemon supports and validates them. The plugin should not expose OpenClaw tools to Coven-managed harnesses, store provider credentials, or tunnel the raw Coven socket through TCP, browser, mobile, or remote transports.
 
 ## Intake Surfaces
 

@@ -1,0 +1,212 @@
+---
+title: "Install Coven"
+description: "Install Coven through npm or source, verify the daemon, and choose the right platform path for macOS, Linux, Windows, and WSL2."
+---
+
+import { DocsDataTable } from '@/components/docs-data-table';
+
+# Install Coven
+
+Use this page when you need a working `coven` command, a verified daemon, and at least one harness CLI ready to launch sessions.
+
+## Choose An Install Path
+
+<DocsDataTable
+  caption="Supported and planned install paths"
+  searchPlaceholder="Filter install paths..."
+  columns={[
+    { key: 'path', label: 'Path' },
+    { key: 'status', label: 'Status', filter: true },
+    { key: 'useWhen', label: 'Use when' },
+    { key: 'verify', label: 'Verify with' },
+  ]}
+  rows={[
+    { path: 'npm wrapper `@opencoven/cli`', status: 'Supported', useWhen: 'You want the fastest public install on a published platform package.', verify: '`npx @opencoven/cli doctor` or `coven doctor`' },
+    { path: 'Cargo/source build', status: 'Supported for contributors', useWhen: 'You are modifying Coven or your platform is not covered by the npm wrapper.', verify: '`cargo run -p coven-cli -- doctor`' },
+    { path: 'macOS Apple Silicon', status: 'Supported through npm', useWhen: 'You are on `darwin-arm64`.', verify: '`coven doctor`' },
+    { path: 'Linux x64 glibc', status: 'Supported through npm', useWhen: 'You are on a glibc-based `linux-x64` distribution.', verify: '`coven doctor`' },
+    { path: 'Windows x64', status: 'Supported through npm', useWhen: 'You are using native Windows and keep Coven plus harness CLIs in the same Windows environment.', verify: '`coven doctor` in PowerShell or Windows Terminal' },
+    { path: 'WSL2', status: 'Recommended for Unix-socket parity on Windows', useWhen: 'You want Linux daemon/socket behavior from a Windows machine.', verify: '`coven doctor` inside WSL2' },
+    { path: 'Docker or Podman', status: 'Planned / experimental', useWhen: 'Containerized daemon work is still design/testing work.', verify: 'Do not treat as supported yet.' },
+    { path: 'Nix', status: 'Planned / experimental', useWhen: 'A flake or derivation has not been verified in this repo.', verify: 'Do not treat as supported yet.' },
+  ]}
+/>
+
+The npm wrapper currently resolves native packages for `darwin-arm64`, `linux-x64`, and `win32-x64`. Before making version-specific release claims, check npm:
+
+```sh
+npm view @opencoven/cli version dist-tags
+npm view @opencoven/cli-macos version dist-tags
+npm view @opencoven/cli-linux-x64 version dist-tags
+npm view @opencoven/cli-windows version dist-tags
+```
+
+## Install With npm
+
+For one-off use:
+
+```sh
+npx @opencoven/cli doctor
+pnpm dlx @opencoven/cli doctor
+```
+
+For repeated local use:
+
+```sh
+npm install -g @opencoven/cli
+coven doctor
+```
+
+The user-facing command is always `coven`. The wrapper downloads the matching native package when npm can resolve one for your OS/CPU pair. If npm reports a missing optional dependency, reinstall `@opencoven/cli` from the same environment where you plan to run Coven.
+
+## Build From Source
+
+Use this path when contributing to Coven, testing unreleased behavior, or running on an unsupported npm platform.
+
+```sh
+git clone https://github.com/OpenCoven/coven.git
+cd coven
+cargo build --workspace
+cargo run -p coven-cli -- doctor
+```
+
+To install the Rust binary onto your Cargo bin path:
+
+```sh
+cargo install --path crates/coven-cli
+coven doctor
+```
+
+Make sure Cargo's bin directory is on `PATH`:
+
+```sh
+echo "$PATH" | tr ':' '\n' | grep "$HOME/.cargo/bin"
+```
+
+## Platform Notes
+
+### macOS
+
+- Published npm support targets Apple Silicon (`darwin-arm64`).
+- Install Node.js 18+ if you use the npm wrapper.
+- Install Rust stable if you build from source or need an unsupported macOS architecture.
+- Keep `~/.coven` owned by your user. The daemon socket lives at `~/.coven/coven.sock` by default.
+- `coven pc` diagnostics are macOS-first; write operations require `--confirm`.
+
+```sh
+npx @opencoven/cli doctor
+coven daemon start
+coven run codex "summarize this repo"
+```
+
+### Linux
+
+- Published npm support targets glibc-based x64 Linux (`linux-x64`).
+- Alpine/musl is not supported by the published npm wrapper today.
+- Install build tools, Git, Node.js 18+, and Rust stable when building from source.
+- Keep `COVEN_HOME` on a local filesystem owned by the same user that runs Coven.
+
+```sh
+npx @opencoven/cli doctor
+coven daemon start
+coven sessions --plain
+```
+
+### Windows
+
+- Published npm support targets native Windows x64 (`win32-x64`).
+- Run Coven and harness CLIs from the same environment. A harness installed only inside WSL2 is not visible to native PowerShell.
+- Keep `COVEN_HOME` on a local path owned by your Windows user.
+- If native Windows daemon/socket behavior is not enough for your integration, use the WSL2 path.
+
+```powershell
+npx @opencoven/cli doctor
+coven daemon start
+coven run codex "inspect this project"
+```
+
+### WSL2
+
+WSL2 is the safest Windows path when you want Unix-socket behavior to match macOS/Linux.
+
+- Install Node.js 18+, Git, and any harness CLIs inside the same WSL2 distro.
+- Keep the project and `COVEN_HOME` on the WSL filesystem, not a mounted Windows path, when possible.
+- Run `coven doctor`, `coven daemon start`, and harness commands inside WSL2.
+
+```sh
+npx @opencoven/cli doctor
+coven daemon start
+coven run claude "review the current diff"
+```
+
+## Harness Prerequisites
+
+Coven launches provider-owned CLIs. It does not store provider credentials.
+
+<DocsDataTable
+  caption="Built-in harness setup"
+  searchPlaceholder="Filter harness setup..."
+  columns={[
+    { key: 'harness', label: 'Harness' },
+    { key: 'install', label: 'Install' },
+    { key: 'auth', label: 'Auth / readiness' },
+    { key: 'covenId', label: 'Coven harness id' },
+  ]}
+  rows={[
+    { harness: 'Codex', install: '`npm install -g @openai/codex`', auth: '`codex login`', covenId: '`codex`' },
+    { harness: 'Claude Code', install: '`npm install -g @anthropic-ai/claude-code`', auth: '`claude doctor`', covenId: '`claude`' },
+  ]}
+/>
+
+After installing or authenticating a harness, open a new terminal if your package manager changed `PATH`, then run:
+
+```sh
+coven doctor
+```
+
+## Smoke Test
+
+From a project directory:
+
+```sh
+coven doctor
+coven daemon start
+coven run codex "summarize the project structure" --title "Install smoke"
+coven sessions
+```
+
+For scripts:
+
+```sh
+coven sessions --json
+```
+
+If the daemon is stale or the socket cannot be reached:
+
+```sh
+coven daemon restart
+coven daemon status
+```
+
+## Update And Uninstall
+
+Update npm installs:
+
+```sh
+npm install -g @opencoven/cli@latest
+coven doctor
+```
+
+Remove a global npm install:
+
+```sh
+npm uninstall -g @opencoven/cli
+```
+
+Remove local Coven state only when you intentionally want to delete local session history:
+
+```sh
+rm -rf ~/.coven
+```
+
+Do not delete `~/.coven` as a routine update step.

@@ -84,6 +84,64 @@ The grammar is being documented as product language and client intent syntax. Tr
   ]}
 />
 
+## CastCodes Demo Loop
+
+This is the public demo path a new technical user should be able to follow: CastCodes captures intent, Coven launches and records the harness session, CastCodes keeps the work visible, and the user reviews the result before any merge or cleanup.
+
+```mermaid
+flowchart LR
+  Project["Open project in CastCodes"]
+  Intent["Cast Code or task prompt"]
+  Agent["Cast Agent\nclient backend"]
+  Daemon["Coven daemon\n/api/v1 authority"]
+  Harness["Codex or Claude Code\nPTY session"]
+  Pane["Visible pane/session"]
+  Diff["File + diff review"]
+  Finish["Merge / PR / archive / cleanup"]
+
+  Project --> Intent --> Agent --> Daemon --> Harness
+  Harness --> Daemon --> Pane --> Diff --> Finish
+  Finish --> Daemon
+
+  style Daemon fill:#9A8ECD,stroke:#D4B5FF,color:#1A1825
+  style Pane fill:#3D3547,stroke:#9A8ECD,color:#fff
+  style Diff fill:#3D3547,stroke:#9A8ECD,color:#fff
+`}
+/>
+
+<DocsDataTable
+  caption="CastCodes to Coven demo steps"
+  searchPlaceholder="Filter demo steps..."
+  columns={[
+    { key: 'step', label: 'Step' },
+    { key: 'userAction', label: 'User action' },
+    { key: 'runtimePath', label: 'Runtime path' },
+    { key: 'status', label: 'Status', filter: true },
+  ]}
+  rows={[
+    { step: '1. Open project', userAction: 'Open a repository or worktree in CastCodes.', runtimePath: 'Client selects a visible project context.', status: 'CastCodes-owned UI' },
+    { step: '2. Express intent', userAction: 'Type a Cast Code or task such as `~cody: fix failing tests`.', runtimePath: 'Cast Agent parses intent into a structured launch request.', status: 'Grammar direction' },
+    { step: '3. Launch session', userAction: 'Choose Codex or Claude Code, or let the client map the intent to a supported harness.', runtimePath: '`POST /api/v1/sessions` with explicit project root, cwd, harness, prompt, and optional title.', status: 'Coven shipped API' },
+    { step: '4. Watch work', userAction: 'Keep the session visible in a pane/session row.', runtimePath: '`GET /api/v1/sessions` plus `GET /api/v1/events?sessionId=...`; live attach/input only after daemon liveness checks.', status: 'Coven shipped API, client UI stabilizing' },
+    { step: '5. Review output', userAction: 'Inspect changed files, terminal output, and diffs before accepting anything.', runtimePath: 'Client reads repo state and event history; Coven remains the session source of truth.', status: 'CastCodes-owned review UI' },
+    { step: '6. Finish explicitly', userAction: 'Merge locally, open a PR, archive the session, summon it later, or sacrifice it when logs should be deleted.', runtimePath: 'Client commands plus daemon-backed archive/summon/sacrifice lifecycle.', status: 'Mixed: client workflow plus Coven session lifecycle' },
+  ]}
+/>
+
+The demo should not hide unavailable states. If Coven is missing, point to [Install Coven](/docs/guide/install). If the daemon is stopped, suggest `coven daemon start`. If a harness is missing or unauthenticated, show `coven doctor` and the provider-owned setup step. If the session has completed, failed, been killed, archived, or orphaned, show logs and diffs instead of live input controls.
+
+What is shipped today:
+
+- Coven CLI, daemon, `coven.daemon.v1` local API, Codex and Claude Code harness ids, sessions, events, input, kill, archive, summon, and sacrifice.
+- Cast Agent as the CastCodes-side substrate and session backend shape.
+- CastCodes as the first-party workspace direction for visible panes, files, diffs, and review.
+
+What is still roadmap or hardening work:
+
+- Treating every Cast Code example as stable syntax.
+- Broad OpenClaw plugin usage before compatibility tests and API versioning gates stay green.
+- Hosted, remote, browser, or mobile access to the raw daemon socket.
+
 ## Authority Rule
 
 Cast Codes should never be documented as permission to bypass the daemon.

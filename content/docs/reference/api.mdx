@@ -68,7 +68,7 @@ Unknown `/api/<version>/...` prefixes fail closed with an `unsupported API versi
 
 ## Health Response
 
-`GET /api/v1/health` returns the API version alongside daemon status:
+`GET /api/v1/health` is the required compatibility handshake. It returns the named contract version, the installed Coven binary version, machine-readable capabilities, and optional daemon metadata:
 
 ```json
 {
@@ -90,6 +90,19 @@ Unknown `/api/<version>/...` prefixes fail closed with an `unsupported API versi
 ```
 
 When no daemon metadata is available, `daemon` is `null`.
+
+Clients should treat `apiVersion: "coven.daemon.v1"` as the stable contract guard. `covenVersion` identifies the binary build and can be shown in diagnostics, but clients should not branch compatibility on a package version alone.
+
+`GET /api/v1/api-version` is lower-level route metadata. It currently returns the route prefix version, not the named contract:
+
+```json
+{
+  "apiVersion": "v1",
+  "supportedApiVersions": ["v1"]
+}
+```
+
+Use `/api/v1/health` for normal client handshakes. Use `/api/v1/api-version` only when debugging route-prefix support.
 
 ## Control-plane Capabilities
 
@@ -143,6 +156,193 @@ Immediately completed safe actions return `200` with an event-shaped payload tha
     "action": "coven.capabilities.refresh",
     "origin": "coven-client",
     "payload": { "capabilities": 3 }
+  }
+}
+```
+
+## Session Records
+
+Session endpoints return the Rust daemon's `SessionRecord` shape with snake_case field names:
+
+```json
+{
+  "id": "session-1",
+  "project_root": "/Users/example/project",
+  "harness": "codex",
+  "title": "Fix failing tests",
+  "status": "running",
+  "exit_code": null,
+  "archived_at": null,
+  "created_at": "2026-05-09T06:43:00Z",
+  "updated_at": "2026-05-09T06:43:05Z"
+}
+```
+
+<DocsDataTable
+  caption="Session record endpoints"
+  searchPlaceholder="Filter session record endpoints..."
+  columns={[
+    { key: 'method', label: 'Method', filter: true },
+    { key: 'path', label: 'Path' },
+    { key: 'response', label: 'Response' },
+    { key: 'notes', label: 'Notes' },
+  ]}
+  rows={[
+    { method: 'GET', path: '`/api/v1/sessions`', response: '`SessionRecord[]`', notes: 'Lists active, non-archived sessions.' },
+    { method: 'POST', path: '`/api/v1/sessions`', response: '`SessionRecord`', notes: 'Launches a project-scoped harness session.' },
+    { method: 'GET', path: '`/api/v1/sessions/:id`', response: '`SessionRecord`', notes: 'Returns `404 session_not_found` for unknown ids.' },
+  ]}
+/>
+
+`POST /api/v1/sessions` accepts the launch fields the daemon validates before spawning a harness:
+
+```json
+{
+  "projectRoot": "/Users/example/project",
+  "cwd": "/Users/example/project",
+  "harness": "codex",
+  "prompt": "Fix the failing tests",
+  "title": "Fix failing tests"
+}
+```
+
+`cwd` must resolve inside `projectRoot`. `harness` must be a supported harness id. Provider credentials are not part of this request; Codex, Claude Code, and future harnesses keep their own local auth flows.
+
+## Events
+
+`GET /api/v1/events` returns an event page for one session.
+
+<DocsDataTable
+  caption="Events query parameters"
+  searchPlaceholder="Filter event query parameters..."
+  columns={[
+    { key: 'parameter', label: 'Parameter' },
+    { key: 'required', label: 'Required', filter: true },
+    { key: 'meaning', label: 'Meaning' },
+  ]}
+  rows={[
+    { parameter: '`sessionId`', required: 'Yes', meaning: 'Session id whose events should be returned.' },
+    { parameter: '`afterSeq`', required: 'No', meaning: 'Preferred cursor. Returns events with `seq > afterSeq`.' },
+    { parameter: '`afterEventId`', required: 'No', meaning: 'Compatibility cursor resolved to a sequence position.' },
+    { parameter: '`limit`', required: 'No', meaning: 'Maximum records to return. The daemon enforces a max of 1000.' },
+  ]}
+/>
+
+```json
+{
+  "events": [
+    {
+      "seq": 42,
+      "id": "event-1",
+      "session_id": "session-1",
+      "kind": "output",
+      "payload_json": "{\"data\":\"hello\"}",
+      "created_at": "2026-05-09T06:43:10Z"
+    }
+  ],
+  "nextCursor": {
+    "afterSeq": 42
+  },
+  "hasMore": false
+}
+```
+
+`nextCursor` is `null` when there are no events. Persisting `nextCursor.afterSeq` lets clients resume incremental reads after a daemon restart.
+
+## Live Input
+
+`POST /api/v1/sessions/:id/input` forwards input only to a daemon-verified live session.
+
+Request:
+
+```json
+{
+  "data": "continue with the next failing test\n"
+}
+```
+
+Success returns `202`:
+
+```json
+{
+  "ok": true,
+  "accepted": true
+}
+```
+
+The daemon records accepted input as a session event. Completed, failed, killed, archived, or orphaned sessions are replay/log surfaces, not live input targets.
+
+## Live Kill
+
+`POST /api/v1/sessions/:id/kill` terminates only a daemon-verified live process. The request body is empty.
+
+Success returns `202`:
+
+```json
+{
+  "ok": true,
+  "accepted": true
+}
+```
+
+After a successful kill, the daemon updates the session status to `killed` and writes a `kill` event. Killing a session is not the same as deleting its history; use archive/summon/sacrifice lifecycle commands for record management.
+
+## Error Envelope
+
+All API failures use this structured envelope. Clients should branch on `error.code`, not message text:
+
+```json
+{
+  "error": {
+    "code": "session_not_found",
+    "message": "Session was not found.",
+    "details": {
+      "sessionId": "session-1"
+    }
+  }
+}
+```
+
+<DocsDataTable
+  caption="Stable daemon error codes"
+  searchPlaceholder="Filter error codes..."
+  columns={[
+    { key: 'code', label: 'Code' },
+    { key: 'status', label: 'HTTP status', filter: true },
+    { key: 'meaning', label: 'Meaning' },
+  ]}
+  rows={[
+    { code: '`not_found`', status: '`404`', meaning: 'Route not found.' },
+    { code: '`invalid_request`', status: '`400` or `404`', meaning: 'Malformed request, unsupported API version, or unknown control action.' },
+    { code: '`session_not_found`', status: '`404`', meaning: 'Session id does not exist.' },
+    { code: '`session_not_live`', status: '`409`', meaning: 'Session exists but cannot accept input or kill because it is not running in this daemon.' },
+    { code: '`project_root_violation`', status: '`400`', meaning: 'Requested cwd resolves outside the declared project root.' },
+    { code: '`pty_spawn_failed`', status: '`500`', meaning: 'Harness PTY could not be launched.' },
+    { code: '`runtime_unavailable`', status: '`503`', meaning: 'The session runtime is unavailable.' },
+    { code: '`internal_error`', status: '`500`', meaning: 'Unexpected internal daemon error.' },
+  ]}
+/>
+
+Unknown session:
+
+```json
+{
+  "error": {
+    "code": "session_not_found",
+    "message": "Session was not found.",
+    "details": { "sessionId": "session-1" }
+  }
+}
+```
+
+Non-live input or kill:
+
+```json
+{
+  "error": {
+    "code": "session_not_live",
+    "message": "Session is not live.",
+    "details": { "sessionId": "session-1" }
   }
 }
 ```

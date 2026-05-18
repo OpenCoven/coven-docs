@@ -13,6 +13,8 @@ This roadmap is the public progress ledger for **OpenCoven**, **Coven**, **CastC
 
 It is intentionally written as a community-facing map, not an internal promise sheet. Items move when they are designed, implemented, tested, released, or deliberately cut. Dates are avoided unless a release is already scheduled.
 
+For issue-ready docs work that has not been created in GitHub yet, see [Docs Issue Plan](/docs/reference/issue-plan).
+
 ## North Star
 
 OpenCoven is building a local-first agent workspace where autonomous coding harnesses can work inside explicit rooms.
@@ -88,7 +90,8 @@ The simple promise:
     { item: 'First-run recovery hints for missing Codex or Claude Code CLIs', status: 'Shipped', area: 'Onboarding' },
     { item: 'Real CLI smoke coverage for daemon restart, attach replay, kill, archive, summon, and sacrifice flows', status: 'Shipped', area: 'Testing' },
     { item: 'Install verification and release wiring for macOS, Linux x64, and Windows x64 npm package paths', status: 'Shipped', area: 'Release' },
-    { item: 'Published npm wrapper packages: `@opencoven/cli`, `@opencoven/cli-macos`, `@opencoven/cli-linux-x64`', status: 'Shipped', area: 'Release' },
+    { item: 'Published npm wrapper packages: `@opencoven/cli`, `@opencoven/cli-macos`, `@opencoven/cli-linux-x64`, and `@opencoven/cli-windows`', status: 'Shipped', area: 'Release' },
+    { item: 'Public install guide for npm, Cargo/source, macOS, Linux, Windows, WSL2, and planned container/Nix paths', status: 'Shipped', area: 'Docs' },
     { item: 'External OpenClaw bridge package kept outside OpenClaw core', status: 'Shipped', area: 'Integration' },
     { item: 'Architecture, operational model, product spec, brand docs, and MVP plan', status: 'Shipped', area: 'Docs' },
     { item: 'Keep versioned daemon API contract and external-client compatibility aligned', status: 'Now', area: 'API' },
@@ -133,6 +136,7 @@ The simple promise:
     { item: 'Cast Agent crate, runtime, gateway health, session list, click-through, streaming, and substrate collection', status: 'Shipped', area: 'Cast Agent' },
     { item: 'Coven session visibility and launch integration through the local bridge path', status: 'Shipped', area: 'Coven integration' },
     { item: 'OpenClaw repair ritual direction started publicly', status: 'Shipped', area: 'OpenClaw' },
+    { item: 'Public CastCodes to Coven demo loop documented: intent, session, pane, diff review, and finish/cleanup', status: 'Shipped', area: 'Docs' },
     { item: 'Stabilize Coven session UX in CastCodes: list, open, launch, attach/rejoin, and unavailable states', status: 'Now', area: 'Coven integration' },
     { item: 'Keep CastCodes useful without Coven installed', status: 'Now', area: 'Fallbacks' },
     { item: 'Continue dogfooding CastCodes for branch/worktree hygiene', status: 'Now', area: 'Dogfooding' },
@@ -167,9 +171,9 @@ The simple promise:
     { item: 'External `@opencoven/coven` plugin direction established so OpenClaw core stays clean', status: 'Shipped', area: 'Package boundary' },
     { item: 'Local socket/API boundary makes Coven the authority layer', status: 'Shipped', area: 'Architecture' },
     { item: 'Treat the Coven API as the compatibility boundary', status: 'Now', area: 'API' },
-    { item: 'Add compatibility tests before encouraging broad plugin usage', status: 'Now', area: 'Testing' },
+    { item: 'Keep compatibility tests and API versioning as the gate before encouraging broad plugin usage', status: 'Now', area: 'Testing' },
     { item: 'Keep OpenClaw copy honest: orchestration sits above Coven; it does not replace the runtime substrate', status: 'Now', area: 'Messaging' },
-    { item: 'Publicly document the supported plugin path once API versioning lands', status: 'Next', area: 'Docs' },
+    { item: 'Publicly document the external plugin path, trust boundary, and compatibility gate', status: 'Shipped', area: 'Docs' },
     { item: 'Add a demo showing a task moving from intake to Coven runtime to CastCodes review', status: 'Next', area: 'Demo' },
   ]}
 />

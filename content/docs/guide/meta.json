@@ -5,6 +5,7 @@
   "icon": "LuBookOpen",
   "pages": [
     "getting-started",
+    "install",
     "concepts",
     "cast-codes",
     "architecture"
