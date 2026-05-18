@@ -8,6 +8,7 @@ import {
 } from 'react';
 import { createPortal } from 'react-dom';
 import mermaidPackage from 'mermaid/package.json';
+import { useTheme } from 'next-themes';
 import {
   Check,
   Clipboard,
@@ -27,7 +28,9 @@ interface MermaidProps {
   caption?: string;
 }
 
-const THEME_VARS = {
+const FONT_FAMILY = 'ui-sans-serif, system-ui, -apple-system, sans-serif';
+
+const DARK_VARS = {
   primaryColor: '#1F1A33',
   primaryTextColor: '#E8E8E8',
   primaryBorderColor: 'rgba(154,142,205,0.4)',
@@ -41,7 +44,7 @@ const THEME_VARS = {
   clusterBorder: 'rgba(154,142,205,0.3)',
   titleColor: '#B4AAEB',
   edgeLabelBackground: '#1F1A33',
-  fontFamily: 'ui-sans-serif, system-ui, -apple-system, sans-serif',
+  fontFamily: FONT_FAMILY,
   fontSize: '14px',
   labelBackground: '#1A1A2E',
   actorBkg: '#1F1A33',
@@ -54,6 +57,35 @@ const THEME_VARS = {
   noteBorderColor: 'rgba(154,142,205,0.3)',
   noteBkgColor: '#1F1A33',
   noteTextColor: '#E8E8E8',
+};
+
+const LIGHT_VARS: typeof DARK_VARS = {
+  primaryColor: '#F0EBFA',
+  primaryTextColor: '#1F1A33',
+  primaryBorderColor: 'rgba(108,90,200,0.5)',
+  lineColor: '#6C5AC8',
+  secondaryColor: '#FAF7FF',
+  tertiaryColor: '#FFFFFF',
+  background: '#FFFFFF',
+  mainBkg: '#E8E1F5',
+  nodeBorder: 'rgba(108,90,200,0.5)',
+  clusterBkg: '#F0EBFA',
+  clusterBorder: 'rgba(108,90,200,0.35)',
+  titleColor: '#3D2F8A',
+  edgeLabelBackground: '#F0EBFA',
+  fontFamily: FONT_FAMILY,
+  fontSize: '14px',
+  labelBackground: '#E8E1F5',
+  actorBkg: '#F0EBFA',
+  actorBorder: 'rgba(108,90,200,0.5)',
+  actorTextColor: '#1F1A33',
+  actorLineColor: '#6C5AC8',
+  signalColor: '#6C5AC8',
+  signalTextColor: '#1F1A33',
+  loopTextColor: '#3D2F8A',
+  noteBorderColor: 'rgba(108,90,200,0.35)',
+  noteBkgColor: '#FAF7FF',
+  noteTextColor: '#1F1A33',
 };
 
 const MERMAID_RENDERER_LABEL = 'Mermaid v' + mermaidPackage.version;
@@ -84,20 +116,22 @@ export function Mermaid({ chart, caption }: MermaidProps) {
   const [scale, setScale] = useState(1);
   const [mounted, setMounted] = useState(false);
   const id = useId().replace(/:/g, '');
+  const { resolvedTheme } = useTheme();
 
   // SSR guard for portal
   useEffect(() => setMounted(true), []);
 
-  // Render mermaid → SVG string once
+  // Re-render mermaid → SVG string when chart or theme changes
   useEffect(() => {
     let cancelled = false;
     async function draw() {
       try {
         const { default: mermaid } = await import('mermaid');
+        const themeVariables = resolvedTheme === 'light' ? LIGHT_VARS : DARK_VARS;
         mermaid.initialize({
           startOnLoad: false,
           theme: 'base',
-          themeVariables: THEME_VARS,
+          themeVariables,
           flowchart: { curve: 'basis', useMaxWidth: true },
           sequence: { useMaxWidth: true },
           er: { useMaxWidth: true },
@@ -115,7 +149,7 @@ export function Mermaid({ chart, caption }: MermaidProps) {
     }
     draw();
     return () => { cancelled = true; };
-  }, [chart, id]);
+  }, [chart, id, resolvedTheme]);
 
   // Escape key dismisses fullscreen
   useEffect(() => {
@@ -207,10 +241,58 @@ export function Mermaid({ chart, caption }: MermaidProps) {
       <style>{`
         @keyframes mermaid-spin { to { transform: rotate(360deg); } }
 
+        /* Dark-mode palette (default). Light-mode overrides below. */
+        .mermaid-figure, .mermaid-overlay {
+          --mm-card-bg: rgba(10,8,20,0.75);
+          --mm-card-border: rgba(154,142,205,0.15);
+          --mm-toolbar-bg: rgba(8,6,18,0.7);
+          --mm-toolbar-border: rgba(154,142,205,0.1);
+          --mm-meta-fg: rgba(180,170,235,0.55);
+          --mm-btn-bg: rgba(154,142,205,0.07);
+          --mm-btn-fg: rgba(180,170,235,0.7);
+          --mm-btn-hover-bg: rgba(154,142,205,0.18);
+          --mm-btn-hover-fg: #B4AAEB;
+          --mm-btn-ring: rgba(180,170,235,0.55);
+          --mm-divider: rgba(154,142,205,0.18);
+          --mm-caption-fg: rgba(180,170,235,0.45);
+          --mm-loading-fg: rgba(154,142,205,0.55);
+          --mm-error-fg: #ff6b6b;
+          --mm-error-bg: rgba(255,0,0,0.05);
+          --mm-error-border: rgba(255,0,0,0.2);
+          --mm-overlay-bg: rgba(4,3,10,0.97);
+          --mm-overlay-header-bg: rgba(8,6,18,0.8);
+          --mm-overlay-caption-border: rgba(154,142,205,0.08);
+          --mm-kbd-bg: rgba(154,142,205,0.12);
+        }
+
+        html.light .mermaid-figure,
+        html.light .mermaid-overlay {
+          --mm-card-bg: rgba(248,246,253,0.85);
+          --mm-card-border: rgba(108,90,200,0.2);
+          --mm-toolbar-bg: rgba(240,235,250,0.85);
+          --mm-toolbar-border: rgba(108,90,200,0.18);
+          --mm-meta-fg: rgba(61,47,138,0.65);
+          --mm-btn-bg: rgba(108,90,200,0.08);
+          --mm-btn-fg: rgba(61,47,138,0.75);
+          --mm-btn-hover-bg: rgba(108,90,200,0.18);
+          --mm-btn-hover-fg: #3D2F8A;
+          --mm-btn-ring: rgba(61,47,138,0.55);
+          --mm-divider: rgba(108,90,200,0.22);
+          --mm-caption-fg: rgba(61,47,138,0.6);
+          --mm-loading-fg: rgba(108,90,200,0.6);
+          --mm-error-fg: #c0392b;
+          --mm-error-bg: rgba(255,80,80,0.06);
+          --mm-error-border: rgba(255,80,80,0.25);
+          --mm-overlay-bg: rgba(248,247,253,0.95);
+          --mm-overlay-header-bg: rgba(240,235,250,0.9);
+          --mm-overlay-caption-border: rgba(108,90,200,0.12);
+          --mm-kbd-bg: rgba(108,90,200,0.14);
+        }
+
         .mermaid-figure {
           margin: 1.75rem 0;
-          background: rgba(10,8,20,0.75);
-          border: 1px solid rgba(154,142,205,0.15);
+          background: var(--mm-card-bg);
+          border: 1px solid var(--mm-card-border);
           border-radius: 12px;
           overflow: hidden;
           display: flex;
@@ -222,13 +304,13 @@ export function Mermaid({ chart, caption }: MermaidProps) {
           align-items: center;
           gap: 4px;
           padding: 5px 8px;
-          background: rgba(8,6,18,0.7);
-          border-bottom: 1px solid rgba(154,142,205,0.1);
+          background: var(--mm-toolbar-bg);
+          border-bottom: 1px solid var(--mm-toolbar-border);
           justify-content: flex-end;
         }
 
         .mermaid-meta {
-          color: rgba(180,170,235,0.45);
+          color: var(--mm-meta-fg);
           font-size: 11px;
           letter-spacing: 0;
           margin-right: auto;
@@ -247,32 +329,32 @@ export function Mermaid({ chart, caption }: MermaidProps) {
           border: none;
           border-radius: 6px;
           cursor: pointer;
-          background: rgba(154,142,205,0.07);
-          color: rgba(180,170,235,0.65);
+          background: var(--mm-btn-bg);
+          color: var(--mm-btn-fg);
           transition: background 0.12s, color 0.12s;
           padding: 0;
           flex-shrink: 0;
         }
         .mermaid-btn:hover {
-          background: rgba(154,142,205,0.18);
-          color: #B4AAEB;
+          background: var(--mm-btn-hover-bg);
+          color: var(--mm-btn-hover-fg);
         }
 
         .mermaid-btn:focus-visible {
-          outline: 2px solid rgba(180,170,235,0.55);
+          outline: 2px solid var(--mm-btn-ring);
           outline-offset: 2px;
         }
 
         .mermaid-divider {
           width: 1px;
           height: 18px;
-          background: rgba(154,142,205,0.18);
+          background: var(--mm-divider);
           margin: 0 2px;
           flex-shrink: 0;
         }
 
         .mermaid-zoom-label {
-          color: rgba(180,170,235,0.45);
+          color: var(--mm-meta-fg);
           font-size: 11px;
           min-width: 34px;
           text-align: center;
@@ -296,7 +378,7 @@ export function Mermaid({ chart, caption }: MermaidProps) {
         .mermaid-caption {
           text-align: center;
           font-size: 0.78rem;
-          color: rgba(180,170,235,0.45);
+          color: var(--mm-caption-fg);
           padding: 0 1.5rem 0.75rem;
           font-style: italic;
         }
@@ -305,7 +387,7 @@ export function Mermaid({ chart, caption }: MermaidProps) {
           display: flex;
           align-items: center;
           gap: 8px;
-          color: rgba(154,142,205,0.45);
+          color: var(--mm-loading-fg);
           font-size: 0.8rem;
           min-height: 80px;
         }
@@ -315,12 +397,12 @@ export function Mermaid({ chart, caption }: MermaidProps) {
         }
 
         .mermaid-error {
-          color: #ff6b6b;
+          color: var(--mm-error-fg);
           font-size: 0.8rem;
           padding: 1rem;
-          background: rgba(255,0,0,0.05);
+          background: var(--mm-error-bg);
           border-radius: 8px;
-          border: 1px solid rgba(255,0,0,0.2);
+          border: 1px solid var(--mm-error-border);
           overflow: auto;
           white-space: pre-wrap;
           margin: 1.5rem 0;
@@ -339,7 +421,7 @@ export function Mermaid({ chart, caption }: MermaidProps) {
           z-index: 9999;
           display: flex;
           flex-direction: column;
-          background: rgba(4,3,10,0.97);
+          background: var(--mm-overlay-bg);
           backdrop-filter: blur(16px);
           -webkit-backdrop-filter: blur(16px);
         }
@@ -350,14 +432,14 @@ export function Mermaid({ chart, caption }: MermaidProps) {
           justify-content: space-between;
           padding: 0 12px 0 16px;
           min-height: 48px;
-          background: rgba(8,6,18,0.8);
-          border-bottom: 1px solid rgba(154,142,205,0.1);
+          background: var(--mm-overlay-header-bg);
+          border-bottom: 1px solid var(--mm-toolbar-border);
           flex-shrink: 0;
           gap: 8px;
         }
 
         .mermaid-overlay-hint {
-          color: rgba(180,170,235,0.4);
+          color: var(--mm-caption-fg);
           font-size: 12px;
           white-space: nowrap;
           overflow: hidden;
@@ -367,7 +449,7 @@ export function Mermaid({ chart, caption }: MermaidProps) {
         }
 
         kbd.mermaid-kbd {
-          background: rgba(154,142,205,0.12);
+          background: var(--mm-kbd-bg);
           padding: 1px 5px;
           border-radius: 3px;
           font-size: 11px;
@@ -393,10 +475,10 @@ export function Mermaid({ chart, caption }: MermaidProps) {
         .mermaid-overlay-caption {
           text-align: center;
           font-size: 0.82rem;
-          color: rgba(180,170,235,0.35);
+          color: var(--mm-caption-fg);
           padding: 0.75rem 1.5rem 1rem;
           font-style: italic;
-          border-top: 1px solid rgba(154,142,205,0.08);
+          border-top: 1px solid var(--mm-overlay-caption-border);
           flex-shrink: 0;
         }
 
