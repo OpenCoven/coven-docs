@@ -43,7 +43,9 @@ export default async function Page({ params }: { params: Promise<{ slug?: string
       full={page.data.full}
       tableOfContent={{ style: 'clerk' }}
     >
-      <ViewOptionsPopover githubUrl={githubUrl} />
+      <div className="flex justify-end">
+        <ViewOptionsPopover githubUrl={githubUrl} />
+      </div>
       <DocsTitle>{page.data.title}</DocsTitle>
       <DocsDescription>{page.data.description}</DocsDescription>
       <DocsBody>
