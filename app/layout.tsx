@@ -9,7 +9,7 @@ import './globals.css';
 
 const inter = Inter({ subsets: ['latin'] });
 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? 'https://docs.coven.dev';
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? 'https://docs.opencoven.ai';
 
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
