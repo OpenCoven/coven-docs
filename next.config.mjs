@@ -12,6 +12,15 @@ const nextConfig = {
   turbopack: {
     root,
   },
+  async redirects() {
+    return [
+      {
+        source: '/docs/reference/vocabulary',
+        destination: '/docs/reference/glossolalia',
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default withMDX(nextConfig);
