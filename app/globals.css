@@ -9,6 +9,7 @@
   --coven-violet: #9A8ECD;
   --coven-violet-light: #B4AAEB;
   --coven-violet-dark: #7A6FB3;
+  --coven-docs-sidebar-width: 288px;
   --radius: 0.5rem;
 }
 
@@ -97,13 +98,48 @@ body {
   border-radius: 8px;
 }
 
-/* Violet active nav */
-[data-active="true"] a,
-[aria-current="page"] {
-  color: var(--coven-violet) !important;
+/* Violet active nav.
+ * Fumadocs marks the current sidebar / TOC anchor with `data-active="true"`
+ * on the <a> itself, so the selector must qualify with `a[...]` — `[...]  a`
+ * matches an anchor inside a marked element, which doesn't exist here.
+ * In dark mode we use the brighter lavender; in light mode the base hue
+ * already clears 4.5:1 on the light sidebar surface. */
+a[data-active="true"],
+a[aria-current="page"] {
+  color: var(--coven-violet-dark) !important;
   font-weight: 600;
 }
+.dark a[data-active="true"],
+.dark a[aria-current="page"] {
+  color: var(--coven-violet-light) !important;
+}
 a:hover { color: var(--coven-violet-light); }
+
+/* Keep the docs sidebar rail wide enough for Coven's labels and controls. */
+@media (min-width: 768px) {
+  #nd-docs-layout {
+    --fd-sidebar-width: var(--coven-docs-sidebar-width) !important;
+  }
+
+  #nd-docs-layout [data-sidebar-placeholder] {
+    --fd-sidebar-width: var(--coven-docs-sidebar-width) !important;
+  }
+}
+
+#nd-sidebar :is(a[data-active], button) {
+  min-width: 0;
+}
+
+#nd-sidebar a[data-active] {
+  max-width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+#nd-sidebar a[target="_blank"][rel~="noreferrer"] {
+  min-height: 1.75rem;
+  min-width: 1.75rem;
+}
 
 /* Keep Fumadocs root selector descriptions to a single row. */
 aside button[class*="rounded-lg"][class*="ps-2"][class*="pe-4"] > div,
