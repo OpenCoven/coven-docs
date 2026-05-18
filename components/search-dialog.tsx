@@ -63,23 +63,23 @@ export function CovenSearchDialog({
           <SearchDialogClose />
         </SearchDialogHeader>
         <div className="border-b px-3 py-2 text-sm">
-          <div className="flex items-center gap-2">
-            <span className="text-fd-muted-foreground">Filter</span>
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="shrink-0 text-fd-muted-foreground">Filter</span>
             <button
               type="button"
               aria-haspopup="listbox"
               aria-expanded={filterOpen}
-              className="inline-flex min-w-28 items-center justify-between gap-2 rounded-md border bg-fd-background px-2.5 py-1.5 text-left text-fd-foreground transition-colors hover:bg-fd-accent"
+              className="inline-flex min-w-40 max-w-full items-center justify-between gap-2 rounded-md border bg-fd-background px-2.5 py-1.5 text-left text-fd-foreground transition-colors hover:bg-fd-accent"
               onClick={() => setFilterOpen((open) => !open)}
             >
-              <span>{activeFilter.name}</span>
+              <span className="min-w-0 truncate">{activeFilter.name}</span>
               <span aria-hidden="true" className="text-xs text-fd-muted-foreground">⌄</span>
             </button>
           </div>
           {filterOpen && (
             <div
               role="listbox"
-              className="mt-2 grid max-w-sm gap-1 rounded-lg border bg-fd-popover p-1 shadow-xl"
+              className="mt-2 grid w-full min-w-0 gap-1 rounded-lg border bg-fd-popover p-1 shadow-xl"
             >
               {filters.map((filter) => {
                 const active = filter.value === tag;
@@ -97,7 +97,7 @@ export function CovenSearchDialog({
                     }}
                   >
                     <span className="block font-medium text-fd-foreground">{filter.name}</span>
-                    <span className="block text-xs text-fd-muted-foreground">{filter.description}</span>
+                    <span className="block text-xs leading-relaxed text-fd-muted-foreground">{filter.description}</span>
                   </button>
                 );
               })}
