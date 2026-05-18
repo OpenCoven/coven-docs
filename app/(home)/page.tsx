@@ -112,7 +112,7 @@ export default function HomePage() {
         </p>
 
         <h1 className={s.heroTitle}>
-          Summon Familiars that{' '}
+          Familiars that{' '}
           <span style={{ color: VIOLET }}>Recall</span>,{' '}
           <span style={{ color: VIOLET }}>Reason</span>,{' '}
           and{' '}
@@ -203,14 +203,14 @@ export default function HomePage() {
                 <Icon icon="ph:stack-duotone" width={16} color={VIOLET} />
               </div>
               <div>
-                <div style={{ fontWeight: 700, fontSize: '0.95rem', color: '#E8E8E8', letterSpacing: 0 }}>The runtime stack</div>
+                <div style={{ fontWeight: 700, fontSize: '0.95rem', color: '#E8E8E8', letterSpacing: 0 }}>Runtime Stack</div>
                 <div style={{ fontSize: '0.75rem', color: '#666', marginTop: '1px' }}>Local-first layers, from clients to harnesses</div>
               </div>
             </div>
             <StackDiagram />
           </div>
 
-          {/* Message lifecycle */}
+          {/* Message Lifecycle */}
           <div style={{
             border: BORDER,
             borderRadius: '1.25rem',
@@ -226,7 +226,7 @@ export default function HomePage() {
                 <Icon icon="ph:arrows-clockwise-duotone" width={16} color={VIOLET} />
               </div>
               <div>
-                <div style={{ fontWeight: 700, fontSize: '0.95rem', color: '#E8E8E8', letterSpacing: 0 }}>Message lifecycle</div>
+                <div style={{ fontWeight: 700, fontSize: '0.95rem', color: '#E8E8E8', letterSpacing: 0 }}>Message Lifecycle</div>
                 <div style={{ fontSize: '0.75rem', color: '#666', marginTop: '1px' }}>Click a step to trace the path</div>
               </div>
             </div>

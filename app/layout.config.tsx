@@ -33,5 +33,14 @@ export const baseOptions: BaseLayoutProps = {
       secondary: true,
       external: true,
     },
+    {
+      type: 'icon',
+      text: 'Fumadocs',
+      label: 'Fumadocs',
+      url: 'https://fumadocs.dev',
+      icon: <Icon icon="ph:book-open-duotone" width={18} />,
+      secondary: true,
+      external: true,
+    },
   ],
 };
