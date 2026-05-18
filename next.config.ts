@@ -1,5 +1,5 @@
 import type { NextConfig } from 'next';
-import { createMDX } from 'fumadocs-mdx/next';
+import createMDX from 'fumadocs-mdx/config';
 
 const withMDX = createMDX();
 
