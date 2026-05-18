@@ -7,6 +7,18 @@ import {
   useCallback,
 } from 'react';
 import { createPortal } from 'react-dom';
+import mermaidPackage from 'mermaid/package.json';
+import {
+  Check,
+  Clipboard,
+  Code2,
+  Expand,
+  LoaderCircle,
+  Minimize2,
+  RotateCcw,
+  ZoomIn,
+  ZoomOut,
+} from 'lucide-react';
 import { normalizeMermaidSvg } from '@/lib/mermaid-svg.js';
 
 interface MermaidProps {
@@ -44,56 +56,7 @@ const THEME_VARS = {
   noteTextColor: '#E8E8E8',
 };
 
-// ─── Inline SVG icons (zero external deps) ───────────────────────────────────
-const Icon = {
-  Expand: () => (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-      <polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/>
-      <line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/>
-    </svg>
-  ),
-  Collapse: () => (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-      <polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/>
-      <line x1="10" y1="14" x2="3" y2="21"/><line x1="21" y1="3" x2="14" y2="10"/>
-    </svg>
-  ),
-  Copy: () => (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-      <rect x="9" y="9" width="13" height="13" rx="2"/>
-      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
-    </svg>
-  ),
-  Check: () => (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#6ee7b7" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-      <polyline points="20 6 9 17 4 12"/>
-    </svg>
-  ),
-  ZoomIn: () => (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-      <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-      <line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/>
-    </svg>
-  ),
-  ZoomOut: () => (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-      <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-      <line x1="8" y1="11" x2="14" y2="11"/>
-    </svg>
-  ),
-  Reset: () => (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-      <polyline points="1 4 1 10 7 10"/>
-      <path d="M3.51 15a9 9 0 1 0 .49-4.95"/>
-    </svg>
-  ),
-  Spinner: () => (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden
-      style={{ animation: 'mermaid-spin 0.9s linear infinite' }}>
-      <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
-    </svg>
-  ),
-};
+const MERMAID_RENDERER_LABEL = 'Mermaid v' + mermaidPackage.version;
 
 // ─── Button ───────────────────────────────────────────────────────────────────
 function Btn({ onClick, title, children }: { onClick: () => void; title: string; children: React.ReactNode }) {
@@ -117,7 +80,7 @@ export function Mermaid({ chart, caption }: MermaidProps) {
   const [rendered, setRendered] = useState(false);
   const [error, setError] = useState('');
   const [fullscreen, setFullscreen] = useState(false);
-  const [copied, setCopied] = useState(false);
+  const [copied, setCopied] = useState<'source' | 'svg' | null>(null);
   const [scale, setScale] = useState(1);
   const [mounted, setMounted] = useState(false);
   const id = useId().replace(/:/g, '');
@@ -169,28 +132,51 @@ export function Mermaid({ chart, caption }: MermaidProps) {
     return () => { document.body.style.overflow = ''; };
   }, [fullscreen]);
 
-  const handleCopy = useCallback(async () => {
+  const markCopied = useCallback((target: 'source' | 'svg') => {
+    setCopied(target);
+    window.setTimeout(() => setCopied(null), 2000);
+  }, []);
+
+  const handleCopySource = useCallback(async () => {
+    try {
+      await navigator.clipboard.writeText(chart.trim());
+      markCopied('source');
+    } catch { /* ignore */ }
+  }, [chart, markCopied]);
+
+  const handleCopySvg = useCallback(async () => {
     try {
       await navigator.clipboard.writeText(svgMarkup || chart);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      markCopied('svg');
     } catch { /* ignore */ }
-  }, [svgMarkup, chart]);
+  }, [svgMarkup, chart, markCopied]);
 
   if (error) return (
-    <pre className="mermaid-error">
-      {`Mermaid error:\n${error}`}
-    </pre>
+    <figure className="mermaid-figure mermaid-figure-error">
+      <div className="mermaid-toolbar" role="toolbar" aria-label="Diagram controls">
+        <span className="mermaid-meta">{MERMAID_RENDERER_LABEL}</span>
+        <Btn onClick={handleCopySource} title={copied === 'source' ? 'Copied source!' : 'Copy Mermaid source'}>
+          {copied === 'source' ? <Check size={15} aria-hidden /> : <Code2 size={15} aria-hidden />}
+        </Btn>
+      </div>
+      <pre className="mermaid-error">
+        {`Mermaid error:\n${error}`}
+      </pre>
+    </figure>
   );
 
   // ── Toolbar for inline ────────────────────────────────────────────────────
   const inlineToolbar = (
     <div className="mermaid-toolbar" role="toolbar" aria-label="Diagram controls">
-      <Btn onClick={handleCopy} title={copied ? 'Copied!' : 'Copy SVG'}>
-        {copied ? <Icon.Check /> : <Icon.Copy />}
+      <span className="mermaid-meta">{MERMAID_RENDERER_LABEL}</span>
+      <Btn onClick={handleCopySource} title={copied === 'source' ? 'Copied source!' : 'Copy Mermaid source'}>
+        {copied === 'source' ? <Check size={15} aria-hidden /> : <Code2 size={15} aria-hidden />}
+      </Btn>
+      <Btn onClick={handleCopySvg} title={copied === 'svg' ? 'Copied SVG!' : 'Copy SVG'}>
+        {copied === 'svg' ? <Check size={15} aria-hidden /> : <Clipboard size={15} aria-hidden />}
       </Btn>
       <Btn onClick={() => setFullscreen(true)} title="Open fullscreen">
-        <Icon.Expand />
+        <Expand size={15} aria-hidden />
       </Btn>
     </div>
   );
@@ -198,16 +184,19 @@ export function Mermaid({ chart, caption }: MermaidProps) {
   // ── Toolbar for fullscreen ────────────────────────────────────────────────
   const fullscreenToolbar = (
     <div className="mermaid-toolbar" role="toolbar" aria-label="Diagram controls">
-      <Btn onClick={() => setScale(s => Math.max(0.25, s - 0.25))} title="Zoom out"><Icon.ZoomOut /></Btn>
+      <Btn onClick={() => setScale(s => Math.max(0.25, s - 0.25))} title="Zoom out"><ZoomOut size={15} aria-hidden /></Btn>
       <span className="mermaid-zoom-label">{Math.round(scale * 100)}%</span>
-      <Btn onClick={() => setScale(s => Math.min(4, s + 0.25))} title="Zoom in"><Icon.ZoomIn /></Btn>
-      <Btn onClick={() => setScale(1)} title="Reset zoom"><Icon.Reset /></Btn>
+      <Btn onClick={() => setScale(s => Math.min(4, s + 0.25))} title="Zoom in"><ZoomIn size={15} aria-hidden /></Btn>
+      <Btn onClick={() => setScale(1)} title="Reset zoom"><RotateCcw size={15} aria-hidden /></Btn>
       <div className="mermaid-divider" />
-      <Btn onClick={handleCopy} title={copied ? 'Copied!' : 'Copy SVG'}>
-        {copied ? <Icon.Check /> : <Icon.Copy />}
+      <Btn onClick={handleCopySource} title={copied === 'source' ? 'Copied source!' : 'Copy Mermaid source'}>
+        {copied === 'source' ? <Check size={15} aria-hidden /> : <Code2 size={15} aria-hidden />}
+      </Btn>
+      <Btn onClick={handleCopySvg} title={copied === 'svg' ? 'Copied SVG!' : 'Copy SVG'}>
+        {copied === 'svg' ? <Check size={15} aria-hidden /> : <Clipboard size={15} aria-hidden />}
       </Btn>
       <Btn onClick={() => setFullscreen(false)} title="Exit fullscreen (Esc)">
-        <Icon.Collapse />
+        <Minimize2 size={15} aria-hidden />
       </Btn>
     </div>
   );
@@ -238,6 +227,17 @@ export function Mermaid({ chart, caption }: MermaidProps) {
           justify-content: flex-end;
         }
 
+        .mermaid-meta {
+          color: rgba(180,170,235,0.45);
+          font-size: 11px;
+          letter-spacing: 0;
+          margin-right: auto;
+          min-width: 0;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+
         .mermaid-btn {
           display: flex;
           align-items: center;
@@ -256,6 +256,11 @@ export function Mermaid({ chart, caption }: MermaidProps) {
         .mermaid-btn:hover {
           background: rgba(154,142,205,0.18);
           color: #B4AAEB;
+        }
+
+        .mermaid-btn:focus-visible {
+          outline: 2px solid rgba(180,170,235,0.55);
+          outline-offset: 2px;
         }
 
         .mermaid-divider {
@@ -305,6 +310,10 @@ export function Mermaid({ chart, caption }: MermaidProps) {
           min-height: 80px;
         }
 
+        .mermaid-spinner {
+          animation: mermaid-spin 0.9s linear infinite;
+        }
+
         .mermaid-error {
           color: #ff6b6b;
           font-size: 0.8rem;
@@ -315,6 +324,12 @@ export function Mermaid({ chart, caption }: MermaidProps) {
           overflow: auto;
           white-space: pre-wrap;
           margin: 1.5rem 0;
+        }
+
+        .mermaid-figure-error .mermaid-error {
+          margin: 0;
+          border: none;
+          border-radius: 0;
         }
 
         /* ── Fullscreen overlay ── */
@@ -398,7 +413,7 @@ export function Mermaid({ chart, caption }: MermaidProps) {
         <div className="mermaid-body">
           {!rendered ? (
             <div className="mermaid-loading">
-              <Icon.Spinner />
+              <LoaderCircle size={15} aria-hidden className="mermaid-spinner" />
               Rendering diagram…
             </div>
           ) : (
