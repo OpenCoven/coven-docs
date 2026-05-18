@@ -22,6 +22,7 @@ type Props = {
   columns: DocsDataColumn[];
   rows: DocsDataRow[];
   searchPlaceholder?: string;
+  preserveOrder?: boolean;
 };
 
 type TableSpec = Props & {
@@ -56,10 +57,10 @@ function renderInline(value: string) {
   });
 }
 
-export function DocsDataTable({ caption, columns, rows, searchPlaceholder = 'Filter table...' }: Props) {
+export function DocsDataTable({ caption, columns, rows, searchPlaceholder = 'Filter table...', preserveOrder = false }: Props) {
   const [query, setQuery] = useState('');
   const [filters, setFilters] = useState<Record<string, string>>({});
-  const [sort, setSort] = useState<SortState>({ key: columns[0]?.key ?? '', direction: 'asc' });
+  const [sort, setSort] = useState<SortState>({ key: preserveOrder ? '' : (columns[0]?.key ?? ''), direction: 'asc' });
 
   const filterableColumns = useMemo(() => columns.filter((column) => column.filter), [columns]);
 
@@ -85,6 +86,8 @@ export function DocsDataTable({ caption, columns, rows, searchPlaceholder = 'Fil
         return Object.entries(filters).every(([key, value]) => !value || row[key] === value);
       })
       .sort((a, b) => {
+        if (!sort.key) return 0;
+
         const aValue = normalize(a[sort.key] ?? '');
         const bValue = normalize(b[sort.key] ?? '');
         const result = aValue.localeCompare(bValue, undefined, { numeric: true, sensitivity: 'base' });
