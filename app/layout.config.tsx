@@ -2,17 +2,19 @@ import type { BaseLayoutProps } from 'fumadocs-ui/layouts/shared';
 import { Icon } from '@iconify/react';
 
 export const baseOptions: BaseLayoutProps = {
+  themeSwitch: {
+    enabled: false,
+  },
   nav: {
     title: (
       <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 600, letterSpacing: '-0.5px' }}>
-        <span style={{ fontSize: '1.25rem' }}>✦</span>
+        <img src="/logo-mark.svg" alt="" style={{ width: '1.25rem', height: '1.25rem' }} />
         <span>Coven</span>
         <span style={{ fontSize: '0.7rem', color: '#9A8ECD', fontWeight: 400, letterSpacing: '0.05em', textTransform: 'uppercase', marginLeft: '2px' }}>docs</span>
       </span>
     ),
   },
   links: [
-    // ── Primary nav items ──────────────────────────────────
     {
       text: 'Learn',
       description: 'How Coven Works',
@@ -38,7 +40,6 @@ export const baseOptions: BaseLayoutProps = {
       active: 'nested-url',
     },
 
-    // ── Secondary icon buttons (right side of nav / bottom of mobile menu) ──
     {
       type: 'icon',
       text: 'GitHub',
