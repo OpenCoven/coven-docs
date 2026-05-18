@@ -3,6 +3,8 @@ title: "Client Integration"
 description: "Integrating Coven into your application."
 ---
 
+import { DocsDataTable } from '@/components/docs-data-table';
+
 title: "Client integration guide"
 summary: "How comux, OpenClaw, and other clients should talk to the Coven daemon socket API without duplicating runtime policy or authority."
 read_when:
@@ -50,42 +52,59 @@ Clients should treat the handshake as **mandatory before any other request**. Sk
 
 ## Client Responsibilities
 
-Clients may own:
-
-- navigation;
-- panes;
-- chat or intake UI;
-- task forms;
-- diff/review surfaces;
-- notification rendering;
-- session selection;
-- optimistic local UI state; and
-- user approval UX.
-
-Clients must not be the only enforcement point for:
-
-- project-root boundaries;
-- cwd restrictions;
-- harness allowlists;
-- live-session checks;
-- destructive deletion rules;
-- socket trust;
-- external action approvals.
+<DocsDataTable
+  caption="Client-owned UX surfaces and daemon-owned enforcement surfaces"
+  searchPlaceholder="Filter responsibility surfaces..."
+  columns={[
+    { key: 'surface', label: 'Surface' },
+    { key: 'owner', label: 'Owner', filter: true },
+    { key: 'group', label: 'Group', filter: true },
+    { key: 'implementation', label: 'Implementation posture' },
+  ]}
+  rows={[
+    { surface: 'Navigation', owner: 'Client-owned', group: 'Shell', implementation: 'Clients can decide information architecture, routing, and page transitions.' },
+    { surface: 'Panes', owner: 'Client-owned', group: 'Workspace UI', implementation: 'Clients can arrange session panes, inspectors, and review surfaces.' },
+    { surface: 'Chat or intake UI', owner: 'Client-owned', group: 'Input', implementation: 'Clients can collect user intent before sending an explicit daemon request.' },
+    { surface: 'Task forms', owner: 'Client-owned', group: 'Input', implementation: 'Clients can shape structured prompts, project choices, and launch options.' },
+    { surface: 'Diff and review surfaces', owner: 'Client-owned', group: 'Review', implementation: 'Clients can make outputs inspectable before merge, PR, archive, or cleanup actions.' },
+    { surface: 'Notification rendering', owner: 'Client-owned', group: 'Status', implementation: 'Clients can translate daemon events into local notifications and badges.' },
+    { surface: 'Session selection', owner: 'Client-owned', group: 'Workspace UI', implementation: 'Clients can choose which daemon sessions to list, pin, open, or hide.' },
+    { surface: 'Optimistic local UI state', owner: 'Client-owned', group: 'Status', implementation: 'Clients can show pending states, but must reconcile against daemon events.' },
+    { surface: 'User approval UX', owner: 'Client-owned', group: 'Approvals', implementation: 'Clients can present approvals clearly; the daemon still owns sensitive enforcement.' },
+    { surface: 'Project-root boundaries', owner: 'Daemon-enforced', group: 'Filesystem policy', implementation: 'The Rust daemon must canonicalize and reject widened project roots.' },
+    { surface: 'cwd restrictions', owner: 'Daemon-enforced', group: 'Filesystem policy', implementation: 'The daemon must prove cwd resolves inside the approved project root.' },
+    { surface: 'Harness allowlists', owner: 'Daemon-enforced', group: 'Harness policy', implementation: 'Unsupported harness ids fail closed even if a client presents them.' },
+    { surface: 'Live-session checks', owner: 'Daemon-enforced', group: 'Session policy', implementation: 'Input and kill requests require daemon-verified live session state.' },
+    { surface: 'Destructive deletion rules', owner: 'Daemon-enforced', group: 'Session policy', implementation: 'Running sessions cannot be permanently deleted by client-side confidence alone.' },
+    { surface: 'Socket trust', owner: 'Daemon-enforced', group: 'Transport policy', implementation: 'Clients validate the local socket anchor; daemon-side home ownership remains authoritative.' },
+    { surface: 'External action approvals', owner: 'Daemon-enforced', group: 'Approvals', implementation: 'Actions that leave the machine need explicit policy and approval handling.' },
+  ]}
+/>
 
 ## comux
 
 comux is the cockpit layer.
 
-Good comux responsibilities:
-
-- list Coven sessions;
-- launch sessions from visible project/worktree context;
-- open sessions in panes;
-- attach/rejoin live work;
-- read `coven sessions --json` for simple local discovery when daemon-level control is unnecessary;
-- show logs and artifacts;
-- help review diffs;
-- help merge, PR, archive, or clean up explicitly.
+<DocsDataTable
+  caption="comux responsibilities when acting as a Coven cockpit"
+  searchPlaceholder="Filter comux responsibilities..."
+  columns={[
+    { key: 'capability', label: 'Capability' },
+    { key: 'group', label: 'Group', filter: true },
+    { key: 'dataSource', label: 'Data source', filter: true },
+    { key: 'clientBehavior', label: 'Client behavior' },
+  ]}
+  rows={[
+    { capability: 'List Coven sessions', group: 'Session discovery', dataSource: 'Daemon or CLI JSON', clientBehavior: 'Show active work without becoming the source of truth.' },
+    { capability: 'Launch sessions from visible project/worktree context', group: 'Launch', dataSource: 'Daemon API', clientBehavior: 'Pass explicit project root, cwd, harness id, and prompt to the daemon.' },
+    { capability: 'Open sessions in panes', group: 'Workspace UI', dataSource: 'Client state', clientBehavior: 'Render live or replayed work inside visible panes.' },
+    { capability: 'Attach or rejoin live work', group: 'Session control', dataSource: 'Daemon API', clientBehavior: 'Offer attachment only after daemon liveness checks.' },
+    { capability: 'Read coven sessions JSON', group: 'Session discovery', dataSource: 'CLI JSON', clientBehavior: 'Use simple local discovery when daemon-level control is unnecessary.' },
+    { capability: 'Show logs and artifacts', group: 'Review', dataSource: 'Event log', clientBehavior: 'Make completed work inspectable after process exit or daemon restart.' },
+    { capability: 'Review diffs', group: 'Review', dataSource: 'Repository state', clientBehavior: 'Keep file changes visible before merge or cleanup actions.' },
+    { capability: 'Merge, PR, archive, or clean up explicitly', group: 'Completion flow', dataSource: 'Client commands plus daemon state', clientBehavior: 'Require explicit user action for state-changing workflow steps.' },
+  ]}
+/>
 
 comux should remain useful when Coven is not installed. If Coven is missing, present clear installation and fallback states instead of assuming the daemon exists.
 
@@ -93,53 +112,81 @@ comux should remain useful when Coven is not installed. If Coven is missing, pre
 
 OpenClaw integration belongs in the external `@opencoven/coven` package, not OpenClaw core.
 
-The plugin should:
-
-- register an optional Coven backend;
-- validate config for UX;
-- connect to the local socket;
-- launch sessions through `POST /api/v1/sessions`;
-- map Coven events into OpenClaw runtime events;
-- preserve fallback behavior only when explicitly configured; and
-- treat the Rust daemon as the launch authority.
-
-The plugin should not:
-
-- bypass the daemon for launches;
-- depend on OpenClaw core internals;
-- store provider credentials;
-- assume unversioned routes are stable; or
-- widen project-root permissions.
+<DocsDataTable
+  caption="OpenClaw plugin contract"
+  searchPlaceholder="Filter plugin contract rows..."
+  columns={[
+    { key: 'expectation', label: 'Expectation' },
+    { key: 'posture', label: 'Posture', filter: true },
+    { key: 'boundary', label: 'Boundary', filter: true },
+    { key: 'reason', label: 'Reason' },
+  ]}
+  rows={[
+    { expectation: 'Register an optional Coven backend', posture: 'Do', boundary: 'Integration', reason: 'OpenClaw can opt into Coven without making Coven a core dependency.' },
+    { expectation: 'Validate config for UX', posture: 'Do', boundary: 'Client experience', reason: 'Fast feedback belongs in the plugin, but it is not enforcement.' },
+    { expectation: 'Connect to the local socket', posture: 'Do', boundary: 'Transport', reason: 'The socket API is the supported compatibility layer.' },
+    { expectation: 'Launch sessions through POST /api/v1/sessions', posture: 'Do', boundary: 'Launch authority', reason: 'The daemon must own project, cwd, harness, and liveness validation.' },
+    { expectation: 'Map Coven events into OpenClaw runtime events', posture: 'Do', boundary: 'Runtime bridge', reason: 'OpenClaw should observe and present Coven work without hiding provenance.' },
+    { expectation: 'Preserve fallback behavior only when explicitly configured', posture: 'Do', boundary: 'Operational fallback', reason: 'Fallbacks should be deliberate, visible, and testable.' },
+    { expectation: 'Treat the Rust daemon as launch authority', posture: 'Do', boundary: 'Policy', reason: 'Client integration cannot replace daemon-side checks.' },
+    { expectation: 'Bypass the daemon for launches', posture: 'Do not', boundary: 'Launch authority', reason: 'Direct harness launches recreate the policy drift Coven exists to prevent.' },
+    { expectation: 'Depend on OpenClaw core internals', posture: 'Do not', boundary: 'Package design', reason: 'The bridge should remain external and replaceable.' },
+    { expectation: 'Store provider credentials', posture: 'Do not', boundary: 'Credentials', reason: 'Provider authentication stays in each harness provider flow.' },
+    { expectation: 'Assume unversioned routes are stable', posture: 'Do not', boundary: 'API compatibility', reason: 'Clients should target the versioned local contract.' },
+    { expectation: 'Widen project-root permissions', posture: 'Do not', boundary: 'Filesystem policy', reason: 'Only daemon validation can decide the actual launch boundary.' },
+  ]}
+/>
 
 ## Intake Surfaces
 
 Intake clients are best treated as presentation layers.
 
-Useful responsibilities:
-
-- capture user intent;
-- show local status;
-- present approvals;
-- display notifications;
-- hand work into Coven;
-- show session updates from Coven.
+<DocsDataTable
+  caption="Intake surface responsibilities"
+  searchPlaceholder="Filter intake responsibilities..."
+  columns={[
+    { key: 'responsibility', label: 'Responsibility' },
+    { key: 'group', label: 'Group', filter: true },
+    { key: 'boundary', label: 'Boundary' },
+  ]}
+  rows={[
+    { responsibility: 'Capture user intent', group: 'Input', boundary: 'Collect the task, then hand off to Coven instead of becoming the runtime.' },
+    { responsibility: 'Show local status', group: 'Status', boundary: 'Reflect daemon and client state clearly.' },
+    { responsibility: 'Present approvals', group: 'Approvals', boundary: 'Make consent explicit before sensitive local or external actions.' },
+    { responsibility: 'Display notifications', group: 'Status', boundary: 'Surface session changes without inventing state.' },
+    { responsibility: 'Hand work into Coven', group: 'Launch', boundary: 'Use daemon APIs for project-scoped execution.' },
+    { responsibility: 'Show session updates from Coven', group: 'Observation', boundary: 'Render daemon events and session records as the source of truth.' },
+  ]}
+/>
 
 Avoid making intake clients the automation engine. Reusable automation should live behind Coven capabilities and actions so the policy boundary stays centralized.
 
 ## Desktop Clients and Control Rooms
 
-A native control room can make Coven easier to operate by showing:
+A native control room can make Coven easier to operate by showing the operational surface in one place.
 
-- active sessions;
-- archived sessions;
-- daemon health;
-- project roots;
-- harness availability;
-- client integrations;
-- capability catalog;
-- action approval queue;
-- logs and traces;
-- docs and troubleshooting links.
+<DocsDataTable
+  caption="Control room surfaces"
+  searchPlaceholder="Filter control room surfaces..."
+  columns={[
+    { key: 'surface', label: 'Surface' },
+    { key: 'group', label: 'Group', filter: true },
+    { key: 'source', label: 'Source', filter: true },
+    { key: 'purpose', label: 'Purpose' },
+  ]}
+  rows={[
+    { surface: 'Active sessions', group: 'Sessions', source: 'Daemon or CLI JSON', purpose: 'Show live and recent work that can be opened or inspected.' },
+    { surface: 'Archived sessions', group: 'Sessions', source: 'Daemon or CLI JSON', purpose: 'Recover preserved work without crowding the active list.' },
+    { surface: 'Daemon health', group: 'Runtime', source: 'Health endpoint', purpose: 'Expose availability, API version, and capability readiness.' },
+    { surface: 'Project roots', group: 'Runtime', source: 'Daemon records', purpose: 'Make launch boundaries visible before work starts.' },
+    { surface: 'Harness availability', group: 'Harnesses', source: 'Doctor or capabilities', purpose: 'Show which CLIs are installed, authenticated, and launchable.' },
+    { surface: 'Client integrations', group: 'Clients', source: 'Config and capability records', purpose: 'Make connected tools and bridges inspectable.' },
+    { surface: 'Capability catalog', group: 'Control plane', source: 'Capabilities endpoint', purpose: 'Show supported actions without hardcoding client assumptions.' },
+    { surface: 'Action approval queue', group: 'Approvals', source: 'Control plane', purpose: 'Keep sensitive pending actions reviewable.' },
+    { surface: 'Logs and traces', group: 'Observability', source: 'Event log', purpose: 'Preserve what happened across process exits and daemon restarts.' },
+    { surface: 'Docs and troubleshooting links', group: 'Support', source: 'Docs site', purpose: 'Route users from a broken state to the next useful action.' },
+  ]}
+/>
 
 Use `coven sessions --json` for active sessions and `coven sessions --json --all` when the client needs archived records too. The CLI returns a top-level object with a `sessions` array, and each record uses the same `SessionRecord` field names exposed by the daemon API, including `project_root`, `status`, `created_at`, `updated_at`, and nullable `archived_at`.
 
@@ -165,22 +212,42 @@ Do not let UI clients bind directly to OS automation libraries and then call tha
 
 ## Compatibility Expectations
 
-For every integration:
-
-- use `/api/v1`;
-- call health first;
-- ignore unknown additive fields when safe;
-- fail closed on unknown required behavior;
-- test against representative daemon responses;
-- update `docs/API-CONTRACT.md` when response shapes change.
+<DocsDataTable
+  caption="Client compatibility expectations"
+  searchPlaceholder="Filter compatibility expectations..."
+  columns={[
+    { key: 'rule', label: 'Rule' },
+    { key: 'riskArea', label: 'Risk area', filter: true },
+    { key: 'clientBehavior', label: 'Client behavior' },
+  ]}
+  rows={[
+    { rule: 'Use /api/v1', riskArea: 'API versioning', clientBehavior: 'Route all supported calls through the versioned local contract.' },
+    { rule: 'Call health first', riskArea: 'Handshake', clientBehavior: 'Confirm daemon availability and compatible apiVersion before other requests.' },
+    { rule: 'Ignore unknown additive fields when safe', riskArea: 'Forward compatibility', clientBehavior: 'Avoid breaking when the daemon adds optional response data.' },
+    { rule: 'Fail closed on unknown required behavior', riskArea: 'Safety', clientBehavior: 'Do not guess when a new daemon response changes required semantics.' },
+    { rule: 'Test against representative daemon responses', riskArea: 'Compatibility tests', clientBehavior: 'Keep bridge behavior pinned to real response shapes.' },
+    { rule: 'Update docs/API-CONTRACT.md when response shapes change', riskArea: 'Contract drift', clientBehavior: 'Document API-affecting daemon changes in the same work slice.' },
+  ]}
+/>
 
 ## Error Handling
 
-A good client should translate daemon errors into action-oriented UI:
+A good client should translate daemon errors into action-oriented UI.
 
-- daemon unavailable: show start/restart instructions;
-- unsupported API version: ask user to update Coven or the client;
-- missing harness: show `coven doctor` guidance;
-- outside-root cwd: explain the project boundary;
-- session not live: offer log viewing instead of live input;
-- destructive action blocked: explain the session is running or lacks confirmation.
+<DocsDataTable
+  caption="Daemon error handling matrix"
+  searchPlaceholder="Filter error handling paths..."
+  columns={[
+    { key: 'condition', label: 'Condition' },
+    { key: 'category', label: 'Category', filter: true },
+    { key: 'clientResponse', label: 'Client response' },
+  ]}
+  rows={[
+    { condition: 'Daemon unavailable', category: 'Runtime', clientResponse: 'Show start or restart instructions.' },
+    { condition: 'Unsupported API version', category: 'Compatibility', clientResponse: 'Ask the user to update Coven or the client.' },
+    { condition: 'Missing harness', category: 'Harnesses', clientResponse: 'Show coven doctor guidance and install/auth hints.' },
+    { condition: 'outside-root cwd', category: 'Filesystem policy', clientResponse: 'Explain the project boundary and offer a valid cwd choice.' },
+    { condition: 'Session not live', category: 'Session policy', clientResponse: 'Offer log viewing instead of live input.' },
+    { condition: 'Destructive action blocked', category: 'Session policy', clientResponse: 'Explain that the session is running or lacks confirmation.' },
+  ]}
+/>
