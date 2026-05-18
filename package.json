@@ -2,10 +2,10 @@
   "name": "coven-docs",
   "version": "1.0.0",
   "private": true,
-  "description": "Coven documentation site",
-  "license": "MIT",
   "packageManager": "pnpm@10.14.0",
-  "workspaces": [
-    "apps/*"
-  ]
+  "scripts": {
+    "dev": "pnpm --filter coven-docs-site dev",
+    "build": "pnpm --filter coven-docs-site build",
+    "start": "pnpm --filter coven-docs-site start"
+  }
 }

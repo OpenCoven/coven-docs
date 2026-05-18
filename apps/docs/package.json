@@ -1,23 +1,32 @@
 {
   "name": "coven-docs-site",
   "version": "1.0.0",
-  "description": "Coven documentation built with Fumadocs",
+  "private": true,
+  "type": "module",
   "scripts": {
-    "dev": "fumadocs-cli preview",
-    "build": "fumadocs-cli build",
-    "export": "fumadocs-cli export"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "postinstall": "fumadocs-mdx"
   },
   "dependencies": {
-    "fumadocs-ui": "^15.0.0",
-    "fumadocs-core": "^15.0.0",
-    "next": "^15.0.0",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "@iconify/react": "^5.2.1",
+    "fumadocs-core": "^15.2.8",
+    "fumadocs-mdx": "^11.6.0",
+    "fumadocs-ui": "^15.2.8",
+    "lucide-react": "^0.488.0",
+    "next": "15.3.8",
+    "next-themes": "^0.4.6",
+    "react": "^19",
+    "react-dom": "^19",
+    "tailwind-merge": "^3.2.0",
+    "tw-animate-css": "^1.2.7"
   },
   "devDependencies": {
-    "typescript": "^5.9.0",
-    "@types/node": "^20.0.0",
-    "@types/react": "^19.0.0",
-    "@types/react-dom": "^19.0.0"
+    "@types/mdx": "^2",
+    "@types/node": "^22",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "typescript": "^5"
   }
 }

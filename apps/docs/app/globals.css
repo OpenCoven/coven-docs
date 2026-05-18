@@ -1,0 +1,167 @@
+@import "tw-animate-css";
+@import 'fumadocs-ui/style.css';
+
+@custom-variant dark (&:is(.dark *));
+
+/* ─────────────────────────────────────────
+   Coven Design Tokens
+───────────────────────────────────────── */
+:root {
+  --coven-violet: #9A8ECD;
+  --coven-violet-light: #B4AAEB;
+  --coven-violet-dark: #7A6FB3;
+
+  --radius: 0.5rem;
+}
+
+/* Dark mode overrides – Coven is dark-first */
+.dark,
+[data-theme="dark"] {
+  --background: 0 0% 4%;          /* #0A0A0A */
+  --foreground: 0 0% 96%;         /* #F5F5F5 */
+  --card: 0 0% 7%;                 /* #121212 */
+  --card-foreground: 0 0% 92%;
+  --popover: 0 0% 6%;
+  --popover-foreground: 0 0% 92%;
+  --primary: 250 40% 67%;         /* #9A8ECD */
+  --primary-foreground: 0 0% 4%;
+  --secondary: 0 0% 12%;
+  --secondary-foreground: 0 0% 80%;
+  --muted: 0 0% 10%;
+  --muted-foreground: 0 0% 55%;
+  --accent: 250 40% 67%;
+  --accent-foreground: 0 0% 4%;
+  --destructive: 0 72% 51%;
+  --border: 0 0% 14%;
+  --input: 0 0% 12%;
+  --ring: 250 40% 67%;
+
+  /* Sidebar */
+  --sidebar: 0 0% 5%;
+  --sidebar-foreground: 0 0% 80%;
+  --sidebar-primary: 250 40% 67%;
+  --sidebar-primary-foreground: 0 0% 4%;
+  --sidebar-accent: 0 0% 10%;
+  --sidebar-accent-foreground: 0 0% 80%;
+  --sidebar-border: 0 0% 12%;
+  --sidebar-ring: 250 40% 67%;
+}
+
+/* Light mode – clean inverse */
+:root {
+  --background: 0 0% 99%;
+  --foreground: 0 0% 8%;
+  --card: 0 0% 100%;
+  --card-foreground: 0 0% 8%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 0 0% 8%;
+  --primary: 250 40% 55%;
+  --primary-foreground: 0 0% 99%;
+  --secondary: 0 0% 94%;
+  --secondary-foreground: 0 0% 8%;
+  --muted: 0 0% 94%;
+  --muted-foreground: 0 0% 40%;
+  --accent: 250 40% 55%;
+  --accent-foreground: 0 0% 99%;
+  --destructive: 0 84% 60%;
+  --border: 0 0% 88%;
+  --input: 0 0% 92%;
+  --ring: 250 40% 55%;
+
+  --sidebar: 0 0% 97%;
+  --sidebar-foreground: 0 0% 20%;
+  --sidebar-primary: 250 40% 55%;
+  --sidebar-primary-foreground: 0 0% 99%;
+  --sidebar-accent: 0 0% 92%;
+  --sidebar-accent-foreground: 0 0% 8%;
+  --sidebar-border: 0 0% 88%;
+  --sidebar-ring: 250 40% 55%;
+}
+
+/* ─────────────────────────────────────────
+   Global resets
+───────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-feature-settings: "rlig" 1, "calt" 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ─────────────────────────────────────────
+   Fumadocs overrides – full-width content
+───────────────────────────────────────── */
+
+/* Sidebar: subtle, tight */
+[data-docs-sidebar] {
+  border-right: 1px solid hsl(var(--border)) !important;
+  background: hsl(var(--sidebar)) !important;
+  width: 240px !important;
+}
+
+/* Content: full available width, generous padding */
+[data-docs-body] {
+  max-width: 100% !important;
+  padding: 2rem 3rem !important;
+}
+
+@media (max-width: 900px) {
+  [data-docs-body] {
+    padding: 1.5rem 1.25rem !important;
+  }
+}
+
+/* Page content max width override – no artificial squeeze */
+.prose,
+[data-page-tree] ~ main,
+article {
+  max-width: 820px;
+  width: 100%;
+}
+
+/* ─────────────────────────────────────────
+   Glassmorphism cards / callouts
+───────────────────────────────────────── */
+.dark .nd-callout,
+.dark [data-callout] {
+  background: rgba(154, 142, 205, 0.06) !important;
+  border: 1px solid rgba(154, 142, 205, 0.15) !important;
+  border-radius: 8px;
+}
+
+/* ─────────────────────────────────────────
+   Accent: violet on headings / active nav
+───────────────────────────────────────── */
+[data-active="true"] a,
+[aria-current="page"] {
+  color: var(--coven-violet) !important;
+  font-weight: 600;
+}
+
+a:hover {
+  color: var(--coven-violet-light);
+}
+
+/* ─────────────────────────────────────────
+   Code blocks
+───────────────────────────────────────── */
+.dark pre {
+  background: #0d0d0d !important;
+  border: 1px solid rgba(154, 142, 205, 0.1) !important;
+}
+
+.dark :not(pre) > code {
+  background: rgba(154, 142, 205, 0.1) !important;
+  color: var(--coven-violet-light) !important;
+  border: 1px solid rgba(154, 142, 205, 0.15);
+  border-radius: 4px;
+  padding: 0.15em 0.35em;
+  font-size: 0.875em;
+}

@@ -1,0 +1,36 @@
+---
+title: Introduction
+description: Persistent AI familiars. Composable. Observable. Publishable.
+---
+
+import { Cards, Card } from 'fumadocs-ui/components/card';
+
+# Welcome to Coven
+
+**Coven** is a framework for building AI agents — called _familiars_ — that persist across sessions, carry memory and personality, and live wherever your work lives.
+
+<Cards>
+  <Card title="Getting Started" href="/docs/getting-started" description="Set up your first familiar in minutes." />
+  <Card title="Concepts" href="/docs/concepts" description="Understand how Coven works at its core." />
+  <Card title="Architecture" href="/docs/architecture" description="How Coven is structured under the hood." />
+  <Card title="API Reference" href="/docs/api" description="Full API docs and type signatures." />
+</Cards>
+
+## What makes Coven different?
+
+- **Persistent familiars** — agents with memory, personality, and continuity across sessions
+- **Tool access** — web, exec, files, messaging, calendar, and more
+- **Multi-channel** — Telegram, Discord, iMessage, WhatsApp, and custom channels
+- **Observable** — every action traced, inspectable, and auditable
+- **Open** — self-hosted, extensible, yours
+
+```typescript
+// Your familiar, your workspace
+const familiar = await coven.spawn({
+  name: 'Nova',
+  personality: 'warm, direct, practical',
+  tools: ['exec', 'web_search', 'memory'],
+});
+
+await familiar.chat('Remind me about the deployment at 3pm.');
+```
