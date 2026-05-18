@@ -15,7 +15,7 @@ The public homepage should expose the actual Coven runtime stack, not only the f
 
 ```mermaid
 flowchart TB
-  Surfaces["Clients and surfaces\nCLI/TUI, comux, OpenMeow, OpenClaw plugin"]
+  Surfaces["Clients and surfaces\nCLI/TUI, comux, OpenClaw plugin"]
   Api["Local daemon API\nHTTP over Unix socket, /api/v1"]
   Daemon["Rust Coven daemon\nauthority boundary"]
   Store["SQLite store\nsessions plus append-only events"]
@@ -183,7 +183,6 @@ The current **OpenCoven API** section reads like a future hosted REST API with A
 flowchart LR
   CLI["coven CLI/TUI"]
   Comux["comux"]
-  OpenMeow["OpenMeow"]
   Plugin["OpenClaw plugin"]
   Socket["HTTP over Unix socket\n/api/v1"]
   Daemon["Rust daemon"]
@@ -194,7 +193,6 @@ flowchart LR
 
   CLI --> Socket
   Comux --> Socket
-  OpenMeow --> Socket
   Plugin --> Socket
   Socket --> Daemon
   Daemon --> Store

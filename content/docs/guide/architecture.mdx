@@ -41,8 +41,6 @@ flowchart LR
   Comux[comux cockpit] -->|HTTP over Unix socket| Daemon
   OpenClaw[OpenClaw] --> Plugin[external @opencoven/coven plugin]
   Plugin -->|HTTP over Unix socket| Daemon
-  OpenMeow[OpenMeow chat/intent client] -->|capabilities + actions| Daemon
-
   Daemon --> Control[Control plane: capability discovery + action routing]
   Control --> Policy[Policy + permission hints]
   Control --> AdapterBus[Adapter/event bus]
@@ -104,9 +102,7 @@ flowchart TD
   Spawn --> Ledger[Persist session + events]
 ```
 
-## OpenMeow / Automation Boundary
-
-OpenMeow should remain a chat UI, local echo/optimistic rendering surface, intent-capture layer, and tiny fast-path host for ultra-simple local actions. It should not become the automation engine.
+## Automation Boundary
 
 Coven is the canonical shared local runtime for reusable automation because it centralizes:
 
@@ -120,11 +116,11 @@ Coven is the canonical shared local runtime for reusable automation because it c
 The intended flow is:
 
 ```text
-user -> OpenMeow -> Coven -> adapters -> desktop/apps
-desktop/apps -> Coven -> OpenMeow UI updates
+user -> client -> Coven -> adapters -> desktop/apps
+desktop/apps -> Coven -> client UI updates
 ```
 
-`GET /api/v1/capabilities` lets OpenMeow and other clients discover what Coven can route. `POST /api/v1/actions` gives clients a stable intent envelope without coupling them directly to brittle OS automation APIs.
+`GET /api/v1/capabilities` lets clients discover what Coven can route. `POST /api/v1/actions` gives clients a stable intent envelope without coupling them directly to brittle OS automation APIs.
 
 ## Future Adapter Boundary
 

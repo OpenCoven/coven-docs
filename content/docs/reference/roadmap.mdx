@@ -24,7 +24,7 @@ OpenCoven is building a local-first agent workspace where autonomous coding harn
 
 - **Coven** is the runtime substrate: project-scoped harness sessions, PTYs, logs, and local APIs.
 - **comux** is the cockpit: visible panes, worktrees, agent lanes, rituals, review, and merge flow.
-- **OpenMeow / OpenClaw integrations** are intake and orchestration surfaces that can hand work into the same local runtime without hiding what happened.
+- **OpenClaw integrations** are orchestration surfaces that can hand work into the same local runtime without hiding what happened.
 
 The simple promise:
 
@@ -135,9 +135,8 @@ Lab:
 
 - Native macOS cockpit exploration.
 - Desktop shortcuts and faster project/session switching.
-- OpenMeow intake handoff into comux/Coven sessions.
 
-### OpenClaw / OpenMeow Integration Path
+### OpenClaw Integration Path
 
 **Status:** opt-in bridge direction, not bundled into OpenClaw core.
 
@@ -151,7 +150,7 @@ Now:
 
 - Treat the Coven API as the compatibility boundary.
 - Add compatibility tests before encouraging broad plugin usage.
-- Keep OpenMeow/OpenClaw copy honest: intake and orchestration sit above Coven; they do not replace the runtime substrate.
+- Keep OpenClaw copy honest: orchestration sits above Coven; it does not replace the runtime substrate.
 
 Next:
 
@@ -238,7 +237,7 @@ Status: **next/later**
 
 Status: **next/lab**
 
-- [ ] OpenMeow/OpenClaw intake creates or requests a Coven task
+- [ ] OpenClaw intake creates or requests a Coven task
 - [ ] Coven owns the session and event log
 - [ ] comux shows the session for review
 - [ ] user explicitly merges, PRs, archives, or deletes work
@@ -313,7 +312,7 @@ We should keep Discord updates lightweight and repeatable.
 - Do not promise dates unless we are already in release mode.
 - Link shipped work to commits, releases, issues, or docs.
 - Mark experiments as **Lab** instead of pretending they are committed roadmap items.
-- Separate **Coven runtime**, **comux cockpit**, and **OpenMeow/OpenClaw intake** so people understand the architecture.
+- Separate **Coven runtime**, **comux cockpit**, and **OpenClaw intake** so people understand the architecture.
 - Prefer small public issues over giant vague tasks.
 - Ask for help only when the task has a clear acceptance condition.
 
