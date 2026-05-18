@@ -23,35 +23,67 @@ type Feature = {
 
 const STACK_LAYERS = [
   {
-    label: 'Familiar',
-    sub: 'Memory · Personality · Channels',
-    icon: 'ph:sparkle-duotone',
-    href: '/docs/familiars/concepts',
+    label: 'Surfaces',
+    sub: 'CLI/TUI · comux · OpenMeow · OpenClaw',
+    icon: 'ph:monitor-duotone',
+    href: '/docs/familiars/clients',
     depth: 0,
     accent: true,
   },
   {
-    label: 'Harness',
-    sub: 'AI provider adapter',
-    icon: 'ph:plug-duotone',
-    href: '/docs/familiars/harnesses',
+    label: 'Local API',
+    sub: 'HTTP over Unix socket · /api/v1',
+    icon: 'ph:plugs-connected-duotone',
+    href: '/docs/reference/api',
     depth: 1,
     accent: false,
   },
   {
-    label: 'Tools',
-    sub: 'web_search / exec / files…',
-    icon: 'ph:wrench-duotone',
-    href: '/docs/familiars/sessions',
+    label: 'Daemon',
+    sub: 'Rust authority boundary',
+    icon: 'ph:shield-check-duotone',
+    href: '/docs/guide/architecture',
     depth: 2,
     accent: false,
   },
   {
-    label: 'Model',
-    sub: 'GPT / Claude / custom',
-    icon: 'ph:cpu-duotone',
+    label: 'Ledger',
+    sub: 'SQLite sessions + append-only events',
+    icon: 'ph:database-duotone',
+    href: '/docs/familiars/sessions',
+    depth: 3,
+    accent: false,
+  },
+  {
+    label: 'Harnesses',
+    sub: 'Codex · Claude Code · future adapters',
+    icon: 'ph:plug-duotone',
+    href: '/docs/familiars/harnesses',
+    depth: 3,
+    accent: false,
+  },
+  {
+    label: 'PTY',
+    sub: 'project roots · attach · replay · input',
+    icon: 'ph:terminal-window-duotone',
+    href: '/docs/familiars/sessions',
+    depth: 4,
+    accent: false,
+  },
+  {
+    label: 'Familiar',
+    sub: 'identity · memory · tool policy',
+    icon: 'ph:brain-duotone',
     href: '/docs/guide/concepts',
-    depth: 2,
+    depth: 4,
+    accent: false,
+  },
+  {
+    label: 'Models',
+    sub: 'provider-owned auth and execution',
+    icon: 'ph:cpu-duotone',
+    href: '/docs/reference/auth',
+    depth: 5,
     accent: false,
   },
 ];
@@ -209,7 +241,7 @@ export function StackDiagram() {
     <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
       {STACK_LAYERS.map((row) => {
         const isHovered = hovered === row.label;
-        const indent = row.depth * 20;
+        const indent = row.depth * 14;
         const showConnector = row.depth > 0;
 
         return (
@@ -235,7 +267,7 @@ export function StackDiagram() {
                 display: 'flex',
                 alignItems: 'center',
                 gap: '0.75rem',
-                padding: '0.65rem 0.9rem',
+                padding: '0.58rem 0.78rem',
                 marginBottom: '6px',
                 background: row.accent
                   ? isHovered ? 'rgba(154,142,205,0.2)' : 'rgba(154,142,205,0.12)'
@@ -247,13 +279,13 @@ export function StackDiagram() {
               <Icon icon={row.icon} width={15} color={isHovered ? VIOLET : 'rgba(154,142,205,0.7)'} />
               <span style={{
                 fontWeight: row.accent ? 700 : 600,
-                fontSize: '0.82rem',
+                fontSize: '0.78rem',
                 color: row.accent ? VIOLET : '#C0C0C0',
-                minWidth: 58,
+                minWidth: 72,
               }}>
                 {row.label}
               </span>
-              <span style={{ fontSize: '0.77rem', color: '#666', flex: 1 }}>{row.sub}</span>
+              <span style={{ fontSize: '0.72rem', color: '#666', flex: 1, lineHeight: 1.35 }}>{row.sub}</span>
               <Icon
                 icon="ph:arrow-right"
                 width={12}

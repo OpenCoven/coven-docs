@@ -57,34 +57,39 @@ const features = [
 
 const packages = [
   {
-    name: '@opencoven/coven',
-    desc: 'Core orchestration runtime',
-    icon: 'ph:circles-four-duotone',
-    badge: 'core',
+    name: 'crates/coven-cli',
+    desc: 'Rust CLI, TUI, daemon, PTY supervision, and local socket API.',
+    icon: 'ph:terminal-window-duotone',
+    badge: 'rust',
+    copy: 'crates/coven-cli',
   },
   {
-    name: '@opencoven/harness',
-    desc: 'AI provider adapter layer',
+    name: 'packages/openclaw-coven',
+    desc: 'External OpenClaw bridge that talks to Coven through the daemon API.',
     icon: 'ph:plug-duotone',
-    badge: 'adapter',
+    badge: 'plugin',
+    copy: 'packages/openclaw-coven',
   },
   {
-    name: '@opencoven/memory',
-    desc: 'Persistent memory + vector store',
-    icon: 'ph:brain-duotone',
-    badge: 'memory',
+    name: 'packages/cli',
+    desc: 'npm wrapper that resolves and launches the native Coven binary.',
+    icon: 'ph:package-duotone',
+    badge: 'npm',
+    copy: 'npm install @opencoven/cli',
   },
   {
-    name: '@opencoven/tools',
-    desc: 'Tool definitions and execution',
-    icon: 'ph:wrench-duotone',
-    badge: 'tools',
+    name: 'coven.daemon.v1',
+    desc: 'Versioned HTTP-over-Unix-socket contract for local clients.',
+    icon: 'ph:plugs-connected-duotone',
+    badge: 'api',
+    copy: '/api/v1',
   },
   {
-    name: '@opencoven/channels',
-    desc: 'Channel bindings (Telegram, Discord…)',
-    icon: 'ph:chats-circle-duotone',
-    badge: 'channels',
+    name: 'coven.sqlite3',
+    desc: 'Local session metadata and event ledger owned by the daemon.',
+    icon: 'ph:database-duotone',
+    badge: 'store',
+    copy: 'coven.sqlite3',
   },
 ];
 
@@ -338,8 +343,8 @@ export default function HomePage() {
                 <Icon icon="ph:stack-duotone" width={16} color={VIOLET} />
               </div>
               <div>
-                <div style={{ fontWeight: 700, fontSize: '0.95rem', color: '#E8E8E8', letterSpacing: '-0.2px' }}>The stack</div>
-                <div style={{ fontSize: '0.75rem', color: '#666', marginTop: '1px' }}>Hover any layer to explore</div>
+                <div style={{ fontWeight: 700, fontSize: '0.95rem', color: '#E8E8E8', letterSpacing: '-0.2px' }}>The runtime stack</div>
+                <div style={{ fontSize: '0.75rem', color: '#666', marginTop: '1px' }}>Local-first layers, from clients to harnesses</div>
               </div>
             </div>
             <StackDiagram />
@@ -393,10 +398,10 @@ export default function HomePage() {
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
               <Icon icon="ph:squares-four-duotone" width={20} color={VIOLET} />
-              <span style={{ fontWeight: 700, fontSize: '1.05rem', color: '#E8E8E8', letterSpacing: '-0.2px' }}>Composable by design</span>
+              <span style={{ fontWeight: 700, fontSize: '1.05rem', color: '#E8E8E8', letterSpacing: '-0.2px' }}>Current implementation pieces</span>
             </div>
             <p style={{ fontSize: '0.84rem', color: '#787878', margin: 0, lineHeight: 1.55 }}>
-              Every layer is a separate package. Use what you need.
+              Coven is a Rust runtime with a small local API, an npm launcher, and an external OpenClaw bridge.
             </p>
           </div>
           <div style={{
@@ -408,7 +413,7 @@ export default function HomePage() {
             borderRadius: '6px',
             padding: '0.4rem 0.75rem',
           }}>
-            npm install <span style={{ color: VIOLET }}>@opencoven/coven</span>
+            npm install <span style={{ color: VIOLET }}>@opencoven/cli</span>
           </div>
         </div>
 
@@ -468,7 +473,7 @@ export default function HomePage() {
               </span>
 
               {/* Copy button — appears on hover via CSS */}
-              <CopyButton text={`npm install ${pkg.name}`} />
+              <CopyButton text={pkg.copy} />
             </div>
           ))}
         </div>
