@@ -30,10 +30,10 @@
   --home-violet-softer: rgba(154,142,205,0.07);
   --home-hero-bg:       #08080B;
   --home-hero-tint:     rgba(154,142,205,0.12);
-  --home-hero-tint-2:   rgba(110,203,138,0.05);
+  --home-hero-tint-2:   rgba(180,170,235,0.07);
   --home-hero-fade:     rgba(12,12,16,0.94);
   --home-on-violet:     #07070A;
-  --home-success:       #82d79d;
+  --home-success:       #B4AAEB;
   --home-terminal-fg:   #b4b4bd;
 
   width: 100%;
@@ -60,7 +60,7 @@
   --home-violet-softer: rgba(108,90,200,0.05);
   --home-hero-bg:       #FBF9FF;
   --home-hero-tint:     rgba(108,90,200,0.12);
-  --home-hero-tint-2:   rgba(110,203,138,0.06);
+  --home-hero-tint-2:   rgba(122,111,179,0.06);
   --home-hero-fade:     rgba(252,250,255,0.85);
   --home-on-violet:     #FFFFFF;
   /* terminal stays dark-themed even in light mode — like a code block */
@@ -545,7 +545,7 @@
 }
 
 .termOut {
-  color: #82d79d;
+  color: var(--home-success);
 }
 
 .termMuted {

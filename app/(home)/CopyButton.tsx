@@ -5,6 +5,7 @@ import { useState } from 'react';
 import s from './home.module.css';
 
 const VIOLET = '#9A8ECD';
+const VIOLET_TEXT = '#B4AAEB';
 
 export function CopyButton({ text }: { text: string }) {
   const [copied, setCopied] = useState(false);
@@ -22,9 +23,9 @@ export function CopyButton({ text }: { text: string }) {
       className={s.pkgCopy}
       title={`Copy: ${text}`}
       onClick={handleCopy}
-      style={{ color: copied ? '#6ECB8A' : undefined }}
+      style={{ color: copied ? VIOLET_TEXT : undefined }}
     >
-      <Icon icon={copied ? 'ph:check-bold' : 'ph:copy-duotone'} width={15} color={copied ? '#6ECB8A' : VIOLET} />
+      <Icon icon={copied ? 'ph:check-bold' : 'ph:copy-duotone'} width={15} color={copied ? VIOLET_TEXT : VIOLET} />
     </button>
   );
 }

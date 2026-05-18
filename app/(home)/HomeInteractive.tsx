@@ -133,9 +133,9 @@ export function HeroTerminal() {
     <div className={s.heroTerminal} aria-hidden="true">
       {/* Title bar */}
       <div className={s.heroTerminalBar}>
-        <span className={s.termDot} style={{ background: '#FF5F57' }} />
-        <span className={s.termDot} style={{ background: '#FFBD2E' }} />
-        <span className={s.termDot} style={{ background: '#28C840' }} />
+        <span className={s.termDot} style={{ background: '#7A6FB3' }} />
+        <span className={s.termDot} style={{ background: '#9A8ECD' }} />
+        <span className={s.termDot} style={{ background: '#B4AAEB' }} />
         <span style={{ marginLeft: '0.5rem', color: 'rgba(255,255,255,0.35)', fontSize: '0.72rem' }}>
           coven — zsh
         </span>
@@ -143,7 +143,7 @@ export function HeroTerminal() {
           marginLeft: 'auto',
           fontSize: '0.65rem',
           fontWeight: 600,
-          color: '#6ECB8A',
+          color: VIOLET_TEXT,
           letterSpacing: '0.06em',
           textTransform: 'uppercase',
         }}>
@@ -387,10 +387,10 @@ export function LifecycleStepper() {
                 height: '28px',
                 borderRadius: '50%',
                 background: isDone
-                  ? 'rgba(110,203,138,0.15)'
+                  ? 'var(--home-violet-soft)'
                   : isActive ? VIOLET_DIM : 'var(--home-surface-soft)',
                 border: `1px solid ${
-                  isDone ? 'rgba(110,203,138,0.4)'
+                  isDone ? 'var(--home-border-strong)'
                   : isActive ? 'var(--home-border-strong)'
                   : 'var(--home-border)'
                 }`,
@@ -401,7 +401,7 @@ export function LifecycleStepper() {
                 flexShrink: 0,
               }}>
                 {isDone
-                  ? <Icon icon="ph:check-bold" width={12} color="#6ECB8A" />
+                  ? <Icon icon="ph:check-bold" width={12} color={VIOLET_TEXT} />
                   : <Icon icon={step.icon} width={13} color={isActive ? VIOLET : 'var(--home-fg-faint)'} />
                 }
               </div>
@@ -409,7 +409,7 @@ export function LifecycleStepper() {
                 <div style={{
                   width: '1px',
                   height: '10px',
-                  background: isDone ? 'rgba(110,203,138,0.3)' : 'var(--home-border)',
+                  background: isDone ? 'var(--home-violet)' : 'var(--home-border)',
                   marginTop: '2px',
                   transition: 'background 0.25s',
                 }} />
