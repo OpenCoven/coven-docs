@@ -1,0 +1,121 @@
+---
+title: "Cast Agent"
+description: "Cast Agent is the Coven-native substrate manager and agent backend inside CastCodes."
+---
+
+import { DocsDataTable } from '@/components/docs-data-table';
+import { Mermaid } from '@/components/mermaid';
+
+title: "Cast Agent"
+summary: "How Cast Agent sits inside CastCodes, collects substrate, talks to Coven Gateway, lists Coven sessions, and preserves the daemon as the runtime authority boundary."
+read_when:
+  - Understanding the CastCodes client architecture
+  - Reviewing how Cast Agent relates to Coven daemon sessions
+description: "Cast Agent is the Coven-native substrate manager and agent backend inside CastCodes."
+
+# Cast Agent
+
+Cast Agent is the Coven-native substrate manager and AI agent backend inside CastCodes. It gives the first-party workspace a concrete backend for gateway health, streaming messages, local session visibility, and host-substrate collection.
+
+Cast Agent is a client-side backend, not the daemon authority layer. It can collect context and submit requests, but Coven daemon validation still owns project-root, cwd, harness, session, and action safety.
+
+<Mermaid chart={`
+flowchart TD
+  UI[CastCodes UI] --> Agent[Cast Agent\nsubstrate + session backend]
+  Agent --> Gateway[Coven Gateway\nHTTP + WebSocket]
+  Agent --> Daemon[Coven daemon\nlocal socket API]
+  Agent --> Substrate[Host substrate\nactive file / panes / cwd / git / diagnostics]
+  Daemon --> Sessions[(SQLite sessions\nappend-only events)]
+  Daemon --> Harnesses[Harness adapters\nCodex / Claude Code / future]
+  Gateway --> Stream[Streaming model responses]
+
+  style Agent fill:#3D3547,stroke:#9A8ECD,color:#fff
+  style Daemon fill:#9A8ECD,stroke:#D4B5FF,color:#1A1825
+`} />
+
+## Implemented Shape
+
+The current CastCodes implementation already gives Cast Agent enough shape to document as a first-party architecture layer.
+
+<DocsDataTable
+  caption="Cast Agent implementation surface"
+  searchPlaceholder="Filter Cast Agent surface..."
+  columns={[
+    { key: 'surface', label: 'Surface' },
+    { key: 'status', label: 'Status', filter: true },
+    { key: 'purpose', label: 'Purpose' },
+  ]}
+  rows={[
+    { surface: '`crates/cast_agent` crate', status: 'Implemented', purpose: 'Standalone Cast Agent backend crate.' },
+    { surface: 'Dedicated Tokio runtime', status: 'Implemented', purpose: 'Runs gateway and substrate work off the UI thread.' },
+    { surface: 'Gateway health probe', status: 'Implemented', purpose: 'Tracks availability and powers status UI.' },
+    { surface: 'Gateway status pill', status: 'Implemented', purpose: 'Shows reachable/degraded state in the agent panel.' },
+    { surface: 'Coven Sessions section', status: 'Implemented', purpose: 'Lists active Coven sessions in the workspace.' },
+    { surface: 'Session click-through', status: 'Implemented', purpose: 'Opens a session row in a new CastCodes tab at the session cwd.' },
+    { surface: 'Streaming responses', status: 'Implemented', purpose: 'Streams gateway message chunks over WebSocket.' },
+    { surface: 'Host substrate bridge', status: 'Implemented', purpose: 'Collects active file, panes, cwd, git branch, and diagnostics for gateway requests.' },
+  ]}
+/>
+
+## Substrate Inputs
+
+<DocsDataTable
+  caption="Cast Agent substrate inputs"
+  searchPlaceholder="Filter substrate inputs..."
+  columns={[
+    { key: 'input', label: 'Input' },
+    { key: 'source', label: 'Source', filter: true },
+    { key: 'use', label: 'Use' },
+  ]}
+  rows={[
+    { input: 'Active file', source: 'Editor host', use: 'Gives the agent the focused file context.' },
+    { input: 'Open panes', source: 'Workspace host', use: 'Shows visible sessions, tabs, cwd, and active pane state.' },
+    { input: 'Shell cwd', source: 'Local substrate collector', use: 'Anchors requests in current project context.' },
+    { input: 'Git branch', source: 'Local substrate collector', use: 'Adds repository state to the request context.' },
+    { input: 'Recent diagnostics', source: 'LSP publishers', use: 'Surfaces errors and warnings without requiring manual copy/paste.' },
+    { input: 'Optional pane context', source: 'Legacy bridge or host integration', use: 'Adds extra cockpit state when available, but never as a hard dependency.' },
+  ]}
+/>
+
+## Gateway and Daemon Split
+
+Cast Agent may talk to both Coven Gateway and the local Coven daemon. Keep those roles distinct in docs and client behavior.
+
+<DocsDataTable
+  caption="Cast Agent runtime dependencies"
+  searchPlaceholder="Filter runtime dependencies..."
+  columns={[
+    { key: 'target', label: 'Target' },
+    { key: 'transport', label: 'Transport', filter: true },
+    { key: 'role', label: 'Role' },
+    { key: 'authority', label: 'Authority posture' },
+  ]}
+  rows={[
+    { target: 'Coven Gateway', transport: 'HTTP + WebSocket', role: 'Health checks, message requests, and streaming responses.', authority: 'Not a replacement for local daemon validation.' },
+    { target: 'Coven daemon', transport: 'HTTP over local Unix socket', role: 'Session records, events, launch/input/kill behavior, and local runtime state.', authority: 'Rust authority boundary.' },
+    { target: 'Harness CLIs', transport: 'Daemon-spawned PTY', role: 'Codex, Claude Code, and future harness execution.', authority: 'Launched only through daemon validation.' },
+  ]}
+/>
+
+## Degradation
+
+Cast Agent should stay useful when remote or optional pieces are unavailable.
+
+<DocsDataTable
+  caption="Cast Agent degradation behavior"
+  searchPlaceholder="Filter degradation behavior..."
+  columns={[
+    { key: 'condition', label: 'Condition' },
+    { key: 'behavior', label: 'Behavior' },
+  ]}
+  rows={[
+    { condition: 'Gateway health check fails', behavior: 'Keep the agent panel usable and show a degraded status.' },
+    { condition: 'Session listing transport fails', behavior: 'Fall back to cached session data when available.' },
+    { condition: 'Optional pane bridge is absent', behavior: 'Return empty optional pane context instead of blocking the agent.' },
+    { condition: 'Daemon rejects a request', behavior: 'Surface the daemon error; do not retry by bypassing policy.' },
+  ]}
+/>
+
+## Client Rule
+
+Cast Agent can make Coven feel native inside CastCodes, but it must keep the same client rule as every other integration: improve UX locally, then submit structured requests to the authority layer.

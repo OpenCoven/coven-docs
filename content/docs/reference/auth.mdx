@@ -37,20 +37,22 @@ The current solution is a **same-user local access model**.
   ]}
 />
 
-This is intentionally a local-first MVP posture. It is suitable for same-user local clients such as the Coven CLI/TUI, comux, and the external OpenClaw plugin. It is not a remote API auth scheme.
+This is intentionally a local-first MVP posture. It is suitable for same-user local clients such as the Coven CLI/TUI, CastCodes, Cast Agent, scripts, and the external OpenClaw plugin. It is not a remote API auth scheme.
 
 ```mermaid
 flowchart LR
   subgraph User["Same-user trust zone"]
     direction LR
     CLI[coven CLI / TUI]
-    Comux[comux]
+    CastCodes[CastCodes]
+    CastAgent[Cast Agent]
     Plugin["@opencoven/coven\nOpenClaw plugin"]
     Other[Other same-user clients]
   end
 
   CLI -->|Unix socket| Socket["<covenHome>/coven.sock"]
-  Comux -->|Unix socket| Socket
+  CastCodes -->|Unix socket| Socket
+  CastAgent -->|Unix socket| Socket
   Plugin -->|Unix socket + trust-anchor checks| Socket
   Other -->|Unix socket| Socket
 

@@ -10,24 +10,27 @@ import { Mermaid } from '@/components/mermaid';
 
 <Mermaid chart={`
 flowchart TD
-    U[You] -->|message| CH[Channel\nTelegram / Discord / iMessage]
-    CH --> FAM[Familiar\nNova, Sage, Echo...]
-    FAM --> HAR[Harness\nOpenClaw / Claude Code / Codex]
-    FAM --> MEM[(Memory\nfiles + vectors)]
-    HAR --> TOOLS[Tools\nweb_search / exec / calendar]
-    HAR --> MODEL[AI Model\ngpt-5.5 / claude-sonnet]
-    FAM -->|delegate| SUB[Subagent\nCody / Kitty]
-    SUB --> HAR
+    U[User / Developer] --> SURF[Channels and surfaces\nTelegram / Discord / CLI / CastCodes / OpenClaw]
+    SURF --> CODE[Cast Codes\nportable intent grammar]
+    CODE --> AGENT[Cast Agent\nsubstrate + session backend]
+    AGENT --> DAEMON[Coven daemon\nRust authority boundary]
+    DAEMON --> SESS[(SQLite sessions\nappend-only events)]
+    DAEMON --> HAR[Harness adapter router]
+    HAR --> CODEX[Codex]
+    HAR --> CLAUDE[Claude Code]
+    HAR -. future .-> OTHER[Hermes / Aider / OpenCode]
+    AGENT --> MEM[(Familiar memory\nfiles + vectors)]
+    AGENT --> GATEWAY[Coven Gateway\nHTTP + WebSocket]
 `} />
 
 read_when:
   - Understanding the Coven runtime topology
   - Designing a client around the local socket API
-description: "How the Coven Rust daemon, CLI, TUI, comux cockpit, and OpenClaw plugin compose around the local socket API, PTY adapters, and event store."
+description: "How the Coven Rust daemon, CLI, TUI, CastCodes, Cast Agent, and OpenClaw plugin compose around the local socket API, PTY adapters, and event store."
 
 # Coven Architecture
 
-Coven is a local-first harness substrate. The Rust CLI/daemon is the authority layer; clients such as the CLI TUI, comux, and the optional OpenClaw plugin are presentation/integration layers.
+Coven is a local-first harness substrate. The Rust CLI/daemon is the authority layer; clients such as the CLI/TUI, CastCodes, Cast Agent, and the optional OpenClaw plugin are presentation/integration layers.
 
 The versioned local socket API contract lives in [`docs/API-CONTRACT.md`](/API-CONTRACT). Clients should use `GET /api/v1/health` and negotiate against `apiVersion: "coven.daemon.v1"` and the `capabilities` object before depending on session or event response shapes. All error responses use the structured `{ error: { code, message, details } }` envelope documented there.
 
@@ -36,10 +39,13 @@ The versioned local socket API contract lives in [`docs/API-CONTRACT.md`](/API-C
 ```mermaid
 flowchart LR
   User[Developer] --> CLI[coven CLI / TUI]
+  User --> CastCodes[CastCodes app]
   CLI -->|direct commands| Rust[Coven Rust CLI]
   Rust --> Daemon[Coven daemon]
 
-  Comux[comux cockpit] -->|HTTP over Unix socket| Daemon
+  CastCodes --> CastAgent[Cast Agent]
+  CastAgent -->|sessions + stream + substrate| Gateway[Coven Gateway]
+  CastAgent -->|local session operations| Daemon
   OpenClaw[OpenClaw] --> Plugin[external @opencoven/coven plugin]
   Plugin -->|HTTP over Unix socket| Daemon
   Daemon --> Control[Control plane: capability discovery + action routing]
@@ -91,7 +97,7 @@ sequenceDiagram
 
 ```mermaid
 flowchart TD
-  Client[CLI, TUI, comux, OpenClaw plugin] --> Request[Launch / input / kill / list request]
+  Client[CLI/TUI, CastCodes/Cast Agent, OpenClaw plugin, scripts] --> Request[Launch / input / kill / list request]
   Request --> Rust[Rank 0 authority: Rust daemon]
   Rust --> RootCheck{projectRoot explicit?}
   RootCheck -- no --> RejectRoot[Reject]
@@ -101,6 +107,25 @@ flowchart TD
   HarnessCheck -- no --> RejectHarness[Reject with install hint]
   HarnessCheck -- yes --> Spawn[Spawn harness with argv APIs]
   Spawn --> Ledger[Persist session + events]
+```
+
+Cast Codes are parsed intent. Every sensitive request they produce is still revalidated by the Rust daemon.
+
+## Cast Agent Request Flow
+
+```mermaid
+sequenceDiagram
+  participant UI as CastCodes UI
+  participant A as Cast Agent
+  participant G as Coven Gateway
+  participant D as Coven daemon
+
+  UI->>A: user prompt or Cast Code
+  A->>A: collect substrate
+  A->>G: POST or WS /v1/messages
+  A->>D: list/open local Coven sessions
+  D-->>A: session records/events
+  A-->>UI: stream response + session affordances
 ```
 
 ## Automation Boundary

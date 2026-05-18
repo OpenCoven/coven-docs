@@ -24,18 +24,26 @@ type Feature = {
 const STACK_LAYERS = [
   {
     label: 'Surfaces',
-    sub: 'CLI/TUI · comux · OpenMeow · OpenClaw',
+    sub: 'CastCodes · CLI/TUI · OpenClaw plugin · chat/API',
     icon: 'ph:monitor-duotone',
     href: '/docs/familiars/clients',
     depth: 0,
     accent: true,
   },
   {
+    label: 'Cast Codes',
+    sub: 'portable intent grammar',
+    icon: 'ph:command-duotone',
+    href: '/docs/guide/cast-codes',
+    depth: 1,
+    accent: false,
+  },
+  {
     label: 'Local API',
     sub: 'HTTP over Unix socket · /api/v1',
     icon: 'ph:plugs-connected-duotone',
     href: '/docs/reference/api',
-    depth: 1,
+    depth: 2,
     accent: false,
   },
   {
@@ -43,7 +51,7 @@ const STACK_LAYERS = [
     sub: 'Rust authority boundary',
     icon: 'ph:shield-check-duotone',
     href: '/docs/guide/architecture',
-    depth: 2,
+    depth: 3,
     accent: false,
   },
   {
@@ -51,7 +59,7 @@ const STACK_LAYERS = [
     sub: 'SQLite sessions + append-only events',
     icon: 'ph:database-duotone',
     href: '/docs/familiars/sessions',
-    depth: 3,
+    depth: 4,
     accent: false,
   },
   {
@@ -59,7 +67,7 @@ const STACK_LAYERS = [
     sub: 'Codex · Claude Code · future adapters',
     icon: 'ph:plug-duotone',
     href: '/docs/familiars/harnesses',
-    depth: 3,
+    depth: 4,
     accent: false,
   },
   {
@@ -67,7 +75,7 @@ const STACK_LAYERS = [
     sub: 'project roots · attach · replay · input',
     icon: 'ph:terminal-window-duotone',
     href: '/docs/familiars/sessions',
-    depth: 4,
+    depth: 5,
     accent: false,
   },
   {
@@ -75,7 +83,7 @@ const STACK_LAYERS = [
     sub: 'identity · memory · tool policy',
     icon: 'ph:brain-duotone',
     href: '/docs/guide/concepts',
-    depth: 4,
+    depth: 5,
     accent: false,
   },
   {

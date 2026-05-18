@@ -6,11 +6,11 @@ description: "Integrating Coven into your application."
 import { DocsDataTable } from '@/components/docs-data-table';
 
 title: "Client integration guide"
-summary: "How comux, OpenClaw, and other clients should talk to the Coven daemon socket API without duplicating runtime policy or authority."
+summary: "How CastCodes, Cast Agent, OpenClaw, and other clients should talk to the Coven daemon socket API without duplicating runtime policy or authority."
 read_when:
   - Integrating a UI or bridge with Coven
   - Avoiding client-side policy drift
-description: "How comux, OpenClaw, and other clients should talk to the Coven daemon socket API without duplicating runtime policy or authority."
+description: "How CastCodes, Cast Agent, OpenClaw, and other clients should talk to the Coven daemon socket API without duplicating runtime policy or authority."
 
 # Client Integration Guide
 
@@ -81,13 +81,13 @@ Clients should treat the handshake as **mandatory before any other request**. Sk
   ]}
 />
 
-## comux
+## CastCodes and Cast Agent
 
-comux is the cockpit layer.
+CastCodes is the first-party workspace layer. Cast Agent is the Coven-native substrate manager and agent backend inside that workspace.
 
 <DocsDataTable
-  caption="comux responsibilities when acting as a Coven cockpit"
-  searchPlaceholder="Filter comux responsibilities..."
+  caption="CastCodes and Cast Agent responsibilities"
+  searchPlaceholder="Filter CastCodes responsibilities..."
   columns={[
     { key: 'capability', label: 'Capability' },
     { key: 'group', label: 'Group', filter: true },
@@ -99,14 +99,17 @@ comux is the cockpit layer.
     { capability: 'Launch sessions from visible project/worktree context', group: 'Launch', dataSource: 'Daemon API', clientBehavior: 'Pass explicit project root, cwd, harness id, and prompt to the daemon.' },
     { capability: 'Open sessions in panes', group: 'Workspace UI', dataSource: 'Client state', clientBehavior: 'Render live or replayed work inside visible panes.' },
     { capability: 'Attach or rejoin live work', group: 'Session control', dataSource: 'Daemon API', clientBehavior: 'Offer attachment only after daemon liveness checks.' },
-    { capability: 'Read coven sessions JSON', group: 'Session discovery', dataSource: 'CLI JSON', clientBehavior: 'Use simple local discovery when daemon-level control is unnecessary.' },
+    { capability: 'Collect substrate', group: 'Context', dataSource: 'Cast Agent', clientBehavior: 'Collect active file, panes, cwd, git branch, and diagnostics without turning context into authority.' },
+    { capability: 'Stream gateway responses', group: 'Agent runtime', dataSource: 'Coven Gateway', clientBehavior: 'Render streaming responses while keeping daemon-backed session operations separate.' },
     { capability: 'Show logs and artifacts', group: 'Review', dataSource: 'Event log', clientBehavior: 'Make completed work inspectable after process exit or daemon restart.' },
     { capability: 'Review diffs', group: 'Review', dataSource: 'Repository state', clientBehavior: 'Keep file changes visible before merge or cleanup actions.' },
     { capability: 'Merge, PR, archive, or clean up explicitly', group: 'Completion flow', dataSource: 'Client commands plus daemon state', clientBehavior: 'Require explicit user action for state-changing workflow steps.' },
   ]}
 />
 
-comux should remain useful when Coven is not installed. If Coven is missing, present clear installation and fallback states instead of assuming the daemon exists.
+CastCodes should remain useful when Coven is not installed. If Coven is missing, present clear installation and fallback states instead of assuming the daemon exists.
+
+Cast Codes are portable intent syntax that CastCodes and Cast Agent can parse. They are not permission grants; daemon validation still decides whether a launch, input, kill, action, archive, summon, or sacrifice request is allowed.
 
 ## OpenClaw Plugin
 

@@ -386,7 +386,7 @@ export default function HomePage() {
               <Icon icon="ph:arrow-right-bold" width={14} />
             </Link>
             <Link
-              href="/docs/openapi/overview"
+              href="/docs/reference/api"
               className={s.ctaSecondary}
               style={{
                 color: '#A8A8A8',

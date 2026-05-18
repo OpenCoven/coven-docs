@@ -6,6 +6,7 @@
   "pages": [
     "sessions",
     "harnesses",
-    "clients"
+    "clients",
+    "cast-agent"
   ]
 }

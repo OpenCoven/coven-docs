@@ -6,17 +6,17 @@ description: "Where Coven is headed."
 import { DocsDataTable, DocsTabbedTables } from '@/components/docs-data-table';
 
 title: "OpenCoven public roadmap"
-summary: "The OpenCoven public roadmap for Coven, comux, and OpenClaw integrations, with shipped, now, next, and later slices for the local agent runtime."
+summary: "The OpenCoven public roadmap for Coven, CastCodes, Cast Agent, Cast Codes, and OpenClaw integrations, with shipped, now, next, and later slices for the local agent runtime."
 read_when:
   - Checking public project direction
   - Separating shipped work from planned work
-description: "The OpenCoven public roadmap for Coven, comux, and OpenClaw integrations, with shipped, now, next, and later slices for the local agent runtime."
+description: "The OpenCoven public roadmap for Coven, CastCodes, Cast Agent, Cast Codes, and OpenClaw integrations, with shipped, now, next, and later slices for the local agent runtime."
 
 # OpenCoven Public Roadmap
 
 _Last updated: 2026-05-09_
 
-This roadmap is the public progress ledger for **OpenCoven**, **Coven**, and **comux**.
+This roadmap is the public progress ledger for **OpenCoven**, **Coven**, **CastCodes**, **Cast Agent**, and **Cast Codes**.
 
 It is intentionally written as a community-facing map, not an internal promise sheet. Items move when they are designed, implemented, tested, released, or deliberately cut. Dates are avoided unless a release is already scheduled.
 
@@ -34,7 +34,9 @@ OpenCoven is building a local-first agent workspace where autonomous coding harn
   ]}
   rows={[
     { layer: '**Coven**', role: 'Runtime substrate', meaning: 'Project-scoped harness sessions, PTYs, logs, and local APIs.' },
-    { layer: '**comux**', role: 'Cockpit', meaning: 'Visible panes, worktrees, agent lanes, rituals, review, and merge flow.' },
+    { layer: '**CastCodes**', role: 'First-party workspace', meaning: 'Visible panes, files, diagnostics, agent lanes, sessions, review, and merge flow.' },
+    { layer: '**Cast Agent**', role: 'Substrate and session backend', meaning: 'Collects workspace context, streams gateway responses, and keeps Coven sessions visible.' },
+    { layer: '**Cast Codes**', role: 'Portable intent grammar', meaning: 'Routes switching, delegation, broadcast, status, resume, and handoff intent across clients.' },
     { layer: '**OpenClaw integrations**', role: 'Orchestration surfaces', meaning: 'Hand work into the same local runtime without hiding what happened.' },
   ]}
 />
@@ -111,21 +113,21 @@ The simple promise:
   ]}
 />
 
-### comux
+### CastCodes and Cast Agent
 
-**Status:** early public product, useful as a standalone terminal cockpit and becoming the first visual Coven client.
+**Status:** early first-party workspace and substrate backend, becoming the visible CastCodes client for Coven sessions and agent work.
 
 <DocsDataTable
-  caption="comux roadmap snapshot"
-  searchPlaceholder="Filter comux roadmap..."
+  caption="CastCodes roadmap snapshot"
+  searchPlaceholder="Filter CastCodes roadmap..."
   columns={[
     { key: 'item', label: 'Item' },
     { key: 'status', label: 'Status', filter: true },
     { key: 'area', label: 'Area', filter: true },
   ]}
   rows={[
-    { item: 'Public `comux` npm package and CLI command', status: 'Shipped', area: 'Project' },
-    { item: 'tmux cockpit for visible parallel work', status: 'Shipped', area: 'Cockpit' },
+    { item: 'CastCodes app with Coven-facing agent panel direction', status: 'Shipped', area: 'Project' },
+    { item: 'Visible panes for local parallel work', status: 'Shipped', area: 'Cockpit' },
     { item: 'Git worktree isolation per agent lane', status: 'Shipped', area: 'Worktrees' },
     { item: 'Agent launcher registry with multiple coding CLIs', status: 'Shipped', area: 'Launchers' },
     { item: 'Multi-select agent launches', status: 'Shipped', area: 'Launchers' },
@@ -135,13 +137,14 @@ The simple promise:
     { item: 'Rituals for repeatable project setups', status: 'Shipped', area: 'Automation' },
     { item: 'Lifecycle hook docs and generated hook reference', status: 'Shipped', area: 'Docs' },
     { item: 'Docs site and public README/spec/smoke docs', status: 'Shipped', area: 'Docs' },
+    { item: 'Cast Agent crate, runtime, gateway health, session list, click-through, streaming, and substrate collection', status: 'Shipped', area: 'Cast Agent' },
     { item: 'Coven session visibility and launch integration through the local bridge path', status: 'Shipped', area: 'Coven integration' },
     { item: 'OpenClaw repair ritual direction started publicly', status: 'Shipped', area: 'OpenClaw' },
-    { item: 'Stabilize Coven session UX in comux: list, open, launch, attach/rejoin, and unavailable states', status: 'Now', area: 'Coven integration' },
-    { item: 'Keep comux useful without Coven installed', status: 'Now', area: 'Fallbacks' },
-    { item: 'Continue dogfooding comux-on-comux for branch/worktree hygiene', status: 'Now', area: 'Dogfooding' },
+    { item: 'Stabilize Coven session UX in CastCodes: list, open, launch, attach/rejoin, and unavailable states', status: 'Now', area: 'Coven integration' },
+    { item: 'Keep CastCodes useful without Coven installed', status: 'Now', area: 'Fallbacks' },
+    { item: 'Continue dogfooding CastCodes for branch/worktree hygiene', status: 'Now', area: 'Dogfooding' },
     { item: 'Tighten review/merge flows so agent output stays explicit and inspectable', status: 'Now', area: 'Review' },
-    { item: 'Demo step 1: open project in comux', status: 'Next', area: 'Demo loop' },
+    { item: 'Demo step 1: open project in CastCodes', status: 'Next', area: 'Demo loop' },
     { item: 'Demo step 2: launch a Coven-backed Codex or Claude session', status: 'Next', area: 'Demo loop' },
     { item: 'Demo step 3: watch it as a visible pane/session', status: 'Next', area: 'Demo loop' },
     { item: 'Demo step 4: inspect files and diffs', status: 'Next', area: 'Demo loop' },
@@ -174,7 +177,7 @@ The simple promise:
     { item: 'Add compatibility tests before encouraging broad plugin usage', status: 'Now', area: 'Testing' },
     { item: 'Keep OpenClaw copy honest: orchestration sits above Coven; it does not replace the runtime substrate', status: 'Now', area: 'Messaging' },
     { item: 'Publicly document the supported plugin path once API versioning lands', status: 'Next', area: 'Docs' },
-    { item: 'Add a demo showing a task moving from intake to Coven runtime to comux review', status: 'Next', area: 'Demo' },
+    { item: 'Add a demo showing a task moving from intake to Coven runtime to CastCodes review', status: 'Next', area: 'Demo' },
   ]}
 />
 
@@ -238,7 +241,7 @@ Colour coding mirrors maturity: filled lavender is shipped or stabilising; outli
         { key: 'status', label: 'Status', filter: true },
       ],
       rows: [
-        { item: 'Public `comux` package', status: 'Done' },
+        { item: 'CastCodes app direction', status: 'Done' },
         { item: 'tmux panes', status: 'Done' },
         { item: 'git worktrees', status: 'Done' },
         { item: 'agent launcher registry', status: 'Done' },
@@ -247,7 +250,7 @@ Colour coding mirrors maturity: filled lavender is shipped or stabilising; outli
         { item: 'merge and PR-oriented pane menu', status: 'Done' },
         { item: 'Coven session visibility', status: 'Done' },
         { item: 'Coven attach/rejoin UX polish', status: 'Open' },
-        { item: 'documented end-to-end comux + Coven demo', status: 'Open' },
+        { item: 'documented end-to-end CastCodes + Coven demo', status: 'Open' },
       ],
     },
     {
@@ -261,7 +264,7 @@ Colour coding mirrors maturity: filled lavender is shipped or stabilising; outli
       ],
       rows: [
         { item: 'Public roadmap document', status: 'Done' },
-        { item: 'GitHub milestone labels for `roadmap`, `now`, `next`, `later`, `area:coven`, `area:comux`, `good first issue`, `help wanted`', status: 'Open' },
+        { item: 'GitHub milestone labels for `roadmap`, `now`, `next`, `later`, `area:coven`, `area:castcodes`, `good first issue`, `help wanted`', status: 'Open' },
         { item: 'First public Discord roadmap post', status: 'Open' },
         { item: 'Weekly shipped/building/next update cadence', status: 'Open' },
         { item: 'Public issue board linked from Discord', status: 'Open' },
@@ -296,7 +299,7 @@ Colour coding mirrors maturity: filled lavender is shipped or stabilising; outli
       rows: [
         { item: 'OpenClaw intake creates or requests a Coven task', status: 'Open' },
         { item: 'Coven owns the session and event log', status: 'Open' },
-        { item: 'comux shows the session for review', status: 'Open' },
+        { item: 'CastCodes shows the session for review', status: 'Open' },
         { item: 'user explicitly merges, PRs, archives, or deletes work', status: 'Open' },
       ],
     },
@@ -376,7 +379,7 @@ We should keep Discord updates lightweight and repeatable.
 ### Links
 - Roadmap: https://github.com/OpenCoven/coven/blob/main/docs/ROADMAP.md
 - Coven issues: https://github.com/OpenCoven/coven/issues
-- comux issues: https://github.com/BunsDev/comux/issues
+- CastCodes issues: https://github.com/OpenCoven/cast-codes/issues
 ```
 
 ### Rules for Honest Updates
@@ -392,7 +395,7 @@ We should keep Discord updates lightweight and repeatable.
     { rule: 'Do not promise dates unless we are already in release mode.', reason: 'Avoid turning direction into false commitments.' },
     { rule: 'Link shipped work to commits, releases, issues, or docs.', reason: 'Make progress independently verifiable.' },
     { rule: 'Mark experiments as **Lab** instead of pretending they are committed roadmap items.', reason: 'Keep explorations distinct from promises.' },
-    { rule: 'Separate **Coven runtime**, **comux cockpit**, and **OpenClaw intake**.', reason: 'Help people understand the architecture.' },
+    { rule: 'Separate **Coven runtime**, **CastCodes workspace**, **Cast Agent backend**, **Cast Codes intent**, and **OpenClaw intake**.', reason: 'Help people understand the architecture.' },
     { rule: 'Prefer small public issues over giant vague tasks.', reason: 'Make contribution paths real.' },
     { rule: 'Ask for help only when the task has a clear acceptance condition.', reason: 'Respect community attention.' },
   ]}
@@ -401,16 +404,17 @@ We should keep Discord updates lightweight and repeatable.
 ## First Public Discord Post
 
 ```md
-We opened a public roadmap for OpenCoven/Coven/comux so progress is easier to follow.
+We opened a public roadmap for OpenCoven/Coven/CastCodes so progress is easier to follow.
 
 The short version:
 - Coven is the local runtime substrate: project-scoped Codex/Claude sessions, PTYs, logs, daemon API.
-- comux is the visible cockpit: tmux panes, worktrees, rituals, review, merge/PR flows.
-- The next serious focus is hardening the Coven API contract and polishing the comux + Coven demo loop.
+- CastCodes is the visible workspace: panes, sessions, substrate, review, merge/PR flows.
+- Cast Agent is the substrate and session backend inside CastCodes.
+- The next serious focus is hardening the Coven API contract and polishing the CastCodes + Coven demo loop.
 
 Roadmap: https://github.com/OpenCoven/coven/blob/main/docs/ROADMAP.md
 Coven: https://github.com/OpenCoven/coven
-comux: https://github.com/BunsDev/comux
+CastCodes: https://github.com/OpenCoven/cast-codes
 
 We’ll start posting lightweight shipped / building / next updates here so the work is easier to follow and easier to help with.
 ```

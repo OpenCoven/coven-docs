@@ -32,7 +32,8 @@ Every client is untrusted for enforcement purposes.
   ]}
   rows={[
     { surface: 'CLI/TUI', status: 'Current', trustPosture: 'Presentation layer; daemon still enforces sensitive decisions.' },
-    { surface: 'comux', status: 'Current', trustPosture: 'Cockpit layer; cannot widen project or session policy.' },
+    { surface: 'CastCodes', status: 'Current', trustPosture: 'Workspace layer; cannot widen project or session policy.' },
+    { surface: 'Cast Agent', status: 'Current backend', trustPosture: 'Substrate and session backend; still submits to daemon enforcement.' },
     { surface: 'External OpenClaw plugin', status: 'External bridge', trustPosture: 'Bridge layer; must use daemon validation.' },
     { surface: 'Scripts', status: 'Current', trustPosture: 'Automation callers; treated like any other untrusted client.' },
     { surface: 'Future desktop clients', status: 'Future', trustPosture: 'Local UI surfaces; policy remains behind Coven.' },
@@ -46,7 +47,8 @@ flowchart TB
   subgraph UntrustedZone["Untrusted for enforcement (UX layer only)"]
     direction LR
     CLI[coven CLI / TUI]
-    Comux[comux]
+    CastCodes[CastCodes]
+    CastAgent[Cast Agent]
     Plugin["@opencoven/coven plugin"]
     Scripts[Scripts / other clients]
   end
@@ -66,6 +68,8 @@ flowchart TB
 ```
 
 Anything in **UntrustedZone** can lie, drift, or be replaced. Anything in **TrustedZone** is the Rust daemon's job and must fail closed on unknowns. The arrow direction is the only direction a sensitive decision is allowed to flow: from untrusted into the boundary, where it is revalidated.
+
+Cast Codes are part of the untrusted intent surface. They can make routing clear, but they do not authorize launches, live input, kill requests, external actions, or destructive session operations.
 
 ## Authentication and Local Access
 

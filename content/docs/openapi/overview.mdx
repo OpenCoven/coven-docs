@@ -1,21 +1,25 @@
 ---
-title: "API Overview"
-description: "OpenCoven REST API — base URL, auth, and conventions."
+title: "Future Hosted API"
+description: "Future hosted API placeholder. Current Coven API docs live under Reference / API."
 ---
 
-# OpenCoven API
+# Future Hosted API
 
-Base URL: `https://api.coven.dev/v1`
+This section is hidden from the main docs navigation because it describes future hosted API direction, not the current Coven runtime contract.
 
-## Authentication
+For current client integrations, use [Coven Local API](/docs/reference/api): HTTP over the local Unix socket at `<covenHome>/coven.sock`, versioned under `/api/v1`, with no OAuth, JWT, bearer-token, API-key, or browser-cookie auth in v0.
 
-All requests require a bearer token:
+Do not use the examples below as shipped API behavior until a hosted API design exists.
+
+## Future Authentication Direction
+
+Hosted access will need an explicit auth and pairing design before it is documented as current behavior.
 
 ```http
 Authorization: Bearer <your-api-key>
 ```
 
-Generate API keys at [coven.dev/settings/keys](https://coven.dev/settings/keys).
+API-key examples are placeholders for future hosted service work.
 
 ## Conventions
 
@@ -24,6 +28,8 @@ Generate API keys at [coven.dev/settings/keys](https://coven.dev/settings/keys).
 - Errors return `{ "error": { "code": string, "message": string } }`
 
 ## Rate Limits
+
+Rate limits are also future hosted-service placeholders.
 
 | Plan     | Requests/min |
 |----------|-------------|

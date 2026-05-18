@@ -17,7 +17,9 @@ The public homepage should expose the actual Coven runtime stack, not only the f
 
 ```mermaid
 flowchart TB
-  Surfaces["Clients and surfaces\nCLI/TUI, comux, OpenClaw plugin"]
+  Surfaces["Clients and surfaces\nCastCodes, CLI/TUI, OpenClaw plugin"]
+  Codes["Cast Codes\nportable intent grammar"]
+  Agent["Cast Agent\nsubstrate + session backend"]
   Api["Local daemon API\nHTTP over Unix socket, /api/v1"]
   Daemon["Rust Coven daemon\nauthority boundary"]
   Store["SQLite store\nsessions plus append-only events"]
@@ -26,7 +28,9 @@ flowchart TB
   Familiar["Familiar layer\nidentity, memory, tools, policy"]
   Model["Provider model auth\nowned by the harness/provider"]
 
-  Surfaces --> Api --> Daemon
+  Surfaces --> Codes --> Agent
+  Surfaces --> Api
+  Agent --> Api --> Daemon
   Daemon --> Store
   Daemon --> Harness --> Pty
   Pty --> Familiar --> Model
@@ -228,7 +232,7 @@ These areas are present in the docs site and should now be polished, not duplica
 
 ## API Naming Note
 
-The current **OpenCoven API** section reads like a future hosted REST API with API keys. That should be handled deliberately.
+The current **Future Hosted API** section is intentionally hidden from the main docs nav until it has a real auth and product contract. Current API docs should point to the local daemon API only.
 
 <DocsDataTable
   caption="API naming decisions"
@@ -239,9 +243,9 @@ The current **OpenCoven API** section reads like a future hosted REST API with A
     { key: 'reason', label: 'Reason' },
   ]}
   rows={[
-    { decision: 'Keep **Reference / API** as the shipped local daemon API', status: 'Do now', reason: 'The current API is HTTP over Unix socket, `/api/v1`, with no OAuth/JWT/API keys.' },
-    { decision: 'Rename hosted-style pages to **Future Hosted API** if they stay', status: 'Conditional', reason: 'Hosted auth and remote access are future-facing, not the shipped daemon contract.' },
-    { decision: 'Replace hosted-style pages with daemon endpoint pages when possible', status: 'Preferred', reason: 'Health, capabilities, sessions, events, input, kill, archive, summon, and sacrifice are the useful current reference targets.' },
+    { decision: 'Keep **Reference / API** as the shipped local daemon API', status: 'Current', reason: 'The current API is HTTP over Unix socket, `/api/v1`, with no OAuth/JWT/API keys.' },
+    { decision: 'Hide hosted-style pages from the main nav', status: 'Applied', reason: 'Hosted auth and remote access are future-facing, not the shipped daemon contract.' },
+    { decision: 'Replace hosted-style pages with daemon endpoint pages when possible', status: 'Preferred next step', reason: 'Health, capabilities, sessions, events, input, kill, archive, summon, and sacrifice are the useful current reference targets.' },
   ]}
 />
 
@@ -252,7 +256,9 @@ The current **OpenCoven API** section reads like a future hosted REST API with A
 ```mermaid
 flowchart LR
   CLI["coven CLI/TUI"]
-  Comux["comux"]
+  CastCodes["CastCodes"]
+  CastAgent["Cast Agent"]
+  Codes["Cast Codes"]
   Plugin["OpenClaw plugin"]
   Socket["HTTP over Unix socket\n/api/v1"]
   Daemon["Rust daemon"]
@@ -262,7 +268,8 @@ flowchart LR
   Harness["Harness CLI"]
 
   CLI --> Socket
-  Comux --> Socket
+  CastCodes --> Codes --> CastAgent
+  CastAgent --> Socket
   Plugin --> Socket
   Socket --> Daemon
   Daemon --> Store
@@ -317,6 +324,29 @@ sequenceDiagram
   Daemon-->>Client: session record
   Client->>Daemon: GET /api/v1/events?sessionId=...
   Daemon-->>Client: event page and cursor
+```
+
+### Cast Codes Intent Mapping
+
+```mermaid
+flowchart LR
+  Intent["~cody: review this diff"] --> Parser["Cast Code parser"]
+  Parser --> Request["Structured session/action request"]
+  Request --> Daemon["Coven daemon validation"]
+  Daemon --> Event["Session/event result"]
+```
+
+### Cast Agent Substrate Flow
+
+```mermaid
+flowchart LR
+  File["Active file"] --> Agent["Cast Agent"]
+  Panes["Open panes"] --> Agent
+  Cwd["Shell cwd"] --> Agent
+  Git["Git branch"] --> Agent
+  Diagnostics["Recent diagnostics"] --> Agent
+  Agent --> Gateway["Coven Gateway request"]
+  Agent --> Daemon["Local Coven session request"]
 ```
 
 ### Harness Adapter Lifecycle

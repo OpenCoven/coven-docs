@@ -7,11 +7,11 @@ import { DocsDataTable } from '@/components/docs-data-table';
 import { Mermaid } from '@/components/mermaid';
 
 title: "Coven concepts and terminology"
-summary: "Definitions for the nouns Coven uses across the CLI, daemon, API, and clients: harnesses, sessions, projects, rituals, summon, and sacrifice."
+summary: "Definitions for the nouns Coven uses across CastCodes, Cast Agent, CLI, daemon, API, and clients: harnesses, sessions, projects, rituals, summon, and sacrifice."
 read_when:
   - Learning the Coven vocabulary
   - Mapping product terms to daemon and CLI behavior
-description: "Definitions for the nouns Coven uses across the CLI, daemon, API, and clients: harnesses, sessions, projects, rituals, summon, and sacrifice."
+description: "Definitions for the nouns Coven uses across CastCodes, Cast Agent, CLI, daemon, API, and clients: harnesses, sessions, projects, rituals, summon, and sacrifice."
 
 # Coven Concepts
 
@@ -20,6 +20,9 @@ This page defines the nouns used across the Coven CLI, daemon, API, docs, and cl
 ```mermaid
 flowchart TB
   OpenCoven[OpenCoven ecosystem] --> Coven[Coven runtime]
+  OpenCoven --> CastCodes[CastCodes]
+  CastCodes --> CastAgent[Cast Agent]
+  CastCodes --> CastCode[Cast Codes]
   Coven --> Daemon[Daemon]
   Daemon --> Project[Project root]
   Daemon --> Cwd[Working directory]
@@ -31,6 +34,8 @@ flowchart TB
   Socket --> ControlPlane[Control plane]
   ControlPlane --> Capability[Capability]
   Socket --> Client[Client]
+  CastCode --> Client
+  CastAgent --> Socket
   Session --> Ritual["Rituals: archive / summon / sacrifice"]
 ```
 
@@ -53,6 +58,24 @@ Use **Coven** for the CLI, daemon, Rust crate, npm wrapper, and local session ru
 `coven` is the user-facing command.
 
 Do not tell users to run `opencoven` or `@opencoven`. The package names live under `@opencoven/*`, but the command is always `coven`.
+
+## CastCodes
+
+CastCodes is the first-party OpenCoven workspace and cockpit app. It gives Coven sessions a visible place to live alongside panes, files, diffs, diagnostics, and review flow.
+
+Use **CastCodes** when talking about the product surface.
+
+## Cast Agent
+
+Cast Agent is the Coven-native substrate manager and AI agent backend inside CastCodes. It collects workspace context, talks to Coven Gateway when available, lists local Coven sessions, and keeps daemon-backed session operations visible in the app.
+
+Cast Agent is still a client-side backend. It does not replace daemon validation.
+
+## Cast Codes
+
+Cast Codes are the portable intent grammar for switching familiars, delegating work, broadcasting constraints, checking status, resuming lanes, and requesting handoff context.
+
+Use **Cast Codes** for parseable intent. Do not treat a Cast Code as authorization; the daemon still validates sensitive requests.
 
 ## Harness
 
@@ -176,7 +199,8 @@ Known client shapes:
   ]}
   rows={[
     { client: '`coven` CLI/TUI', status: 'Current', role: 'First-party command and terminal UI.' },
-    { client: 'comux cockpit', status: 'Current', role: 'Visible workspace for panes, sessions, and review.' },
+    { client: 'CastCodes', status: 'Current', role: 'First-party workspace for panes, sessions, agent substrate, and review.' },
+    { client: 'Cast Agent', status: 'Current backend', role: 'CastCodes substrate manager and Coven-native agent backend.' },
     { client: '`@opencoven/coven` OpenClaw plugin', status: 'External bridge', role: 'Optional OpenClaw integration package.' },
     { client: 'Future desktop intake surfaces', status: 'Future', role: 'Local UI entrypoints that hand work into Coven.' },
   ]}
