@@ -1,0 +1,229 @@
+/* ─── Feature grid ────────────────────────────────────────────────────────── */
+
+.fg {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: rgba(154, 142, 205, 0.13);
+  border: 1px solid rgba(154, 142, 205, 0.14);
+  border-radius: 1.25rem;
+  overflow: hidden;
+}
+@media (max-width: 900px) {
+  .fg { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 560px) {
+  .fg { grid-template-columns: 1fr; }
+}
+
+.fc {
+  transition: background 0.18s ease, border-color 0.18s ease;
+  cursor: pointer;
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  position: relative;
+}
+.fc:hover {
+  background: #111118 !important;
+}
+
+.fcArrow {
+  opacity: 0;
+  transform: translateX(-4px);
+  transition: opacity 0.15s, transform 0.15s;
+}
+.fc:hover .fcArrow {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.fcIconWrap {
+  transition: background 0.18s ease, border-color 0.18s ease;
+}
+
+.fcTag {
+  font-size: 0.68rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  display: inline-block;
+  margin-top: 1rem;
+  color: rgba(154, 142, 205, 0.55);
+  background: rgba(154, 142, 205, 0.15);
+  border: 1px solid rgba(154, 142, 205, 0.15);
+  border-radius: 999px;
+  padding: 0.18rem 0.6rem;
+}
+
+/* ─── Stack diagram ───────────────────────────────────────────────────────── */
+
+.stackRow {
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+}
+.stackRow:hover {
+  border-color: rgba(154, 142, 205, 0.35) !important;
+  transform: translateX(3px);
+}
+
+/* ─── Lifecycle stepper ───────────────────────────────────────────────────── */
+
+.lsStep {
+  transition: background 0.14s ease, border-color 0.14s ease;
+  cursor: pointer;
+  text-align: left;
+}
+.lsStep:hover {
+  background: rgba(154, 142, 205, 0.07) !important;
+  border-color: rgba(154, 142, 205, 0.22) !important;
+}
+.lsStepActive {
+  background: rgba(154, 142, 205, 0.1) !important;
+  border-color: rgba(154, 142, 205, 0.3) !important;
+}
+
+/* ─── Packages ────────────────────────────────────────────────────────────── */
+
+.pkgCard {
+  transition: background 0.16s ease, border-color 0.16s ease;
+  cursor: default;
+}
+.pkgCard:hover {
+  background: rgba(154, 142, 205, 0.1) !important;
+  border-color: rgba(154, 142, 205, 0.32) !important;
+}
+
+.pkgCopy {
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+  color: rgba(154, 142, 205, 0.7);
+  display: flex;
+  align-items: center;
+}
+.pkgCard:hover .pkgCopy {
+  opacity: 1;
+}
+
+/* ─── CTA ─────────────────────────────────────────────────────────────────── */
+
+.ctaPrimary {
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+}
+.ctaPrimary:hover {
+  opacity: 0.88;
+  transform: translateY(-1px);
+}
+
+.ctaSecondary {
+  transition: background 0.15s ease, border-color 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+}
+.ctaSecondary:hover {
+  background: rgba(255, 255, 255, 0.07) !important;
+  border-color: rgba(154, 142, 205, 0.28) !important;
+}
+
+.trustPill {
+  transition: border-color 0.15s ease;
+}
+.trustPill:hover {
+  border-color: rgba(154, 142, 205, 0.3) !important;
+}
+
+/* ─── Architecture grid ───────────────────────────────────────────────────── */
+
+.archGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+@media (max-width: 720px) {
+  .archGrid { grid-template-columns: 1fr; }
+}
+
+/* ─── Hero terminal ───────────────────────────────────────────────────────── */
+
+.heroTerminal {
+  position: absolute;
+  right: 3rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 340px;
+  border: 1px solid rgba(154, 142, 205, 0.18);
+  border-radius: 1rem;
+  background: rgba(10, 10, 14, 0.92);
+  backdrop-filter: blur(12px);
+  overflow: hidden;
+  font-family: 'Monaco', 'Menlo', ui-monospace, monospace;
+  font-size: 0.78rem;
+  line-height: 1.7;
+}
+@media (max-width: 900px) {
+  .heroTerminal { display: none; }
+}
+
+.heroTerminalBar {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.6rem 0.9rem;
+  border-bottom: 1px solid rgba(154, 142, 205, 0.1);
+  background: rgba(154, 142, 205, 0.06);
+}
+
+.termDot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+}
+
+.heroTerminalBody {
+  padding: 1rem 1.1rem;
+  color: #888;
+}
+
+.termPrompt {
+  color: rgba(154, 142, 205, 0.8);
+}
+
+.termOut {
+  color: #6ECB8A;
+}
+
+.termMuted {
+  color: #555;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
+.cursor {
+  display: inline-block;
+  width: 7px;
+  height: 13px;
+  background: rgba(154, 142, 205, 0.8);
+  border-radius: 1px;
+  vertical-align: text-bottom;
+  animation: blink 1.1s step-end infinite;
+}
+
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.termLine {
+  animation: fadeSlideIn 0.3s ease both;
+}

@@ -1,5 +1,8 @@
 import Link from 'next/link';
 import { Icon } from '@iconify/react';
+import { CopyButton } from './CopyButton';
+import { FeatureGrid, StackDiagram, LifecycleStepper, HeroTerminal } from './HomeInteractive';
+import s from './home.module.css';
 
 // ─── constants ───────────────────────────────────────────────────────────────
 
@@ -12,40 +15,77 @@ const features = [
     icon: 'ph:brain-duotone',
     title: 'Persistent Memory',
     desc: 'Familiars remember decisions, context, and preferences across sessions — not just this conversation.',
+    href: '/docs/familiars/sessions',
+    tag: 'memory',
   },
   {
     icon: 'ph:wrench-duotone',
     title: 'Tool Access',
     desc: 'Web search, exec, files, calendar, and messaging are first-class. The familiar uses them — not you.',
+    href: '/docs/guide/concepts',
+    tag: 'tools',
   },
   {
     icon: 'ph:globe-duotone',
     title: 'Multi-Channel',
     desc: 'One familiar, everywhere. Telegram, Discord, iMessage, WhatsApp, and your own REST API.',
+    href: '/docs/familiars/clients',
+    tag: 'channels',
   },
   {
     icon: 'ph:eye-duotone',
     title: 'Observable',
     desc: 'Every tool call, handoff, and decision is traced. You always know what your familiar did and why.',
+    href: '/docs/guide/architecture',
+    tag: 'tracing',
   },
   {
     icon: 'ph:git-merge-duotone',
     title: 'Composable',
     desc: 'Familiars delegate to each other, spawn subagents, and hand off work using harness adapters.',
+    href: '/docs/familiars/harnesses',
+    tag: 'multi-agent',
   },
   {
     icon: 'ph:rocket-launch-duotone',
     title: 'Publishable',
     desc: 'Package familiar workflows as APIs, CLIs, automations, or integrations your team can use.',
+    href: '/docs/guide/getting-started',
+    tag: 'deploy',
   },
 ];
 
 const packages = [
-  { name: '@opencoven/coven', desc: 'Core orchestration runtime' },
-  { name: '@opencoven/harness', desc: 'AI provider adapter layer' },
-  { name: '@opencoven/memory', desc: 'Persistent memory + vector store' },
-  { name: '@opencoven/tools', desc: 'Tool definitions and execution' },
-  { name: '@opencoven/channels', desc: 'Channel bindings (Telegram, Discord…)' },
+  {
+    name: '@opencoven/coven',
+    desc: 'Core orchestration runtime',
+    icon: 'ph:circles-four-duotone',
+    badge: 'core',
+  },
+  {
+    name: '@opencoven/harness',
+    desc: 'AI provider adapter layer',
+    icon: 'ph:plug-duotone',
+    badge: 'adapter',
+  },
+  {
+    name: '@opencoven/memory',
+    desc: 'Persistent memory + vector store',
+    icon: 'ph:brain-duotone',
+    badge: 'memory',
+  },
+  {
+    name: '@opencoven/tools',
+    desc: 'Tool definitions and execution',
+    icon: 'ph:wrench-duotone',
+    badge: 'tools',
+  },
+  {
+    name: '@opencoven/channels',
+    desc: 'Channel bindings (Telegram, Discord…)',
+    icon: 'ph:chats-circle-duotone',
+    badge: 'channels',
+  },
 ];
 
 // ─── component ───────────────────────────────────────────────────────────────
@@ -84,6 +124,9 @@ export default function HomePage() {
           pointerEvents: 'none',
         }} />
 
+        {/* Animated terminal card — hidden on mobile via CSS */}
+        <HeroTerminal />
+
         <p style={{
           fontSize: '0.75rem',
           fontWeight: 600,
@@ -95,6 +138,7 @@ export default function HomePage() {
           borderRadius: '999px',
           width: 'fit-content',
           marginBottom: '1.75rem',
+          position: 'relative',
         }}>
           The framework for persistent AI agents
         </p>
@@ -175,238 +219,256 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── Editorial tagline ── */}
-      <section style={{ padding: '3rem 1.5rem', maxWidth: '900px' }}>
+      {/* ── Editorial tagline + Quick install ── */}
+      <section style={{
+        padding: '3.5rem 0 2rem',
+        maxWidth: '820px',
+      }}>
         <p style={{
-          fontSize: 'clamp(1.4rem, 3vw, 2rem)',
+          fontSize: 'clamp(1.35rem, 2.8vw, 1.9rem)',
           fontWeight: 300,
-          lineHeight: 1.5,
-          color: '#A0A0A0',
-          letterSpacing: '-0.5px',
+          lineHeight: 1.6,
+          color: '#787878',
+          letterSpacing: '-0.4px',
+          marginBottom: '2.5rem',
         }}>
           Coven gives your AI agents{' '}
           <span style={{ color: '#E8E8E8', fontWeight: 500 }}>persistent memory</span>,{' '}
           <span style={{ color: '#E8E8E8', fontWeight: 500 }}>distinct personality</span>, and{' '}
-          <span style={{ color: '#E8E8E8', fontWeight: 500 }}>real tool access</span> — then puts them everywhere you work. Every agent is a{' '}
+          <span style={{ color: '#E8E8E8', fontWeight: 500 }}>real tool access</span>{' '}
+          — then puts them everywhere you work. Every agent is a{' '}
           <span style={{ color: VIOLET, fontWeight: 600 }}>familiar</span>: named, remembered, and yours.
         </p>
-      </section>
 
-      {/* ── Quick install ── */}
-      <section style={{
-        padding: '1.5rem',
-        border: BORDER,
-        borderRadius: '1.25rem',
-        background: '#0A0A0A',
-        marginBottom: '1.5rem',
-        display: 'flex',
-        alignItems: 'center',
-        gap: '1rem',
-        flexWrap: 'wrap',
-      }}>
+        {/* Install bar — grouped tightly under the tagline */}
         <div style={{
           display: 'flex',
-          alignItems: 'center',
-          gap: '0.5rem',
-          padding: '0.4rem 0.75rem',
-          border: `1px solid rgba(154,142,205,0.3)`,
-          borderRadius: '8px',
-          fontFamily: 'Monaco, monospace',
-          fontSize: '0.8rem',
-          fontWeight: 700,
-          color: VIOLET,
-          letterSpacing: '0.05em',
-          textTransform: 'uppercase',
-          flexShrink: 0,
+          alignItems: 'stretch',
+          gap: '0',
+          border: BORDER,
+          borderRadius: '0.875rem',
+          overflow: 'hidden',
+          background: '#0A0A0E',
+          maxWidth: '640px',
         }}>
-          <Icon icon="ph:terminal-duotone" width={16} />
-          Try it
+          {/* Badge */}
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.4rem',
+            padding: '0 1rem',
+            background: VIOLET_DIM,
+            borderRight: `1px solid rgba(154,142,205,0.18)`,
+            fontFamily: 'Monaco, ui-monospace, monospace',
+            fontSize: '0.7rem',
+            fontWeight: 700,
+            color: VIOLET,
+            letterSpacing: '0.1em',
+            textTransform: 'uppercase',
+            flexShrink: 0,
+            whiteSpace: 'nowrap',
+          }}>
+            <Icon icon="ph:terminal-window-duotone" width={14} />
+            npm
+          </div>
+
+          {/* Command */}
+          <div style={{
+            flex: 1,
+            fontFamily: 'Monaco, ui-monospace, monospace',
+            fontSize: '0.88rem',
+            color: '#C8C8C8',
+            padding: '0.85rem 1.1rem',
+            userSelect: 'all',
+            cursor: 'text',
+            letterSpacing: '0.01em',
+          }}>
+            create opencoven-app
+          </div>
+
+          {/* Guide link */}
+          <Link href="/docs/guide/getting-started" style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.3rem',
+            padding: '0 1.1rem',
+            borderLeft: `1px solid rgba(154,142,205,0.14)`,
+            color: VIOLET,
+            fontSize: '0.8rem',
+            fontWeight: 600,
+            textDecoration: 'none',
+            flexShrink: 0,
+            whiteSpace: 'nowrap',
+          }}>
+            Full guide <Icon icon="ph:arrow-right" width={12} />
+          </Link>
         </div>
-        <div style={{
-          flex: 1,
-          fontFamily: 'Monaco, Courier New, monospace',
-          fontSize: '0.9rem',
-          color: '#E8E8E8',
-          background: 'rgba(255,255,255,0.03)',
-          padding: '0.65rem 1rem',
-          borderRadius: '8px',
-          border: '1px solid rgba(255,255,255,0.06)',
-          minWidth: '240px',
-        }}>
-          <span style={{ color: '#9A8ECD' }}>npm</span> create opencoven-app
-        </div>
-        <Link href="/docs/guide/getting-started" style={{
-          color: VIOLET,
-          fontSize: '0.85rem',
-          textDecoration: 'none',
-          fontWeight: 600,
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.3rem',
-          flexShrink: 0,
-        }}>
-          Full guide <Icon icon="ph:arrow-right" width={13} />
-        </Link>
       </section>
 
       {/* ── Feature grid ── */}
       <section style={{ marginBottom: '1.5rem' }}>
-        <div style={{
-          padding: '2rem 1.5rem 1rem',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'flex-end',
-          flexWrap: 'wrap',
-          gap: '1rem',
-        }}>
-          <div>
-            <h2 style={{ fontSize: '1.75rem', fontWeight: 700, letterSpacing: '-0.5px', marginBottom: '0.4rem' }}>
-              Not just another AI wrapper.
-            </h2>
-            <p style={{ color: '#777', fontSize: '0.95rem' }}>
-              Coven is built around the idea that AI agents deserve an identity.
-            </p>
-          </div>
+        <div style={{ padding: '2rem 0.25rem 1.25rem' }}>
+          <h2 style={{ fontSize: '1.75rem', fontWeight: 700, letterSpacing: '-0.5px', marginBottom: '0.4rem' }}>
+            Not just another AI wrapper.
+          </h2>
+          <p style={{ color: '#888', fontSize: '0.95rem', lineHeight: 1.55 }}>
+            Coven is built around the idea that AI agents deserve an identity.
+          </p>
         </div>
-
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
-          gap: '1px',
-          border: BORDER,
-          borderRadius: '1.25rem',
-          overflow: 'hidden',
-          background: 'rgba(154,142,205,0.07)',
-        }}>
-          {features.map((f) => (
-            <div key={f.title} style={{
-              padding: '1.75rem',
-              background: '#0C0C0C',
-              transition: 'background 0.2s',
-            }}>
-              <div style={{ marginBottom: '1rem' }}>
-                <Icon icon={f.icon} width={26} color={VIOLET} />
-              </div>
-              <div style={{ fontWeight: 700, fontSize: '0.95rem', marginBottom: '0.5rem', color: '#E8E8E8', letterSpacing: '-0.2px' }}>
-                {f.title}
-              </div>
-              <div style={{ fontSize: '0.85rem', color: '#666', lineHeight: 1.6 }}>{f.desc}</div>
-            </div>
-          ))}
-        </div>
+        <FeatureGrid features={features} />
       </section>
 
       {/* ── Architecture ── */}
-      <section style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-        gap: '1.5rem',
-        marginBottom: '1.5rem',
-      }}>
-        {/* Stack diagram */}
-        <div style={{
-          border: BORDER,
-          borderRadius: '1.25rem',
-          padding: '2rem',
-          background: '#0A0A0A',
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.25rem' }}>
-            <Icon icon="ph:tree-structure-duotone" width={20} color={VIOLET} />
-            <span style={{ fontWeight: 700, fontSize: '1rem' }}>The stack</span>
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-            {[
-              { label: 'Familiar', sub: 'Memory + Personality + Channels', depth: 0 },
-              { label: 'Harness', sub: 'AI provider adapter', depth: 1 },
-              { label: 'Tools', sub: 'web_search / exec / files…', depth: 2 },
-              { label: 'Model', sub: 'GPT-5 / Claude / custom', depth: 2 },
-            ].map((row) => (
-              <div key={row.label} style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.75rem',
-                padding: '0.6rem 0.9rem',
-                marginLeft: `${row.depth * 16}px`,
-                background: VIOLET_DIM,
-                border: `1px solid rgba(154,142,205,${0.15 - row.depth * 0.03})`,
-                borderRadius: '6px',
-              }}>
-                <span style={{ fontWeight: 700, fontSize: '0.8rem', color: VIOLET, minWidth: 68 }}>{row.label}</span>
-                <span style={{ fontSize: '0.78rem', color: '#666' }}>{row.sub}</span>
-              </div>
-            ))}
-          </div>
-        </div>
+      <section style={{ marginBottom: '1.5rem' }}>
+        <div className={s.archGrid}>
 
-        {/* Message flow */}
-        <div style={{
-          border: BORDER,
-          borderRadius: '1.25rem',
-          padding: '2rem',
-          background: '#0A0A0A',
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.25rem' }}>
-            <Icon icon="ph:arrows-clockwise-duotone" width={20} color={VIOLET} />
-            <span style={{ fontWeight: 700, fontSize: '1rem' }}>Message lifecycle</span>
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-            {[
-              { step: '1', label: 'User sends message', via: 'Telegram / Discord / API' },
-              { step: '2', label: 'Familiar loads memory', via: 'context + preferences' },
-              { step: '3', label: 'Harness calls model', via: 'with memory + tools' },
-              { step: '4', label: 'Tools execute', via: 'web / exec / calendar' },
-              { step: '5', label: 'Memory updated', via: 'decisions + context saved' },
-              { step: '6', label: 'Reply delivered', via: 'back to channel' },
-            ].map((row) => (
-              <div key={row.step} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.5rem 0' }}>
-                <span style={{
-                  width: '22px',
-                  height: '22px',
-                  borderRadius: '50%',
-                  background: VIOLET_DIM,
-                  border: `1px solid rgba(154,142,205,0.3)`,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '0.7rem',
-                  fontWeight: 700,
-                  color: VIOLET,
-                  flexShrink: 0,
-                }}>
-                  {row.step}
-                </span>
-                <div>
-                  <div style={{ fontSize: '0.82rem', fontWeight: 600, color: '#D0D0D0' }}>{row.label}</div>
-                  <div style={{ fontSize: '0.75rem', color: '#555' }}>{row.via}</div>
-                </div>
+          {/* Stack diagram */}
+          <div style={{
+            border: BORDER,
+            borderRadius: '1.25rem',
+            padding: '1.75rem',
+            background: '#0A0A0E',
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.5rem' }}>
+              <div style={{
+                width: '32px', height: '32px', borderRadius: '8px',
+                background: VIOLET_DIM, border: `1px solid rgba(154,142,205,0.22)`,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>
+                <Icon icon="ph:stack-duotone" width={16} color={VIOLET} />
               </div>
-            ))}
+              <div>
+                <div style={{ fontWeight: 700, fontSize: '0.95rem', color: '#E8E8E8', letterSpacing: '-0.2px' }}>The stack</div>
+                <div style={{ fontSize: '0.75rem', color: '#666', marginTop: '1px' }}>Hover any layer to explore</div>
+              </div>
+            </div>
+            <StackDiagram />
           </div>
+
+          {/* Message lifecycle */}
+          <div style={{
+            border: BORDER,
+            borderRadius: '1.25rem',
+            padding: '1.75rem',
+            background: '#0A0A0E',
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.5rem' }}>
+              <div style={{
+                width: '32px', height: '32px', borderRadius: '8px',
+                background: VIOLET_DIM, border: `1px solid rgba(154,142,205,0.22)`,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>
+                <Icon icon="ph:arrows-clockwise-duotone" width={16} color={VIOLET} />
+              </div>
+              <div>
+                <div style={{ fontWeight: 700, fontSize: '0.95rem', color: '#E8E8E8', letterSpacing: '-0.2px' }}>Message lifecycle</div>
+                <div style={{ fontSize: '0.75rem', color: '#666', marginTop: '1px' }}>Click a step to trace the path</div>
+              </div>
+            </div>
+            <LifecycleStepper />
+          </div>
+
         </div>
       </section>
 
       {/* ── Packages ── */}
+
       <section style={{
         border: BORDER,
-        borderRadius: '1.25rem',
-        padding: '2rem',
-        background: '#0A0A0A',
+        borderRadius: '1.5rem',
+        overflow: 'hidden',
+        background: '#0A0A0E',
         marginBottom: '1.5rem',
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.25rem' }}>
-          <Icon icon="ph:package-duotone" width={20} color={VIOLET} />
-          <span style={{ fontWeight: 700, fontSize: '1rem' }}>Composable by design</span>
+        {/* Header row */}
+        <div style={{
+          padding: '2rem 2rem 1.5rem',
+          borderBottom: BORDER,
+          display: 'flex',
+          alignItems: 'flex-end',
+          justifyContent: 'space-between',
+          flexWrap: 'wrap',
+          gap: '1rem',
+        }}>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+              <Icon icon="ph:squares-four-duotone" width={20} color={VIOLET} />
+              <span style={{ fontWeight: 700, fontSize: '1.05rem', color: '#E8E8E8', letterSpacing: '-0.2px' }}>Composable by design</span>
+            </div>
+            <p style={{ fontSize: '0.84rem', color: '#787878', margin: 0, lineHeight: 1.55 }}>
+              Every layer is a separate package. Use what you need.
+            </p>
+          </div>
+          <div style={{
+            fontFamily: 'Monaco, ui-monospace, monospace',
+            fontSize: '0.78rem',
+            color: '#888',
+            background: 'rgba(255,255,255,0.04)',
+            border: BORDER,
+            borderRadius: '6px',
+            padding: '0.4rem 0.75rem',
+          }}>
+            npm install <span style={{ color: VIOLET }}>@opencoven/coven</span>
+          </div>
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '0.75rem' }}>
-          {packages.map((pkg) => (
-            <div key={pkg.name} style={{
-              padding: '0.9rem 1rem',
-              border: BORDER,
-              borderRadius: '8px',
-              background: VIOLET_DIM,
-            }}>
-              <div style={{ fontFamily: 'Monaco, monospace', fontSize: '0.8rem', color: VIOLET, fontWeight: 600, marginBottom: '0.3rem' }}>{pkg.name}</div>
-              <div style={{ fontSize: '0.8rem', color: '#666' }}>{pkg.desc}</div>
+
+        {/* Package list */}
+        <div style={{ padding: '1.25rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+          {packages.map((pkg, i) => (
+            <div
+              key={pkg.name}
+              className={s.pkgCard}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '1rem',
+                padding: '0.85rem 1rem',
+                border: BORDER,
+                borderRadius: '10px',
+                background: i === 0 ? 'rgba(154,142,205,0.07)' : 'transparent',
+              }}
+            >
+              {/* Icon */}
+              <div style={{
+                width: '34px',
+                height: '34px',
+                borderRadius: '8px',
+                background: VIOLET_DIM,
+                border: `1px solid rgba(154,142,205,0.2)`,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0,
+              }}>
+                <Icon icon={pkg.icon} width={17} color={VIOLET} />
+              </div>
+
+              {/* Name + desc */}
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontFamily: 'Monaco, ui-monospace, monospace', fontSize: '0.82rem', color: VIOLET, fontWeight: 600, marginBottom: '0.15rem' }}>
+                  {pkg.name}
+                </div>
+                <div style={{ fontSize: '0.8rem', color: '#8A8A8A', lineHeight: 1.45 }}>{pkg.desc}</div>
+              </div>
+
+              {/* Badge */}
+              <span style={{
+                fontSize: '0.68rem',
+                fontWeight: 600,
+                color: 'rgba(154,142,205,0.6)',
+                background: VIOLET_DIM,
+                border: `1px solid rgba(154,142,205,0.15)`,
+                borderRadius: '999px',
+                padding: '0.2rem 0.6rem',
+                letterSpacing: '0.04em',
+                textTransform: 'uppercase',
+                flexShrink: 0,
+              }}>
+                {pkg.badge}
+              </span>
+
+              {/* Copy button — appears on hover via CSS */}
+              <CopyButton text={`npm install ${pkg.name}`} />
             </div>
           ))}
         </div>
@@ -414,47 +476,158 @@ export default function HomePage() {
 
       {/* ── CTA footer ── */}
       <section style={{
+        position: 'relative',
         border: BORDER,
-        borderRadius: '1.25rem',
-        padding: '3rem',
-        background: `radial-gradient(ellipse 80% 80% at 50% 100%, rgba(154,142,205,0.08) 0%, transparent 70%), #0A0A0A`,
+        borderRadius: '1.5rem',
+        padding: '4rem 2rem',
+        overflow: 'hidden',
+        background: '#0A0A0E',
         textAlign: 'center',
         marginBottom: '3rem',
       }}>
-        <h2 style={{ fontSize: '2rem', fontWeight: 700, letterSpacing: '-1px', marginBottom: '0.75rem' }}>
-          Ready to summon your familiar?
-        </h2>
-        <p style={{ color: '#666', marginBottom: '2rem', fontSize: '0.95rem' }}>
-          Open source. Self-hosted. Yours.
-        </p>
-        <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-          <Link href="/docs/guide/getting-started" style={{
-            background: VIOLET,
-            color: '#0A0A0A',
-            padding: '0.75rem 1.75rem',
-            borderRadius: '999px',
-            fontWeight: 700,
-            fontSize: '0.9rem',
-            textDecoration: 'none',
-            display: 'flex',
+        {/* Ambient glow */}
+        <div style={{
+          position: 'absolute',
+          bottom: '-60px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          width: '600px',
+          height: '300px',
+          background: 'radial-gradient(ellipse, rgba(154,142,205,0.18) 0%, transparent 70%)',
+          pointerEvents: 'none',
+          zIndex: 0,
+        }} />
+        <div style={{
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          width: '800px',
+          height: '400px',
+          background: 'radial-gradient(ellipse, rgba(154,142,205,0.05) 0%, transparent 65%)',
+          pointerEvents: 'none',
+          zIndex: 0,
+        }} />
+
+        <div style={{ position: 'relative', zIndex: 1 }}>
+          {/* Kicker */}
+          <div style={{
+            display: 'inline-flex',
             alignItems: 'center',
             gap: '0.4rem',
-          }}>
-            Read the docs
-            <Icon icon="ph:arrow-right-bold" width={14} />
-          </Link>
-          <Link href="/docs/openapi/overview" style={{
-            background: 'rgba(255,255,255,0.04)',
-            border: BORDER,
-            color: '#B0B0B0',
-            padding: '0.75rem 1.75rem',
+            fontSize: '0.72rem',
+            fontWeight: 600,
+            color: VIOLET,
+            letterSpacing: '0.12em',
+            textTransform: 'uppercase',
+            border: `1px solid rgba(154,142,205,0.25)`,
             borderRadius: '999px',
-            fontWeight: 500,
-            fontSize: '0.9rem',
-            textDecoration: 'none',
+            padding: '0.3rem 0.85rem',
+            marginBottom: '1.75rem',
           }}>
-            API Reference
-          </Link>
+            <Icon icon="ph:sparkle-duotone" width={12} />
+            Open source · MIT licensed
+          </div>
+
+          <h2 style={{
+            fontSize: 'clamp(1.75rem, 4vw, 2.75rem)',
+            fontWeight: 700,
+            letterSpacing: '-1.5px',
+            lineHeight: 1.1,
+            marginBottom: '1rem',
+            color: '#F0F0F0',
+          }}>
+            Ready to summon your familiar?
+          </h2>
+
+          <p style={{
+            color: '#787878',
+            marginBottom: '2.5rem',
+            fontSize: '1rem',
+            lineHeight: 1.6,
+            maxWidth: '400px',
+            margin: '0 auto 2.5rem',
+          }}>
+            Self-hosted, yours to fork, and built to grow with you.
+          </p>
+
+          {/* Buttons */}
+          <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap', marginBottom: '3rem' }}>
+            <Link
+              href="/docs/guide/getting-started"
+              className={s.ctaPrimary}
+              style={{
+                background: VIOLET,
+                color: '#0A0A0A',
+                padding: '0.85rem 2rem',
+                borderRadius: '999px',
+                fontWeight: 700,
+                fontSize: '0.9rem',
+                textDecoration: 'none',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.4rem',
+                boxShadow: '0 0 28px rgba(154,142,205,0.3)',
+              }}
+            >
+              Read the docs
+              <Icon icon="ph:arrow-right-bold" width={14} />
+            </Link>
+            <Link
+              href="/docs/openapi/overview"
+              className={s.ctaSecondary}
+              style={{
+                background: 'rgba(255,255,255,0.04)',
+                border: BORDER,
+                color: '#C0C0C0',
+                padding: '0.85rem 2rem',
+                borderRadius: '999px',
+                fontWeight: 500,
+                fontSize: '0.9rem',
+                textDecoration: 'none',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.4rem',
+              }}
+            >
+              API Reference
+            </Link>
+          </div>
+
+          {/* Trust signals */}
+          <div style={{
+            display: 'flex',
+            gap: '0.75rem',
+            justifyContent: 'center',
+            flexWrap: 'wrap',
+          }}>
+            {[
+              { icon: 'ph:github-logo-duotone', label: 'GitHub', href: 'https://github.com/OpenCoven/coven' },
+              { icon: 'ph:discord-logo-duotone', label: 'Discord', href: 'https://discord.gg/opencoven' },
+              { icon: 'ph:lock-open-duotone', label: 'MIT License', href: 'https://github.com/OpenCoven/coven/blob/main/LICENSE' },
+              { icon: 'ph:hard-drives-duotone', label: 'Self-hosted', href: '/docs/guide/getting-started' },
+            ].map((t) => (
+              <Link
+                key={t.label}
+                href={t.href}
+                className={s.trustPill}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.35rem',
+                  fontSize: '0.78rem',
+                  color: '#666',
+                  border: '1px solid rgba(255,255,255,0.07)',
+                  borderRadius: '999px',
+                  padding: '0.35rem 0.85rem',
+                  textDecoration: 'none',
+                }}
+              >
+                <Icon icon={t.icon} width={13} color="#666" />
+                {t.label}
+              </Link>
+            ))}
+          </div>
         </div>
       </section>
 
