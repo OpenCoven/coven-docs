@@ -1,7 +1,14 @@
 {
   "title": "Reference",
-  "description": "API, auth, safety, and more",
+  "description": "API, Authentication, and Safety",
   "root": true,
   "icon": "LuCode",
-  "pages": ["api", "auth", "safety", "glossary", "roadmap", "troubleshooting"]
+  "pages": [
+    "api",
+    "auth",
+    "safety",
+    "glossary",
+    "roadmap",
+    "troubleshooting"
+  ]
 }

@@ -1,7 +1,11 @@
 {
   "title": "Guide",
-  "description": "Learn how Coven works",
+  "description": "How Coven Works",
   "root": true,
   "icon": "LuBookOpen",
-  "pages": ["getting-started", "concepts", "architecture"]
+  "pages": [
+    "getting-started",
+    "concepts",
+    "architecture"
+  ]
 }

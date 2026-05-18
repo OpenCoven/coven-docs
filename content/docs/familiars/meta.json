@@ -1,7 +1,11 @@
 {
   "title": "Familiars",
-  "description": "Sessions, harnesses, and integrations",
+  "description": "Project and Session Management",
   "root": true,
   "icon": "LuUsers",
-  "pages": ["sessions", "harnesses", "clients"]
+  "pages": [
+    "sessions",
+    "harnesses",
+    "clients"
+  ]
 }
