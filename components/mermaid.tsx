@@ -7,6 +7,7 @@ import {
   useCallback,
 } from 'react';
 import { createPortal } from 'react-dom';
+import { normalizeMermaidSvg } from '@/lib/mermaid-svg.js';
 
 interface MermaidProps {
   chart: string;
@@ -142,12 +143,7 @@ export function Mermaid({ chart, caption }: MermaidProps) {
         const renderId = `mermaid-${id}`;
         const { svg } = await mermaid.render(renderId, chart.trim());
         if (!cancelled) {
-          // Patch SVG: remove fixed h/w, keep viewBox
-          const patched = svg
-            .replace(/\sheight="[^"]*"/g, '')
-            .replace(/\swidth="[^"]*"/g, '')
-            .replace('<svg ', '<svg style="width:100%;height:auto;display:block;" ');
-          setSvgMarkup(patched);
+          setSvgMarkup(normalizeMermaidSvg(svg));
           setRendered(true);
         }
       } catch (e) {

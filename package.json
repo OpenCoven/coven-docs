@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "check:mermaid": "node scripts/check-mermaid-transform.mjs",
+    "check:mermaid": "node scripts/check-mermaid-transform.mjs && node scripts/check-mermaid-svg-normalize.mjs",
     "start": "next start",
     "postinstall": "fumadocs-mdx"
   },
