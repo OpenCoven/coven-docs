@@ -8,7 +8,6 @@ import {
   SearchDialog,
   SearchDialogClose,
   SearchDialogContent,
-  SearchDialogFooter,
   SearchDialogHeader,
   SearchDialogIcon,
   SearchDialogInput,
@@ -30,6 +29,7 @@ export function CovenSearchDialog({
 }: SharedProps & { links?: SearchLink[] }) {
   const { locale } = useI18n();
   const [tag, setTag] = useState<string | undefined>();
+  const [filterOpen, setFilterOpen] = useState(false);
   const { search, setSearch, query } = useDocsSearch({
     type: 'fetch',
     locale,
@@ -46,6 +46,7 @@ export function CovenSearchDialog({
       url: link,
     }));
   }, [links]);
+  const activeFilter = filters.find((filter) => filter.value === tag) ?? filters[0];
 
   return (
     <SearchDialog
@@ -61,31 +62,50 @@ export function CovenSearchDialog({
           <SearchDialogInput />
           <SearchDialogClose />
         </SearchDialogHeader>
+        <div className="border-b px-3 py-2 text-sm">
+          <div className="flex items-center gap-2">
+            <span className="text-fd-muted-foreground">Filter</span>
+            <button
+              type="button"
+              aria-haspopup="listbox"
+              aria-expanded={filterOpen}
+              className="inline-flex min-w-28 items-center justify-between gap-2 rounded-md border bg-fd-background px-2.5 py-1.5 text-left text-fd-foreground transition-colors hover:bg-fd-accent"
+              onClick={() => setFilterOpen((open) => !open)}
+            >
+              <span>{activeFilter.name}</span>
+              <span aria-hidden="true" className="text-xs text-fd-muted-foreground">⌄</span>
+            </button>
+          </div>
+          {filterOpen && (
+            <div
+              role="listbox"
+              className="mt-2 grid max-w-sm gap-1 rounded-lg border bg-fd-popover p-1 shadow-xl"
+            >
+              {filters.map((filter) => {
+                const active = filter.value === tag;
+
+                return (
+                  <button
+                    key={filter.name}
+                    type="button"
+                    role="option"
+                    aria-selected={active}
+                    className="rounded-md px-2.5 py-2 text-left text-sm transition-colors hover:bg-fd-accent aria-selected:bg-fd-accent"
+                    onClick={() => {
+                      setTag(filter.value);
+                      setFilterOpen(false);
+                    }}
+                  >
+                    <span className="block font-medium text-fd-foreground">{filter.name}</span>
+                    <span className="block text-xs text-fd-muted-foreground">{filter.description}</span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </div>
         <SearchDialogList items={query.data !== 'empty' ? query.data : defaultItems} />
       </SearchDialogContent>
-      <SearchDialogFooter>
-        <div className="grid w-full gap-2">
-          <div className="text-xs font-medium text-fd-muted-foreground">Filter</div>
-          <div className="grid gap-1 sm:grid-cols-2">
-            {filters.map((filter) => {
-              const active = filter.value === tag;
-
-              return (
-                <button
-                  key={filter.name}
-                  type="button"
-                  data-active={active}
-                  className="rounded-md border px-2 py-1.5 text-left text-xs transition-colors hover:bg-fd-accent data-[active=true]:border-fd-primary data-[active=true]:bg-fd-accent"
-                  onClick={() => setTag(filter.value)}
-                >
-                  <span className="block font-medium text-fd-foreground">{filter.name}</span>
-                  <span className="block text-fd-muted-foreground">{filter.description}</span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      </SearchDialogFooter>
     </SearchDialog>
   );
 }

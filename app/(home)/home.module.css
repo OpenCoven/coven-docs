@@ -1,23 +1,83 @@
-/* ─── Page shell + hero ───────────────────────────────────────────────────── */
+/* ─── Theme tokens (homepage-scoped) ──────────────────────────────────────── */
+/*
+ * Dark defaults live on `.homeMain`. Light overrides are scoped via
+ * `:global(html.light) .homeMain { ... }` below.
+ *
+ * Token rules of thumb:
+ *  - `--home-surface*`     → card/panel backgrounds (flip dark ↔ light)
+ *  - `--home-fg*`          → text tiers (flip dark ↔ light)
+ *  - `--home-border*`      → 1px lines (flip alpha + hue for legibility)
+ *  - `--home-violet`       → brand accent: same hue, slightly deeper in light
+ *  - `--home-violet-text`  → readable violet ON BG: lighter in dark, darker in light
+ *  - `--home-violet-soft`  → tinted background fills
+ */
 
 .homeMain {
+  /* Dark defaults */
+  --home-surface:       #0A0A0E;
+  --home-surface-elev:  #111118;
+  --home-surface-soft:  rgba(154,142,205,0.07);
+  --home-fg:            #E8E8E8;
+  --home-fg-strong:     #F4F2FF;
+  --home-fg-muted:      #A8A8A8;
+  --home-fg-subtle:     #787878;
+  --home-fg-faint:      #555;
+  --home-border:        rgba(154,142,205,0.14);
+  --home-border-strong: rgba(154,142,205,0.32);
+  --home-violet:        #9A8ECD;
+  --home-violet-text:   #B4AAEB;
+  --home-violet-soft:   rgba(154,142,205,0.15);
+  --home-violet-softer: rgba(154,142,205,0.07);
+  --home-hero-bg:       #08080B;
+  --home-hero-tint:     rgba(154,142,205,0.12);
+  --home-hero-tint-2:   rgba(110,203,138,0.05);
+  --home-hero-fade:     rgba(12,12,16,0.94);
+  --home-on-violet:     #07070A;
+  --home-success:       #82d79d;
+  --home-terminal-fg:   #b4b4bd;
+
   width: 100%;
   max-width: 1400px;
   margin: 0 auto;
   padding: 1rem 1.5rem 1.5rem;
-  color: #e8e8e8;
+  color: var(--home-fg);
 }
+
+:global(html.light) .homeMain {
+  --home-surface:       #FFFFFF;
+  --home-surface-elev:  #F4F0FA;
+  --home-surface-soft:  rgba(108,90,200,0.06);
+  --home-fg:            #1F1A33;
+  --home-fg-strong:     #15102A;
+  --home-fg-muted:      #5C5572;
+  --home-fg-subtle:     #6B5F7F;
+  --home-fg-faint:      #9A91AB;
+  --home-border:        rgba(108,90,200,0.2);
+  --home-border-strong: rgba(108,90,200,0.45);
+  --home-violet:        #6C5AC8;
+  --home-violet-text:   #4A3DA0;
+  --home-violet-soft:   rgba(108,90,200,0.1);
+  --home-violet-softer: rgba(108,90,200,0.05);
+  --home-hero-bg:       #FBF9FF;
+  --home-hero-tint:     rgba(108,90,200,0.12);
+  --home-hero-tint-2:   rgba(110,203,138,0.06);
+  --home-hero-fade:     rgba(252,250,255,0.85);
+  --home-on-violet:     #FFFFFF;
+  /* terminal stays dark-themed even in light mode — like a code block */
+}
+
+/* ─── Page shell + hero ───────────────────────────────────────────────────── */
 
 .heroPanel {
   position: relative;
   min-height: 520px;
   max-height: 760px;
-  border: 1px solid rgba(154, 142, 205, 0.14);
+  border: 1px solid var(--home-border);
   border-radius: 8px;
   overflow: hidden;
   background:
-    linear-gradient(120deg, rgba(154, 142, 205, 0.12), rgba(110, 203, 138, 0.05) 52%, rgba(12, 12, 16, 0.94)),
-    #08080b;
+    linear-gradient(120deg, var(--home-hero-tint), var(--home-hero-tint-2) 52%, var(--home-hero-fade)),
+    var(--home-hero-bg);
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -31,8 +91,8 @@
   inset: 0;
   opacity: 0.028;
   background-image:
-    linear-gradient(rgba(154, 142, 205, 1) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(154, 142, 205, 1) 1px, transparent 1px);
+    linear-gradient(var(--home-violet) 1px, transparent 1px),
+    linear-gradient(90deg, var(--home-violet) 1px, transparent 1px);
   background-size: 48px 48px;
   pointer-events: none;
   z-index: -1;
@@ -41,10 +101,10 @@
 .heroEyebrow {
   width: fit-content;
   margin: 0 0 1.25rem;
-  border: 1px solid rgba(154, 142, 205, 0.32);
+  border: 1px solid var(--home-border-strong);
   border-radius: 999px;
   padding: 0.38rem 0.78rem;
-  color: #b9afe8;
+  color: var(--home-violet-text);
   font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0;
@@ -54,7 +114,7 @@
 .heroTitle {
   max-width: 760px;
   margin: 0 0 1.25rem;
-  color: #f4f2ff;
+  color: var(--home-fg-strong);
   font-size: 4rem;
   font-weight: 760;
   letter-spacing: 0;
@@ -64,7 +124,7 @@
 .heroLead {
   max-width: 600px;
   margin: 0 0 2rem;
-  color: #b9b9c2;
+  color: var(--home-fg-muted);
   font-size: 1.08rem;
   line-height: 1.65;
 }
@@ -91,28 +151,28 @@
 }
 
 .heroButtonPrimary {
-  background: #b4aaeb;
-  color: #07070a;
+  background: var(--home-violet-text);
+  color: var(--home-on-violet);
   font-weight: 750;
 }
 
 .heroButtonPrimary:hover {
-  color: #07070a;
-  background: #c5bcff;
+  color: var(--home-on-violet);
+  background: var(--home-violet);
   transform: translateY(-1px);
 }
 
 .heroButtonSecondary {
-  border: 1px solid rgba(154, 142, 205, 0.22);
-  background: rgba(255, 255, 255, 0.06);
-  color: #d3d0df;
+  border: 1px solid var(--home-border-strong);
+  background: var(--home-surface-soft);
+  color: var(--home-fg-muted);
   font-weight: 600;
 }
 
 .heroButtonSecondary:hover {
-  border-color: rgba(154, 142, 205, 0.42);
-  background: rgba(154, 142, 205, 0.13);
-  color: #f2f0ff;
+  border-color: var(--home-border-strong);
+  background: var(--home-violet-soft);
+  color: var(--home-fg-strong);
   transform: translateY(-1px);
 }
 
@@ -123,7 +183,7 @@
 
 .introCopy {
   margin: 0 0 1.75rem;
-  color: #aaaab4;
+  color: var(--home-fg-muted);
   font-size: 1.45rem;
   font-weight: 360;
   letter-spacing: 0;
@@ -131,22 +191,22 @@
 }
 
 .introCopy span {
-  color: #f0eefc;
+  color: var(--home-fg-strong);
   font-weight: 650;
 }
 
 .introCopy span:last-child {
-  color: #b4aaeb;
+  color: var(--home-violet-text);
 }
 
 .installBar {
   display: flex;
   align-items: stretch;
   max-width: 650px;
-  border: 1px solid rgba(154, 142, 205, 0.18);
+  border: 1px solid var(--home-border);
   border-radius: 8px;
   overflow: hidden;
-  background: #0a0a0e;
+  background: var(--home-surface);
 }
 
 .installBadge,
@@ -161,9 +221,9 @@
   flex-shrink: 0;
   gap: 0.4rem;
   padding: 0 1rem;
-  border-right: 1px solid rgba(154, 142, 205, 0.18);
-  background: rgba(154, 142, 205, 0.16);
-  color: #b4aaeb;
+  border-right: 1px solid var(--home-border);
+  background: var(--home-violet-soft);
+  color: var(--home-violet-text);
   font-family: Monaco, ui-monospace, monospace;
   font-size: 0.72rem;
   font-weight: 700;
@@ -176,7 +236,7 @@
   flex: 1;
   min-width: 0;
   padding: 0.85rem 1.1rem;
-  color: #e3e3e8;
+  color: var(--home-fg);
   cursor: text;
   font-family: Monaco, ui-monospace, monospace;
   font-size: 0.88rem;
@@ -190,8 +250,8 @@
   flex-shrink: 0;
   gap: 0.3rem;
   padding: 0 1.1rem;
-  border-left: 1px solid rgba(154, 142, 205, 0.14);
-  color: #b4aaeb;
+  border-left: 1px solid var(--home-border);
+  color: var(--home-violet-text);
   font-size: 0.8rem;
   font-weight: 700;
   text-decoration: none;
@@ -199,8 +259,8 @@
 }
 
 .installGuide:hover {
-  color: #c5bcff;
-  background: rgba(154, 142, 205, 0.08);
+  color: var(--home-violet);
+  background: var(--home-violet-softer);
 }
 
 @media (max-width: 1180px) {
@@ -268,7 +328,7 @@
 
   .installGuide {
     justify-content: center;
-    border-top: 1px solid rgba(154, 142, 205, 0.14);
+    border-top: 1px solid var(--home-border);
     border-left: 0;
   }
 }
@@ -279,8 +339,8 @@
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 1px;
-  background: rgba(154, 142, 205, 0.13);
-  border: 1px solid rgba(154, 142, 205, 0.14);
+  background: var(--home-border);
+  border: 1px solid var(--home-border);
   border-radius: 8px;
   overflow: hidden;
 }
@@ -300,7 +360,7 @@
   position: relative;
 }
 .fc:hover {
-  background: #111118 !important;
+  background: var(--home-surface-elev) !important;
 }
 
 .fcArrow {
@@ -324,9 +384,9 @@
   letter-spacing: 0.06em;
   display: inline-block;
   margin-top: 1rem;
-  color: rgba(154, 142, 205, 0.55);
-  background: rgba(154, 142, 205, 0.15);
-  border: 1px solid rgba(154, 142, 205, 0.15);
+  color: var(--home-violet-text);
+  background: var(--home-violet-soft);
+  border: 1px solid var(--home-violet-soft);
   border-radius: 999px;
   padding: 0.18rem 0.6rem;
 }
@@ -340,7 +400,7 @@
   color: inherit;
 }
 .stackRow:hover {
-  border-color: rgba(154, 142, 205, 0.35) !important;
+  border-color: var(--home-border-strong) !important;
   transform: translateX(3px);
 }
 
@@ -352,12 +412,12 @@
   text-align: left;
 }
 .lsStep:hover {
-  background: rgba(154, 142, 205, 0.07) !important;
-  border-color: rgba(154, 142, 205, 0.22) !important;
+  background: var(--home-violet-softer) !important;
+  border-color: var(--home-border-strong) !important;
 }
 .lsStepActive {
-  background: rgba(154, 142, 205, 0.1) !important;
-  border-color: rgba(154, 142, 205, 0.3) !important;
+  background: var(--home-violet-soft) !important;
+  border-color: var(--home-border-strong) !important;
 }
 
 /* ─── Packages ────────────────────────────────────────────────────────────── */
@@ -367,8 +427,8 @@
   cursor: default;
 }
 .pkgCard:hover {
-  background: rgba(154, 142, 205, 0.1) !important;
-  border-color: rgba(154, 142, 205, 0.32) !important;
+  background: var(--home-violet-soft) !important;
+  border-color: var(--home-border-strong) !important;
 }
 
 .pkgCopy {
@@ -378,7 +438,7 @@
   background: none;
   border: none;
   padding: 0;
-  color: rgba(154, 142, 205, 0.7);
+  color: var(--home-violet-text);
   display: flex;
   align-items: center;
 }
@@ -404,7 +464,7 @@
   align-items: center;
 }
 .ctaSecondary:hover {
-  color: rgba(232, 232, 232, 0.95) !important;
+  color: var(--home-fg-strong) !important;
   transform: translateY(-1px);
 }
 
@@ -412,7 +472,7 @@
   transition: border-color 0.15s ease;
 }
 .trustPill:hover {
-  border-color: rgba(154, 142, 205, 0.3) !important;
+  border-color: var(--home-border-strong) !important;
 }
 
 /* ─── Architecture grid ───────────────────────────────────────────────────── */
@@ -427,6 +487,11 @@
 }
 
 /* ─── Hero terminal ───────────────────────────────────────────────────────── */
+/*
+ * The hero terminal stays dark-themed in both modes so it reads as an embedded
+ * terminal screenshot (same convention as code blocks). Colors are intentionally
+ * not tokenized.
+ */
 
 .heroTerminal {
   position: absolute;

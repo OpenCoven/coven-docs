@@ -3,14 +3,14 @@ import { Icon } from '@iconify/react';
 
 export const baseOptions: BaseLayoutProps = {
   themeSwitch: {
-    enabled: false,
+    enabled: true,
   },
   nav: {
     title: (
       <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 600, letterSpacing: 0 }}>
-        <Icon icon="ph:sparkle-duotone" width={20} color="#9A8ECD" />
+        <Icon icon="ph:sparkle-duotone" width={20} color="var(--coven-violet)" />
         <span>Coven</span>
-        <span style={{ fontSize: '0.78rem', color: '#D7D2FF', fontWeight: 700, letterSpacing: 0, textTransform: 'uppercase', marginLeft: '2px' }}>docs</span>
+        <span style={{ fontSize: '0.78rem', color: 'var(--coven-violet)', fontWeight: 700, letterSpacing: 0, textTransform: 'uppercase', marginLeft: '2px' }}>docs</span>
       </span>
     ),
   },

@@ -5,9 +5,10 @@ import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 import s from './home.module.css';
 
-const VIOLET = '#9A8ECD';
-const VIOLET_DIM = 'rgba(154,142,205,0.15)';
-const BORDER = '1px solid rgba(154,142,205,0.14)';
+const VIOLET = 'var(--home-violet)';
+const VIOLET_TEXT = 'var(--home-violet-text)';
+const VIOLET_DIM = 'var(--home-violet-soft)';
+const BORDER = '1px solid var(--home-border)';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -196,7 +197,7 @@ export function FeatureGrid({ features }: { features: Feature[] }) {
           onMouseLeave={() => setActive(null)}
           style={{
             padding: '1.75rem',
-            background: active === f.title ? '#111118' : '#0C0C0F',
+            background: active === f.title ? 'var(--home-surface-elev)' : 'var(--home-surface)',
           }}
         >
           {/* Icon badge */}
@@ -206,8 +207,8 @@ export function FeatureGrid({ features }: { features: Feature[] }) {
               width: '42px',
               height: '42px',
               borderRadius: '11px',
-              background: active === f.title ? 'rgba(154,142,205,0.22)' : VIOLET_DIM,
-              border: `1px solid rgba(154,142,205,${active === f.title ? 0.35 : 0.22})`,
+              background: active === f.title ? 'var(--home-violet-soft)' : VIOLET_DIM,
+              border: `1px solid var(--home-border${active === f.title ? '-strong' : ''})`,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -219,7 +220,7 @@ export function FeatureGrid({ features }: { features: Feature[] }) {
 
           {/* Title row */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.45rem' }}>
-            <span style={{ fontWeight: 700, fontSize: '0.95rem', color: '#E8E8E8', letterSpacing: 0 }}>
+            <span style={{ fontWeight: 700, fontSize: '0.95rem', color: 'var(--home-fg)', letterSpacing: 0 }}>
               {f.title}
             </span>
             <span className={s.fcArrow}>
@@ -228,7 +229,7 @@ export function FeatureGrid({ features }: { features: Feature[] }) {
           </div>
 
           {/* Description */}
-          <p style={{ fontSize: '0.84rem', color: '#8A8A8A', lineHeight: 1.65, margin: 0 }}>
+          <p style={{ fontSize: '0.84rem', color: 'var(--home-fg-muted)', lineHeight: 1.65, margin: 0 }}>
             {f.desc}
           </p>
 
@@ -257,13 +258,13 @@ export function StackDiagram() {
             {showConnector && (
               <div style={{
                 position: 'absolute', left: '-13px', top: '0', bottom: '50%',
-                width: '1px', background: 'rgba(154,142,205,0.2)',
+                width: '1px', background: 'var(--home-border-strong)',
               }} />
             )}
             {showConnector && (
               <div style={{
                 position: 'absolute', left: '-13px', top: '50%',
-                width: '12px', height: '1px', background: 'rgba(154,142,205,0.2)',
+                width: '12px', height: '1px', background: 'var(--home-border-strong)',
               }} />
             )}
             <Link
@@ -278,22 +279,22 @@ export function StackDiagram() {
                 padding: '0.58rem 0.78rem',
                 marginBottom: '6px',
                 background: row.accent
-                  ? isHovered ? 'rgba(154,142,205,0.2)' : 'rgba(154,142,205,0.12)'
-                  : isHovered ? 'rgba(154,142,205,0.1)' : VIOLET_DIM,
-                border: `1px solid rgba(154,142,205,${row.accent ? 0.28 : 0.15})`,
+                  ? isHovered ? 'var(--home-violet-soft)' : 'var(--home-violet-softer)'
+                  : isHovered ? 'var(--home-violet-soft)' : 'var(--home-violet-softer)',
+                border: `1px solid var(--home-border${row.accent ? '-strong' : ''})`,
                 borderRadius: '8px',
               }}
             >
-              <Icon icon={row.icon} width={15} color={isHovered ? VIOLET : 'rgba(154,142,205,0.7)'} />
+              <Icon icon={row.icon} width={15} color={isHovered ? VIOLET : VIOLET_TEXT} />
               <span style={{
                 fontWeight: row.accent ? 700 : 600,
                 fontSize: '0.78rem',
-                color: row.accent ? VIOLET : '#C0C0C0',
+                color: row.accent ? VIOLET_TEXT : 'var(--home-fg)',
                 minWidth: 72,
               }}>
                 {row.label}
               </span>
-              <span style={{ fontSize: '0.72rem', color: '#666', flex: 1, lineHeight: 1.35 }}>{row.sub}</span>
+              <span style={{ fontSize: '0.72rem', color: 'var(--home-fg-subtle)', flex: 1, lineHeight: 1.35 }}>{row.sub}</span>
               <Icon
                 icon="ph:arrow-right"
                 width={12}
@@ -387,11 +388,11 @@ export function LifecycleStepper() {
                 borderRadius: '50%',
                 background: isDone
                   ? 'rgba(110,203,138,0.15)'
-                  : isActive ? VIOLET_DIM : 'rgba(255,255,255,0.04)',
+                  : isActive ? VIOLET_DIM : 'var(--home-surface-soft)',
                 border: `1px solid ${
                   isDone ? 'rgba(110,203,138,0.4)'
-                  : isActive ? 'rgba(154,142,205,0.45)'
-                  : 'rgba(255,255,255,0.1)'
+                  : isActive ? 'var(--home-border-strong)'
+                  : 'var(--home-border)'
                 }`,
                 display: 'flex',
                 alignItems: 'center',
@@ -401,14 +402,14 @@ export function LifecycleStepper() {
               }}>
                 {isDone
                   ? <Icon icon="ph:check-bold" width={12} color="#6ECB8A" />
-                  : <Icon icon={step.icon} width={13} color={isActive ? VIOLET : '#555'} />
+                  : <Icon icon={step.icon} width={13} color={isActive ? VIOLET : 'var(--home-fg-faint)'} />
                 }
               </div>
               {i < LIFECYCLE_STEPS.length - 1 && (
                 <div style={{
                   width: '1px',
                   height: '10px',
-                  background: isDone ? 'rgba(110,203,138,0.3)' : 'rgba(154,142,205,0.15)',
+                  background: isDone ? 'rgba(110,203,138,0.3)' : 'var(--home-border)',
                   marginTop: '2px',
                   transition: 'background 0.25s',
                 }} />
@@ -420,7 +421,7 @@ export function LifecycleStepper() {
               <div style={{
                 fontSize: '0.83rem',
                 fontWeight: isActive ? 700 : 600,
-                color: isActive ? '#E8E8E8' : isDone ? '#A0A0A0' : '#888',
+                color: isActive ? 'var(--home-fg)' : isDone ? 'var(--home-fg-muted)' : 'var(--home-fg-subtle)',
                 marginBottom: '0.1rem',
                 transition: 'color 0.2s',
               }}>
@@ -428,7 +429,7 @@ export function LifecycleStepper() {
               </div>
               <div style={{
                 fontSize: '0.76rem',
-                color: isActive ? '#787878' : '#484848',
+                color: isActive ? 'var(--home-fg-subtle)' : 'var(--home-fg-faint)',
                 transition: 'color 0.2s',
                 lineHeight: 1.4,
               }}>
@@ -440,7 +441,7 @@ export function LifecycleStepper() {
             <span style={{
               fontSize: '0.65rem',
               fontWeight: 700,
-              color: isActive ? VIOLET : '#444',
+              color: isActive ? VIOLET_TEXT : 'var(--home-fg-faint)',
               letterSpacing: '0.05em',
               flexShrink: 0,
               transition: 'color 0.2s',
@@ -462,7 +463,7 @@ export function LifecycleStepper() {
             alignItems: 'center',
             gap: '0.35rem',
             fontSize: '0.75rem',
-            color: 'rgba(154,142,205,0.45)',
+            color: 'var(--home-fg-muted)',
             cursor: 'pointer',
           }}
         >
@@ -478,7 +479,7 @@ export function LifecycleStepper() {
               alignItems: 'center',
               gap: '0.35rem',
               fontSize: '0.75rem',
-              color: VIOLET,
+              color: VIOLET_TEXT,
               cursor: 'pointer',
               opacity: 0.7,
             }}

@@ -40,9 +40,13 @@ assertIncludes('app/api/search/route.ts', 'tag:', 'search tag filter');
 
 assertFile('components/search-dialog.tsx');
 assertIncludes('components/search-dialog.tsx', 'Filter', 'search filter UI');
+assertIncludes('components/search-dialog.tsx', 'aria-haspopup="listbox"', 'compact search filter dropdown');
 assertIncludes('components/search-dialog.tsx', 'Guide', 'Guide search filter');
 assertIncludes('components/search-dialog.tsx', 'Familiars', 'Familiars search filter');
 assertIncludes('components/search-dialog.tsx', 'Reference', 'Reference search filter');
+if (read('components/search-dialog.tsx').includes('SearchDialogFooter')) {
+  throw new Error('components/search-dialog.tsx still uses SearchDialogFooter for filters');
+}
 
 assertFile('components/graph-view.tsx');
 assertFile('lib/build-graph.ts');

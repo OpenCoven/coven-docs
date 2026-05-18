@@ -6,9 +6,13 @@ import s from './home.module.css';
 
 // ─── constants ───────────────────────────────────────────────────────────────
 
-const VIOLET = '#9A8ECD';
-const VIOLET_DIM = 'rgba(154,142,205,0.15)';
-const BORDER = '1px solid rgba(154,142,205,0.14)';
+// Brand violet stays hue-stable in both modes — used for accent icons that sit
+// on tinted surfaces. Theme-aware text/background colors come from CSS vars
+// defined in home.module.css.
+const VIOLET = 'var(--home-violet)';
+const VIOLET_TEXT = 'var(--home-violet-text)';
+const VIOLET_DIM = 'var(--home-violet-soft)';
+const BORDER = '1px solid var(--home-border)';
 
 const features = [
   {
@@ -176,7 +180,7 @@ export default function HomePage() {
           <h2 style={{ fontSize: '1.75rem', fontWeight: 700, letterSpacing: 0, marginBottom: '0.4rem' }}>
             Coven's a Substrate, not a Harness
           </h2>
-          <p style={{ color: '#888', fontSize: '0.95rem', lineHeight: 1.55 }}>
+          <p style={{ color: 'var(--home-fg-muted)', fontSize: '0.95rem', lineHeight: 1.55 }}>
             Coven is built around the idea that AI agents deserve an identity.
           </p>
         </div>
@@ -192,19 +196,19 @@ export default function HomePage() {
             border: BORDER,
             borderRadius: '1.25rem',
             padding: '1.75rem',
-            background: '#0A0A0E',
+            background: 'var(--home-surface)',
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.5rem' }}>
               <div style={{
                 width: '32px', height: '32px', borderRadius: '8px',
-                background: VIOLET_DIM, border: `1px solid rgba(154,142,205,0.22)`,
+                background: VIOLET_DIM, border: '1px solid var(--home-border-strong)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
               }}>
                 <Icon icon="ph:stack-duotone" width={16} color={VIOLET} />
               </div>
               <div>
-                <div style={{ fontWeight: 700, fontSize: '0.95rem', color: '#E8E8E8', letterSpacing: 0 }}>Runtime Stack</div>
-                <div style={{ fontSize: '0.75rem', color: '#666', marginTop: '1px' }}>Local-first layers, from clients to harnesses</div>
+                <div style={{ fontWeight: 700, fontSize: '0.95rem', color: 'var(--home-fg)', letterSpacing: 0 }}>Runtime Stack</div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--home-fg-subtle)', marginTop: '1px' }}>Local-first layers, from clients to harnesses</div>
               </div>
             </div>
             <StackDiagram />
@@ -215,19 +219,19 @@ export default function HomePage() {
             border: BORDER,
             borderRadius: '1.25rem',
             padding: '1.75rem',
-            background: '#0A0A0E',
+            background: 'var(--home-surface)',
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.5rem' }}>
               <div style={{
                 width: '32px', height: '32px', borderRadius: '8px',
-                background: VIOLET_DIM, border: `1px solid rgba(154,142,205,0.22)`,
+                background: VIOLET_DIM, border: '1px solid var(--home-border-strong)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
               }}>
                 <Icon icon="ph:arrows-clockwise-duotone" width={16} color={VIOLET} />
               </div>
               <div>
-                <div style={{ fontWeight: 700, fontSize: '0.95rem', color: '#E8E8E8', letterSpacing: 0 }}>Message Lifecycle</div>
-                <div style={{ fontSize: '0.75rem', color: '#666', marginTop: '1px' }}>Click a step to trace the path</div>
+                <div style={{ fontWeight: 700, fontSize: '0.95rem', color: 'var(--home-fg)', letterSpacing: 0 }}>Message Lifecycle</div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--home-fg-subtle)', marginTop: '1px' }}>Click a step to trace the path</div>
               </div>
             </div>
             <LifecycleStepper />
@@ -242,7 +246,7 @@ export default function HomePage() {
         border: BORDER,
         borderRadius: '8px',
         overflow: 'hidden',
-        background: '#0A0A0E',
+        background: 'var(--home-surface)',
         marginBottom: '1.5rem',
       }}>
         {/* Header row */}
@@ -258,22 +262,22 @@ export default function HomePage() {
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
               <Icon icon="ph:squares-four-duotone" width={20} color={VIOLET} />
-              <span style={{ fontWeight: 700, fontSize: '1.05rem', color: '#E8E8E8', letterSpacing: 0 }}>Current implementation pieces</span>
+              <span style={{ fontWeight: 700, fontSize: '1.05rem', color: 'var(--home-fg)', letterSpacing: 0 }}>Current implementation pieces</span>
             </div>
-            <p style={{ fontSize: '0.84rem', color: '#787878', margin: 0, lineHeight: 1.55 }}>
+            <p style={{ fontSize: '0.84rem', color: 'var(--home-fg-subtle)', margin: 0, lineHeight: 1.55 }}>
               Coven is a Rust runtime with a small local API, an npm launcher, and adaptable to external harness bridging.
             </p>
           </div>
           <div style={{
             fontFamily: 'Monaco, ui-monospace, monospace',
             fontSize: '0.78rem',
-            color: '#888',
-            background: 'rgba(255,255,255,0.04)',
+            color: 'var(--home-fg-muted)',
+            background: 'var(--home-surface-soft)',
             border: BORDER,
             borderRadius: '6px',
             padding: '0.4rem 0.75rem',
           }}>
-            npm install <span style={{ color: VIOLET }}>@opencoven/cli</span>
+            npm install <span style={{ color: VIOLET_TEXT }}>@opencoven/cli</span>
           </div>
         </div>
 
@@ -290,7 +294,7 @@ export default function HomePage() {
                 padding: '0.85rem 1rem',
                 border: BORDER,
                 borderRadius: '10px',
-                background: i === 0 ? 'rgba(154,142,205,0.07)' : 'transparent',
+                background: i === 0 ? 'var(--home-violet-softer)' : 'transparent',
               }}
             >
               {/* Icon */}
@@ -299,7 +303,7 @@ export default function HomePage() {
                 height: '34px',
                 borderRadius: '8px',
                 background: VIOLET_DIM,
-                border: `1px solid rgba(154,142,205,0.2)`,
+                border: '1px solid var(--home-border-strong)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -310,19 +314,19 @@ export default function HomePage() {
 
               {/* Name + desc */}
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontFamily: 'Monaco, ui-monospace, monospace', fontSize: '0.82rem', color: VIOLET, fontWeight: 600, marginBottom: '0.15rem' }}>
+                <div style={{ fontFamily: 'Monaco, ui-monospace, monospace', fontSize: '0.82rem', color: VIOLET_TEXT, fontWeight: 600, marginBottom: '0.15rem' }}>
                   {pkg.name}
                 </div>
-                <div style={{ fontSize: '0.8rem', color: '#8A8A8A', lineHeight: 1.45 }}>{pkg.desc}</div>
+                <div style={{ fontSize: '0.8rem', color: 'var(--home-fg-muted)', lineHeight: 1.45 }}>{pkg.desc}</div>
               </div>
 
               {/* Badge */}
               <span style={{
                 fontSize: '0.68rem',
                 fontWeight: 600,
-                color: 'rgba(154,142,205,0.6)',
+                color: VIOLET_TEXT,
                 background: VIOLET_DIM,
-                border: `1px solid rgba(154,142,205,0.15)`,
+                border: '1px solid var(--home-border)',
                 borderRadius: '999px',
                 padding: '0.2rem 0.6rem',
                 letterSpacing: '0.04em',
@@ -353,13 +357,13 @@ export default function HomePage() {
             letterSpacing: 0,
             lineHeight: 1.25,
             marginBottom: '0.65rem',
-            color: '#E8E8E8',
+            color: 'var(--home-fg)',
           }}>
             Build your first Coven familiar.
           </h2>
 
           <p style={{
-            color: '#8A8A8A',
+            color: 'var(--home-fg-muted)',
             fontSize: '0.95rem',
             lineHeight: 1.6,
             maxWidth: '460px',
@@ -373,7 +377,7 @@ export default function HomePage() {
               href="/docs/guide/getting-started"
               className={s.ctaPrimary}
               style={{
-                color: VIOLET,
+                color: VIOLET_TEXT,
                 fontWeight: 650,
                 fontSize: '0.92rem',
                 textDecoration: 'none',
@@ -389,7 +393,7 @@ export default function HomePage() {
               href="/docs/reference/api"
               className={s.ctaSecondary}
               style={{
-                color: '#A8A8A8',
+                color: 'var(--home-fg-muted)',
                 fontWeight: 500,
                 fontSize: '0.92rem',
                 textDecoration: 'none',

@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "skills": {
+    "long-running-goals": {
+      "source": "BunsDev/copilot-skills",
+      "sourceType": "github",
+      "skillPath": "long-running-goals/SKILL.md",
+      "computedHash": "90692edb8ad670198e679dc19ad90e59042bfd80d924017c093faf029abab482"
+    }
+  }
+}
