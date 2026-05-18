@@ -1,4 +1,5 @@
 import type { BaseLayoutProps } from 'fumadocs-ui/layouts/shared';
+import { Icon } from '@iconify/react';
 
 export const baseOptions: BaseLayoutProps = {
   nav: {
@@ -11,6 +12,7 @@ export const baseOptions: BaseLayoutProps = {
     ),
   },
   links: [
+    // ── Primary nav items ──────────────────────────────────
     {
       text: 'Learn',
       description: 'How Coven Works',
@@ -35,13 +37,25 @@ export const baseOptions: BaseLayoutProps = {
       url: '/docs/reference/api',
       active: 'nested-url',
     },
+
+    // ── Secondary icon buttons (right side of nav / bottom of mobile menu) ──
     {
+      type: 'icon',
       text: 'GitHub',
+      label: 'GitHub',
       url: 'https://github.com/OpenCoven/coven',
+      icon: <Icon icon="ph:github-logo-duotone" width={18} />,
+      secondary: true,
+      external: true,
     },
     {
+      type: 'icon',
       text: 'Discord',
+      label: 'Discord',
       url: 'https://discord.gg/opencoven',
+      icon: <Icon icon="ph:discord-logo-duotone" width={18} />,
+      secondary: true,
+      external: true,
     },
   ],
 };
