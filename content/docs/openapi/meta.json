@@ -3,5 +3,5 @@
   "description": "OpenCoven REST API reference",
   "root": true,
   "icon": "LuRocket",
-  "pages": ["overview", "familiars", "sessions", "memory", "tools"]
+  "pages": ["overview", "harnesses", "familiars", "sessions", "memory", "tools"]
 }

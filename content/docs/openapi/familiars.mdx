@@ -1,9 +1,11 @@
 ---
 title: "Familiars API"
-description: "Create, list, update, and delete familiar agents."
+description: "Create, list, update, and delete familiar agents. Each familiar is bound to a harness."
 ---
 
 # Familiars
+
+A **familiar** is a persistent AI agent with memory, personality, and tool access. Every familiar is bound to a **harness** — the AI provider that powers it (e.g. OpenClaw, Claude Code, Codex, Hermes).
 
 ## List familiars
 
@@ -17,8 +19,10 @@ GET /v1/familiars
     {
       "id": "fam_nova",
       "name": "Nova",
+      "harness_id": "hrn_openclaw",
       "model": "openai/gpt-5.5",
       "status": "active",
+      "channels": ["telegram", "discord"],
       "created_at": "2026-05-01T00:00:00Z"
     }
   ]
@@ -39,17 +43,36 @@ Content-Type: application/json
 
 {
   "name": "Sage",
+  "harness_id": "hrn_openclaw",
   "model": "openai/gpt-5.5",
   "personality": "analytical, direct, research-oriented",
-  "tools": ["web_search", "exec", "memory"]
+  "tools": ["web_search", "exec", "memory"],
+  "channels": ["telegram"]
 }
 ```
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `name` | string | ✓ | Display name for the familiar |
+| `harness_id` | string | ✓ | ID of the harness to bind to |
+| `model` | string | ✓ | Model override (e.g. `openai/gpt-5.5`) |
+| `personality` | string | | Personality/tone description |
+| `tools` | string[] | | Allowed tool IDs |
+| `channels` | string[] | | Active channel bindings |
 
 ## Update a familiar
 
 ```http
 PATCH /v1/familiars/:id
+Content-Type: application/json
+
+{
+  "harness_id": "hrn_claude_code",
+  "model": "anthropic/claude-sonnet-4-5"
+}
 ```
+
+> Changing `harness_id` migrates the familiar to a new harness. Active sessions are preserved.
 
 ## Delete a familiar
 
