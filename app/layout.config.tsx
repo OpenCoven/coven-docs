@@ -16,31 +16,6 @@ export const baseOptions: BaseLayoutProps = {
   },
   links: [
     {
-      text: 'Learn',
-      description: 'How Coven Works',
-      url: '/docs/guide/getting-started',
-      active: 'nested-url',
-    },
-    {
-      text: 'Familiars',
-      description: 'Project and Session Management',
-      url: '/docs/familiars/sessions',
-      active: 'nested-url',
-    },
-    {
-      text: 'OpenCoven API',
-      description: 'REST API Reference',
-      url: '/docs/openapi/overview',
-      active: 'nested-url',
-    },
-    {
-      text: 'Reference',
-      description: 'API, Authentication, and Safety',
-      url: '/docs/reference/api',
-      active: 'nested-url',
-    },
-
-    {
       type: 'icon',
       text: 'GitHub',
       label: 'GitHub',
