@@ -3,7 +3,7 @@
  * via the ancestor chain. Light overrides under `html.light`. */
 .shell,
 .tabbed {
-  --dt-th-fg:             rgba(180, 170, 235, 0.78);
+  --dt-th-fg:             rgba(245, 243, 255, 0.55);
   --dt-th-border:         rgba(180, 170, 235, 0.14);
 
   --dt-td-fg:             rgba(245, 243, 255, 0.88);
@@ -28,7 +28,7 @@
 
 :global(html.light) .shell,
 :global(html.light) .tabbed {
-  --dt-th-fg:             rgba(108, 90, 200, 0.85);
+  --dt-th-fg:             rgba(31, 26, 51, 0.55);
   --dt-th-border:         rgba(108, 90, 200, 0.18);
 
   --dt-td-fg:             rgba(31, 26, 51, 0.92);
@@ -70,11 +70,9 @@
 .table th {
   border-bottom: 1px solid var(--dt-th-border);
   color: var(--dt-th-fg);
-  font-size: 0.68rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
+  font-size: 0.78rem;
+  font-weight: 500;
   text-align: left;
-  text-transform: uppercase;
 }
 
 .sort {
@@ -222,11 +220,9 @@
   .table td::before {
     content: attr(data-label);
     color: var(--dt-th-fg);
-    font-size: 0.64rem;
-    font-weight: 600;
-    letter-spacing: 0.08em;
+    font-size: 0.72rem;
+    font-weight: 500;
     line-height: 1.35;
-    text-transform: uppercase;
   }
 
   .table code {
