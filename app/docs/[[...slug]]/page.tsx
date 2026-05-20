@@ -12,11 +12,14 @@ import { source } from '@/lib/source';
 import { notFound } from 'next/navigation';
 import { getGithubLastEdit } from 'fumadocs-core/content/github';
 import { getMDXComponents } from '@/components/mdx-components';
+import { PageFeedback } from '@/components/page-feedback';
 
 const REPO = 'OpenCoven/coven-docs';
 const SITE = 'https://docs.opencoven.ai';
 
-function buildIssueUrl(page: { url: string; path: string; data: { title: string } }) {
+type PageRef = { url: string; path: string; data: { title: string } };
+
+function buildIssueUrl(page: PageRef) {
   const title = `Docs: ${page.data.title}`;
   const body = [
     `**Page:** [${page.data.title}](${SITE}${page.url})`,
@@ -29,6 +32,19 @@ function buildIssueUrl(page: { url: string; path: string; data: { title: string 
     '<!-- If you have a fix in mind, share it here. -->',
   ].join('\n');
   const params = new URLSearchParams({ title, body, labels: 'docs' });
+  return `https://github.com/${REPO}/issues/new?${params.toString()}`;
+}
+
+function buildFeedbackUrl(page: PageRef) {
+  const title = `Feedback: ${page.data.title}`;
+  const body = [
+    `**Page:** [${page.data.title}](${SITE}${page.url})`,
+    `**Source:** \`content/docs/${page.path}\``,
+    '',
+    '### What was unclear or missing?',
+    '<!-- Tell us what made this page unhelpful so we can improve it. -->',
+  ].join('\n');
+  const params = new URLSearchParams({ title, body, labels: 'docs,feedback' });
   return `https://github.com/${REPO}/issues/new?${params.toString()}`;
 }
 
@@ -57,6 +73,7 @@ export default async function Page({ params }: { params: Promise<{ slug?: string
   const MDX = page.data.body;
   const githubUrl = `https://github.com/${REPO}/blob/main/content/docs/${page.path}`;
   const issueUrl = buildIssueUrl(page);
+  const feedbackUrl = buildFeedbackUrl(page);
   const lastModifiedTime = await getLastModifiedTime(page.path);
 
   return (
@@ -83,6 +100,7 @@ export default async function Page({ params }: { params: Promise<{ slug?: string
       <DocsBody>
         <MDX components={getMDXComponents()} />
       </DocsBody>
+      <PageFeedback feedbackIssueUrl={feedbackUrl} />
       {lastModifiedTime && <PageLastUpdate date={lastModifiedTime} />}
     </DocsPage>
   );
