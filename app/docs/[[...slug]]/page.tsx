@@ -15,6 +15,7 @@ import { notFound } from 'next/navigation';
 import { getGithubLastEdit } from 'fumadocs-core/content/github';
 import { getMDXComponents } from '@/components/mdx-components';
 import { PageFeedback } from '@/components/page-feedback';
+import { PageNavFooter } from '@/components/page-nav-footer';
 
 const REPO = 'OpenCoven/coven-docs';
 const SITE = 'https://docs.opencoven.ai';
@@ -105,6 +106,7 @@ export default async function Page({ params }: { params: Promise<{ slug?: string
       full={page.data.full}
       tableOfContent={{ style: 'clerk' }}
       breadcrumb={{ includePage: true, includeRoot: true }}
+      slots={{ footer: PageNavFooter }}
     >
       <div className="flex justify-end items-center gap-2">
         <a
