@@ -8,6 +8,8 @@ import {
 } from 'fumadocs-ui/layouts/docs/page';
 import { buttonVariants } from 'fumadocs-ui/components/ui/button';
 import { Icon } from '@iconify/react';
+import { readFile } from 'node:fs/promises';
+import { join } from 'node:path';
 import { source } from '@/lib/source';
 import { notFound } from 'next/navigation';
 import { getGithubLastEdit } from 'fumadocs-core/content/github';
@@ -48,6 +50,24 @@ function buildFeedbackUrl(page: PageRef) {
   return `https://github.com/${REPO}/issues/new?${params.toString()}`;
 }
 
+async function getReadingTimeMinutes(path: string): Promise<number | null> {
+  try {
+    const content = await readFile(join(process.cwd(), 'content', 'docs', path), 'utf-8');
+    const text = content
+      .replace(/^---\n[\s\S]*?\n---\n/, '')
+      .replace(/```[\s\S]*?```/g, '')
+      .replace(/<[^>]+>/g, '')
+      .replace(/[#*`_>\-[\](){}!|]/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+    const words = text ? text.split(' ').filter(Boolean).length : 0;
+    if (words === 0) return null;
+    return Math.max(1, Math.round(words / 220));
+  } catch {
+    return null;
+  }
+}
+
 async function getLastModifiedTime(path: string) {
   try {
     return await getGithubLastEdit({
@@ -74,13 +94,17 @@ export default async function Page({ params }: { params: Promise<{ slug?: string
   const githubUrl = `https://github.com/${REPO}/blob/main/content/docs/${page.path}`;
   const issueUrl = buildIssueUrl(page);
   const feedbackUrl = buildFeedbackUrl(page);
-  const lastModifiedTime = await getLastModifiedTime(page.path);
+  const [readingMinutes, lastModifiedTime] = await Promise.all([
+    getReadingTimeMinutes(page.path),
+    getLastModifiedTime(page.path),
+  ]);
 
   return (
     <DocsPage
       toc={page.data.toc}
       full={page.data.full}
       tableOfContent={{ style: 'clerk' }}
+      breadcrumb={{ includePage: true, includeRoot: true }}
     >
       <div className="flex justify-end items-center gap-2">
         <a
@@ -97,6 +121,12 @@ export default async function Page({ params }: { params: Promise<{ slug?: string
       </div>
       <DocsTitle>{page.data.title}</DocsTitle>
       <DocsDescription>{page.data.description}</DocsDescription>
+      {readingMinutes !== null && (
+        <p className="text-xs text-fd-muted-foreground not-prose -mt-2 mb-4 inline-flex items-center gap-1.5">
+          <Icon icon="ph:clock-duotone" width={13} aria-hidden="true" />
+          {readingMinutes} min read
+        </p>
+      )}
       <DocsBody>
         <MDX components={getMDXComponents()} />
       </DocsBody>
