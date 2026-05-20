@@ -3,23 +3,17 @@
  * via the ancestor chain. Light overrides under `html.light`. */
 .shell,
 .tabbed {
-  --dt-shell-bg:          linear-gradient(180deg, rgba(20, 18, 32, 0.55) 0%, rgba(12, 11, 20, 0.48) 100%);
-  --dt-shell-border:      rgba(180, 170, 235, 0.10);
-  --dt-shell-shadow:      0 1px 0 rgba(255, 255, 255, 0.025) inset, 0 12px 40px -12px rgba(0, 0, 0, 0.55);
-
-  --dt-th-bg:             rgba(18, 16, 28, 0.55);
   --dt-th-fg:             rgba(180, 170, 235, 0.78);
-  --dt-th-border:         rgba(180, 170, 235, 0.10);
+  --dt-th-border:         rgba(180, 170, 235, 0.14);
 
   --dt-td-fg:             rgba(245, 243, 255, 0.88);
-  --dt-td-border:         rgba(180, 170, 235, 0.055);
-  --dt-row-hover:         rgba(154, 142, 205, 0.055);
+  --dt-td-border:         rgba(180, 170, 235, 0.06);
+  --dt-row-hover:         rgba(154, 142, 205, 0.05);
 
   --dt-sort-fg:           rgba(245, 243, 255, 0.42);
   --dt-sort-hover-fg:     rgba(245, 243, 255, 0.95);
   --dt-sort-active-fg:    #B4AAEB;
 
-  --dt-tab-bg:            transparent;
   --dt-tab-fg:            rgba(245, 243, 255, 0.62);
   --dt-tab-border:        rgba(180, 170, 235, 0.14);
   --dt-tab-hover-border:  rgba(154, 142, 205, 0.40);
@@ -28,58 +22,29 @@
   --dt-tab-active-fg:     #F5F3FF;
 }
 
-/* `.shell`-only layout (card chrome). `.tabbed` is just a token carrier. */
 .shell {
-  position: relative;
   margin: 1.5rem 0 2rem;
-  overflow: hidden;
-  border: 1px solid var(--dt-shell-border);
-  border-radius: var(--radius-lg);
-  background: var(--dt-shell-bg);
-  box-shadow: var(--dt-shell-shadow);
-  backdrop-filter: blur(20px) saturate(140%);
-  -webkit-backdrop-filter: blur(20px) saturate(140%);
-}
-
-/* hairline highlight to sell the glass */
-.shell::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  pointer-events: none;
-  background: linear-gradient(180deg, rgba(180, 170, 235, 0.06) 0%, transparent 32%);
 }
 
 :global(html.light) .shell,
 :global(html.light) .tabbed {
-  --dt-shell-bg:          linear-gradient(180deg, rgba(253, 251, 255, 0.85) 0%, rgba(247, 244, 254, 0.78) 100%);
-  --dt-shell-border:      rgba(108, 90, 200, 0.16);
-  --dt-shell-shadow:      0 1px 0 rgba(255, 255, 255, 0.6) inset, 0 8px 24px -10px rgba(108, 90, 200, 0.18);
-
-  --dt-th-bg:             rgba(243, 239, 252, 0.65);
   --dt-th-fg:             rgba(108, 90, 200, 0.85);
-  --dt-th-border:         rgba(108, 90, 200, 0.14);
+  --dt-th-border:         rgba(108, 90, 200, 0.18);
 
   --dt-td-fg:             rgba(31, 26, 51, 0.92);
-  --dt-td-border:         rgba(108, 90, 200, 0.08);
-  --dt-row-hover:         rgba(108, 90, 200, 0.05);
+  --dt-td-border:         rgba(108, 90, 200, 0.10);
+  --dt-row-hover:         rgba(108, 90, 200, 0.04);
 
   --dt-sort-fg:           rgba(31, 26, 51, 0.4);
   --dt-sort-hover-fg:     rgba(31, 26, 51, 0.92);
   --dt-sort-active-fg:    #6C5AC8;
 
-  --dt-tab-bg:            transparent;
   --dt-tab-fg:            rgba(31, 26, 51, 0.6);
   --dt-tab-border:        rgba(108, 90, 200, 0.18);
   --dt-tab-hover-border:  rgba(108, 90, 200, 0.45);
   --dt-tab-active-bg:     rgba(108, 90, 200, 0.12);
   --dt-tab-active-border: rgba(108, 90, 200, 0.50);
   --dt-tab-active-fg:     #1F1A33;
-}
-
-:global(html.light) .shell::before {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.5) 0%, transparent 40%);
 }
 
 .scroller {
@@ -103,13 +68,7 @@
 }
 
 .table th {
-  position: sticky;
-  top: 0;
-  z-index: 1;
   border-bottom: 1px solid var(--dt-th-border);
-  background: var(--dt-th-bg);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
   color: var(--dt-th-fg);
   font-size: 0.68rem;
   font-weight: 600;
@@ -169,16 +128,7 @@
 
 .table code {
   white-space: nowrap;
-  padding: 0.08rem 0.36rem;
-  border-radius: 4px;
-  background: rgba(180, 170, 235, 0.10);
-  border: 1px solid rgba(180, 170, 235, 0.14);
-  font-size: 0.84em;
-}
-
-:global(html.light) .table code {
-  background: rgba(108, 90, 200, 0.08);
-  border-color: rgba(108, 90, 200, 0.16);
+  font-size: 0.88em;
 }
 
 .tabbed {
@@ -197,7 +147,7 @@
   min-height: 2rem;
   border: 1px solid var(--dt-tab-border);
   border-radius: var(--radius-sm);
-  background: var(--dt-tab-bg);
+  background: transparent;
   color: var(--dt-tab-fg);
   cursor: pointer;
   font: inherit;
@@ -223,10 +173,6 @@
 }
 
 @media (max-width: 720px) {
-  .shell {
-    overflow: visible;
-  }
-
   .scroller {
     overflow-x: visible;
   }
@@ -247,24 +193,20 @@
 
   .table tbody {
     display: grid;
-    gap: 0.65rem;
-    padding: 0.75rem;
   }
 
   .table tr {
     display: block;
-    overflow: hidden;
-    border: 1px solid var(--dt-th-border);
-    border-radius: 10px;
-    background: var(--dt-th-bg);
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--dt-th-border);
+  }
+
+  .table tbody tr:last-child {
+    border-bottom: 0;
   }
 
   .table tbody tr:hover td {
     background: transparent;
-  }
-
-  .table tbody tr:last-child td {
-    border-bottom: 1px solid var(--dt-td-border);
   }
 
   .table td {
@@ -272,13 +214,9 @@
     grid-template-columns: minmax(6.5rem, 0.38fr) minmax(0, 1fr);
     gap: 0.75rem;
     align-items: start;
-    border-bottom: 1px solid var(--dt-td-border);
-    padding: 0.68rem 0.85rem;
-    overflow-wrap: anywhere;
-  }
-
-  .table td:last-child {
     border-bottom: 0;
+    padding: 0.35rem 0;
+    overflow-wrap: anywhere;
   }
 
   .table td::before {
