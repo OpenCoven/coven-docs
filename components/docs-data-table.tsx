@@ -127,43 +127,18 @@ export function DocsDataTable(props: Props) {
   );
 }
 
-function InteractiveDocsDataTable({ caption, columns, rows, searchPlaceholder = 'Filter table...', preserveOrder = false }: Props) {
-  const [query, setQuery] = useState('');
-  const [filters, setFilters] = useState<Record<string, string>>({});
+function InteractiveDocsDataTable({ caption, columns, rows, preserveOrder = false }: Props) {
   const [sort, setSort] = useState<SortState>({ key: preserveOrder ? '' : (columns[0]?.key ?? ''), direction: 'asc' });
 
-  const filterableColumns = useMemo(() => columns.filter((column) => column.filter), [columns]);
-
-  const filterOptions = useMemo(() => {
-    return Object.fromEntries(
-      filterableColumns.map((column) => [
-        column.key,
-        Array.from(new Set(rows.map((row) => row[column.key]).filter(Boolean))).sort((a, b) => a.localeCompare(b)),
-      ]),
-    );
-  }, [filterableColumns, rows]);
-
   const visibleRows = useMemo(() => {
-    const normalizedQuery = normalize(query.trim());
-
-    return rows
-      .filter((row) => {
-        if (normalizedQuery) {
-          const haystack = normalize(columns.map((column) => row[column.key] ?? '').join(' '));
-          if (!haystack.includes(normalizedQuery)) return false;
-        }
-
-        return Object.entries(filters).every(([key, value]) => !value || row[key] === value);
-      })
-      .sort((a, b) => {
-        if (!sort.key) return 0;
-
-        const aValue = normalize(a[sort.key] ?? '');
-        const bValue = normalize(b[sort.key] ?? '');
-        const result = aValue.localeCompare(bValue, undefined, { numeric: true, sensitivity: 'base' });
-        return sort.direction === 'asc' ? result : -result;
-      });
-  }, [columns, filters, query, rows, sort]);
+    if (!sort.key) return rows;
+    return [...rows].sort((a, b) => {
+      const aValue = normalize(a[sort.key] ?? '');
+      const bValue = normalize(b[sort.key] ?? '');
+      const result = aValue.localeCompare(bValue, undefined, { numeric: true, sensitivity: 'base' });
+      return sort.direction === 'asc' ? result : -result;
+    });
+  }, [rows, sort]);
 
   function updateSort(key: string) {
     setSort((current) => ({
@@ -172,45 +147,8 @@ function InteractiveDocsDataTable({ caption, columns, rows, searchPlaceholder = 
     }));
   }
 
-  function sortIcon(key: string) {
-    if (sort.key !== key) return 'ph:dots-three-vertical-bold';
-    return sort.direction === 'asc' ? 'ph:arrow-up-bold' : 'ph:arrow-down-bold';
-  }
-
-  const hasActiveFilter = query.trim().length > 0 || Object.values(filters).some(Boolean);
-
   return (
     <div className={styles.shell}>
-      <div className={styles.toolbar}>
-        <input
-          className={styles.search}
-          value={query}
-          onChange={(event) => setQuery(event.target.value)}
-          placeholder={searchPlaceholder}
-          aria-label={searchPlaceholder}
-        />
-        {filterableColumns.length > 0 ? (
-          <div className={styles.filters}>
-            {filterableColumns.map((column) => (
-              <select
-                className={styles.select}
-                key={column.key}
-                value={filters[column.key] ?? ''}
-                onChange={(event) => setFilters((current) => ({ ...current, [column.key]: event.target.value }))}
-                aria-label={'Filter by ' + column.label}
-              >
-                <option value="">All {column.label.toLowerCase()}</option>
-                {filterOptions[column.key].map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
-            ))}
-          </div>
-        ) : null}
-      </div>
-
       <div className={styles.scroller}>
         <table className={styles.table}>
           <caption>{caption}</caption>
@@ -227,7 +165,14 @@ function InteractiveDocsDataTable({ caption, columns, rows, searchPlaceholder = 
                       onClick={() => updateSort(column.key)}
                     >
                       <span>{column.label}</span>
-                      <Icon className={styles.direction} icon={sortIcon(column.key)} width={12} aria-hidden="true" />
+                      {isActive ? (
+                        <Icon
+                          className={styles.direction}
+                          icon={sort.direction === 'asc' ? 'ph:arrow-up-bold' : 'ph:arrow-down-bold'}
+                          width={11}
+                          aria-hidden="true"
+                        />
+                      ) : null}
                     </button>
                   </th>
                 );
@@ -235,30 +180,16 @@ function InteractiveDocsDataTable({ caption, columns, rows, searchPlaceholder = 
             </tr>
           </thead>
           <tbody>
-            {visibleRows.length > 0 ? (
-              visibleRows.map((row, rowIndex) => (
-                <tr key={columns.map((column) => row[column.key]).join('|') || rowIndex}>
-                  {columns.map((column) => (
-                    <td data-label={column.label} key={column.key}>{renderInline(row[column.key] ?? '')}</td>
-                  ))}
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td className={styles.empty} colSpan={columns.length}>
-                  No matching rows.
-                </td>
+            {visibleRows.map((row, rowIndex) => (
+              <tr key={columns.map((column) => row[column.key]).join('|') || rowIndex}>
+                {columns.map((column) => (
+                  <td data-label={column.label} key={column.key}>{renderInline(row[column.key] ?? '')}</td>
+                ))}
               </tr>
-            )}
+            ))}
           </tbody>
         </table>
       </div>
-
-      {hasActiveFilter ? (
-        <div className={styles.meta}>
-          <span>{visibleRows.length} of {rows.length}</span>
-        </div>
-      ) : null}
     </div>
   );
 }

@@ -5,7 +5,7 @@
 .frame {
   overflow: hidden;
   border: 1px solid rgba(180, 170, 235, 0.2);
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   background:
     linear-gradient(rgba(154, 142, 205, 0.06) 1px, transparent 1px),
     linear-gradient(90deg, rgba(154, 142, 205, 0.06) 1px, transparent 1px),

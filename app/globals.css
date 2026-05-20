@@ -10,7 +10,20 @@
   --coven-violet-light: #B4AAEB;
   --coven-violet-dark: #7A6FB3;
   --coven-docs-sidebar-width: 288px;
-  --radius: 0.5rem;
+
+  /* Radius scale — sm for controls & buttons, md for cards/panels, lg for premium glass frames.
+   * Outliers kept literal: 3px (kbd), 4px (inline code), 10px (mid-density panels), 999px (chips/badges), 50% (dots).
+   *
+   * ⚠ Tailwind v4 collision: tailwind ships its own --radius-sm/md/lg/xl/2xl (4/6/8/12/16 px)
+   * inside `@layer theme {}` (pulled in via the fumadocs-ui import on line 1). These overrides win
+   * ONLY because this :root block is UNLAYERED — per CSS cascade-layer rules, unlayered declarations
+   * beat any @layer regardless of source order. If you ever wrap globals.css in `@layer ...`, these
+   * names will silently revert to Tailwind's smaller values and every card/button will shrink one tier.
+   * Either keep this block unlayered, or rename the tokens (e.g. --coven-radius-sm). */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius: var(--radius-md); /* legacy shadcn token alias */
 }
 
 /* Dark mode – Coven is dark-first */
@@ -95,7 +108,7 @@ body {
 .dark [data-callout] {
   background: rgba(154, 142, 205, 0.06) !important;
   border: 1px solid rgba(154, 142, 205, 0.15) !important;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
 }
 
 /* Violet active nav.

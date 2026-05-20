@@ -293,7 +293,7 @@ export function Mermaid({ chart, caption }: MermaidProps) {
           margin: 1.75rem 0;
           background: var(--mm-card-bg);
           border: 1px solid var(--mm-card-border);
-          border-radius: 12px;
+          border-radius: var(--radius-lg);
           overflow: hidden;
           display: flex;
           flex-direction: column;
@@ -327,7 +327,7 @@ export function Mermaid({ chart, caption }: MermaidProps) {
           width: 28px;
           height: 28px;
           border: none;
-          border-radius: 6px;
+          border-radius: var(--radius-sm);
           cursor: pointer;
           background: var(--mm-btn-bg);
           color: var(--mm-btn-fg);
@@ -401,7 +401,7 @@ export function Mermaid({ chart, caption }: MermaidProps) {
           font-size: 0.8rem;
           padding: 1rem;
           background: var(--mm-error-bg);
-          border-radius: 8px;
+          border-radius: var(--radius-md);
           border: 1px solid var(--mm-error-border);
           overflow: auto;
           white-space: pre-wrap;
