@@ -115,10 +115,21 @@ a[aria-current="page"] {
 }
 a:hover { color: var(--coven-violet-light); }
 
-/* Keep the docs sidebar rail wide enough for Coven's labels and controls. */
+/* Keep the docs sidebar rail wide enough for Coven's labels and controls.
+ * Also pin the sidebar flush to the viewport's left edge on wide screens.
+ * Fumadocs' grid puts `minmax(min-content, 1fr)` gutters on BOTH sides of
+ * the layout, which centers everything once the viewport exceeds
+ * `--fd-layout-width` (default 97rem). Collapsing the left gutter to 0 keeps
+ * the right side flexible while anchoring the sidebar to x=0. */
 @media (min-width: 768px) {
   #nd-docs-layout {
     --fd-sidebar-width: var(--coven-docs-sidebar-width) !important;
+    grid-template-columns:
+      0
+      var(--fd-sidebar-col)
+      minmax(0, calc(var(--fd-layout-width, 97rem) - var(--fd-sidebar-width) - var(--fd-toc-width)))
+      var(--fd-toc-width)
+      minmax(min-content, 1fr) !important;
   }
 
   #nd-docs-layout [data-sidebar-placeholder] {
