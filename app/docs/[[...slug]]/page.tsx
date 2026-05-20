@@ -6,10 +6,31 @@ import {
   PageLastUpdate,
   ViewOptionsPopover,
 } from 'fumadocs-ui/layouts/docs/page';
+import { buttonVariants } from 'fumadocs-ui/components/ui/button';
+import { Icon } from '@iconify/react';
 import { source } from '@/lib/source';
 import { notFound } from 'next/navigation';
 import { getGithubLastEdit } from 'fumadocs-core/content/github';
 import { getMDXComponents } from '@/components/mdx-components';
+
+const REPO = 'OpenCoven/coven-docs';
+const SITE = 'https://docs.opencoven.ai';
+
+function buildIssueUrl(page: { url: string; path: string; data: { title: string } }) {
+  const title = `Docs: ${page.data.title}`;
+  const body = [
+    `**Page:** [${page.data.title}](${SITE}${page.url})`,
+    `**Source:** \`content/docs/${page.path}\``,
+    '',
+    '### What is the issue?',
+    '<!-- Describe the problem, typo, or improvement you noticed. -->',
+    '',
+    '### Suggested fix (optional)',
+    '<!-- If you have a fix in mind, share it here. -->',
+  ].join('\n');
+  const params = new URLSearchParams({ title, body, labels: 'docs' });
+  return `https://github.com/${REPO}/issues/new?${params.toString()}`;
+}
 
 async function getLastModifiedTime(path: string) {
   try {
@@ -34,7 +55,8 @@ export default async function Page({ params }: { params: Promise<{ slug?: string
   if (!page) notFound();
 
   const MDX = page.data.body;
-  const githubUrl = `https://github.com/OpenCoven/coven-docs/blob/main/content/docs/${page.path}`;
+  const githubUrl = `https://github.com/${REPO}/blob/main/content/docs/${page.path}`;
+  const issueUrl = buildIssueUrl(page);
   const lastModifiedTime = await getLastModifiedTime(page.path);
 
   return (
@@ -43,7 +65,17 @@ export default async function Page({ params }: { params: Promise<{ slug?: string
       full={page.data.full}
       tableOfContent={{ style: 'clerk' }}
     >
-      <div className="flex justify-end">
+      <div className="flex justify-end items-center gap-2">
+        <a
+          href={issueUrl}
+          target="_blank"
+          rel="noreferrer noopener"
+          aria-label="Report an issue with this page on GitHub"
+          className={`${buttonVariants({ color: 'secondary', size: 'sm' })} gap-1.5 not-prose`}
+        >
+          <Icon icon="ph:bug-duotone" width={14} aria-hidden="true" />
+          Report issue
+        </a>
         <ViewOptionsPopover githubUrl={githubUrl} />
       </div>
       <DocsTitle>{page.data.title}</DocsTitle>
