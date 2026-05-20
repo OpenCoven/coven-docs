@@ -128,21 +128,21 @@ a[aria-current="page"] {
 }
 a:hover { color: var(--coven-violet-light); }
 
-/* Keep the docs sidebar rail wide enough for Coven's labels and controls.
- * Also pin the sidebar flush to the viewport's left edge on wide screens.
- * Fumadocs' grid puts `minmax(min-content, 1fr)` gutters on BOTH sides of
- * the layout, which centers everything once the viewport exceeds
- * `--fd-layout-width` (default 97rem). Collapsing the left gutter to 0 keeps
- * the right side flexible while anchoring the sidebar to x=0. */
+/* Pin sidebar flush-left, TOC flush-right, content fills the middle.
+ * Fumadocs' default grid uses `minmax(min-content, 1fr)` gutters on both
+ * sides and caps the main column at `--fd-layout-width` (97rem default),
+ * which centers the page and leaves dead space on wide monitors. We zero
+ * both gutters and let main flex (`1fr`), so main + TOC span everything
+ * to the right of the sidebar at any viewport width. */
 @media (min-width: 768px) {
   #nd-docs-layout {
     --fd-sidebar-width: var(--coven-docs-sidebar-width) !important;
     grid-template-columns:
       0
       var(--fd-sidebar-col)
-      minmax(0, calc(var(--fd-layout-width, 97rem) - var(--fd-sidebar-width) - var(--fd-toc-width)))
+      minmax(0, 1fr)
       var(--fd-toc-width)
-      minmax(min-content, 1fr) !important;
+      0 !important;
   }
 
   #nd-docs-layout [data-sidebar-placeholder] {
@@ -180,10 +180,22 @@ aside button[class*="rounded-lg"][class*="ps-2"][class*="pe-4"] p.text-xs.text-f
   white-space: nowrap;
 }
 
-/* Code blocks */
+/* Code blocks.
+ * Fumadocs wraps <pre> in <figure class="bg-fd-card shiki ...">, which paints
+ * a lighter grey frame (#121212) around the darker inner pre (#0d0d0d). We
+ * unify the figure + pre to a single near-black so the codeblock reads as
+ * one terminal panel, with the violet hairline carrying the boundary. */
+.dark figure.shiki {
+  background: #0a0a0a !important;
+  border-color: rgba(154, 142, 205, 0.1) !important;
+}
+.dark figure.shiki pre,
 .dark pre {
-  background: #0d0d0d !important;
+  background: #0a0a0a !important;
   border: 1px solid rgba(154, 142, 205, 0.1) !important;
+}
+.dark figure.shiki pre {
+  border: 0 !important;
 }
 .dark :not(pre) > code {
   background: rgba(154, 142, 205, 0.1) !important;
