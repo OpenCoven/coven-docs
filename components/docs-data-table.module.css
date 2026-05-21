@@ -3,14 +3,18 @@
  * via the ancestor chain. Light overrides under `html.light`. */
 .shell,
 .tabbed {
-  --dt-th-fg:             rgba(245, 243, 255, 0.55);
-  --dt-th-border:         rgba(180, 170, 235, 0.14);
+  --dt-shell-bg:          rgba(154, 142, 205, 0.025);
+  --dt-shell-border:      rgba(180, 170, 235, 0.10);
+
+  --dt-th-bg:             rgba(154, 142, 205, 0.05);
+  --dt-th-fg:             rgba(245, 243, 255, 0.58);
+  --dt-th-border:         rgba(180, 170, 235, 0.18);
 
   --dt-td-fg:             rgba(245, 243, 255, 0.88);
   --dt-td-border:         rgba(180, 170, 235, 0.06);
-  --dt-row-hover:         rgba(154, 142, 205, 0.05);
+  --dt-row-hover:         rgba(154, 142, 205, 0.06);
 
-  --dt-sort-fg:           rgba(245, 243, 255, 0.42);
+  --dt-sort-fg:           rgba(245, 243, 255, 0.58);
   --dt-sort-hover-fg:     rgba(245, 243, 255, 0.95);
   --dt-sort-active-fg:    #B4AAEB;
 
@@ -24,18 +28,26 @@
 
 .shell {
   margin: 1.5rem 0 2rem;
+  background: var(--dt-shell-bg);
+  border: 1px solid var(--dt-shell-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
 }
 
 :global(html.light) .shell,
 :global(html.light) .tabbed {
-  --dt-th-fg:             rgba(31, 26, 51, 0.55);
-  --dt-th-border:         rgba(108, 90, 200, 0.18);
+  --dt-shell-bg:          rgba(108, 90, 200, 0.02);
+  --dt-shell-border:      rgba(108, 90, 200, 0.12);
+
+  --dt-th-bg:             rgba(108, 90, 200, 0.04);
+  --dt-th-fg:             rgba(31, 26, 51, 0.58);
+  --dt-th-border:         rgba(108, 90, 200, 0.20);
 
   --dt-td-fg:             rgba(31, 26, 51, 0.92);
   --dt-td-border:         rgba(108, 90, 200, 0.10);
-  --dt-row-hover:         rgba(108, 90, 200, 0.04);
+  --dt-row-hover:         rgba(108, 90, 200, 0.05);
 
-  --dt-sort-fg:           rgba(31, 26, 51, 0.4);
+  --dt-sort-fg:           rgba(31, 26, 51, 0.58);
   --dt-sort-hover-fg:     rgba(31, 26, 51, 0.92);
   --dt-sort-active-fg:    #6C5AC8;
 
@@ -67,12 +79,19 @@
   width: 1px;
 }
 
+.table thead th {
+  background: var(--dt-th-bg);
+}
+
 .table th {
   border-bottom: 1px solid var(--dt-th-border);
   color: var(--dt-th-fg);
-  font-size: 0.78rem;
-  font-weight: 500;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
   text-align: left;
+  text-transform: uppercase;
+  padding: 0.45rem 1rem;
 }
 
 .sort {
@@ -80,13 +99,16 @@
   width: 100%;
   align-items: center;
   gap: 0.4rem;
+  margin: -0.45rem -1rem;
   border: 0;
   background: transparent;
   color: inherit;
   cursor: pointer;
   font: inherit;
+  font-size: inherit;
+  font-weight: inherit;
   letter-spacing: inherit;
-  padding: 0.85rem 1rem;
+  padding: 0.45rem 1rem;
   text-align: left;
   text-transform: inherit;
   transition: color 140ms ease;
@@ -112,8 +134,8 @@
   color: var(--dt-td-fg);
   font-size: 0.88rem;
   line-height: 1.55;
-  padding: 0.78rem 1rem;
-  transition: background 140ms ease;
+  padding: 0.7rem 1rem;
+  transition: background 120ms ease;
 }
 
 .table tbody tr:last-child td {
@@ -195,7 +217,7 @@
 
   .table tr {
     display: block;
-    padding: 0.75rem 0;
+    padding: 0.75rem 1rem;
     border-bottom: 1px solid var(--dt-th-border);
   }
 
