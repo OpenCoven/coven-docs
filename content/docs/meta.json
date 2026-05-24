@@ -1,3 +1,3 @@
 {
-  "pages": ["guide", "daemon", "cli", "harnesses", "memory-models", "familiars", "reference"]
+  "pages": ["guide", "cli", "daemon", "harnesses", "familiars", "memory-models", "openapi", "reference"]
 }

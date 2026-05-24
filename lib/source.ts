@@ -13,6 +13,10 @@ const lucideIcons = {
   LuCode: icons.Code,
   LuNetwork: icons.Network,
   LuUsers: icons.Users,
+  LuServer: icons.Server,
+  LuTerminal: icons.Terminal,
+  LuCable: icons.Cable,
+  LuBrainCircuit: icons.BrainCircuit,
 };
 
 export const source = loader({

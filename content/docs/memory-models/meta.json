@@ -1,6 +1,6 @@
 {
   "title": "Memory + Models",
-  "description": "Memory layers, search, provider boundaries, and model access for persistent familiars.",
+  "description": "Memory Layers and Providers",
   "root": true,
   "icon": "LuBrainCircuit",
   "pages": [

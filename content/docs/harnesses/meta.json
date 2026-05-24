@@ -1,6 +1,6 @@
 {
   "title": "Harnesses",
-  "description": "Deep dives for Codex, Claude Code, provider auth, project roots, working directories, and adapter boundaries.",
+  "description": "Codex and Claude Code Adapters",
   "root": true,
   "icon": "LuCable",
   "pages": [
