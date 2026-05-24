@@ -3,7 +3,6 @@
 import { useMemo, useState } from 'react';
 import { useDocsSearch } from 'fumadocs-core/search/client';
 import type { SearchLink, SharedProps } from 'fumadocs-ui/contexts/search';
-import { useI18n } from 'fumadocs-ui/contexts/i18n';
 import {
   SearchDialog,
   SearchDialogClose,
@@ -27,12 +26,10 @@ export function CovenSearchDialog({
   links = [],
   ...props
 }: SharedProps & { links?: SearchLink[] }) {
-  const { locale } = useI18n();
   const [tag, setTag] = useState<string | undefined>();
   const [filterOpen, setFilterOpen] = useState(false);
   const { search, setSearch, query } = useDocsSearch({
     type: 'fetch',
-    locale,
     tag,
   });
 

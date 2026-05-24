@@ -5,8 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "npm run check:english-only && next build",
     "check:fumadocs": "node scripts/check-fumadocs-platform.mjs",
+    "check:english-only": "node scripts/check-english-only.mjs",
     "check:links": "node scripts/validate-links.mjs",
     "check:mermaid": "node scripts/check-mermaid-transform.mjs && node scripts/check-mermaid-svg-normalize.mjs",
     "export:pdf": "node scripts/export-pdf.mjs",
