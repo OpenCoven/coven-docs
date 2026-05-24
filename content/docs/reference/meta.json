@@ -5,6 +5,7 @@
   "icon": "LuCode",
   "pages": [
     "api",
+    "api-architecture",
     "auth",
     "safety",
     "glossolalia",
