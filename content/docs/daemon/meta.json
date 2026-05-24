@@ -1,0 +1,15 @@
+{
+  "title": "Daemon",
+  "description": "Process lifecycle, socket API, local trust boundary, diagnostics, and recovery.",
+  "root": true,
+  "icon": "LuServer",
+  "pages": [
+    "index",
+    "lifecycle",
+    "configuration",
+    "socket-api",
+    "security",
+    "observability",
+    "recovery-upgrades"
+  ]
+}

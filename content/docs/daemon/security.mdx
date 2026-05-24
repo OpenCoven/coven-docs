@@ -1,0 +1,88 @@
+---
+title: "Security posture"
+summary: "Same-user socket trust, daemon authority, provider credential boundaries, remote access, and destructive confirmations."
+description: "Security posture for the Coven daemon: local Unix-socket trust, daemon-owned enforcement, no stored provider credentials, remote access guidance, and explicit destructive confirmations."
+read_when:
+  - Auditing a new client or bridge
+  - Exposing Coven across machines you own
+---
+
+# Security Posture
+
+Coven's daemon security model is local-first and deliberately narrow.
+
+1. The Rust daemon is the authority.
+2. The Unix socket is same-user local trust.
+3. Coven does not store provider credentials.
+4. Destructive operations require explicit confirmation.
+
+For the broader product safety framing, see [Safety Model](/docs/reference/safety) and [Authentication and local access](/docs/reference/auth).
+
+## Daemon authority
+
+Clients can ask. The daemon decides.
+
+The daemon validates:
+
+- Project roots.
+- Working directories inside project roots.
+- Harness adapter ids.
+- Session ids.
+- Session liveness before input or kill.
+- Control-plane action ids.
+- API route version compatibility.
+
+Client-side validation is useful for better forms and friendlier errors, but it is not the trust boundary.
+
+## Same-user socket trust
+
+The daemon does not use OAuth, JWTs, bearer tokens, API keys, or browser cookies. Access is local filesystem access to:
+
+```text
+$COVEN_HOME/coven.sock
+```
+
+Anyone who can read and write that socket can act as a local Coven client. Keep `$COVEN_HOME` private to the user who owns the daemon.
+
+## Provider credentials
+
+Coven does not own model-provider credentials. Harness CLIs keep using their own login and auth stores.
+
+That boundary matters:
+
+- `codex` auth stays with Codex.
+- Claude Code auth stays with Claude Code.
+- Gemini CLI auth stays with Gemini CLI.
+- Local model configuration stays with the harness or provider runtime.
+
+Coven records session metadata and output for replay and audit, so `$COVEN_HOME` is still sensitive even though provider credentials are not copied into the daemon.
+
+## Remote access
+
+Coven does not bind TCP by default. If you need a remote daemon, put an explicit transport in front of the Unix socket and treat that transport as the auth layer.
+
+Reasonable owner-operated patterns:
+
+- SSH local forwarding to a machine you control.
+- Tailscale between your own devices.
+- A private gateway that adds authentication before touching the socket.
+
+Avoid exposing `coven.sock` directly to browsers, public networks, shared machines, or unauthenticated TCP bridges.
+
+## Destructive confirmations
+
+Destructive operations must remain explicit even when wrapped by another client:
+
+| Operation | Confirmation posture |
+| --- | --- |
+| `coven sacrifice <id> --yes` | Permanent delete requires `--yes`. |
+| Process/cache relief commands | Require explicit confirmation flags. |
+| OpenClaw patch flows | May generate patches, but v0 should not silently commit or push. |
+
+Wrappers such as OpenMeow, Cast Agent, dashboards, and OpenClaw bridges must surface the same confirmations instead of hiding them behind a prettier button.
+
+## Related
+
+- [Socket API](/docs/daemon/socket-api)
+- [Configuration and COVEN_HOME](/docs/daemon/configuration)
+- [Client Integration](/docs/familiars/clients)

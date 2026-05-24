@@ -1,0 +1,85 @@
+---
+title: "Recovery and upgrades"
+summary: "How to handle stale sockets, orphaned sessions, restart recovery, and safe daemon upgrades."
+description: "Daemon recovery and upgrade guide for Coven operators: stale sockets, orphaned PTYs, session ledger recovery, live-session checks, and safe upgrade flow."
+read_when:
+  - Cleaning up after a daemon crash
+  - Upgrading Coven without losing session context
+---
+
+# Recovery and Upgrades
+
+The daemon is responsible for recovering local state without pretending every session is still live. Treat crash recovery and upgrades as state transitions: inspect first, then restart, then reattach or replay.
+
+## Stale socket
+
+If clients cannot connect but `$COVEN_HOME/coven.sock` exists, the socket may be stale.
+
+First inspect status:
+
+```bash
+coven daemon status
+```
+
+Then try a normal restart:
+
+```bash
+coven daemon restart
+```
+
+Prefer daemon commands over manual file deletion. Manual cleanup can remove evidence needed to understand why the daemon stopped.
+
+## Orphaned sessions
+
+An orphaned session is a session record whose harness PTY is no longer attached to a live daemon process. The ledger may still be useful even when the process is gone.
+
+Clients should treat orphaned or non-live sessions as replay surfaces:
+
+- Show recorded events.
+- Preserve the session record.
+- Offer a new launch from the same project root.
+- Avoid forwarding input to a session that is not live.
+- Avoid presenting `kill` as a meaningful action after the process is gone.
+
+## Store recovery
+
+The SQLite ledger is the durable source for sessions and events. On restart, the daemon should reopen the store, preserve completed records, and avoid fabricating live status for processes it does not own.
+
+If the store cannot open:
+
+1. Stop the daemon.
+2. Check file ownership and disk space.
+3. Preserve a copy of `$COVEN_HOME` before risky repair work.
+4. Restart and verify `/api/v1/health`.
+
+## Upgrade flow
+
+Use this flow for low-drama upgrades:
+
+1. Finish or pause important live sessions.
+2. Run `coven daemon status`.
+3. Install the new Coven version.
+4. Run `coven daemon restart`.
+5. Call `GET /api/v1/health`.
+6. Confirm `apiVersion` is still the contract your clients support.
+7. Check `GET /api/v1/capabilities` before using optional features.
+
+If a breaking daemon API contract ships in the future, clients should fail closed with an update message instead of assuming older response shapes.
+
+## When to escalate
+
+Escalate with a diagnostics packet when:
+
+- Restart cannot bind the socket.
+- Health fails after restart.
+- The ledger cannot open.
+- Sessions repeatedly move to failed or orphaned state.
+- A client receives structured errors it does not understand.
+
+Include the evidence from [Observability](/docs/daemon/observability), especially status, health, capabilities, and the structured error code.
+
+## Related
+
+- [Daemon lifecycle](/docs/daemon/lifecycle)
+- [Configuration and COVEN_HOME](/docs/daemon/configuration)
+- [Socket API](/docs/daemon/socket-api)

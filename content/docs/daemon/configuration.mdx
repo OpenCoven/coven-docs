@@ -1,0 +1,81 @@
+---
+title: "Configuration and COVEN_HOME"
+summary: "How the daemon chooses its state directory, socket, ledger, metadata file, and supported configuration surface."
+description: "Daemon configuration reference for COVEN_HOME, coven.sock, coven.sqlite3, daemon.json, and the current supported knobs."
+read_when:
+  - Relocating Coven state
+  - Auditing what daemon configuration is supported today
+---
+
+# Configuration and COVEN_HOME
+
+Coven's daemon configuration surface is deliberately small. The important knob is `COVEN_HOME`, the state directory that contains the local socket, ledger, event log, and daemon metadata.
+
+## Default layout
+
+If `COVEN_HOME` is not set, Coven uses:
+
+```bash
+$HOME/.coven
+```
+
+The daemon expects this layout:
+
+| Path | Purpose |
+| --- | --- |
+| `$COVEN_HOME/coven.sock` | Unix socket for same-user local API access. |
+| `$COVEN_HOME/coven.sqlite3` | SQLite ledger for sessions and append-only events. |
+| `$COVEN_HOME/daemon.json` | Daemon metadata such as pid, start time, and socket path. |
+
+Do not commit this directory. It can contain prompts, model output, local paths, and operational metadata.
+
+## Relocate daemon state
+
+Set `COVEN_HOME` before starting or restarting the daemon:
+
+```bash
+export COVEN_HOME="$HOME/.local/share/coven"
+coven daemon restart
+```
+
+After restart, confirm the selected socket and API contract:
+
+```bash
+coven daemon status
+```
+
+Scripts that call the socket should derive the socket path from the same environment:
+
+```bash
+curl --unix-socket "$COVEN_HOME/coven.sock" \
+  http://localhost/api/v1/health
+```
+
+## Current supported knobs
+
+Supported today:
+
+| Name | Scope |
+| --- | --- |
+| `COVEN_HOME` | Moves daemon state, socket, ledger, and metadata. |
+
+Not supported as daemon configuration yet:
+
+| Name | Current posture |
+| --- | --- |
+| `coven.toml` | Do not rely on it for daemon startup behavior. |
+| `COVEN_SOCKET` | The socket path is derived from `COVEN_HOME`. |
+| `COVEN_LOG_LEVEL` | Not a stable daemon configuration contract. |
+| `COVEN_DAEMON_FOREGROUND` | Not a stable daemon configuration contract. |
+
+Those names may appear in future design discussions, but clients and operators should not depend on them until the Rust daemon documents support.
+
+## File permissions
+
+The local trust boundary depends on filesystem permissions around `$COVEN_HOME` and `coven.sock`. The daemon should keep state private to the owning user. If another user can read or write the socket, that user can act as a local Coven client.
+
+## Related
+
+- [Security posture](/docs/daemon/security)
+- [Socket API](/docs/daemon/socket-api)
+- [Troubleshooting](/docs/reference/troubleshooting)
