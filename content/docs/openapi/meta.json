@@ -1,6 +1,7 @@
 {
   "title": "API Reference",
-  "description": "Interactive reference for the Coven daemon API.",
+  "description": "Interactive Daemon API",
+  "root": true,
   "icon": "LuRocket",
   "pages": ["index", "meta", "sessions", "events", "actions"]
 }

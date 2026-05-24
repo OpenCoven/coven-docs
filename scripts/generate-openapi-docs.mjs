@@ -44,15 +44,6 @@ function frontmatter(obj) {
   return '---\n' + yaml.dump(obj, { lineWidth: -1 }) + '---\n';
 }
 
-function escapeMdxString(s) {
-  return s
-    .split(/\n\n/)[0]
-    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
-    .replace(/`([^`]+)`/g, '$1')
-    .replace(/\s+/g, ' ')
-    .trim();
-}
-
 function ensureDir(p) {
   fs.mkdirSync(p, { recursive: true });
 }
@@ -95,20 +86,21 @@ for (const tag of TAGS) {
   ensureDir(tagDir);
 
   for (const { slug, op, pathTemplate, methodLower } of pages) {
-    const description = escapeMdxString(op.description ?? op.summary ?? '');
     const body =
       frontmatter({
         title: op.summary ?? op.operationId,
-        description,
         _openapi: { method: methodLower.toUpperCase() },
       }) +
       '\n' +
       GENERATED_HEADER +
       '\n' +
-      // showTitle={false} — the MDX frontmatter title is already rendered as
-      // the page H1 by DocsPage, so we suppress APIPage's own title to avoid
-      // duplication. showDescription stays default-true so the full operation
-      // description from the spec renders inside the API block.
+      // showTitle={false} — DocsPage already renders the frontmatter title as
+      // the page H1, so we suppress APIPage's own title to avoid the duplicate
+      // H1 problem (see scripts/check-no-leading-h1.mjs). We deliberately do
+      // NOT emit a frontmatter `description`: APIPage renders the full spec
+      // description (showDescription defaults to true) below the title, and
+      // duplicating it (or its first paragraph) in the frontmatter would
+      // surface the same text twice on the rendered page.
       `<APIPage\n` +
       `  document={${JSON.stringify(DOCUMENT_ID)}}\n` +
       `  operations={[{ path: ${JSON.stringify(pathTemplate)}, method: ${JSON.stringify(methodLower)} }]}\n` +
