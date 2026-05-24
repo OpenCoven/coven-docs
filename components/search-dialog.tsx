@@ -19,7 +19,7 @@ const filters = [
   { name: 'Guide', value: 'guide', description: 'Only framework and setup guides' },
   { name: 'Familiars', value: 'familiars', description: 'Only familiar runtime docs' },
   { name: 'Reference', value: 'reference', description: 'Only API and safety reference' },
-  { name: 'Future Hosted API', value: 'openapi', description: 'Only hosted API placeholders' },
+  { name: 'API Reference', value: 'openapi', description: 'Only the interactive daemon API reference' },
 ] as const;
 
 export function CovenSearchDialog({

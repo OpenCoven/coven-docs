@@ -1,0 +1,11 @@
+{
+  "title": "Sessions",
+  "description": "Launch, inspect, and control harness sessions.",
+  "pages": [
+    "list-sessions",
+    "create-session",
+    "get-session",
+    "send-session-input",
+    "kill-session"
+  ]
+}

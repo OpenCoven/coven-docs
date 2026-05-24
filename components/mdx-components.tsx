@@ -7,8 +7,13 @@ import { Step, Steps } from 'fumadocs-ui/components/steps';
 import * as TabsComponents from 'fumadocs-ui/components/tabs';
 import { Accordion, Accordions } from 'fumadocs-ui/components/accordion';
 import { TypeTable } from 'fumadocs-ui/components/type-table';
+import { createAPIPage } from 'fumadocs-openapi/ui';
 import { Mermaid } from '@/components/mermaid';
 import { DocsDataTable } from '@/components/docs-data-table';
+import { openapi } from '@/lib/openapi';
+
+// Created once at module load; cheap because createOpenAPI lazy-loads schemas.
+const APIPage = createAPIPage(openapi);
 
 export function getMDXComponents(components?: MDXComponents): MDXComponents {
   return {
@@ -16,6 +21,7 @@ export function getMDXComponents(components?: MDXComponents): MDXComponents {
     ...TabsComponents,
     Accordion,
     Accordions,
+    APIPage,
     DocsDataTable,
     File,
     Files,

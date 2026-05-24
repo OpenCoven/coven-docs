@@ -1,0 +1,9 @@
+{
+  "title": "Meta",
+  "description": "Handshake and capability discovery. Always call `/health` first.",
+  "pages": [
+    "get-api-version",
+    "get-health",
+    "get-capabilities"
+  ]
+}

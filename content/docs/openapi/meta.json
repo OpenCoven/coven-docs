@@ -1,14 +1,7 @@
 {
-  "title": "API",
-  "description": "Future Hosted Endpoints",
+  "title": "API Reference",
+  "description": "Interactive Daemon API",
   "root": true,
   "icon": "LuRocket",
-  "pages": [
-    "overview",
-    "harnesses",
-    "familiars",
-    "sessions",
-    "memory",
-    "tools"
-  ]
+  "pages": ["index", "meta", "sessions", "events", "actions"]
 }

@@ -1,0 +1,7 @@
+{
+  "title": "Actions",
+  "description": "Control-plane action router.",
+  "pages": [
+    "route-action"
+  ]
+}

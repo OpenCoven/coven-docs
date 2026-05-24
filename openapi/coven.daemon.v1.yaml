@@ -1,0 +1,963 @@
+openapi: 3.1.0
+info:
+  title: Coven Daemon API
+  version: coven.daemon.v1
+  summary: Local HTTP-over-Unix-socket control plane for the Coven daemon.
+  description: |
+    The Coven daemon exposes a small HTTP/1.1 API over a Unix domain socket at
+    `$COVEN_HOME/coven.sock` (default `~/.coven/coven.sock`). Clients connect to
+    the socket file directly — there is no TCP listener, no TLS, and no Bearer /
+    JWT / API-key / cookie auth.
+
+    ### Trust model
+
+    Authentication is **file-system based**: anyone with read/write permission
+    on the socket can act as a client. Keep `$COVEN_HOME` private to the owning
+    user. See [Authentication and local access](/docs/reference/auth) for the
+    full posture.
+
+    ### Required handshake
+
+    1. `GET /api/v1/health` — confirm `apiVersion: "coven.daemon.v1"`.
+    2. `GET /api/v1/capabilities` — discover available adapters and action ids.
+    3. Use versioned `/api/v1/*` routes only.
+
+    ### Versioning
+
+    The current contract is the named `coven.daemon.v1` contract under
+    `/api/v1`. Additive fields are allowed inside `v1`; breaking changes require
+    a new version prefix. Always branch behavior on `error.code` rather than
+    message text.
+
+    ### Try It panels
+
+    The interactive Try It buttons on this site forward requests through a
+    Next.js route handler to your local `$COVEN_HOME/coven.sock`. They only
+    work when you are running this docs site on the same machine as a live
+    daemon. Start one with `coven daemon start` and verify with
+    `coven daemon status`.
+  contact:
+    name: OpenCoven
+    url: https://github.com/OpenCoven
+  license:
+    name: MIT
+    identifier: MIT
+
+servers:
+  - url: /api/coven-proxy/api/v1
+    description: Local daemon via the docs-site Unix socket bridge.
+
+security: []
+
+tags:
+  - name: Meta
+    description: Handshake, capability discovery, and version metadata. Call `/health` before assuming any other response shape.
+  - name: Sessions
+    description: Launch, inspect, and control harness sessions.
+  - name: Events
+    description: Append-only event log for one session.
+  - name: Actions
+    description: Control-plane action router. Only known action ids are accepted; unknown ids fail closed.
+
+paths:
+  /api-version:
+    get:
+      tags: [Meta]
+      operationId: getApiVersion
+      summary: Read route-prefix version metadata
+      description: |
+        Returns the route-prefix version and the set of supported route-prefix
+        versions. Lower-level than `/health` — use this only when debugging
+        route-prefix support.
+
+        For normal client handshakes, use [`GET /health`](#tag/meta/get/health)
+        instead.
+      responses:
+        '200':
+          description: Route-prefix version metadata.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiVersion'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+
+  /health:
+    get:
+      tags: [Meta]
+      operationId: getHealth
+      summary: Daemon health and contract handshake
+      description: |
+        Required compatibility handshake. Returns the named API contract
+        version (`coven.daemon.v1`), the installed Coven binary version,
+        machine-readable capabilities, and optional daemon metadata.
+
+        Clients should treat `apiVersion: "coven.daemon.v1"` as the stable
+        contract guard. `covenVersion` is diagnostics-only — do not branch
+        compatibility on a binary version alone.
+
+        When no daemon metadata is available, `daemon` is `null`.
+      responses:
+        '200':
+          description: Daemon is reachable and ready.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Health'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+
+  /capabilities:
+    get:
+      tags: [Meta]
+      operationId: getCapabilities
+      summary: Discover daemon and control-plane capabilities
+      description: |
+        Returns capability ids, adapter ownership, availability, policy hints,
+        and the action ids each capability exposes. Use this before hard-coding
+        action ids or assuming a harness is available.
+      responses:
+        '200':
+          description: Catalog of capabilities advertised by this daemon.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Capabilities'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+
+  /actions:
+    post:
+      tags: [Actions]
+      operationId: routeAction
+      summary: Route a control-plane action
+      description: |
+        Accepts a structured intent envelope. The daemon routes only known
+        action ids; unknown actions fail closed before any adapter can run.
+
+        Immediately-completed safe actions return `200` with an event-shaped
+        payload that clients can render optimistically or fold into later
+        event streams.
+
+        Known action ids (as of `coven.daemon.v1`):
+        - `coven.capabilities.refresh`
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ActionRequest'
+      responses:
+        '200':
+          description: Action was accepted and completed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActionResponse'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '404':
+          $ref: '#/components/responses/UnknownAction'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+
+  /sessions:
+    get:
+      tags: [Sessions]
+      operationId: listSessions
+      summary: List active sessions
+      description: |
+        Returns all active, non-archived sessions known to this daemon.
+
+        Archived sessions are excluded; surface them through the CLI via
+        `coven sessions --all` or via tooling that calls this endpoint twice
+        (with and without archived filtering).
+      responses:
+        '200':
+          description: List of active sessions.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SessionRecord'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+    post:
+      tags: [Sessions]
+      operationId: createSession
+      summary: Launch a session
+      description: |
+        Creates a session record and spawns the requested harness inside a PTY.
+        The daemon validates `projectRoot` and `cwd` (cwd must canonicalize
+        inside the project root), allowlists `harness`, and emits output/exit
+        events to the session's event log.
+
+        Provider credentials are NOT part of this request. Codex, Claude Code,
+        and future harnesses keep their own local auth flows.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSessionRequest'
+      responses:
+        '200':
+          description: Session created and harness launched.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionRecord'
+        '400':
+          description: Request was malformed or violated project-root boundaries.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+              examples:
+                projectRootViolation:
+                  summary: cwd outside project root
+                  value:
+                    error:
+                      code: project_root_violation
+                      message: cwd must canonicalize inside project root.
+                      details:
+                        projectRoot: /Users/example/project
+                        cwd: /tmp/somewhere-else
+                invalidHarness:
+                  summary: Unsupported harness id
+                  value:
+                    error:
+                      code: invalid_request
+                      message: Harness "gpt-9" is not supported.
+                      details:
+                        harness: gpt-9
+                        supportedHarnesses: [codex, claude]
+        '500':
+          description: The harness PTY could not be launched.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+              example:
+                error:
+                  code: pty_spawn_failed
+                  message: Could not spawn harness PTY.
+                  details:
+                    harness: codex
+                    cause: ENOENT
+        '503':
+          $ref: '#/components/responses/RuntimeUnavailable'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+
+  /sessions/{id}:
+    parameters:
+      - $ref: '#/components/parameters/SessionId'
+    get:
+      tags: [Sessions]
+      operationId: getSession
+      summary: Fetch one session
+      description: |
+        Returns the session record for the given id. Returns
+        `404 session_not_found` for unknown ids.
+      responses:
+        '200':
+          description: The session record.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionRecord'
+        '404':
+          $ref: '#/components/responses/SessionNotFound'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+
+  /sessions/{id}/input:
+    parameters:
+      - $ref: '#/components/parameters/SessionId'
+    post:
+      tags: [Sessions]
+      operationId: sendSessionInput
+      summary: Forward input to a live session
+      description: |
+        Forwards an input chunk to the PTY of a daemon-verified live session.
+        Accepted input is appended to the session's event log as an `input`
+        event.
+
+        Only `running` sessions accept input. Completed, failed, killed,
+        archived, or orphaned sessions are replay/log surfaces — sending input
+        to them returns `409 session_not_live`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SessionInputRequest'
+      responses:
+        '202':
+          description: Input was accepted and forwarded to the PTY.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionActionResponse'
+        '404':
+          $ref: '#/components/responses/SessionNotFound'
+        '409':
+          $ref: '#/components/responses/SessionNotLive'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+
+  /sessions/{id}/kill:
+    parameters:
+      - $ref: '#/components/parameters/SessionId'
+    post:
+      tags: [Sessions]
+      operationId: killSession
+      summary: Kill a live session
+      description: |
+        Terminates the harness process of a daemon-verified live session. The
+        daemon transitions the session status to `killed` and writes a `kill`
+        event to the session's event log.
+
+        Killing is not the same as deleting history. Use the lifecycle commands
+        `coven archive`, `coven summon`, and `coven sacrifice` for record
+        management.
+      responses:
+        '202':
+          description: Kill request was accepted.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionActionResponse'
+        '404':
+          $ref: '#/components/responses/SessionNotFound'
+        '409':
+          $ref: '#/components/responses/SessionNotLive'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+
+  /events:
+    get:
+      tags: [Events]
+      operationId: listEvents
+      summary: Read append-only session events
+      description: |
+        Returns a page of append-only events for a single session. Events have
+        a monotonic `seq` value; persist `nextCursor.afterSeq` to resume
+        incremental reads across daemon restarts.
+
+        Output and exit data remain replayable via events even after the
+        harness process exits — the daemon's event log is the source of truth
+        for session history.
+      parameters:
+        - name: sessionId
+          in: query
+          required: true
+          description: Session id whose events should be returned.
+          schema:
+            type: string
+            examples: [session-1]
+        - name: afterSeq
+          in: query
+          required: false
+          description: Preferred cursor. Returns events with `seq > afterSeq`.
+          schema:
+            type: integer
+            minimum: 0
+            examples: [41]
+        - name: afterEventId
+          in: query
+          required: false
+          description: Compatibility cursor, resolved by the daemon to a sequence position.
+          schema:
+            type: string
+            examples: [event-41]
+        - name: limit
+          in: query
+          required: false
+          description: Maximum number of events to return. The daemon enforces a maximum of 1000.
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 1000
+            default: 100
+      responses:
+        '200':
+          description: A page of events.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventsResponse'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '404':
+          $ref: '#/components/responses/SessionNotFound'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+
+components:
+  parameters:
+    SessionId:
+      name: id
+      in: path
+      required: true
+      description: The session id (stable across daemon restarts).
+      schema:
+        type: string
+        examples: [session-1]
+
+  responses:
+    InvalidRequest:
+      description: The request was malformed.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+          example:
+            error:
+              code: invalid_request
+              message: Required field "sessionId" is missing.
+              details:
+                field: sessionId
+    UnknownAction:
+      description: The action id is not known to this daemon.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+          example:
+            error:
+              code: invalid_request
+              message: Unknown control-plane action id.
+              details:
+                action: coven.unknown.thing
+    SessionNotFound:
+      description: No session exists with the given id.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+          example:
+            error:
+              code: session_not_found
+              message: Session was not found.
+              details:
+                sessionId: session-1
+    SessionNotLive:
+      description: |
+        The session exists but cannot accept input or kill — it is not running
+        in this daemon (e.g., already completed, failed, killed, orphaned, or
+        archived).
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+          example:
+            error:
+              code: session_not_live
+              message: Session is not live.
+              details:
+                sessionId: session-1
+                status: completed
+    RuntimeUnavailable:
+      description: The session runtime is unavailable.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+          example:
+            error:
+              code: runtime_unavailable
+              message: Session runtime is unavailable.
+              details: {}
+    UnexpectedError:
+      description: |
+        Catch-all for any other failure. The daemon may return `internal_error`
+        (500) for unhandled exceptions, `not_found` (404) for unknown routes,
+        or — through the docs-site bridge — `daemon_unreachable` (503) when no
+        daemon is listening on the socket. Branch on `error.code`.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+          example:
+            error:
+              code: internal_error
+              message: Unexpected internal daemon error.
+              details: {}
+
+  schemas:
+    ApiVersion:
+      type: object
+      description: Route-prefix version metadata. Distinct from the named contract version returned by `/health`.
+      required: [apiVersion, supportedApiVersions]
+      properties:
+        apiVersion:
+          type: string
+          description: The currently-served route-prefix version.
+          examples: [v1]
+        supportedApiVersions:
+          type: array
+          description: All route-prefix versions this daemon will serve.
+          items:
+            type: string
+          examples:
+            - [v1]
+      examples:
+        - apiVersion: v1
+          supportedApiVersions: [v1]
+
+    Health:
+      type: object
+      description: Daemon health and contract handshake.
+      required: [ok, apiVersion, covenVersion, capabilities, daemon]
+      properties:
+        ok:
+          type: boolean
+          description: Liveness flag. Always `true` when the response is delivered.
+        apiVersion:
+          type: string
+          description: Named API contract version. Compare against `coven.daemon.v1`.
+          const: coven.daemon.v1
+        covenVersion:
+          type: string
+          description: Installed Coven binary version (e.g., `0.0.0`). Diagnostics-only.
+        capabilities:
+          $ref: '#/components/schemas/HealthCapabilities'
+        daemon:
+          oneOf:
+            - $ref: '#/components/schemas/DaemonMetadata'
+            - type: 'null'
+          description: Daemon process metadata, or `null` when unavailable.
+      examples:
+        - ok: true
+          apiVersion: coven.daemon.v1
+          covenVersion: 0.0.0
+          capabilities:
+            sessions: true
+            events: true
+            eventCursor: sequence
+            structuredErrors: true
+          daemon:
+            pid: 12345
+            startedAt: 2026-05-09T12:00:00Z
+            socket: /Users/example/.coven/coven.sock
+
+    HealthCapabilities:
+      type: object
+      description: Machine-readable capability flags. Additional fields may be added in `v1`; clients should ignore unknown keys.
+      required: [sessions, events, eventCursor, structuredErrors]
+      properties:
+        sessions:
+          type: boolean
+          description: Whether `/sessions` endpoints are served.
+        events:
+          type: boolean
+          description: Whether `/events` is served.
+        eventCursor:
+          type: string
+          description: Event cursor strategy. Only `sequence` is defined in `coven.daemon.v1`.
+          enum: [sequence]
+        structuredErrors:
+          type: boolean
+          description: Whether failure responses use the `ErrorEnvelope` shape (always `true` in `coven.daemon.v1`).
+
+    DaemonMetadata:
+      type: object
+      description: Process metadata for the daemon currently serving this socket.
+      required: [pid, startedAt, socket]
+      properties:
+        pid:
+          type: integer
+          minimum: 1
+          description: Daemon process id on this host.
+        startedAt:
+          type: string
+          format: date-time
+          description: ISO-8601 timestamp of when the daemon began serving.
+        socket:
+          type: string
+          description: Absolute path to the Unix socket that served the request.
+
+    Capabilities:
+      type: object
+      description: Catalog of capabilities advertised by this daemon.
+      required: [capabilities]
+      properties:
+        capabilities:
+          type: array
+          items:
+            $ref: '#/components/schemas/Capability'
+      examples:
+        - capabilities:
+            - id: coven.control.actions
+              label: Coven control-plane action router
+              adapter: coven-daemon
+              status: available
+              policy: allow
+              actions: [coven.capabilities.refresh]
+            - id: desktop.automation
+              label: Desktop automation adapters
+              adapter: desktop-use
+              status: planned
+              policy: requiresApproval
+              actions: []
+
+    Capability:
+      type: object
+      required: [id, label, adapter, status, policy, actions]
+      properties:
+        id:
+          type: string
+          description: Stable capability id (reverse-DNS style).
+          examples: [coven.control.actions]
+        label:
+          type: string
+          description: Human-readable capability label.
+          examples: [Coven control-plane action router]
+        adapter:
+          type: string
+          description: Name of the adapter that owns this capability.
+          examples: [coven-daemon]
+        status:
+          type: string
+          description: Whether the capability is usable right now.
+          enum: [available, planned]
+        policy:
+          type: string
+          description: Policy hint clients should respect before invoking actions.
+          enum: [allow, requiresApproval]
+        actions:
+          type: array
+          description: Action ids this capability exposes via `/actions`.
+          items:
+            type: string
+
+    ActionRequest:
+      type: object
+      required: [action, origin, args]
+      properties:
+        action:
+          type: string
+          description: Known control-plane action id.
+          examples: [coven.capabilities.refresh]
+        origin:
+          type: string
+          description: Caller identifier, for audit and event correlation.
+          examples: [coven-client]
+        args:
+          type: object
+          description: Action-specific arguments. May be empty.
+          additionalProperties: true
+      examples:
+        - action: coven.capabilities.refresh
+          origin: coven-client
+          args: {}
+
+    ActionResponse:
+      type: object
+      required: [ok, accepted, action, status, event]
+      properties:
+        ok:
+          type: boolean
+        accepted:
+          type: boolean
+        action:
+          type: string
+          description: Echo of the action id that was routed.
+        status:
+          type: string
+          enum: [completed]
+          description: Lifecycle status of the action. Only `completed` is returned for immediately-completed safe actions in `coven.daemon.v1`.
+        event:
+          $ref: '#/components/schemas/ActionEvent'
+      examples:
+        - ok: true
+          accepted: true
+          action: coven.capabilities.refresh
+          status: completed
+          event:
+            kind: capabilities.refreshed
+            action: coven.capabilities.refresh
+            origin: coven-client
+            payload:
+              capabilities: 3
+
+    ActionEvent:
+      type: object
+      required: [kind, action, origin, payload]
+      properties:
+        kind:
+          type: string
+          description: Event kind that this action produced (e.g., `capabilities.refreshed`).
+        action:
+          type: string
+          description: Echo of the action id.
+        origin:
+          type: string
+          description: Echo of the caller identifier.
+        payload:
+          type: object
+          description: Action-specific result payload.
+          additionalProperties: true
+
+    SessionRecord:
+      type: object
+      description: |
+        The Rust daemon's `SessionRecord` shape. Field names use snake_case.
+      required:
+        - id
+        - project_root
+        - harness
+        - title
+        - status
+        - exit_code
+        - archived_at
+        - created_at
+        - updated_at
+      properties:
+        id:
+          type: string
+          examples: [session-1]
+        project_root:
+          type: string
+          description: Absolute canonical project root path on this host.
+          examples: [/Users/example/project]
+        harness:
+          type: string
+          description: Harness id this session was launched with.
+          examples: [codex]
+        title:
+          type: string
+          description: Human-readable session title.
+        status:
+          $ref: '#/components/schemas/SessionStatus'
+        exit_code:
+          type: [integer, 'null']
+          description: Process exit code if the harness exited; `null` while running or not yet exited.
+          examples: [null]
+        archived_at:
+          type: [string, 'null']
+          format: date-time
+          description: ISO-8601 timestamp of archival, or `null` if active.
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      examples:
+        - id: session-1
+          project_root: /Users/example/project
+          harness: codex
+          title: Fix failing tests
+          status: running
+          exit_code: null
+          archived_at: null
+          created_at: 2026-05-09T06:43:00Z
+          updated_at: 2026-05-09T06:43:05Z
+
+    SessionStatus:
+      type: string
+      description: |
+        Session lifecycle state machine values:
+        - `created`: record exists, harness not yet running.
+        - `running`: harness PTY is active.
+        - `completed`: harness exited with code 0.
+        - `failed`: setup or non-zero exit.
+        - `killed`: live kill request was accepted.
+        - `orphaned`: previous daemon stopped while running.
+      enum: [created, running, completed, failed, killed, orphaned]
+
+    CreateSessionRequest:
+      type: object
+      required: [projectRoot, cwd, harness, prompt, title]
+      properties:
+        projectRoot:
+          type: string
+          description: Absolute path to the project root. Will be canonicalized by the daemon.
+          examples: [/Users/example/project]
+        cwd:
+          type: string
+          description: Working directory for the harness. Must canonicalize inside `projectRoot`.
+          examples: [/Users/example/project]
+        harness:
+          type: string
+          description: Supported harness id (`codex` or `claude` in `coven.daemon.v1`).
+          examples: [codex]
+        prompt:
+          type: string
+          description: Task text passed to the harness as its final argv argument.
+          examples: [Fix the failing tests]
+        title:
+          type: string
+          description: Readable session title for UI.
+          examples: [Fix failing tests]
+      examples:
+        - projectRoot: /Users/example/project
+          cwd: /Users/example/project
+          harness: codex
+          prompt: Fix the failing tests
+          title: Fix failing tests
+
+    SessionInputRequest:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: string
+          description: Raw input bytes (UTF-8) to forward to the harness PTY. Include trailing newlines explicitly.
+          examples:
+            - "continue with the next failing test\n"
+      examples:
+        - data: "continue with the next failing test\n"
+
+    SessionActionResponse:
+      type: object
+      description: Acknowledgement that a live-session control request was accepted.
+      required: [ok, accepted]
+      properties:
+        ok:
+          type: boolean
+        accepted:
+          type: boolean
+      examples:
+        - ok: true
+          accepted: true
+
+    EventsResponse:
+      type: object
+      required: [events, nextCursor, hasMore]
+      properties:
+        events:
+          type: array
+          items:
+            $ref: '#/components/schemas/EventRecord'
+        nextCursor:
+          oneOf:
+            - $ref: '#/components/schemas/EventCursor'
+            - type: 'null'
+          description: |
+            Cursor to read the next page. `null` when there are no events.
+            Persist `nextCursor.afterSeq` to resume across restarts.
+        hasMore:
+          type: boolean
+          description: Whether more events follow the returned page.
+      examples:
+        - events:
+            - seq: 42
+              id: event-1
+              session_id: session-1
+              kind: output
+              payload_json: "{\"data\":\"hello\"}"
+              created_at: 2026-05-09T06:43:10Z
+          nextCursor:
+            afterSeq: 42
+          hasMore: false
+
+    EventRecord:
+      type: object
+      required: [seq, id, session_id, kind, payload_json, created_at]
+      properties:
+        seq:
+          type: integer
+          minimum: 0
+          description: Monotonic sequence number, scoped to this daemon's event log.
+        id:
+          type: string
+          description: Stable event id, useful for compatibility cursors.
+          examples: [event-1]
+        session_id:
+          type: string
+          examples: [session-1]
+        kind:
+          $ref: '#/components/schemas/EventKind'
+        payload_json:
+          type: string
+          description: |
+            Event payload, encoded as a JSON string. Shape depends on `kind`.
+            Decode client-side rather than mixing schemas across kinds.
+          examples:
+            - "{\"data\":\"hello\"}"
+        created_at:
+          type: string
+          format: date-time
+
+    EventKind:
+      type: string
+      description: |
+        - `output`: data written by the harness PTY (stdout/stderr combined).
+        - `input`: data forwarded via `/sessions/{id}/input`.
+        - `status`: session status transitions.
+        - `exit`: harness process exit notification.
+        - `kill`: a live kill was accepted.
+        - `capabilities.refreshed`: emitted by `coven.capabilities.refresh`.
+      enum:
+        - output
+        - input
+        - status
+        - exit
+        - kill
+        - capabilities.refreshed
+
+    EventCursor:
+      type: object
+      description: |
+        Cursor returned by `/events`. Persist `afterSeq` to resume from the
+        same point after a daemon restart.
+      required: [afterSeq]
+      properties:
+        afterSeq:
+          type: integer
+          minimum: 0
+          examples: [42]
+
+    ErrorEnvelope:
+      type: object
+      description: |
+        Standard structured error envelope. All API failures use this shape.
+        Clients should branch on `error.code`, not message text.
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message, details]
+          properties:
+            code:
+              $ref: '#/components/schemas/ErrorCode'
+            message:
+              type: string
+              description: Human-readable diagnostic; do not parse.
+            details:
+              type: object
+              description: Structured details specific to the error code. May be empty.
+              additionalProperties: true
+      examples:
+        - error:
+            code: session_not_found
+            message: Session was not found.
+            details:
+              sessionId: session-1
+
+    ErrorCode:
+      type: string
+      description: |
+        Stable daemon error code. Branch client behavior on this value:
+        - `not_found` (404): Route not found.
+        - `invalid_request` (400/404): Malformed request, unsupported API version, or unknown control action.
+        - `session_not_found` (404): Session id does not exist.
+        - `session_not_live` (409): Session exists but cannot accept input or kill (not running in this daemon).
+        - `project_root_violation` (400): cwd resolves outside the declared project root.
+        - `pty_spawn_failed` (500): Harness PTY could not be launched.
+        - `runtime_unavailable` (503): The session runtime is unavailable.
+        - `internal_error` (500): Unexpected internal daemon error.
+      enum:
+        - not_found
+        - invalid_request
+        - session_not_found
+        - session_not_live
+        - project_root_violation
+        - pty_spawn_failed
+        - runtime_unavailable
+        - internal_error
