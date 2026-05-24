@@ -1,14 +1,6 @@
 {
-  "title": "API",
-  "description": "Future Hosted Endpoints",
-  "root": true,
+  "title": "API Reference",
+  "description": "Interactive reference for the Coven daemon API.",
   "icon": "LuRocket",
-  "pages": [
-    "overview",
-    "harnesses",
-    "familiars",
-    "sessions",
-    "memory",
-    "tools"
-  ]
+  "pages": ["index", "meta", "sessions", "events", "actions"]
 }
