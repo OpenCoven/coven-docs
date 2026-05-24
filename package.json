@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "next dev",
-    "build": "npm run check:english-only && npm run check:no-leading-h1 && npm run check:daemon-docs && npm run check:cli-docs && npm run check:harness-docs && npm run check:memory-models-docs && next build",
+    "build": "npm run check:english-only && npm run check:no-leading-h1 && npm run check:daemon-docs && npm run check:cli-docs && npm run check:harness-docs && npm run check:memory-models-docs && npm run openapi:samples && next build",
     "check:fumadocs": "node scripts/check-fumadocs-platform.mjs",
     "check:english-only": "node scripts/check-english-only.mjs",
     "check:no-leading-h1": "node scripts/check-no-leading-h1.mjs",
