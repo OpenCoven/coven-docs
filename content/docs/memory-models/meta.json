@@ -1,0 +1,20 @@
+{
+  "title": "Memory + Models",
+  "description": "Memory layers, search, provider boundaries, and model access for persistent familiars.",
+  "root": true,
+  "icon": "LuBrainCircuit",
+  "pages": [
+    "index",
+    "memory",
+    "working-memory",
+    "persistent-memory",
+    "episodic-memory",
+    "semantic-memory",
+    "memory-search",
+    "models",
+    "provider-boundary",
+    "openai",
+    "anthropic",
+    "local-models"
+  ]
+}

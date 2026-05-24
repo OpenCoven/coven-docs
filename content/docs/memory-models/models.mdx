@@ -1,0 +1,31 @@
+---
+title: "Models"
+summary: "Coven is not a model gateway. Harnesses own model provider access."
+description: "Model access overview for Coven: OpenAI through Codex, Anthropic through Claude Code, local models through future harnesses, and no daemon credential ownership."
+read_when:
+  - Auditing where model calls happen
+  - Deciding how a familiar should reach a provider
+---
+
+# Models
+
+Coven is not a model gateway. It does not store provider credentials, route model API calls, or mint provider tokens. A familiar reaches models through a harness.
+
+## Current model paths
+
+| Provider path | Current posture |
+| --- | --- |
+| OpenAI | Through the [Codex harness](/docs/harnesses/codex). |
+| Anthropic | Through the [Claude Code harness](/docs/harnesses/claude-code). |
+| Google | Future adapter direction; not current v0 support. |
+| Local models | Future/local harness direction; not a daemon credential feature. |
+
+## What Coven sees
+
+Coven sees harness process output and exits. It does not see provider API requests unless the harness prints them. It does not need API keys to launch a session.
+
+## Client rule
+
+Clients should not pass model credentials into Coven. They should launch a harness whose provider auth is already complete and let the harness call the provider.
+
+For the exact credential boundary, see [Provider boundary](/docs/memory-models/provider-boundary) and [Harness provider auth](/docs/harnesses/provider-auth).

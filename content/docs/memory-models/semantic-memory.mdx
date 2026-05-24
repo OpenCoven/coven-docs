@@ -1,0 +1,30 @@
+---
+title: "Semantic Memory"
+summary: "Semantic memory uses embeddings or related indexing to recall concepts, patterns, and similar past work."
+description: "Semantic memory for meaning-based recall across sessions, docs, project notes, and familiar history."
+read_when:
+  - Adding concept-based recall
+  - Deciding when embeddings help more than keyword search
+---
+
+# Semantic Memory
+
+Semantic memory is meaning-based recall. It helps a familiar find related past work even when the exact words differ.
+
+## What it is good for
+
+- Similar debugging patterns.
+- Related architecture decisions.
+- Past docs sections about the same concept.
+- Project conventions expressed in different language.
+- Research notes and long-running themes.
+
+## What it is not
+
+Semantic memory is not an authority source by itself. It returns likely relevant material. The familiar should still read the underlying note, event, or document before acting on it.
+
+## Backend posture
+
+Coven does not require one embedding database or hosted vector store. A client can use SQLite extensions, local vector indexes, or a hosted backend. The important contract is that memory search returns bounded, attributable context instead of dumping unrestricted private history.
+
+For model-provider credential boundaries, see [Provider boundary](/docs/memory-models/provider-boundary).

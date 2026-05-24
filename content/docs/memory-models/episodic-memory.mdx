@@ -1,0 +1,31 @@
+---
+title: "Episodic Memory"
+summary: "Episodic memory records specific events, sessions, decisions, outcomes, and evidence."
+description: "Episodic memory for OpenCoven familiars: remembering concrete past work without flattening it into generic facts."
+read_when:
+  - Recording what happened in a session
+  - Looking for previous decisions, merges, releases, or incidents
+---
+
+# Episodic Memory
+
+Episodic memory remembers specific events. It answers "what happened?" and "when did we decide that?"
+
+## Examples
+
+- A docs PR merged and production deployed.
+- A daemon issue was traced to stale socket metadata.
+- A release failed because a provider token expired.
+- A design decision was made after comparing alternatives.
+
+## Relationship to the event log
+
+The session ledger and event log are the raw evidence. Episodic memory is the human-sized summary: enough detail to recover the story, with links or ids back to the source when useful.
+
+Do not replace evidence with vibes. A good episodic note names concrete dates, PRs, commits, commands, or symptoms when they matter.
+
+## Promotion
+
+Episodic memory can later become persistent memory when the lesson is durable. For example, "PR #6 deployed" is episodic; "docs PRs need red/green guards before merge" may become persistent process memory.
+
+See [Memory search](/docs/memory-models/memory-search) for recall patterns.

@@ -1,0 +1,41 @@
+---
+title: "Memory"
+summary: "The four-layer memory model for persistent familiars: working, persistent, episodic, and semantic."
+description: "Memory overview for OpenCoven familiars and how memory relates to Coven sessions, event logs, and client-owned recall."
+read_when:
+  - You need to explain how familiars remember
+  - You are choosing which memory layer a feature should write to
+---
+
+# Memory
+
+Coven's daemon records what happened. A familiar's memory layer decides what should be remembered, summarized, searched, and loaded into future sessions.
+
+The daemon does not enforce one memory backend. It gives clients a durable session ledger and event log. Familiar layers can build working, persistent, episodic, and semantic memory on top.
+
+## Four memory layers
+
+| Layer | Scope | Examples |
+| --- | --- | --- |
+| Working memory | One active session or task | Current goal, active files, constraints, recent turns. |
+| Persistent memory | Cross-session durable facts | User preferences, familiar identity, project conventions. |
+| Episodic memory | Specific events and outcomes | PR #6 merged, release succeeded, incident root cause found. |
+| Semantic memory | Meaning-based recall | Similar past debugging patterns, docs topics, architecture concepts. |
+
+## What the daemon provides
+
+The daemon provides:
+
+- Session records.
+- Append-only events.
+- Project-rooted harness context.
+- Attach and replay behavior.
+- Local socket access for clients.
+
+Memory lives above that. A client can summarize a session into persistent memory, index event text into semantic memory, or load selected memories back into a familiar prompt.
+
+## Related
+
+- [Session lifecycle](/docs/familiars/sessions)
+- [Memory search](/docs/memory-models/memory-search)
+- [Familiars](/docs/familiars/sessions)

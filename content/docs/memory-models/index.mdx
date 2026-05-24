@@ -1,0 +1,45 @@
+---
+title: "Memory + Models"
+summary: "How persistent familiars remember across sessions and reach model providers without making Coven a credential gateway."
+description: "Overview of Coven memory layers, memory search, model access, provider boundaries, and current OpenAI/Anthropic/local model posture."
+read_when:
+  - Designing continuity for a familiar
+  - Auditing whether Coven stores model credentials
+---
+
+import { Mermaid } from '@/components/mermaid';
+
+# Memory + Models
+
+Memory is what turns a one-off harness session into a persistent familiar. Models are the provider side of that familiar's reasoning, but Coven does not become a model gateway. The durable runtime boundary is: Coven records sessions and events; clients/familiars derive memory from those events; harnesses own provider auth and model access.
+
+<Mermaid chart={`
+flowchart LR
+  Session[Coven session] --> Ledger[(session ledger + event log)]
+  Ledger --> Memory[Memory layer]
+  Memory --> Working[Working memory]
+  Memory --> Persistent[Persistent memory]
+  Memory --> Episodic[Episodic memory]
+  Memory --> Semantic[Semantic memory]
+  Familiar[Familiar] --> Memory
+  Familiar --> Harness[Harness]
+  Harness --> Provider[Model provider]
+`} />
+
+## Section map
+
+- [Memory overview](/docs/memory-models/memory) defines the four memory layers.
+- [Working memory](/docs/memory-models/working-memory) covers in-session context.
+- [Persistent memory](/docs/memory-models/persistent-memory) covers durable facts and identity.
+- [Episodic memory](/docs/memory-models/episodic-memory) covers specific sessions, decisions, and outcomes.
+- [Semantic memory](/docs/memory-models/semantic-memory) covers embeddings and meaning-based recall.
+- [Memory search](/docs/memory-models/memory-search) covers keyword and semantic lookup.
+- [Models](/docs/memory-models/models) explains why Coven is not a model gateway.
+- [Provider boundary](/docs/memory-models/provider-boundary) names the credential boundary.
+- [OpenAI](/docs/memory-models/openai), [Anthropic](/docs/memory-models/anthropic), and [Local models](/docs/memory-models/local-models) cover provider-specific paths.
+
+## Related
+
+- [Session lifecycle](/docs/familiars/sessions)
+- [Harness provider auth](/docs/harnesses/provider-auth)
+- [Authentication and local access](/docs/reference/auth)
