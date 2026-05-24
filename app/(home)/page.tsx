@@ -164,7 +164,7 @@ export default function HomePage() {
 
           {/* Command */}
           <div className={s.installCommand}>
-            create opencoven-app
+            npm i -g @opencoven/cli
           </div>
 
           {/* Guide link */}
