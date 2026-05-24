@@ -4,10 +4,13 @@ summary: "A harness is a PTY-driven adapter for one external coding-agent CLI."
 description: "Definition of a Coven harness and the boundary between harnesses, familiars, clients, and the daemon."
 read_when:
   - You are new to Coven terminology
+  - You need to explain why a harness is not the same thing as Coven itself
   - You need to explain why a harness is not the same thing as a familiar
 ---
 
 A harness is a coding-agent CLI that Coven can run as a supervised process. The harness is not the daemon, not a familiar, and not the user interface. It is the external agent runtime that receives a prompt and works inside a PTY.
+
+**Coven is not a harness.** Coven is the substrate that harnesses run within. It provides enforced project boundaries, supervised PTY lifecycle, session records, event logs, and a unified local API — so that any harness can operate in a well-defined, auditable, reproducible way without each one needing to reinvent lifecycle management, boundary enforcement, or client access.
 
 ## Boundary map
 
