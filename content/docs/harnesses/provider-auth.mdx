@@ -1,0 +1,49 @@
+---
+title: "Provider Auth Boundary"
+summary: "Provider credentials stay with each harness CLI. Coven never stores, proxies, or mints provider tokens."
+description: "Security boundary for OpenAI, Anthropic, and future provider credentials when running harnesses through Coven."
+read_when:
+  - Auditing where OpenAI or Anthropic credentials live
+  - Deciding whether a client should send provider tokens to Coven
+---
+
+import { Mermaid } from '@/components/mermaid';
+
+# Provider Auth Boundary
+
+Provider credentials stay with the harness. Coven supervises a PTY; it does not become OpenAI, Anthropic, or any future provider's credential layer.
+
+## Rule
+
+Coven never stores, proxies, persists, or mints provider credentials.
+
+| Harness id | Login command | Credential owner |
+| --- | --- | --- |
+| `codex` | `codex login` | Codex CLI and OpenAI's local auth flow |
+| `claude` | `claude doctor` | Claude Code and Anthropic's local auth flow |
+
+## Credential path
+
+<Mermaid chart={`
+flowchart LR
+  User[Developer] --> Login["codex login / claude doctor"]
+  Login --> Store[(Provider credential store)]
+  User --> Run["coven run codex prompt"]
+  Run --> Daemon[Coven daemon]
+  Daemon --> Pty[Harness PTY]
+  Pty --> Store
+  Pty --> Provider[Provider API]
+  Daemon -. never reads .-> Store
+`} />
+
+The missing arrow is the important part: the daemon does not read the provider credential store.
+
+## What the daemon sees
+
+The daemon sees PTY output and process exits. If the harness prints an auth error, Coven records that output like any other session output. If a user asks a harness to print a secret, that output can land in the event log. This is a user-side safety rule, not provider-token support in Coven.
+
+## What clients must not do
+
+Clients should not add provider-token fields to Coven requests. The socket API does not need API keys, OAuth refresh tokens, bearer tokens, or account ids to launch a session.
+
+Use [Authentication and local access](/docs/reference/auth) for the daemon access model and [Daemon security posture](/docs/daemon/security) for the local trust boundary.

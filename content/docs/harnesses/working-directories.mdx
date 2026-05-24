@@ -1,0 +1,43 @@
+---
+title: "Working Directories"
+summary: "A harness cwd must canonicalize inside the resolved project root."
+description: "How Coven handles --cwd for harness sessions and why working directories cannot escape the project boundary."
+read_when:
+  - Choosing a subdirectory for a harness run
+  - Debugging cwd validation failures
+---
+
+# Working Directories
+
+A working directory is the directory where the harness process starts. Coven lets you choose one with `--cwd`, but it must resolve inside the project root.
+
+```bash
+cd /path/to/project
+coven run codex "audit the API package" --cwd packages/api
+```
+
+## Validation rule
+
+The effective working directory must canonicalize inside the session's project root.
+
+| Input | Expected result |
+| --- | --- |
+| `--cwd packages/api` | Allowed when `packages/api` is inside the project root. |
+| `--cwd .` | Allowed; starts from the project root/current project context. |
+| `--cwd ../other-project` | Rejected if it escapes the project root. |
+| Symlink escape | Rejected after canonicalization if it resolves outside the root. |
+
+## Why clients should still send cwd
+
+Good clients know the user's active pane or package folder. They should pass that as a convenience. But clients are not the trust boundary, so the daemon revalidates.
+
+## Troubleshooting
+
+If a launch fails with a cwd error:
+
+1. Run `pwd` and confirm you are inside the expected project.
+2. Run `coven doctor` to confirm project detection.
+3. Use a relative `--cwd` that exists inside the project.
+4. Avoid symlinks when testing the boundary.
+
+See [CLI run reference](/docs/cli/run) for full command syntax.

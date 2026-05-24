@@ -1,0 +1,46 @@
+---
+title: "Project Roots"
+summary: "Every harness session is pinned to a canonical project root before Coven launches the PTY."
+description: "How Coven resolves project roots for harness sessions and why launch requests cannot widen the project boundary."
+read_when:
+  - A launch fails because Coven cannot resolve the project
+  - You are building a client that sends project-rooted session requests
+---
+
+# Project Roots
+
+Every harness session starts from a project root. Coven resolves and canonicalizes that root before it launches a PTY or records the session.
+
+## Why it matters
+
+Project roots make sessions auditable. A session record can answer:
+
+- Which repository or project was the work tied to?
+- Which harness id ran?
+- Which working directory did the process start in?
+- Which event log belongs to that run?
+
+Without a project root, a harness run is just a loose process. Coven's job is to make it a named, reviewable session.
+
+## CLI behavior
+
+Run from inside a project:
+
+```bash
+cd /path/to/project
+coven run codex "fix the failing tests"
+```
+
+If Coven cannot resolve a project root, `coven doctor` and `coven run` give setup evidence instead of launching a vague process.
+
+## Client behavior
+
+Clients should treat project root as authority-sensitive input. They can collect and display it, but the daemon still validates it.
+
+Do not trust a browser or chat client to enforce project boundaries on its own. The daemon remains the validation boundary described in [Daemon security posture](/docs/daemon/security).
+
+## Related
+
+- [Working directories](/docs/harnesses/working-directories)
+- [CLI run reference](/docs/cli/run)
+- [Session lifecycle](/docs/familiars/sessions)

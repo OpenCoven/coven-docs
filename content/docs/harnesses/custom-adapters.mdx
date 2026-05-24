@@ -1,0 +1,45 @@
+---
+title: "Custom Adapters"
+summary: "The adapter bar for future harnesses: stable ids, fixed argv, PATH detection, provider-auth separation, and daemon validation."
+description: "Guidance for adding future Coven harness adapters without weakening daemon authority or provider credential boundaries."
+read_when:
+  - Evaluating a future harness integration
+  - Reviewing whether a custom adapter belongs in Coven
+---
+
+# Custom Adapters
+
+Coven v0 ships built-in adapters for Codex and Claude Code. Future adapters should meet the same bar before they are documented as supported.
+
+## Adapter contract
+
+An adapter needs:
+
+| Field | Meaning |
+| --- | --- |
+| Stable `Harness id` | The id clients pass to `coven run` and the socket API. |
+| Label | Human-readable display name. |
+| Executable | Binary name resolved on `PATH`; not an arbitrary client-supplied path. |
+| Interactive prompt args | Fixed argv prefix for terminal sessions. |
+| Non-interactive prompt args | Fixed argv prefix for scripts and output capture. |
+| Install hint | Actionable setup text for `coven doctor`. |
+
+The prompt should be the final argument after any fixed prefix args unless the adapter design explicitly proves a different shape is safer.
+
+## Review checklist
+
+Before adding a new adapter, verify:
+
+- The CLI can run inside a normal PTY.
+- It has a stable command-line prompt shape.
+- It can run from an explicit working directory.
+- Provider credentials stay with the harness.
+- It has a clear install/auth story.
+- It does not require clients to pass secrets through Coven.
+- It can fail closed when the executable is missing.
+
+## Planned does not mean supported
+
+Hermes, Aider, Gemini CLI, Cline, and other runtimes may become useful future harnesses. Until they land in the adapter table and `coven doctor`, docs should describe them as roadmap or design work, not current support.
+
+For current commands, use [Codex](/docs/harnesses/codex), [Claude Code](/docs/harnesses/claude-code), and [CLI run reference](/docs/cli/run).

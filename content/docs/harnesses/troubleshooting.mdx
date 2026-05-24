@@ -1,0 +1,45 @@
+---
+title: "Harness Troubleshooting"
+summary: "Diagnose missing harnesses, provider-auth failures, cwd rejects, PTY exits, and stale daemon environment."
+description: "Troubleshooting guide for Coven harness adapters and session launches."
+read_when:
+  - coven run fails
+  - coven doctor reports missing harnesses
+---
+
+# Harness Troubleshooting
+
+Start with:
+
+```bash
+coven doctor
+```
+
+The doctor output tells you whether Coven can see the store, project, daemon, socket, and harness executables. See [Doctor](/docs/cli/doctor) for how to read it.
+
+## Fast triage
+
+| Symptom | Likely cause | Fix |
+| --- | --- | --- |
+| Harness is `missing` | Binary is not on daemon `PATH` | Install it, restart daemon, rerun `coven doctor`. |
+| `unsupported harness` | Wrong harness id | Use `codex` or `claude`. |
+| Provider login prompt or auth error | Harness credentials are missing or expired | Run `codex login` or `claude doctor`. |
+| cwd validation error | Working directory escapes project root | Use a cwd inside the project. |
+| Session exits immediately | Harness CLI failed before work began | Attach or inspect events, then run the harness directly once. |
+| Client works differently than terminal | Daemon environment is stale | `coven daemon restart`, then retry. |
+
+## Evidence to collect
+
+```bash
+coven doctor
+coven daemon status
+coven sessions --all --plain
+```
+
+If a specific session failed, use:
+
+```bash
+coven attach <session-id>
+```
+
+For daemon-specific state, continue with [Daemon observability](/docs/daemon/observability). For provider auth, continue with [Provider auth boundary](/docs/harnesses/provider-auth).
