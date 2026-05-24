@@ -1,0 +1,35 @@
+---
+title: "Memory Search"
+summary: "Memory search combines keyword, semantic, and scoped recall without exposing unrestricted private history."
+description: "How familiars and clients should search working, persistent, episodic, and semantic memory safely."
+read_when:
+  - Designing a familiar recall feature
+  - Debugging why memory search returned too much or too little
+---
+
+# Memory Search
+
+Memory search is how a familiar finds relevant prior context. It should be scoped, attributable, and small enough to read.
+
+## Search modes
+
+| Mode | Good for |
+| --- | --- |
+| Keyword search | Exact filenames, commands, PR numbers, names, error strings. |
+| Semantic search | Similar ideas, architecture patterns, repeated lessons. |
+| Timeline search | Recent events and session chronology. |
+| Manual pinned memory | Hard rules and durable preferences. |
+
+## Safety rules
+
+- Search only the memory scope the current surface is allowed to see.
+- Return summaries with source references where possible.
+- Prefer a few high-signal results over a large dump.
+- Do not use search as permission to reveal private memory in shared contexts.
+- Treat search hits as leads; read the source before acting.
+
+## Relationship to sessions
+
+The session ledger and event log are useful evidence sources, but not every event should enter memory search. Clients should index curated notes, summaries, and selected event text according to the familiar's privacy and retention rules.
+
+See [Episodic memory](/docs/memory-models/episodic-memory) and [Semantic memory](/docs/memory-models/semantic-memory).

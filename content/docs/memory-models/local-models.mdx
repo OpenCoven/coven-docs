@@ -1,0 +1,33 @@
+---
+title: "Local Models"
+summary: "Local models are a future harness direction, not a daemon-owned provider shortcut."
+description: "How local models should fit Coven through harnesses that talk to local runtimes such as Ollama or llama.cpp."
+read_when:
+  - Planning offline or local-model support
+  - Deciding whether Coven should talk directly to a local model server
+---
+
+# Local Models
+
+Local models are a natural fit for Coven, but they should still arrive through the harness boundary.
+
+Examples of future local-model paths:
+
+- A harness CLI that talks to Ollama.
+- A harness CLI that talks to llama.cpp.
+- A custom adapter that runs a local model-backed agent process.
+
+## Current posture
+
+Local models are not a special daemon credential feature. The daemon should not grow provider-specific model routing just because the provider is local.
+
+The same rules apply:
+
+- Stable harness id.
+- Fixed adapter command shape.
+- Project-root and working-directory validation.
+- PTY supervision.
+- Session ledger and event log.
+- No secret fields in the socket API.
+
+For adapter requirements, see [Custom adapters](/docs/harnesses/custom-adapters) and [Models](/docs/memory-models/models).

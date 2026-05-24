@@ -1,0 +1,56 @@
+---
+title: "Provider Boundary"
+summary: "The provider credential boundary sits at the harness CLI, not the Coven daemon."
+description: "Why model provider credentials stay with Codex, Claude Code, or future harnesses instead of moving into Coven."
+read_when:
+  - Reviewing whether a client should send model keys to Coven
+  - Explaining why Coven does not implement provider login
+---
+
+import { Mermaid } from '@/components/mermaid';
+
+# Provider Boundary
+
+The provider credential boundary sits at the harness CLI. Coven launches and supervises the harness; the harness talks to the provider.
+
+<Mermaid chart={`
+flowchart LR
+  User[User] --> Login["codex login / claude doctor"]
+  Login --> CredentialStore[(provider credential store)]
+  User --> Coven["coven run"]
+  Coven --> Daemon[Coven daemon]
+  Daemon --> Harness[Harness PTY]
+  Harness --> CredentialStore
+  Harness --> Provider[OpenAI / Anthropic / local runtime]
+  Daemon -. no provider credentials .-> Provider
+`} />
+
+## Why this boundary exists
+
+- Smaller daemon blast radius.
+- No OAuth or API-key drift across providers.
+- Clear troubleshooting ownership.
+- Clients cannot widen credential access through the socket API.
+
+## What to do instead
+
+Use the provider's own setup flow:
+
+```bash
+codex login
+claude doctor
+coven doctor
+```
+
+Then launch through Coven:
+
+```bash
+coven run codex "audit this repo"
+coven run claude "review this UI"
+```
+
+Related references:
+
+- [Authentication and local access](/docs/reference/auth)
+- [Daemon security posture](/docs/daemon/security)
+- [Harness provider auth](/docs/harnesses/provider-auth)

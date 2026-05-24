@@ -1,0 +1,32 @@
+---
+title: "Working Memory"
+summary: "Working memory is the short-lived context a familiar needs for one active session or task."
+description: "Working memory for OpenCoven familiars: active goals, constraints, files, recent turns, and task-local state."
+read_when:
+  - Designing in-session prompts
+  - Deciding what context should not become durable memory
+---
+
+# Working Memory
+
+Working memory is the task-local context a familiar needs right now. It is useful inside one active session, but it is not automatically worth preserving forever.
+
+## Common contents
+
+- Current user request.
+- Active goal and acceptance criteria.
+- Recent turns or tool results.
+- Relevant files, diffs, diagnostics, and errors.
+- Temporary constraints such as "do not touch generated files."
+
+## Lifecycle
+
+Working memory usually starts when a client creates or resumes a session and ends when the task is done. Parts of it may be promoted into episodic or persistent memory after review.
+
+Do not blindly promote all working memory. Transient logs, failed experiments, and noisy output make future recall worse if they become durable facts.
+
+## Relationship to harnesses
+
+Harnesses such as Codex and Claude Code receive working memory as prompt/context. Coven supervises the PTY and records events; it does not decide which prompt fragments are important enough to keep.
+
+For launch behavior, see [CLI run reference](/docs/cli/run) and [Harnesses](/docs/harnesses/what-is-a-harness).

@@ -1,0 +1,31 @@
+---
+title: "OpenAI"
+summary: "OpenAI model access currently flows through the Codex harness, not the Coven daemon."
+description: "OpenAI model access in Coven through Codex, including login, doctor checks, and credential boundary."
+read_when:
+  - Connecting OpenAI-backed work to Coven
+  - Debugging Codex auth failures under Coven
+---
+
+# OpenAI
+
+OpenAI model access currently flows through Codex.
+
+```bash
+npm install -g @openai/codex
+codex login
+coven doctor
+coven run codex "fix the failing tests"
+```
+
+## Boundary
+
+Codex owns OpenAI provider credentials and model calls. Coven owns the session record, PTY supervision, attach/replay behavior, and event log.
+
+Coven does not read OpenAI API keys, OAuth refresh tokens, or Codex auth files. If Codex auth expires, run `codex login` and retry.
+
+## Related
+
+- [Codex harness](/docs/harnesses/codex)
+- [Provider boundary](/docs/memory-models/provider-boundary)
+- [Models](/docs/memory-models/models)
