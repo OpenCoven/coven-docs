@@ -64,7 +64,7 @@ if (harnessMeta.title !== 'Harnesses') {
   fail('content/docs/harnesses/meta.json must use title "Harnesses".');
 }
 
-if (harnessMeta.description !== 'Deep dives for Codex, Claude Code, provider auth, project roots, working directories, and adapter boundaries.') {
+if (harnessMeta.description !== 'Codex and Claude Code Adapters') {
   fail('content/docs/harnesses/meta.json description must describe the harness deep-dive section.');
 }
 
