@@ -7,7 +7,7 @@ export const baseOptions: BaseLayoutProps = {
   },
   nav: {
     title: (
-      <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 600, letterSpacing: 0 }}>
+      <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 600, letterSpacing: 0, transform: 'translateY(4px)' }}>
         <Icon icon="ph:sparkle-duotone" width={20} color="var(--coven-violet)" />
         <span>Coven</span>
         <span style={{ fontSize: '0.78rem', color: 'var(--coven-violet)', fontWeight: 700, letterSpacing: 0, textTransform: 'uppercase', marginLeft: '2px' }}>docs</span>
