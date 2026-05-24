@@ -1,78 +1,10 @@
 ---
-title: API Reference
-description: Interactive reference for the Coven daemon HTTP-over-Unix-socket API. Per-endpoint schemas, code samples in four languages, and Try It panels that target your local daemon.
+title: Future Hosted API
+description: Placeholder reference for the planned hosted Coven API surface.
 ---
 
-import { Callout } from 'fumadocs-ui/components/callout';
-import { Cards, Card } from 'fumadocs-ui/components/card';
-import { DaemonStatusBanner } from '@/components/daemon-status-banner';
+import { HubCards } from '@/components/hub-cards';
 
-The Coven daemon serves a small HTTP/1.1 API over a Unix domain socket. This section is the per-endpoint interactive reference, generated from `openapi/coven.daemon.v1.yaml`. For the narrative reference (concepts, error model, versioning rules), see [Coven local socket API](/docs/reference/api).
+These pages describe the hosted API surface Coven plans to expose. They are forward-looking and tracked under the roadmap until the daemon contract stabilises.
 
-## Start a daemon
-
-The Try It panels on each endpoint page bridge browser requests through a Next.js route handler to your local `$COVEN_HOME/coven.sock`. They only work when this docs site is running on the same machine as a live daemon.
-
-```bash
-coven daemon start
-coven daemon status   # verify pid + socket
-```
-
-<DaemonStatusBanner />
-
-<Callout type="info" title="Sanity-check from the terminal">
-  Without leaving the shell:
-  ```bash
-  curl --unix-socket "$HOME/.coven/coven.sock" http://localhost/api/v1/health
-  ```
-  A healthy daemon returns `{"ok":true,"apiVersion":"coven.daemon.v1",...}`.
-</Callout>
-
-## Transport and trust model
-
-| Property | Value |
-| --- | --- |
-| Protocol | HTTP/1.1 over Unix domain socket |
-| Default socket | `~/.coven/coven.sock` (override via `$COVEN_HOME`) |
-| Auth | File-system permissions on the socket — no Bearer / JWT / API-key / cookie |
-| Contract | `coven.daemon.v1` served under `/api/v1` |
-
-Anyone with read/write permission on the socket can act as a client. Keep `$COVEN_HOME` private to the owning user. See [Authentication and local access](/docs/reference/auth) for the full hardening posture.
-
-## Client handshake
-
-1. `GET /api/v1/health` — confirm `apiVersion === "coven.daemon.v1"`.
-2. `GET /api/v1/capabilities` — discover available adapters and action ids.
-3. Use versioned `/api/v1/*` routes only.
-4. Branch on `error.code`, not message text — see the [error envelope and code table](/docs/reference/api#error-envelope).
-
-Additive fields are allowed inside `v1`; breaking changes require a new route-prefix version. See [API compatibility rules](/docs/reference/api#compatibility-rules).
-
-## Endpoint groups
-
-<Cards>
-  <Card
-    href="/docs/openapi/meta/get-health"
-    title="Meta"
-    description="Handshake, capability discovery, version metadata. Start here."
-  />
-  <Card
-    href="/docs/openapi/sessions/list-sessions"
-    title="Sessions"
-    description="Launch, inspect, and control harness sessions (codex, claude)."
-  />
-  <Card
-    href="/docs/openapi/events/list-events"
-    title="Events"
-    description="Append-only event log for a single session. Crash-safe resume via afterSeq."
-  />
-  <Card
-    href="/docs/openapi/actions/route-action"
-    title="Actions"
-    description="Control-plane action router. Only known action ids are accepted."
-  />
-</Cards>
-
-## Code samples
-
-Every endpoint includes runnable samples in **curl** (with `--unix-socket`), **TypeScript** (undici `Agent({ connect: { socketPath } })`), **Python** (`httpx.HTTPTransport(uds=...)`), and **Rust** (`hyperlocal::UnixConnector`). Each sample reads `$COVEN_HOME` with a `~/.coven` fallback, so they work as-is once a daemon is running.
+<HubCards href="/docs/openapi" />
