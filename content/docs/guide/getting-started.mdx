@@ -9,11 +9,20 @@ This guide takes a new user from a fresh checkout or npm install to a visible pr
 
 ## What Coven Is
 
-Coven is a local-first runtime for coding-agent harnesses. It runs supported CLIs such as Codex and Claude Code inside explicit project boundaries, records session metadata and events, and exposes the work through a CLI, TUI, and local socket API.
+Coven is not a harness. It is the **substrate** that harnesses operate within.
+
+A harness — Codex, Claude Code, or any future adapter — brings its own provider credentials, model selection, and tool runtime. Coven provides the shared layer underneath: enforced project boundaries, supervised PTY processes, an append-only session record, and a stable local API. When work passes through Coven, every run gains consistent lifecycle management, replay, and auditability regardless of which harness ran it.
+
+This matters in practice:
+
+- **Provider independence** — switch between Codex and Claude Code without rewiring your workflow; the substrate stays the same.
+- **Enforced boundaries** — harnesses can only operate inside the project root you declared; no harness can silently widen scope.
+- **Auditable history** — every session is recorded and replayable; completed work survives process restarts.
+- **Unified client surface** — any client (CLI, TUI, CastCodes, OpenClaw, or a script) talks to any harness through one local API.
 
 The short promise:
 
-> One project. Any harness. Visible work.
+> One substrate. Any harness. Reproducible, auditable work.
 
 ## Install Paths
 

@@ -43,6 +43,8 @@ Use **OpenCoven** when talking about the broader project family.
 
 Coven is the local runtime substrate. It owns project-scoped harness sessions, PTYs, logs, local daemon state, and the socket API.
 
+Coven is **not a harness**. Harnesses — Codex, Claude Code, and future adapters — are external coding-agent CLIs that operate *within* Coven's substrate. Coven provides the shared layer they all run on: enforced project boundaries, supervised PTY lifecycle, append-only session records, and a stable local API that any client can talk to regardless of which harness is running.
+
 Use **Coven** for the CLI, daemon, Rust crate, npm wrapper, and local session runtime.
 
 ## CovenCLI
