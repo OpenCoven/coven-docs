@@ -1,0 +1,67 @@
+---
+title: "Install Harness CLIs"
+summary: "Coven detects external harness CLIs on PATH and fails closed with setup hints when they are missing."
+description: "How to install Codex and Claude Code for Coven, how detection works, and how to recover from PATH or auth setup problems."
+read_when:
+  - Setting up a new machine for Coven
+  - Resolving missing harness errors from coven doctor
+---
+
+import { Mermaid } from '@/components/mermaid';
+
+# Install Harness CLIs
+
+Coven does not bundle harness CLIs. Each harness is installed and authenticated through its own provider's tooling, then Coven detects the executable on `PATH`.
+
+## Supported v0 harnesses
+
+| Harness id | Executable | Install command | Provider login |
+| --- | --- | --- | --- |
+| `codex` | `codex` | `npm install -g @openai/codex` | `codex login` |
+| `claude` | `claude` | `npm install -g @anthropic-ai/claude-code` | `claude doctor` |
+
+After installing, run:
+
+```bash
+coven doctor
+```
+
+`coven doctor` reports whether the executable is available. It does not read provider credentials; the login command remains provider-owned.
+
+## Detection flow
+
+<Mermaid chart={`
+flowchart LR
+  Run["coven run codex prompt"] --> Lookup{Known harness id?}
+  Lookup -- no --> RejectUnsupported[Reject unsupported harness]
+  Lookup -- yes --> Path{Executable on PATH?}
+  Path -- no --> Hint[Fail closed with install hint]
+  Path -- yes --> Spawn[Spawn fixed adapter argv in PTY]
+`} />
+
+Only built-in harness ids are accepted. A client cannot send an arbitrary executable path through the daemon API.
+
+## PATH and daemon environment
+
+If you install a harness after the daemon is already running, restart the daemon so the process environment is fresh:
+
+```bash
+coven daemon restart
+coven doctor
+```
+
+If `coven doctor` still reports a missing harness, check duplicate or unexpected binaries:
+
+```bash
+which -a codex
+which -a claude
+```
+
+## First launch
+
+```bash
+coven run codex "describe this project"
+coven run claude "review this project for risky defaults"
+```
+
+Use [Provider auth boundary](/docs/harnesses/provider-auth) if a harness launches but exits with a provider login error.

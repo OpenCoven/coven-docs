@@ -1,0 +1,52 @@
+---
+title: "What Is a Harness?"
+summary: "A harness is a PTY-driven adapter for one external coding-agent CLI."
+description: "Definition of a Coven harness and the boundary between harnesses, familiars, clients, and the daemon."
+read_when:
+  - You are new to Coven terminology
+  - You need to explain why a harness is not the same thing as a familiar
+---
+
+# What Is a Harness?
+
+A harness is a coding-agent CLI that Coven can run as a supervised process. The harness is not the daemon, not a familiar, and not the user interface. It is the external agent runtime that receives a prompt and works inside a PTY.
+
+## Boundary map
+
+| Term | Role |
+| --- | --- |
+| Harness | External coding-agent CLI such as Codex or Claude Code. |
+| Adapter | Coven's built-in mapping from harness id to executable and fixed launch arguments. |
+| Daemon | Rust authority layer that validates requests, spawns PTYs, and records events. |
+| Familiar | Product concept for a named agent with identity, memory, tools, and role. |
+| Client | CLI, TUI, Cast Agent, OpenMeow, OpenClaw plugin, or script that asks the daemon to act. |
+
+## What Coven controls
+
+Coven controls:
+
+- The stable `Harness id` accepted by `coven run` and the socket API.
+- The project root and working directory validation.
+- The PTY process lifecycle.
+- The session record and event log.
+- Attach, replay, archive, summon, and destructive confirmation flow.
+
+## What the harness controls
+
+The harness controls:
+
+- Provider credentials and login state.
+- Model selection, prompt handling, and provider API calls.
+- Tool execution inside the harness process.
+- Any harness-specific local cache or conversation state.
+
+This split keeps Coven useful without pretending to own every provider's auth model or tool runtime.
+
+## Current harness ids
+
+```bash
+coven run codex "explain this repo"
+coven run claude "review this module"
+```
+
+Use [Install harness CLIs](/docs/harnesses/installing) if either harness is missing, and [CLI run reference](/docs/cli/run) for command syntax.

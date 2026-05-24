@@ -1,0 +1,69 @@
+---
+title: "Claude Code Harness"
+summary: "Run Anthropic Claude Code under Coven supervision with harness id claude."
+description: "Claude Code harness deep dive: setup, provider auth, launch arguments, project-root behavior, and troubleshooting."
+read_when:
+  - Setting up Claude Code for Coven
+  - Diagnosing Claude-specific launch or auth failures
+---
+
+import { Mermaid } from '@/components/mermaid';
+
+# Claude Code Harness
+
+Claude Code is Anthropic's coding-agent CLI. Coven launches it as a project-rooted PTY and records the run as a Coven session.
+
+| Field | Value |
+| --- | --- |
+| Harness id | `claude` |
+| Executable | `claude` |
+| Install | `npm install -g @anthropic-ai/claude-code` |
+| Provider auth | `claude doctor` |
+| First run | `coven run claude "polish this UI"` |
+
+## Setup
+
+```bash
+npm install -g @anthropic-ai/claude-code
+claude doctor
+coven doctor
+```
+
+`coven doctor` checks that `claude` is available on `PATH`. It does not read Anthropic credentials.
+
+## Launch
+
+```bash
+coven run claude "refactor this component" --cwd packages/web --title "Web refactor"
+```
+
+In interactive terminals, Coven launches Claude Code with the prompt as the final argument. In non-interactive mode, Coven uses Claude Code's `--print` shape so output can be captured by callers.
+
+## Supervision flow
+
+<Mermaid chart={`
+sequenceDiagram
+  participant U as User
+  participant C as coven CLI
+  participant D as Coven daemon
+  participant L as Claude Code PTY
+  participant A as Anthropic
+
+  U->>C: coven run claude "polish this UI"
+  C->>D: Launch session request
+  D->>D: validate harness id, project root, cwd
+  D->>L: spawn claude in PTY
+  L->>A: provider auth and model calls
+  L-->>D: stdout, stderr, exit
+  D-->>C: session id and status
+`} />
+
+## Common failures
+
+| Symptom | Likely cause | Fix |
+| --- | --- | --- |
+| `coven doctor` reports Claude Code missing | `claude` is not on daemon `PATH` | Install Claude Code, restart daemon, rerun doctor. |
+| Claude prompts for setup | Provider auth is incomplete | Run `claude doctor`. |
+| Launch rejects cwd | `--cwd` escapes the project root | Use a cwd inside the project. |
+
+For shared setup rules, see [Install harness CLIs](/docs/harnesses/installing) and [Provider auth boundary](/docs/harnesses/provider-auth).

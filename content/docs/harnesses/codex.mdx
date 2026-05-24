@@ -1,0 +1,69 @@
+---
+title: "Codex Harness"
+summary: "Run OpenAI Codex CLI under Coven supervision with harness id codex."
+description: "Codex harness deep dive: setup, provider auth, launch arguments, project-root behavior, and troubleshooting."
+read_when:
+  - Setting up Codex for Coven
+  - Diagnosing Codex-specific launch or auth failures
+---
+
+import { Mermaid } from '@/components/mermaid';
+
+# Codex Harness
+
+Codex is OpenAI's coding-agent CLI. Coven launches it as a project-rooted PTY and records the run as a Coven session.
+
+| Field | Value |
+| --- | --- |
+| Harness id | `codex` |
+| Executable | `codex` |
+| Install | `npm install -g @openai/codex` |
+| Provider auth | `codex login` |
+| First run | `coven run codex "fix the failing tests"` |
+
+## Setup
+
+```bash
+npm install -g @openai/codex
+codex login
+coven doctor
+```
+
+`coven doctor` checks that `codex` is available on `PATH`. It does not read Codex's OpenAI credentials.
+
+## Launch
+
+```bash
+coven run codex "audit this repo" --cwd packages/cli --title "CLI audit"
+```
+
+In interactive terminals, Coven launches Codex with the prompt as the final argument. In non-interactive mode, Coven uses Codex's `exec --skip-git-repo-check --color never` shape so output is easier to capture.
+
+## Supervision flow
+
+<Mermaid chart={`
+sequenceDiagram
+  participant U as User
+  participant C as coven CLI
+  participant D as Coven daemon
+  participant X as Codex PTY
+  participant O as OpenAI
+
+  U->>C: coven run codex "audit this repo"
+  C->>D: Launch session request
+  D->>D: validate harness id, project root, cwd
+  D->>X: spawn codex in PTY
+  X->>O: provider auth and model calls
+  X-->>D: stdout, stderr, exit
+  D-->>C: session id and status
+`} />
+
+## Common failures
+
+| Symptom | Likely cause | Fix |
+| --- | --- | --- |
+| `coven doctor` reports Codex missing | `codex` is not on daemon `PATH` | Install Codex, restart daemon, rerun doctor. |
+| Codex asks for login | OAuth state expired or missing | Run `codex login`. |
+| Launch rejects cwd | `--cwd` escapes the project root | Use a cwd inside the project. |
+
+For shared setup rules, see [Install harness CLIs](/docs/harnesses/installing) and [Provider auth boundary](/docs/harnesses/provider-auth).
