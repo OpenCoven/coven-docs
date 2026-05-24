@@ -7,8 +7,6 @@ read_when:
   - Auditing what clients can ask for and what the daemon enforces
 ---
 
-# Daemon
-
 The Coven daemon is one Rust process per host. It owns live session state, harness PTYs, the SQLite session ledger, the append-only event log, and the HTTP-over-Unix-socket API under `/api/v1`.
 
 Clients such as the `coven` CLI, TUI surfaces, OpenMeow, Cast Agent, and the OpenClaw bridge are user interfaces. They can validate requests for a better UX, but they do not become the enforcement boundary. They ask the daemon to launch sessions, forward input, kill live sessions, inspect events, or route control-plane actions.
