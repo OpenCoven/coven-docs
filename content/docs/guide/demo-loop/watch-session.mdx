@@ -1,0 +1,103 @@
+---
+title: "Step 3 — Watch the session"
+description: "Output streams into a visible pane. Session state is observable from CastCodes and from the daemon's event log."
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+import { Mermaid } from '@/components/mermaid';
+
+Once the harness is running, CastCodes streams its output into a pane and reflects state transitions in the agent panel. From the CLI, the same stream is reachable by polling `/api/v1/sessions/<id>/events` with a cursor, or by rejoining the session interactively.
+
+## What you see
+
+| Where | What | Source |
+| --- | --- | --- |
+| Session pane (live) | Raw PTY output, including ANSI colors. | `OutputEvent` rows from the event log. |
+| Status bar / pill | `running`, `completed`, `failed`, `killed`, `orphaned`. | `SessionRecord.status` + `StatusEvent` rows. |
+| Sidebar entry | Title, harness, age, status. | `GET /api/v1/sessions`. |
+| Event log (CLI) | Replayable stream, monotonic `seq` cursor. | `GET /api/v1/sessions/<id>/events`. |
+
+## The flow
+
+<Steps>
+  <Step>
+    ### The pane appears
+
+    A new pane mounts in CastCodes for the session id. The first output bytes arrive within a few hundred milliseconds of launch.
+
+    > TODO: CastCodes UI — pane chrome (title bar, status pill, copy/clear/scrollback controls). Does it auto-scroll, and how is "you have new output below" surfaced?
+  </Step>
+
+  <Step>
+    ### Output streams
+
+    Coven does not buffer-then-flush; lines hit the pane as the harness emits them. If the harness opens a paging interactive prompt, you can forward input — see step "Send input" below.
+
+    > TODO: CastCodes UI — does the input box at the bottom of the pane auto-focus when the harness expects stdin?
+  </Step>
+
+  <Step>
+    ### State transitions
+
+    When the harness exits, the status pill flips to `completed` (exit 0), `failed` (non-zero), or `killed` (you sent a kill). If the daemon was stopped mid-run, the next start sees the session as `orphaned`.
+
+    > TODO: screenshot per state.
+  </Step>
+
+  <Step>
+    ### Send input (optional)
+
+    Some harnesses prompt for confirmation. You can forward bytes to the PTY without leaving the pane.
+
+    > TODO: CastCodes UI — input affordance. Is there a separate "send line" vs "send raw key" mode?
+  </Step>
+</Steps>
+
+## CLI equivalent
+
+```bash
+# Live list with status
+coven sessions
+
+# Tail output for one session
+coven rejoin <session-id>
+
+# Send input to a running session
+echo "y" | coven sessions input <session-id>
+```
+
+Or via the API directly:
+
+```bash
+# Replayable event stream with afterSeq cursor for resume
+curl --unix-socket "$HOME/.coven/coven.sock" \
+  "http://localhost/api/v1/sessions/<id>/events?afterSeq=0"
+```
+
+See [Events → List events](/docs/openapi/events/list-events) and [Sessions → Send input](/docs/openapi/sessions/send-session-input).
+
+## Cursor-based replay
+
+<Mermaid chart={`
+sequenceDiagram
+  participant Client
+  participant D as coven daemon
+  participant L as Event log
+
+  Client->>D: GET /events?afterSeq=0
+  D->>L: read seq > 0
+  L-->>D: page of events + nextCursor
+  D-->>Client: { events, nextCursor: { afterSeq: 42 }, hasMore: true }
+  Note over Client: Persist afterSeq=42 for resume after disconnect.
+  Client->>D: GET /events?afterSeq=42
+  D-->>Client: next page
+`} />
+
+<Callout type="info" title="Crash-safe replay">
+  `afterSeq` is monotonic per session. If CastCodes or your CLI disconnects, just resume from the last persisted cursor — no events are dropped, none are replayed twice.
+</Callout>
+
+<Callout type="info" title="Next">
+  Continue to [Step 4 — Inspect changes](/docs/guide/demo-loop/inspect-changes). The agent's edits are on disk; time to read them.
+</Callout>

@@ -1,0 +1,109 @@
+---
+title: "Step 2 — Launch a session"
+description: "Choose a harness, write a prompt, and spawn a Coven-backed Codex or Claude Code session inside the project."
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+import { Mermaid } from '@/components/mermaid';
+
+A session is a single harness invocation: a PTY-backed Codex or Claude Code process running inside the project, with its output recorded to the daemon's event log. CastCodes lets you launch one from a menu; the CLI's `coven run` does the same thing.
+
+## What gets created
+
+When you launch, the daemon:
+
+1. Writes a `SessionRecord` to the SQLite ledger with `status: "created"`.
+2. Spawns the harness with the requested `cwd`, `prompt`, and `title`.
+3. Begins appending `OutputEvent` / `StatusEvent` rows to the session's event log.
+4. Flips the record to `status: "running"`.
+
+The session is now reachable by id from the API (`/api/v1/sessions/<id>`), the CLI (`coven sessions`), and CastCodes (it appears as a new pane).
+
+## The flow
+
+<Steps>
+  <Step>
+    ### Pick a harness
+
+    Coven ships with two adapters in `coven.daemon.v1`:
+
+    - **`codex`** — OpenAI Codex CLI. See [Harnesses → Codex](/docs/harnesses/codex).
+    - **`claude`** — Anthropic Claude Code. See [Harnesses → Claude Code](/docs/harnesses/claude-code).
+
+    Other harnesses are tracked in the [roadmap](/docs/reference/roadmap) under "Additional harness adapters."
+
+    > TODO: CastCodes UI — the launcher's harness picker control. Is it a dropdown, a radio, a multi-select for parallel lanes? Document the exact behavior plus the keyboard shortcut.
+  </Step>
+
+  <Step>
+    ### Write the prompt
+
+    The prompt is passed to the harness as its final argument — Codex and Claude Code each interpret it as the initial task. Keep it scoped to one outcome; you can always launch another session for a follow-up.
+
+    > TODO: CastCodes UI — does the prompt input support history? Templates? Cast Codes shortcuts ([Cast Codes](/docs/guide/cast-codes)) for prompts like `/fix` or `/explain`?
+  </Step>
+
+  <Step>
+    ### Launch
+
+    CastCodes posts to the daemon's session endpoint. The PTY spawns; output starts flowing to the new pane.
+
+    > TODO: CastCodes UI — confirm whether the launch button is one click, two-step (prepare → confirm), or whether multi-select launches N panes at once. See the roadmap row "Multi-select agent launches" — that's the path for parallel lanes.
+  </Step>
+</Steps>
+
+## CLI equivalent
+
+```bash
+coven run codex "fix the failing tests"
+
+# Equivalent explicit form:
+coven run \
+  --harness codex \
+  --project ~/code/example-project \
+  --title "fix tests" \
+  "fix the failing tests"
+```
+
+Or directly via the socket API:
+
+```bash
+curl --unix-socket "$HOME/.coven/coven.sock" \
+  -X POST -H 'content-type: application/json' \
+  -d '{
+    "projectRoot": "/Users/example/example-project",
+    "cwd":         "/Users/example/example-project",
+    "harness":     "codex",
+    "prompt":      "fix the failing tests",
+    "title":       "fix tests"
+  }' \
+  http://localhost/api/v1/sessions
+```
+
+See [the API reference](/docs/openapi/sessions/create-session) for the full request shape.
+
+## Launch path
+
+<Mermaid chart={`
+sequenceDiagram
+  participant CC as CastCodes
+  participant D as coven daemon
+  participant L as SQLite ledger
+  participant H as Harness PTY
+
+  CC->>D: POST /api/v1/sessions { projectRoot, cwd, harness, prompt, title }
+  D->>L: INSERT SessionRecord (status: created)
+  D->>H: spawn harness in PTY
+  H-->>D: stdout/stderr stream
+  D->>L: append OutputEvent rows; flip status to running
+  D-->>CC: 201 { id, status: "running", ... }
+`} />
+
+<Callout type="warn" title="Validation, not magic">
+  The daemon validates `projectRoot` and `cwd` (cwd must canonicalize inside the project root) and allowlists `harness` to the two adapters above. Anything else fails closed with `error.code: "invalid_request"` — branch on the code, not the message text.
+</Callout>
+
+<Callout type="info" title="Next">
+  Continue to [Step 3 — Watch the session](/docs/guide/demo-loop/watch-session). Output is streaming.
+</Callout>
