@@ -1,0 +1,63 @@
+---
+title: "CLI Reference"
+summary: "The command map for Coven's local CLI: install, doctor, daemon, run, sessions, patch, and pressure diagnostics."
+description: "First-class reference for the coven command and the current Coven CLI command surface."
+read_when:
+  - You want copy-paste Coven commands
+  - You are deciding whether to use the TUI, daemon, run, sessions, or repair flows
+---
+
+# CLI Reference
+
+The user-facing command is `coven`. OpenCoven is the ecosystem and package namespace; Coven is the local runtime and command-line product.
+
+Run `coven` with no arguments when you want the guided interactive shell. Use explicit subcommands when you want a scriptable or copy-paste path.
+
+## Command map
+
+| Command | Use it for |
+| --- | --- |
+| `coven` | Open the interactive chat/shell when stdin/stdout are a terminal. |
+| `coven tui` | Explicitly open the slash-command TUI. |
+| `coven doctor` | Check store, project, daemon, socket, and harness readiness. |
+| `coven daemon start` | Start the local daemon process. |
+| `coven daemon status` | Inspect daemon pid, socket, and health state. |
+| `coven daemon restart` | Rebind the local socket after changes or stale state. |
+| `coven daemon stop` | Stop the local daemon. |
+| `coven run codex "fix tests"` | Launch a project-scoped Codex harness session. |
+| `coven run claude "polish this UI"` | Launch a project-scoped Claude Code harness session. |
+| `coven sessions` | Browse, rejoin, view, archive, summon, or sacrifice sessions. |
+| `coven sessions --all` | Include archived sessions. |
+| `coven sessions --manage` | Force the interactive session browser. |
+| `coven sessions --plain` | Print a plain table for scripts or copying. |
+| `coven sessions --json` | Print a JSON `sessions` array for clients. |
+| `coven attach <session-id>` | Replay/follow a session and forward input to live daemon sessions. |
+| `coven summon <session-id>` | Restore an archived session, then attach. |
+| `coven archive <session-id>` | Hide a completed session while preserving events. |
+| `coven sacrifice <session-id> --yes` | Permanently delete a non-running session and its event log. |
+| `coven patch openclaw` | Launch the guided OpenClaw repair flow. |
+| `coven pc` | Inspect local machine pressure and recovery options. |
+
+## What owns what
+
+The CLI is a client and presentation layer. The daemon is the authority boundary for launches, cwd validation, session liveness, input forwarding, kill requests, and stored event state.
+
+Use these references together:
+
+- [Install](/docs/cli/install) for package and source install paths.
+- [Doctor](/docs/cli/doctor) before opening issues or debugging a setup.
+- [Daemon commands](/docs/cli/daemon) for local process lifecycle.
+- [Run](/docs/cli/run) for project-scoped harness sessions.
+- [Sessions](/docs/cli/sessions) for attach, archive, summon, and sacrifice.
+- [Daemon lifecycle](/docs/daemon/lifecycle) for the process and socket authority model.
+- [Session lifecycle](/docs/familiars/sessions) for status and archive semantics.
+
+## Bare prompt shortcut
+
+When you pass text without a subcommand, Coven treats it as a Cast prompt:
+
+```bash
+coven "explain this repo in 5 bullets"
+```
+
+Use the shortcut for quick interactive work. Use `coven run <harness> <prompt>` when you want an explicit harness and session record.

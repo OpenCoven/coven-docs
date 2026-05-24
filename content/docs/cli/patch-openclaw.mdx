@@ -1,0 +1,55 @@
+---
+title: "Patch OpenClaw"
+summary: "Use coven patch openclaw for guided OpenClaw repair sessions."
+description: "Reference for the coven patch openclaw repair flow, options, dry runs, verification profiles, and safety behavior."
+read_when:
+  - You are repairing an OpenClaw checkout
+  - You want Coven to launch a harness with a structured repair brief
+---
+
+# Patch OpenClaw
+
+`coven patch openclaw` is a guided repair flow for OpenClaw contributors and users.
+
+```bash
+coven patch openclaw
+```
+
+It detects an OpenClaw repository, inspects git state, asks what is broken, chooses a supported harness, launches a repair session, and runs a verification profile.
+
+## Non-interactive shape
+
+Use flags when calling from scripts or a higher-level client:
+
+```bash
+coven patch openclaw "fix the failing gateway auth test" \
+  --repo /path/to/openclaw \
+  --harness codex \
+  --verify default \
+  --non-interactive
+```
+
+| Option | Meaning |
+| --- | --- |
+| `--repo <path>` | OpenClaw checkout to repair. |
+| `--harness <id>` | Supported harness id, usually `codex` or `claude`. |
+| `--verify <profile>` | Verification profile for the repair report. |
+| `--non-interactive` | Requires issue text and harness flags instead of prompting. |
+| `--dry-run` | Prints the repair brief without launching the harness. |
+| `--keep-session` | Preserves the session after the repair flow. |
+
+## Dry run
+
+Use `--dry-run` to inspect the repair brief first:
+
+```bash
+coven patch openclaw "diagnose flaky session polling" --repo /path/to/openclaw --harness codex --dry-run
+```
+
+Dry runs are useful for auditing what the harness will receive before work starts.
+
+## Dirty worktrees
+
+When existing changes are detected in interactive mode, Coven warns before launching a harness. It does not silently stash or overwrite work.
+
+This command is purpose-built for OpenClaw. For general project work, use [Run](/docs/cli/run).

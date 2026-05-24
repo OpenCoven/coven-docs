@@ -1,0 +1,62 @@
+---
+title: "Run"
+summary: "Launch project-scoped Codex or Claude Code harness sessions through Coven."
+description: "Reference for coven run, supported harness ids, cwd/title flags, detach mode, and project-root safety."
+read_when:
+  - You want to launch a harness session from a project
+  - You need to choose between Codex, Claude Code, cwd, title, and detach options
+---
+
+# Run
+
+`coven run` launches a project-scoped harness session and records it in the Coven session ledger.
+
+```bash
+coven run codex "fix the failing tests"
+coven run claude "polish this UI"
+```
+
+The current built-in harness ids are `codex` and `claude`.
+
+## Syntax
+
+```bash
+coven run <harness> <prompt> [--cwd <path>] [--title <title>] [--detach]
+```
+
+| Part | Meaning |
+| --- | --- |
+| `<harness>` | Supported harness id. Currently `codex` or `claude`. |
+| `<prompt>` | Required task text for the harness. |
+| `--cwd <path>` | Working directory inside the detected project root. |
+| `--title <title>` | Readable session title for `coven sessions`. |
+| `--detach` | Create the session record without launching the harness. |
+
+## Project boundary
+
+Coven resolves the current project root before launch. If you pass `--cwd`, the path must stay inside that project root.
+
+```bash
+cd /path/to/project
+coven run codex "add focused tests for the auth helper" --cwd packages/api
+```
+
+The daemon and CLI validate project and cwd boundaries so a client cannot quietly widen a session beyond the intended project.
+
+## Title
+
+Use `--title` when the prompt is long or when the session will be selected later from the browser:
+
+```bash
+coven run claude "review the settings page for mobile layout issues" --title "Settings mobile review"
+```
+
+## Detached records
+
+Use `--detach` when you want a record in the ledger but do not want to spawn a harness yet:
+
+```bash
+coven run codex "prepare release notes" --detach
+```
+
+Detached mode is intentionally narrow. Most users should launch a live harness and then manage it through [Sessions](/docs/cli/sessions).

@@ -1,0 +1,47 @@
+---
+title: "PC Diagnostics"
+summary: "Inspect local machine pressure and use explicit confirmation for relief actions."
+description: "Reference for coven pc status, top, disk, kill, and cache-clear commands."
+read_when:
+  - Your machine feels slow during agent work
+  - You need pressure diagnostics before killing processes or clearing caches
+---
+
+# PC Diagnostics
+
+`coven pc` prints a local machine pressure report. It is intended for workstation support during heavy agent or build sessions.
+
+```bash
+coven pc
+```
+
+## Commands
+
+| Command | Use it for |
+| --- | --- |
+| `coven pc` | Full compact report. |
+| `coven pc status` | One-line health summary. |
+| `coven pc status --json` | Machine-readable health summary. |
+| `coven pc top` | Top processes by CPU and memory. |
+| `coven pc top --n 20` | Show more processes. |
+| `coven pc top --verbose` | Include full command-line arguments. |
+| `coven pc disk` | Disk usage breakdown. |
+| `coven pc kill <pid> --confirm` | Terminate one process by pid. |
+| `coven pc cache clear --confirm` | Clear user and system caches. |
+
+## Confirmation boundary
+
+Relief actions require explicit confirmation flags:
+
+```bash
+coven pc kill 12345 --confirm
+coven pc cache clear --confirm
+```
+
+The diagnostic commands are safe to run for evidence. The kill and cache-clear commands are state-changing and should be used deliberately.
+
+## When to use it
+
+Use `coven pc` before assuming a harness is broken. CPU pressure, memory pressure, low disk, or runaway background processes can look like agent failure.
+
+For Coven-specific daemon issues, start with [Doctor](/docs/cli/doctor) and [Daemon observability](/docs/daemon/observability).

@@ -1,0 +1,55 @@
+---
+title: "Doctor"
+summary: "Use coven doctor to inspect store, project, daemon, socket, and harness readiness."
+description: "Reference for coven doctor output and the readiness checks it performs before running harness sessions."
+read_when:
+  - Coven setup is not working
+  - You need evidence before filing a support issue
+---
+
+# Doctor
+
+`coven doctor` is the first command to run after install and the first command to run when something feels broken.
+
+```bash
+coven doctor
+```
+
+It checks the local state directory, project detection, daemon/socket status, and supported harness CLIs.
+
+## What it checks
+
+| Area | What to look for |
+| --- | --- |
+| Store | The path Coven will use for local state. Defaults to `~/.coven` unless `COVEN_HOME` is set. |
+| Project | Whether the current directory resolves to a git/project root. |
+| Daemon | Whether the daemon is running, stale, or stopped, and which socket it owns. |
+| Harnesses | Whether Codex or Claude Code is available on `PATH`. |
+| Next steps | A suggested `coven run <harness> "..."` command when a harness is available. |
+
+## Common next steps
+
+If the daemon is stopped:
+
+```bash
+coven daemon start
+```
+
+If the daemon is stale:
+
+```bash
+coven daemon restart
+```
+
+If no harness is ready, install or authenticate one of the supported harness CLIs, then run `coven doctor` again.
+
+## Support evidence
+
+For support reports, include:
+
+- The exact `coven doctor` output.
+- The command you expected to work.
+- The current working directory, if it is not private.
+- Whether you use custom `COVEN_HOME`.
+
+For daemon-specific failures, continue with [Daemon commands](/docs/cli/daemon) and [Daemon observability](/docs/daemon/observability).
