@@ -1,0 +1,76 @@
+---
+title: "Sessions"
+summary: "List, browse, attach, archive, summon, and delete Coven sessions."
+description: "Reference for coven sessions, attach, summon, archive, and sacrifice commands."
+read_when:
+  - You need to find or rejoin Coven work
+  - You need plain or JSON session output for scripts and clients
+---
+
+# Sessions
+
+Coven records project-scoped harness work as sessions. Use `coven sessions` to browse recent work and choose session actions without copying ids.
+
+```bash
+coven sessions
+```
+
+For status meanings and archive semantics, see [Session Lifecycle](/docs/familiars/sessions).
+
+## Listing modes
+
+| Command | Output |
+| --- | --- |
+| `coven sessions` | Interactive browser in a terminal; table output when piped. |
+| `coven sessions --all` | Includes archived sessions. |
+| `coven sessions --manage` | Forces the interactive session browser. |
+| `coven sessions --plain` | Forces a plain table for scripts and copying. |
+| `coven sessions --json` | Prints a JSON `sessions` array for clients such as Comux. |
+
+Use `--json` for integrations and `--plain` for shell scripts or support snippets.
+
+## Attach
+
+Replay and follow a session:
+
+```bash
+coven attach <session-id>
+```
+
+For live daemon sessions, attach can also forward input to the running harness.
+
+## Archive
+
+Hide completed work from the active list while preserving events:
+
+```bash
+coven archive <session-id>
+```
+
+Archive is reversible. It refuses live-session deletion semantics and keeps the event log.
+
+## Summon
+
+Restore an archived session, then attach:
+
+```bash
+coven summon <session-id>
+```
+
+Use `coven sessions --all` when you need to find archived session ids.
+
+## Sacrifice
+
+Permanently delete a non-running session and its event log:
+
+```bash
+coven sacrifice <session-id> --yes
+```
+
+Sacrifice is destructive. It requires `--yes` and refuses running sessions.
+
+## Related
+
+- [Run](/docs/cli/run) for creating sessions.
+- [Daemon lifecycle](/docs/daemon/lifecycle) for live-session daemon behavior.
+- [Recovery and upgrades](/docs/daemon/recovery-upgrades) for stale sockets and orphaned sessions.

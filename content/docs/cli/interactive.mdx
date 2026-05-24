@@ -1,0 +1,49 @@
+---
+title: "Interactive Shell and TUI"
+summary: "Use coven or coven tui for the beginner-friendly interactive Coven shell."
+description: "Reference for the default interactive Coven shell, explicit TUI entrypoint, and bare prompt shortcut."
+read_when:
+  - You are new to Coven and want the guided entrypoint
+  - You want to know when coven without arguments opens an interactive surface
+---
+
+# Interactive Shell and TUI
+
+Run `coven` with no arguments when you want Coven to choose the interactive shell for a terminal session.
+
+```bash
+coven
+```
+
+Run `coven tui` when you want to be explicit:
+
+```bash
+coven tui
+```
+
+The interactive surface is designed for humans who do not want to memorize subcommands. It starts with setup checks and safe first actions before launching a harness.
+
+## Terminal routing
+
+When stdin and stdout are both terminals, `coven` opens the interactive chat/shell. When you pass a bare prompt, Coven routes the text as a Cast prompt:
+
+```bash
+coven "summarize the current project"
+```
+
+Use [Run](/docs/cli/run) if you want to choose a harness explicitly:
+
+```bash
+coven run codex "summarize the current project"
+```
+
+## When to use explicit commands
+
+Use explicit subcommands for automation, support, or docs:
+
+- `coven doctor` for setup checks.
+- `coven daemon status` for daemon process state.
+- `coven sessions --plain` for copyable tables.
+- `coven sessions --json` for client integration.
+
+The interactive shell is the front door. The daemon and session commands are the operational reference paths.

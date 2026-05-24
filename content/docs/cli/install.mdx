@@ -1,0 +1,57 @@
+---
+title: "Install"
+summary: "Install and run the @opencoven/cli package, or build the coven binary from source."
+description: "Installation reference for Coven CLI through npx, pnpm dlx, global npm install, and source builds."
+read_when:
+  - You need the coven command on PATH
+  - You want to test the published CLI package without installing it globally
+---
+
+# Install
+
+Coven is published as `@opencoven/cli`. The package namespace is OpenCoven, but the command you run is always `coven`.
+
+## Try without installing
+
+Use `npx` or `pnpm dlx` for a one-off check:
+
+```bash
+npx @opencoven/cli doctor
+pnpm dlx @opencoven/cli doctor
+```
+
+This is the safest way to check whether the published package launches on your machine.
+
+## Install globally
+
+Install the wrapper when you want `coven` available repeatedly:
+
+```bash
+npm install -g @opencoven/cli
+coven doctor
+```
+
+The release workflow publishes `@opencoven/cli` plus native platform packages for supported targets. Check npm for the current `latest` tag before writing version-specific install instructions.
+
+## Build from source
+
+Contributors can build the Rust CLI directly:
+
+```bash
+git clone https://github.com/OpenCoven/coven.git
+cd coven
+cargo build --workspace
+cargo run -p coven-cli -- doctor
+```
+
+The source build is useful when you are testing unreleased command behavior. Published package docs should describe released behavior unless the page clearly labels a feature as upcoming.
+
+## First command
+
+After install, run:
+
+```bash
+coven doctor
+```
+
+`doctor` reports local store state, project detection, daemon/socket status, and supported harness availability. See [Doctor](/docs/cli/doctor) for how to read the output.

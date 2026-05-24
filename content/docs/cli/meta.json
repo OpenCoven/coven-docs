@@ -1,0 +1,17 @@
+{
+  "title": "CLI Reference",
+  "description": "Install, inspect, run, recover, and automate Coven from the coven command.",
+  "root": true,
+  "icon": "LuTerminal",
+  "pages": [
+    "index",
+    "install",
+    "interactive",
+    "doctor",
+    "daemon",
+    "run",
+    "sessions",
+    "patch-openclaw",
+    "pc"
+  ]
+}

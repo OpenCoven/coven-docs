@@ -1,0 +1,65 @@
+---
+title: "Daemon Commands"
+summary: "Start, inspect, restart, and stop the local Coven daemon from the CLI."
+description: "CLI reference for coven daemon start, status, restart, and stop."
+read_when:
+  - You need to manage the local daemon process
+  - You are debugging stale sockets or stopped daemon state
+---
+
+# Daemon Commands
+
+The `coven daemon` commands manage the local background process that serves the `/api/v1` socket API and owns live session state.
+
+```bash
+coven daemon start
+coven daemon status
+coven daemon restart
+coven daemon stop
+```
+
+For the process model and recovery behavior, see [Daemon lifecycle](/docs/daemon/lifecycle).
+
+## `coven daemon start`
+
+Starts the daemon, creates `COVEN_HOME` if needed, opens the SQLite store, binds the local socket, and writes daemon metadata.
+
+```bash
+coven daemon start
+```
+
+Use this before daemon-backed clients or local socket integrations.
+
+## `coven daemon status`
+
+Prints whether the daemon is running, stale, or stopped.
+
+```bash
+coven daemon status
+```
+
+Use `status` in support flows before deleting socket files or restarting manually.
+
+## `coven daemon restart`
+
+Stops the current daemon when present, then starts a fresh process and rebinds the socket.
+
+```bash
+coven daemon restart
+```
+
+Use this after upgrades, after changing `COVEN_HOME`, or when `coven doctor` reports stale daemon metadata.
+
+## `coven daemon stop`
+
+Stops the background daemon process.
+
+```bash
+coven daemon stop
+```
+
+Stopping the daemon does not delete the session ledger. Completed session records and event logs remain in `COVEN_HOME`.
+
+## Socket API relationship
+
+The CLI commands are convenience wrappers around the same local authority boundary described in [Daemon lifecycle](/docs/daemon/lifecycle) and [Socket API](/docs/daemon/socket-api). Clients can improve UX, but the daemon validates sensitive decisions.
