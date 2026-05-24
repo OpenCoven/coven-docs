@@ -10,11 +10,10 @@ import { buildGraph } from '@/lib/build-graph';
 
 # Welcome to Coven
 
-**Coven** is the local runtime substrate for the OpenCoven familiar ecosystem. It launches coding-agent harnesses inside explicit project boundaries, records session history, and exposes the same work through a CLI, TUI, and local daemon API.
+**Coven** is a framework for building AI agents — called _familiars_ — that persist across sessions, carry memory and personality, and live wherever your work lives.
 
 <Cards>
-  <Card title="Getting Started" href="/docs/guide/getting-started" description="Install Coven and launch your first project-scoped harness session." />
-  <Card title="Tinkerer's next 30 minutes" href="/docs/guide/tinkerers-next-30-minutes" description="Inspect the daemon API, JSON sessions, events, and fake-harness smoke path." />
+  <Card title="Getting Started" href="/docs/guide/getting-started" description="Set up your first familiar in minutes." />
   <Card title="Concepts" href="/docs/guide/concepts" description="Understand how Coven works at its core." />
   <Card title="Cast Codes" href="/docs/guide/cast-codes" description="Learn the portable intent grammar for routing familiar work." />
   <Card title="Cast Agent" href="/docs/familiars/cast-agent" description="Understand the CastCodes substrate and session backend." />
@@ -33,21 +32,23 @@ import { buildGraph } from '@/lib/build-graph';
     { key: 'meaning', label: 'Meaning' },
   ]}
   rows={[
-    { pillar: '**Local authority boundary**', group: 'Trust', meaning: 'The Rust daemon validates project roots, harness ids, live-session state, and sensitive actions.' },
-    { pillar: '**Harness-neutral sessions**', group: 'Runtime', meaning: 'Codex and Claude Code run through one project-scoped session model with a clean adapter path.' },
-    { pillar: '**Observable work**', group: 'Review', meaning: 'Session metadata and append-only events make live and completed work inspectable.' },
-    { pillar: '**Client-ready API**', group: 'Integration', meaning: 'CLI, TUI, CastCodes, OpenMeow, comux, and OpenClaw can coordinate through the local socket contract.' },
-    { pillar: '**Familiar substrate**', group: 'Ecosystem', meaning: 'Persistent familiars need durable local workspaces, memory surfaces, tools, roles, and handoff points.' },
+    { pillar: '**Persistent familiars**', group: 'Identity', meaning: 'Agents carry memory, personality, and continuity across sessions.' },
+    { pillar: '**Tool access**', group: 'Capabilities', meaning: 'Familiars can use web, exec, files, messaging, calendar, and more.' },
+    { pillar: '**Multi-channel**', group: 'Presence', meaning: 'The same work can surface through Telegram, Discord, iMessage, WhatsApp, and custom channels.' },
+    { pillar: '**Observable**', group: 'Trust', meaning: 'Actions are traced, inspectable, and auditable.' },
+    { pillar: '**Open**', group: 'Ownership', meaning: 'The system is self-hosted, extensible, and yours.' },
   ]}
 />
 
 ```typescript
-// One local daemon, one project boundary, visible harness work.
-await coven.sessions.create({
-  projectRoot: '/Users/val/projects/demo',
-  harness: 'codex',
-  prompt: 'summarize this repo in five bullets',
+// Your familiar, your workspace
+const familiar = await coven.spawn({
+  name: 'Nova',
+  personality: 'warm, direct, practical',
+  tools: ['exec', 'web_search', 'memory'],
 });
+
+await familiar.chat('Remind me about the deployment at 3pm.');
 ```
 
 ## Docs Map

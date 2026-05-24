@@ -21,7 +21,7 @@ Use this page when you need a working `coven` command, a verified daemon, and at
     { key: 'verify', label: 'Verify with' },
   ]}
   rows={[
-    { path: 'npm wrapper `@opencoven/cli`', status: 'Supported', useWhen: 'You want the fastest public install on a published platform package.', verify: '`npx @opencoven/cli doctor` for one-off checks; `coven doctor` after global install' },
+    { path: 'npm wrapper `@opencoven/cli`', status: 'Supported', useWhen: 'You want the fastest public install on a published platform package.', verify: '`npx @opencoven/cli doctor` or `coven doctor`' },
     { path: 'Cargo/source build', status: 'Supported for contributors', useWhen: 'You are modifying Coven or your platform is not covered by the npm wrapper.', verify: '`cargo run -p coven-cli -- doctor`' },
     { path: 'macOS Apple Silicon', status: 'Supported through npm', useWhen: 'You are on `darwin-arm64`.', verify: '`coven doctor`' },
     { path: 'Linux x64 glibc', status: 'Supported through npm', useWhen: 'You are on a glibc-based `linux-x64` distribution.', verify: '`coven doctor`' },
@@ -94,8 +94,7 @@ echo "$PATH" | tr ':' '\n' | grep "$HOME/.cargo/bin"
 - `coven pc` diagnostics are macOS-first; write operations require `--confirm`.
 
 ```sh
-npm install -g @opencoven/cli
-coven doctor
+npx @opencoven/cli doctor
 coven daemon start
 coven run codex "summarize this repo"
 ```
@@ -108,8 +107,7 @@ coven run codex "summarize this repo"
 - Keep `COVEN_HOME` on a local filesystem owned by the same user that runs Coven.
 
 ```sh
-npm install -g @opencoven/cli
-coven doctor
+npx @opencoven/cli doctor
 coven daemon start
 coven sessions --plain
 ```
@@ -122,8 +120,7 @@ coven sessions --plain
 - If native Windows daemon/socket behavior is not enough for your integration, use the WSL2 path.
 
 ```powershell
-npm install -g @opencoven/cli
-coven doctor
+npx @opencoven/cli doctor
 coven daemon start
 coven run codex "inspect this project"
 ```
@@ -137,8 +134,7 @@ WSL2 is the safest Windows path when you want Unix-socket behavior to match macO
 - Run `coven doctor`, `coven daemon start`, and harness commands inside WSL2.
 
 ```sh
-npm install -g @opencoven/cli
-coven doctor
+npx @opencoven/cli doctor
 coven daemon start
 coven run claude "review the current diff"
 ```
@@ -207,10 +203,10 @@ Remove a global npm install:
 npm uninstall -g @opencoven/cli
 ```
 
-Move local Coven state aside when you want a clean test home without immediately deleting session history:
+Remove local Coven state only when you intentionally want to delete local session history:
 
 ```sh
-mv ~/.coven ~/.coven.backup.$(date +%Y%m%d-%H%M%S)
+rm -rf ~/.coven
 ```
 
-After you confirm the backup is no longer needed, remove it using your normal trash/recycle-bin workflow. Do not delete `~/.coven` as a routine update step.
+Do not delete `~/.coven` as a routine update step.

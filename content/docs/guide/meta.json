@@ -5,7 +5,6 @@
   "icon": "LuBookOpen",
   "pages": [
     "getting-started",
-    "tinkerers-next-30-minutes",
     "install",
     "concepts",
     "cast-codes",
