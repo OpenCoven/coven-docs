@@ -21,11 +21,18 @@ The short promise:
 
 For the full platform matrix, source build path, WSL2 guidance, and unsupported container/Nix status, see [Install Coven](/docs/guide/install).
 
-Use the npm wrapper when you want the fastest public install:
+Use the npm wrapper for a one-off setup check:
 
 ```sh
 npx @opencoven/cli doctor
 pnpm dlx @opencoven/cli doctor
+```
+
+Install the wrapper when you want to keep using the `coven` command:
+
+```sh
+npm install -g @opencoven/cli
+coven doctor
 ```
 
 Build from source when you are contributing to Coven:
@@ -114,6 +121,7 @@ coven doctor
   rows={[
     { check: 'Store readiness', group: 'State', output: 'Confirms local Coven state can be read and written.' },
     { check: 'Project detection', group: 'Project', output: 'Shows whether Coven can identify a usable project root.' },
+    { check: 'Daemon/socket status', group: 'Daemon', output: 'Shows whether the daemon is running, stale, or stopped and which socket path clients should use.' },
     { check: 'Built-in harness availability', group: 'Harnesses', output: 'Checks Codex and Claude Code executable availability.' },
     { check: 'Missing setup next steps', group: 'Guidance', output: 'Prints the next install or auth step.' },
   ]}
@@ -209,52 +217,11 @@ Use `restart` when the socket or daemon state looks stale:
 coven daemon restart
 ```
 
-## Diagnostics and Relief
-
-`coven pc` is a macOS-first system diagnostics and relief tool surfaced through the Coven CLI. All read operations are side-effect free.
-
-Inspect:
-
-```sh
-coven pc                  # full report: CPU, memory, disk, top processes
-coven pc status           # one-line health summary with 🟢/🟡/🔴 indicators
-coven pc status --json    # machine-readable health summary
-coven pc top --n 10       # top-N processes by CPU usage
-coven pc disk             # disk usage breakdown
-```
-
-Relief operations mutate system state and require an explicit `--confirm` gate:
-
-```sh
-coven pc kill <pid> --confirm     # SIGTERM with PID identity re-check
-coven pc cache clear --confirm    # clear ~/Library/Caches + /Library/Caches
-```
-
-Safety constraints in v1:
-
-<DocsDataTable
-  caption="coven pc safety constraints"
-  searchPlaceholder="Filter safety constraints..."
-  columns={[
-    { key: 'constraint', label: 'Constraint' },
-    { key: 'riskArea', label: 'Risk area', filter: true },
-    { key: 'behavior', label: 'Behavior' },
-  ]}
-  rows={[
-    { constraint: 'Explicit write gate', riskArea: 'Mutation', behavior: 'All write operations require `--confirm`; there is no bypass path.' },
-    { constraint: 'SIGTERM only', riskArea: 'Process control', behavior: 'Termination never escalates to SIGKILL.' },
-    { constraint: 'PID identity re-check', riskArea: 'Process control', behavior: 'Process identity is re-checked immediately before SIGTERM to prevent PID reuse.' },
-    { constraint: 'Hardcoded cache path list', riskArea: 'Filesystem', behavior: 'Cache clear does not use glob expansion.' },
-    { constraint: 'Redacted process arguments', riskArea: 'Privacy', behavior: 'Arguments are redacted by default; pass `--verbose` to inspect them.' },
-    { constraint: 'No privileged system control', riskArea: 'System integrity', behavior: 'No `sudo`, no LaunchAgent mutation, no system service control.' },
-  ]}
-/>
-
 ## End-to-end Flow
 
 ```mermaid
 flowchart LR
-  Install["Install\nnpx @opencoven/cli doctor"] --> Doctor["coven doctor"]
+  Install["Install\nnpm install -g @opencoven/cli"] --> Doctor["coven doctor"]
   Doctor --> Daemon["coven daemon start"]
   Daemon --> Run["coven run codex prompt"]
   Run --> Sessions["coven sessions\n(rejoin / view log / archive)"]
@@ -264,7 +231,12 @@ flowchart LR
   Harness --> Doctor
 ```
 
-The "install → doctor → daemon → run → sessions" loop is the entire happy path for a first session. Everything else in this guide is fallback or troubleshooting.
+The "install → doctor → daemon → run → sessions" loop is the entire happy path for a first session. Everything else belongs in deeper guides or troubleshooting.
+
+## Next Steps
+
+- [Tinkerer's next 30 minutes](/docs/guide/tinkerers-next-30-minutes) for the daemon API, JSON output, events, and fake-harness smoke path.
+- [Troubleshooting](/docs/reference/troubleshooting) for `coven pc`, stale sockets, harness setup, and recovery paths.
 
 
 ## Contributor Verification Loop

@@ -1,0 +1,87 @@
+---
+title: "Tinkerer's next 30 minutes"
+description: "A practical Coven tinkerer path: inspect health, list sessions as JSON, read events, try a fake harness, and map the files to edit next."
+---
+
+import { DocsDataTable } from '@/components/docs-data-table';
+
+# Tinkerer's next 30 minutes
+
+You have already run `coven doctor`, started the daemon, and launched a first session. This page gives you one focused half-hour to see what Coven owns and where to change it.
+
+## 1. Confirm the daemon contract
+
+```sh
+coven daemon status
+```
+
+Then inspect the versioned local API. The socket defaults to `~/.coven/coven.sock`:
+
+```sh
+curl --unix-socket ~/.coven/coven.sock http://coven/api/v1/health
+curl --unix-socket ~/.coven/coven.sock http://coven/api/v1/capabilities
+```
+
+You should see `apiVersion: "coven.daemon.v1"` before building client assumptions.
+
+## 2. Read sessions as data
+
+Launch a small session from a project directory:
+
+```sh
+coven run codex "summarize this repo in five bullets" --title "Tinkerer smoke"
+```
+
+Then compare human and machine output:
+
+```sh
+coven sessions
+coven sessions --plain
+coven sessions --json
+```
+
+Use `--json` for clients and scripts. Use the TUI/browser for human review.
+
+## 3. Inspect the event log
+
+Copy a session id from `coven sessions --json`, then read its events:
+
+```sh
+curl --unix-socket ~/.coven/coven.sock "http://coven/api/v1/events?sessionId=<session-id>"
+```
+
+Events are append-only records. They are why completed work can be replayed after the process exits or the daemon restarts.
+
+## 4. Try the fake harness smoke path
+
+If you are working from source, run the smoke test that boots a temporary daemon and fake Codex binary:
+
+```sh
+cargo test -p coven-cli --test smoke -- --nocapture
+```
+
+Use this before changing daemon/session behavior. It exercises launch, replay, kill, archive, summon, and sacrifice without private provider credentials.
+
+## 5. Know what to edit
+
+<DocsDataTable
+  caption="Common tinkerer edit points"
+  searchPlaceholder="Filter edit points..."
+  columns={[
+    { key: 'change', label: 'Change' },
+    { key: 'startHere', label: 'Start here' },
+  ]}
+  rows={[
+    { change: 'CLI command behavior', startHere: '`crates/coven-cli/src/main.rs`' },
+    { change: 'Daemon lifecycle and socket health', startHere: '`crates/coven-cli/src/daemon.rs`' },
+    { change: 'API response shape', startHere: '`crates/coven-cli/src/api.rs` and `docs/API-CONTRACT.md`' },
+    { change: 'Session persistence', startHere: '`crates/coven-cli/src/store.rs`' },
+    { change: 'Harness launch behavior', startHere: '`crates/coven-cli/src/harness.rs` and `crates/coven-cli/src/pty_runner.rs`' },
+    { change: 'CLI npm wrapper', startHere: '`npm/coven` and `packages/cli`' },
+    { change: 'OpenClaw bridge', startHere: '`packages/openclaw-coven`' },
+    { change: 'Source docs', startHere: '`OpenCoven/coven/docs`' },
+    { change: 'Published docs site', startHere: '`OpenCoven/coven-docs/content/docs`' },
+  ]}
+/>
+
+When a change touches `/api/v1`, update docs and compatibility tests in the same patch.
