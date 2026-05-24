@@ -1,0 +1,106 @@
+---
+title: "Step 5 — Finish the loop"
+description: "Every session ends explicitly: merge, PR, archive, or sacrifice. Pick one and the loop closes."
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+import { Mermaid } from '@/components/mermaid';
+
+A session that never ends explicitly is the failure mode Coven exists to prevent. Step 5 is the rule: pick one of four outcomes, and the loop closes. No "ghost" sessions, no implicit completion.
+
+## The four outcomes
+
+<Mermaid chart={`
+flowchart TD
+  Inspect{Work usable?} -->|Yes, ship it| Merge["Merge to branch"]
+  Inspect -->|Yes, but needs review| PR["Open a pull request"]
+  Inspect -->|No, but keep the log| Archive["Archive session"]
+  Inspect -->|No, throw it away| Sacrifice["Sacrifice session"]
+`} />
+
+| Outcome | What it means | Reversible? |
+| --- | --- | --- |
+| **Merge** | The agent's worktree changes land on your active branch. | Yes (revert commit). |
+| **PR** | A pull request is opened for review. | Yes (close the PR). |
+| **Archive** | The session record + event log stay; the live PTY stops. | Yes (rejoin replays the log). |
+| **Sacrifice** | The session record, event log, and worktree are deleted. | No. |
+
+## The flow
+
+<Steps>
+  <Step>
+    ### Merge
+
+    Land the worktree's changes on your active branch. Useful when you trust the work and want it in mainline immediately.
+
+    > TODO: CastCodes UI — the "Merge" pane menu action. Document whether it: (a) merges the worktree branch into the active branch in your main checkout, (b) replays the diff as a commit, (c) something else. Also document the cleanup of the worktree afterward.
+
+    CLI equivalent:
+
+    ```bash
+    git checkout main
+    git merge <worktree-branch>
+    git worktree remove <worktree-path>
+    coven sessions archive <session-id>
+    ```
+  </Step>
+
+  <Step>
+    ### Open a PR
+
+    Push the worktree branch and open a pull request — the standard review path when you want a teammate (or your future self) to look first.
+
+    > TODO: CastCodes UI — pane action label. Confirm whether it (a) just runs `gh pr create`, (b) opens a draft PR form, (c) integrates with a specific provider.
+
+    CLI equivalent:
+
+    ```bash
+    git push -u origin <worktree-branch>
+    gh pr create --title "..." --body "..."
+    coven sessions archive <session-id>
+    ```
+  </Step>
+
+  <Step>
+    ### Archive
+
+    Stop the PTY (if still running), but keep the session record and event log so you can rejoin and replay the work later. Useful when you don't want to ship the changes but want to remember what the agent tried.
+
+    ```bash
+    coven sessions archive <session-id>
+    ```
+
+    Archived sessions appear in `coven sessions --all` and remain replayable through `coven rejoin --replay`.
+  </Step>
+
+  <Step>
+    ### Sacrifice
+
+    Delete the session record, its event log, and (if it lived in a per-lane worktree) the worktree itself. This is the explicit "throw it all away" path.
+
+    ```bash
+    coven sessions sacrifice <session-id>
+    ```
+
+    <Callout type="warn" title="Destructive">
+      Sacrifice is irreversible. The event log is gone — there's no replay. Use this when the agent's attempt was a dead end and the log isn't worth keeping.
+    </Callout>
+  </Step>
+</Steps>
+
+## Why "explicit either way" matters
+
+Implicit cleanup is how agent workflows accumulate ghost branches, untracked worktrees, and "wait, what did the agent change?" mysteries. The demo loop is built around the inverse:
+
+- **Step 1** makes the *project boundary* explicit (root and cwd).
+- **Step 2** makes the *intent* explicit (harness + prompt + title).
+- **Step 3** makes the *work* explicit (live pane + event log).
+- **Step 4** makes the *result* explicit (diff + validation).
+- **Step 5** makes the *outcome* explicit (one of four, by your choice).
+
+If you finished step 5, the session is closed. The next loop starts again at step 1.
+
+<Callout type="info" title="Back to the overview">
+  Loop closed. Return to [the demo loop overview](/docs/guide/demo-loop) or start a new loop from [step 1](/docs/guide/demo-loop/open-project).
+</Callout>

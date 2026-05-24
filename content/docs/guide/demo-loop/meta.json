@@ -1,0 +1,12 @@
+{
+  "title": "Demo Loop",
+  "description": "End-to-end walkthrough from open-project to finish.",
+  "pages": [
+    "index",
+    "open-project",
+    "launch-session",
+    "watch-session",
+    "inspect-changes",
+    "finish-loop"
+  ]
+}
