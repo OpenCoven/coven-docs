@@ -165,19 +165,33 @@ a:hover { color: var(--coven-violet-light); }
   min-width: 1.75rem;
 }
 
-/* Keep Fumadocs root selector descriptions to a single row. */
-aside button[class*="rounded-lg"][class*="ps-2"][class*="pe-4"] > div,
-[data-radix-popper-content-wrapper] a[class*="py-1.5"] > div {
+/* Keep Fumadocs root-section selector descriptions to a single row.
+ * Fumadocs renders the trigger button with `rounded-lg p-2 border bg-fd-secondary/50`
+ * and the popover panel items (portaled to body) with `rounded-lg p-1.5`.
+ * The description sits in a `<p class="text-[0.8125rem] text-fd-muted-foreground">`
+ * — NOT `text-xs`, so the older selectors below never matched. */
+#nd-sidebar button[class*="rounded-lg"][class*="border"][class*="bg-fd-secondary"] > div,
+[data-radix-popper-content-wrapper] a[class*="rounded-lg"][class*="p-1.5"] > div {
   min-width: 0;
 }
 
-aside button[class*="rounded-lg"][class*="ps-2"][class*="pe-4"] p.text-xs.text-fd-muted-foreground,
-[data-radix-popper-content-wrapper] a[class*="py-1.5"] p.text-xs.text-fd-muted-foreground {
+#nd-sidebar button[class*="rounded-lg"][class*="border"][class*="bg-fd-secondary"] p.text-fd-muted-foreground,
+[data-radix-popper-content-wrapper] a[class*="rounded-lg"][class*="p-1.5"] p.text-fd-muted-foreground {
   display: block;
   max-width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+/* Sidebar compactness — tighten vertical density of links and folders.
+ * Fumadocs ships sidebar items with `p-2` (8px). Drop vertical padding to 4px
+ * while preserving the 8px horizontal padding, so labels keep breathing room
+ * but the column reads as a denser table of contents. */
+#nd-sidebar a[class*="rounded-lg"]:not([class*="border"]):not([class*="p-1.5"]),
+#nd-sidebar button[class*="rounded-lg"]:not([class*="border"]):not([class*="bg-fd-secondary"]) {
+  padding-top: 0.25rem !important;
+  padding-bottom: 0.25rem !important;
 }
 
 /* Code blocks.
