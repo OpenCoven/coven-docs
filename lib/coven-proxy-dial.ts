@@ -36,7 +36,11 @@ export function envelope(
   details: Record<string, unknown>,
   status: number,
 ): Response {
-  return Response.json({ error: { code, message, details } }, { status });
+  const body = JSON.stringify({ error: { code, message, details } }, null, 2) + '\n';
+  return new Response(body, {
+    status,
+    headers: { 'content-type': 'application/json; charset=utf-8' },
+  });
 }
 
 export function daemonUnreachable(
