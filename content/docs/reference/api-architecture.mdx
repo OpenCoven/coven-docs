@@ -1,0 +1,223 @@
+---
+title: "API architecture diagrams"
+summary: "A visual map of Coven's local socket API: route topology, compatibility handshake, errors, event cursors, live control, launch lifecycle, and daemon authority."
+description: "A visual map of Coven's local socket API: route topology, compatibility handshake, errors, event cursors, live control, launch lifecycle, and daemon authority."
+read_when:
+  - Designing a client against Coven's local API
+  - Reviewing API contract diagrams from the Coven repo
+  - Checking how sessions, events, errors, and authority boundaries fit together
+---
+
+import { DocsDataTable } from '@/components/docs-data-table';
+
+# API Architecture Diagrams
+
+_Last updated: 2026-05-24_
+
+This page collects the API architecture diagrams that live across the Coven source docs and makes them visible from the docs website in one place. Use it as the visual companion to [Coven Local API](/docs/reference/api), [Client Integration](/docs/familiars/clients), [Session Lifecycle](/docs/familiars/sessions), [Authentication and local access](/docs/reference/auth), and [Safety Model](/docs/reference/safety).
+
+<DocsDataTable
+  caption="Diagram sources"
+  searchPlaceholder="Filter diagram sources..."
+  columns={[
+    { key: 'diagram', label: 'Diagram' },
+    { key: 'source', label: 'Source doc', filter: true },
+    { key: 'purpose', label: 'Purpose' },
+  ]}
+  rows={[
+    { diagram: 'API route topology', source: '`docs/API.md`', purpose: 'Shows the local Unix socket, `/api/v1` router, and current endpoint families.' },
+    { diagram: 'Compatibility handshake', source: '`docs/CLIENT-INTEGRATION.md`', purpose: 'Shows how clients fail closed before using sessions, events, or actions.' },
+    { diagram: 'Structured error envelope', source: '`docs/API-CONTRACT.md`', purpose: 'Shows how parse, routing, validation, lookup, and runtime failures become stable error codes.' },
+    { diagram: 'Incremental event reads', source: '`docs/API-CONTRACT.md`', purpose: 'Shows `afterSeq` cursor pagination and crash-safe resume behavior.' },
+    { diagram: 'Session launch lifecycle', source: '`docs/SESSION-LIFECYCLE.md`', purpose: 'Shows daemon validation, PTY spawn, event persistence, and terminal status updates.' },
+    { diagram: 'Daemon authority boundary', source: '`docs/ARCHITECTURE.md` / `docs/SAFETY-MODEL.md`', purpose: 'Shows why clients are UX layers and the Rust daemon owns enforcement.' },
+  ]}
+/>
+
+## Route Topology
+
+The public v0 contract is local HTTP over the user's Unix socket. The route prefix is `/api/v1`; legacy unversioned aliases are early-MVP compatibility only.
+
+```mermaid
+flowchart LR
+  Client[Local client] -->|connect| Sock["<covenHome>/coven.sock"]
+  Sock -->|HTTP/1.1| Router["/api/v1 router"]
+  Router --> Health["/health"]
+  Router --> Capabilities["/capabilities"]
+  Router --> Actions["/actions"]
+  Router --> Sessions["/sessions[/:id[/input|/kill]]"]
+  Router --> Events["/events"]
+  Router --> Version["/api-version"]
+
+  Health & Capabilities & Actions & Sessions & Events & Version -->|"{ ... } or { error: { code, message, details } }"| Client
+```
+
+## Compatibility Handshake
+
+Clients should use `GET /api/v1/health` before assuming response shapes from any other route. `apiVersion: "coven.daemon.v1"` is the contract guard; `covenVersion` is diagnostics metadata.
+
+```mermaid
+sequenceDiagram
+  participant Client
+  participant Daemon
+
+  Client->>Daemon: GET /api/v1/health
+  alt daemon unreachable
+    Daemon--xClient: connection refused
+    Client->>Client: show "coven daemon start" hint
+  else apiVersion != coven.daemon.v1
+    Daemon-->>Client: 200 { apiVersion: "coven.daemon.v2" }
+    Client->>Client: show "update Coven or client" hint
+  else compatible
+    Daemon-->>Client: 200 { apiVersion: "coven.daemon.v1", capabilities }
+    Client->>Daemon: GET /api/v1/capabilities (if using actions)
+    Daemon-->>Client: capability catalog
+    Client->>Daemon: GET /api/v1/sessions ...
+    Daemon-->>Client: SessionRecord[]
+  end
+```
+
+## Structured Error Envelope
+
+All failures return a structured envelope. Clients should branch on `error.code`, not on message text.
+
+```mermaid
+flowchart TD
+  Req[Incoming request] --> Parse{Parse + version check}
+  Parse -- bad shape --> ErrInvalid["400 invalid_request"]
+  Parse -- unknown version --> ErrInvalid
+  Parse -- ok --> Route{Route exists?}
+  Route -- no --> ErrNotFound["404 not_found"]
+  Route -- yes --> Validate{Field validation}
+  Validate -- cwd outside root --> ErrCwd["400 project_root_violation"]
+  Validate -- unknown harness/action --> ErrInvalid
+  Validate -- ok --> Action{Resource lookup}
+  Action -- session missing --> ErrSession["404 session_not_found"]
+  Action -- session not live --> ErrLive["409 session_not_live"]
+  Action -- PTY spawn fails --> ErrPty["500 pty_spawn_failed"]
+  Action -- runtime down --> ErrRuntime["503 runtime_unavailable"]
+  Action -- internal panic --> ErrInternal["500 internal_error"]
+  Action -- ok --> Success[Documented success shape]
+
+  ErrInvalid & ErrNotFound & ErrCwd & ErrSession & ErrLive & ErrPty & ErrRuntime & ErrInternal -->|"{ error: { code, message, details } }"| Client[Client branches on code]
+```
+
+## Incremental Event Reads
+
+Events are append-only and use monotonic `seq` values. Persisting `nextCursor.afterSeq` lets clients resume event reads after a client crash or daemon restart.
+
+```mermaid
+sequenceDiagram
+  participant Client
+  participant Daemon as /api/v1/events
+
+  Client->>Daemon: GET ?sessionId=S1
+  Daemon-->>Client: { events: [seq 1..50], nextCursor: { afterSeq: 50 }, hasMore: true }
+  Client->>Client: persist last seq = 50
+  Client->>Daemon: GET ?sessionId=S1&afterSeq=50
+  Daemon-->>Client: { events: [seq 51..78], nextCursor: { afterSeq: 78 }, hasMore: false }
+  Client->>Client: persist last seq = 78
+
+  note over Client,Daemon: Client crash + restart
+  Client->>Daemon: GET ?sessionId=S1&afterSeq=78
+  Daemon-->>Client: { events: [seq 79..82], nextCursor: { afterSeq: 82 }, hasMore: false }
+```
+
+## Live Session Control
+
+Live input and kill are accepted only for daemon-verified live sessions. Completed, failed, killed, archived, or orphaned sessions are replay/log surfaces.
+
+```mermaid
+sequenceDiagram
+  participant Client
+  participant Daemon
+  participant PTY as Harness PTY
+  participant Store as SQLite store
+
+  Client->>Daemon: POST /api/v1/sessions/:id/input { data }
+  alt session is live
+    Daemon->>PTY: forward input
+    Daemon->>Store: append input event
+    Daemon-->>Client: 202 { ok: true, accepted: true }
+  else session missing
+    Daemon-->>Client: 404 { error: { code: "session_not_found" } }
+  else session not live
+    Daemon-->>Client: 409 { error: { code: "session_not_live" } }
+  end
+
+  Client->>Daemon: POST /api/v1/sessions/:id/kill
+  alt session is live
+    Daemon->>PTY: terminate process
+    Daemon->>Store: mark killed + append kill event
+    Daemon-->>Client: 202 { ok: true, accepted: true }
+  else session missing or not live
+    Daemon-->>Client: structured error envelope
+  end
+```
+
+## Session Launch Lifecycle
+
+Launches are project-scoped. The daemon canonicalizes the project root and working directory, validates the harness id, inserts the session record, spawns the harness with argv APIs, then persists output and exit events.
+
+```mermaid
+sequenceDiagram
+  participant Client as Client (CLI / TUI / CastCodes / plugin)
+  participant Daemon as Coven daemon
+  participant Store as SQLite store
+  participant PTY as Harness PTY
+
+  Client->>Daemon: POST /api/v1/sessions { projectRoot, cwd, harness, prompt }
+  Daemon->>Daemon: canonicalize projectRoot
+  alt projectRoot invalid
+    Daemon-->>Client: 400 invalid_request
+  end
+  Daemon->>Daemon: canonicalize cwd inside projectRoot
+  alt cwd outside root
+    Daemon-->>Client: 400 project_root_violation
+  end
+  Daemon->>Daemon: lookup harness in adapter table
+  alt harness unknown
+    Daemon-->>Client: 400 invalid_request (with install hint)
+  end
+  Daemon->>Store: insert session (status=created)
+  Daemon->>PTY: spawn argv (prefix args + prompt)
+  alt PTY spawn fails
+    Daemon->>Store: update status=failed
+    Daemon-->>Client: 500 pty_spawn_failed
+  else PTY spawn ok
+    Daemon->>Store: update status=running
+    Daemon-->>Client: 200 SessionRecord
+    PTY-->>Store: append output / exit events
+    PTY->>Daemon: process exits with code
+    Daemon->>Store: update status=completed|failed, exit_code
+  end
+```
+
+## Daemon Authority Boundary
+
+Clients may validate for UX, but daemon validation is the enforcement boundary. Unknown API versions, unsupported harness ids, invalid session ids, unknown action ids, and outside-root working directories fail closed.
+
+```mermaid
+flowchart TB
+  subgraph UntrustedZone["Untrusted for enforcement (UX layer only)"]
+    direction LR
+    CLI[CovenCLI / TUI]
+    CastCodes[CastCodes]
+    CastAgent[Cast Agent]
+    Plugin["@opencoven/coven plugin"]
+    Scripts[Scripts / other clients]
+  end
+
+  UntrustedZone -->|HTTP over Unix socket| Boundary{{Daemon authority boundary}}
+
+  subgraph TrustedZone["Trusted for enforcement"]
+    direction TB
+    Boundary --> ValidateRoot[Canonicalize projectRoot]
+    ValidateRoot --> ValidateCwd[Canonicalize cwd inside root]
+    ValidateCwd --> AllowHarness[Allowlist harness id]
+    AllowHarness --> ValidateSession[Validate session id / liveness]
+    ValidateSession --> RouteAction[Route action id via control plane]
+    RouteAction --> Spawn[Spawn argv only - never sh -c]
+    Spawn --> Store[(SQLite store + append-only events)]
+  end
+```
