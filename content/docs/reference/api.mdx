@@ -7,11 +7,14 @@ read_when:
   - Looking up /api/v1 endpoint behavior
 ---
 
+import { Callout } from 'fumadocs-ui/components/callout';
 import { DocsDataTable } from '@/components/docs-data-table';
 
-# Coven Local API
-
 _Last updated: 2026-05-09_
+
+<Callout type="info" title="Looking for an interactive reference?">
+  The [API Reference](/docs/openapi) section renders each endpoint as a live page with request/response schemas, code samples in four languages, and Try It panels that bridge to your local daemon. This page remains the narrative reference for concepts, error model, and versioning rules.
+</Callout>
 
 Coven exposes a small HTTP API over the local Unix socket at `<covenHome>/coven.sock`. The Rust daemon is the authority boundary: clients may validate for UX, but the daemon still validates project roots, cwd, harness ids, session ids, input, and live-session state before acting.
 

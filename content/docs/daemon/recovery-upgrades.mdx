@@ -7,8 +7,6 @@ read_when:
   - Upgrading Coven without losing session context
 ---
 
-# Recovery and Upgrades
-
 The daemon is responsible for recovering local state without pretending every session is still live. Treat crash recovery and upgrades as state transitions: inspect first, then restart, then reattach or replay.
 
 ## Stale socket
