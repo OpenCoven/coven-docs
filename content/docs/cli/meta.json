@@ -1,6 +1,6 @@
 {
   "title": "CLI Reference",
-  "description": "Install, inspect, run, recover, and automate Coven from the coven command.",
+  "description": "Command-Line Reference",
   "root": true,
   "icon": "LuTerminal",
   "pages": [

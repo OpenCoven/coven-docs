@@ -1,6 +1,6 @@
 {
   "title": "Daemon",
-  "description": "Process lifecycle, socket API, local trust boundary, diagnostics, and recovery.",
+  "description": "Process and Socket API",
   "root": true,
   "icon": "LuServer",
   "pages": [

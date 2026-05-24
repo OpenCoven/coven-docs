@@ -66,7 +66,7 @@ if (meta.title !== 'Memory + Models') {
   fail('content/docs/memory-models/meta.json must use title "Memory + Models".');
 }
 
-if (meta.description !== 'Memory layers, search, provider boundaries, and model access for persistent familiars.') {
+if (meta.description !== 'Memory Layers and Providers') {
   fail('content/docs/memory-models/meta.json description must describe the memory and models section.');
 }
 

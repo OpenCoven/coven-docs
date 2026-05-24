@@ -70,7 +70,7 @@ if (cliMeta.title !== 'CLI Reference') {
   fail('content/docs/cli/meta.json must use title "CLI Reference".');
 }
 
-if (cliMeta.description !== 'Install, inspect, run, recover, and automate Coven from the coven command.') {
+if (cliMeta.description !== 'Command-Line Reference') {
   fail('content/docs/cli/meta.json description must describe the command reference section.');
 }
 

@@ -1,6 +1,6 @@
 {
-  "title": "Future Hosted API",
-  "description": "Future hosted API placeholder",
+  "title": "API",
+  "description": "Future Hosted Endpoints",
   "root": true,
   "icon": "LuRocket",
   "pages": [

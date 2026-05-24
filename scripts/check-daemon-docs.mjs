@@ -45,7 +45,7 @@ if (daemonMeta.title !== 'Daemon') {
   fail('content/docs/daemon/meta.json must use title "Daemon".');
 }
 
-if (daemonMeta.description !== 'Process lifecycle, socket API, local trust boundary, diagnostics, and recovery.') {
+if (daemonMeta.description !== 'Process and Socket API') {
   fail('content/docs/daemon/meta.json description must describe the operational daemon section.');
 }
 
