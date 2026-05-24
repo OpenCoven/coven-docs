@@ -1,0 +1,83 @@
+---
+title: "Daemon lifecycle"
+summary: "How the daemon starts, reports status, restarts, stops, and treats live sessions."
+description: "Lifecycle reference for the Coven daemon: start, status, restart, stop, socket binding, ledger recovery, and live-session behavior."
+read_when:
+  - Managing the daemon process
+  - Debugging a daemon that will not start or will not stop
+---
+
+# Daemon Lifecycle
+
+The daemon lifecycle is intentionally small: start it, inspect it, restart it after configuration changes, or stop it when you want the local Coven runtime down.
+
+```bash
+coven daemon start
+coven daemon status
+coven daemon restart
+coven daemon stop
+```
+
+`status` is the safest first command in scripts and support flows. It tells you whether the background process exists, which socket it owns, and which API contract it is serving.
+
+## Start
+
+`coven daemon start` creates `$COVEN_HOME` if needed, opens the SQLite store, binds `$COVEN_HOME/coven.sock`, writes `$COVEN_HOME/daemon.json`, and begins serving `/api/v1`.
+
+Startup should fail closed when:
+
+- `$COVEN_HOME` cannot be created or opened.
+- The socket path is not writable by the current user.
+- The SQLite ledger cannot be opened.
+- Another live daemon already owns the socket.
+
+If a stale socket is present after a crash, use [Recovery and upgrades](/docs/daemon/recovery-upgrades) before deleting anything by hand.
+
+## Status
+
+Use `status` before relying on daemon behavior:
+
+```bash
+coven daemon status
+```
+
+The useful fields are:
+
+| Field | Why it matters |
+| --- | --- |
+| `pid` | Confirms the process that owns this daemon instance. |
+| `socket` | Confirms which `$COVEN_HOME` is active. |
+| `apiVersion` | Confirms client compatibility with `coven.daemon.v1`. |
+| `uptime` / `startedAt` | Helps distinguish a fresh restart from a stale process. |
+
+When building a client, prefer the HTTP [health handshake](/docs/daemon/socket-api#health) over scraping CLI status text.
+
+## Restart
+
+`restart` is the normal way to apply daemon-level changes such as a new `COVEN_HOME`.
+
+```bash
+export COVEN_HOME="$HOME/.local/share/coven"
+coven daemon restart
+```
+
+Restart should drain the old listener, release the previous socket, reopen the store under the selected state directory, and serve the same `/api/v1` contract again.
+
+## Stop
+
+`stop` shuts down the background daemon. Live sessions should be treated conservatively: clients must not assume a stopped daemon means a harness completed its work. Reattach or inspect the session ledger after starting the daemon again.
+
+## Client behavior during lifecycle changes
+
+Clients should handle these states explicitly:
+
+- Socket connection refused: show a `coven daemon start` hint.
+- Health route responds with another `apiVersion`: ask the user to update Coven or the client.
+- Live input returns `session_not_live`: switch to replay or attach guidance.
+- Runtime unavailable: retry after a short delay or ask the user to inspect daemon status.
+
+## Related
+
+- [Socket API](/docs/daemon/socket-api)
+- [Recovery and upgrades](/docs/daemon/recovery-upgrades)
+- [Session Lifecycle](/docs/familiars/sessions)

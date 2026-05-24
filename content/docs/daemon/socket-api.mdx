@@ -1,0 +1,128 @@
+---
+title: "Socket API"
+summary: "The local HTTP-over-Unix-socket API: health, capabilities, versioning, endpoints, and structured errors."
+description: "Reference for the Coven daemon socket API under /api/v1, including health, capability negotiation, versioning, endpoint families, and the structured error envelope."
+read_when:
+  - Building a client for the Coven daemon
+  - Auditing the local /api/v1 contract
+---
+
+# Socket API
+
+The daemon exposes a small HTTP API over a Unix socket. The current public contract is `coven.daemon.v1` under the `/api/v1` prefix.
+
+The socket is local by default:
+
+```bash
+curl --unix-socket "$HOME/.coven/coven.sock" \
+  http://localhost/api/v1/health
+```
+
+For the full endpoint reference, see [Coven local socket API](/docs/reference/api). For diagrams of the handshake, event cursors, launch lifecycle, and authority boundary, see [API architecture diagrams](/docs/reference/api-architecture).
+
+## Health
+
+Every client should begin with:
+
+```http
+GET /api/v1/health
+```
+
+Expected shape:
+
+```json
+{
+  "ok": true,
+  "apiVersion": "coven.daemon.v1",
+  "covenVersion": "0.0.0",
+  "capabilities": {
+    "sessions": true,
+    "events": true,
+    "eventCursor": "sequence",
+    "structuredErrors": true
+  },
+  "daemon": {
+    "pid": 12345,
+    "startedAt": "2026-05-09T12:00:00Z",
+    "socket": "/Users/example/.coven/coven.sock"
+  }
+}
+```
+
+Clients should branch on `apiVersion`, then use `capabilities` to decide which surfaces to show. `covenVersion` is useful diagnostics metadata, not the compatibility guard.
+
+## Capability discovery
+
+`GET /api/v1/capabilities` exposes the daemon and adapter capability catalog. Use it before hard-coding action ids or assuming a harness is available.
+
+Capabilities can describe:
+
+- Session and event support.
+- Event cursor support.
+- Structured error support.
+- Available harness adapters.
+- Control-plane action ids.
+- Policy hints for safe, approval-required, or unavailable actions.
+
+## Endpoint families
+
+| Endpoint | Purpose |
+| --- | --- |
+| `GET /api/v1/api-version` | Read route-prefix version metadata. |
+| `GET /api/v1/health` | Check daemon health and compatibility. |
+| `GET /api/v1/capabilities` | Discover daemon and control-plane capabilities. |
+| `POST /api/v1/actions` | Route a known control-plane action. |
+| `GET /api/v1/sessions` | List sessions. |
+| `POST /api/v1/sessions` | Launch a session. |
+| `GET /api/v1/sessions/:id` | Fetch one session. |
+| `GET /api/v1/events?sessionId=...` | Read append-only session events. |
+| `POST /api/v1/sessions/:id/input` | Forward input to a live session. |
+| `POST /api/v1/sessions/:id/kill` | Kill a live session. |
+
+New clients should use the `/api/v1` prefix. Early unversioned aliases are compatibility paths, not the contract to build around.
+
+## Error envelope
+
+All failures should use the structured error envelope:
+
+```json
+{
+  "error": {
+    "code": "session.cwd_outside_root",
+    "message": "cwd must canonicalize inside project root",
+    "details": {
+      "projectRoot": "/Users/me/work/proj",
+      "cwd": "/tmp/wander"
+    }
+  }
+}
+```
+
+Clients should branch on `error.code`, not message text. Message text can improve human debugging, but codes are the stable behavior surface.
+
+Common classes:
+
+| Code class | Client behavior |
+| --- | --- |
+| Invalid request | Fix the request shape, route prefix, harness id, project root, or cwd. |
+| Not found | Stop assuming the route, session, event cursor, or action id exists. |
+| Not live | Switch from live input or kill controls to attach, replay, or diagnostics. |
+| Runtime unavailable | Ask the user to inspect daemon status or retry after restart. |
+
+## Versioning rules
+
+`apiVersion: "coven.daemon.v1"` is the named contract. Coven can add fields, endpoints, and capabilities under an existing version. Breaking changes require a new named contract.
+
+Client rule of thumb:
+
+1. Call health.
+2. Confirm the named API contract.
+3. Read capabilities.
+4. Use only supported endpoint families.
+5. Handle structured errors everywhere.
+
+## Related
+
+- [Daemon lifecycle](/docs/daemon/lifecycle)
+- [Configuration and COVEN_HOME](/docs/daemon/configuration)
+- [Security posture](/docs/daemon/security)

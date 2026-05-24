@@ -1,0 +1,85 @@
+---
+title: "Observability"
+summary: "Logs, health checks, diagnostics, and the evidence to collect before filing a daemon issue."
+description: "Observability guide for the Coven daemon: health checks, daemon status, logs, socket checks, harness PATH checks, and diagnostic evidence for support."
+read_when:
+  - Debugging daemon behavior
+  - Filing a useful Coven issue
+---
+
+# Observability
+
+Useful daemon debugging starts with current evidence: process status, socket health, API compatibility, store reachability, and harness availability.
+
+## Fast check
+
+Run:
+
+```bash
+coven daemon status
+```
+
+Then confirm the socket route:
+
+```bash
+curl --unix-socket "$HOME/.coven/coven.sock" \
+  http://localhost/api/v1/health
+```
+
+If you use a custom state directory, replace `$HOME/.coven` with `$COVEN_HOME`.
+
+## What to capture
+
+| Evidence | Command or source | Why it matters |
+| --- | --- | --- |
+| Daemon status | `coven daemon status` | Confirms pid, socket path, uptime, and API version. |
+| Health response | `GET /api/v1/health` | Confirms the socket is reachable and the contract is compatible. |
+| Capabilities | `GET /api/v1/capabilities` | Confirms the daemon sees expected features and adapters. |
+| Session record | `GET /api/v1/sessions/:id` | Shows the daemon's status for one piece of work. |
+| Events | `GET /api/v1/events?sessionId=...` | Shows output, input, status, and exit sequence for replay. |
+| Harness path | `which codex`, `which claude` | Confirms the selected harness exists in the daemon environment. |
+
+Do not paste secrets, provider tokens, private gateway URLs, or raw credentials into issues.
+
+## Logs
+
+Daemon logs should answer:
+
+- Did the daemon bind the expected socket?
+- Did the store open?
+- Did the health route serve the expected contract?
+- Did a launch request fail validation?
+- Did a harness spawn fail?
+- Did a live input or kill request target a non-live session?
+
+When reading logs, search around the relevant session id, pid, timestamp, or structured error code.
+
+## Diagnostics bundle posture
+
+Diagnostic output should redact secret-shaped values by default. Still review bundles before sharing them publicly, because session output can include private paths, prompts, and model responses.
+
+Good issue reports include:
+
+- Coven version.
+- Operating system.
+- Install path and package manager.
+- Whether `COVEN_HOME` is customized.
+- `coven daemon status` output with secrets removed.
+- Health response with private paths redacted if necessary.
+- The failing command and exact structured error code.
+
+## Common symptoms
+
+| Symptom | First check |
+| --- | --- |
+| Connection refused | Is the daemon started? Is the socket path correct? |
+| Unsupported API version | Are the client and daemon from compatible releases? |
+| Harness not found | Does the daemon environment have the harness on `PATH`? |
+| Session not live | Did the process exit, crash, get killed, or become orphaned? |
+| cwd rejected | Does cwd canonicalize inside the submitted project root? |
+
+## Related
+
+- [Socket API](/docs/daemon/socket-api)
+- [Recovery and upgrades](/docs/daemon/recovery-upgrades)
+- [Troubleshooting](/docs/reference/troubleshooting)
