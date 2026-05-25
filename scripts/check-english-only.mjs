@@ -16,7 +16,7 @@ const forbiddenLocaleDirs = new Set([
   'zh-CN',
   'zh-TW',
 ]);
-const ignoredDirs = new Set(['.git', '.next', '.source', 'node_modules']);
+const ignoredDirs = new Set(['.git', '.next', '.source', 'node_modules', '.pnpm-store', '.pnpm', '.vercel', '.turbo', '.cache']);
 
 function walk(dir) {
   const entries = fs.readdirSync(dir, { withFileTypes: true });
