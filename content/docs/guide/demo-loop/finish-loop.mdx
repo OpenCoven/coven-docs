@@ -12,7 +12,7 @@ A session that never ends explicitly is the failure mode Coven exists to prevent
 ## The four outcomes
 
 <Mermaid chart={`
-flowchart TD
+flowchart LR
   Inspect{Work usable?} -->|Yes, ship it| Merge["Merge to branch"]
   Inspect -->|Yes, but needs review| PR["Open a pull request"]
   Inspect -->|No, but keep the log| Archive["Archive session"]
@@ -43,7 +43,7 @@ flowchart TD
     git merge <worktree-branch>
     git worktree remove <worktree-path>
     coven sessions archive <session-id>
-    ```
+    ```sh
   </Step>
 
   <Step>
@@ -59,7 +59,7 @@ flowchart TD
     git push -u origin <worktree-branch>
     gh pr create --title "..." --body "..."
     coven sessions archive <session-id>
-    ```
+    ```sh
   </Step>
 
   <Step>
@@ -69,7 +69,7 @@ flowchart TD
 
     ```bash
     coven sessions archive <session-id>
-    ```
+    ```sh
 
     Archived sessions appear in `coven sessions --all` and remain replayable through `coven rejoin --replay`.
   </Step>

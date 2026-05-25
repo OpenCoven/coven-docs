@@ -37,7 +37,7 @@ sequenceDiagram
     Client->>Daemon: GET /api/v1/sessions ...
     Daemon-->>Client: SessionRecord[]
   end
-```
+```sh
 
 Clients should treat the handshake as **mandatory before any other request**. Skipping it means depending on undefined response shapes from a future daemon version.
 
@@ -110,13 +110,13 @@ The package installs an opt-in OpenClaw plugin with plugin id `opencoven-coven` 
 
 ```sh
 openclaw plugins install clawhub:@opencoven/coven
-```
+```sh
 
 For local development from the Coven repo:
 
 ```sh
 openclaw plugins install ./packages/openclaw-coven --force
-```
+```sh
 
 The bridge is a client of Coven. Its first runtime step should be the same as every other client: connect to the configured local socket, call `GET /api/v1/health`, verify `apiVersion === "coven.daemon.v1"`, then depend only on documented `/api/v1` behavior.
 
@@ -140,7 +140,7 @@ sequenceDiagram
     Daemon-->>Plugin: session record + events
     Plugin-->>OC: mapped ACP runtime events
   end
-```
+```tsx
 
 <DocsDataTable
   caption="OpenClaw plugin contract"

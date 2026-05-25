@@ -48,7 +48,7 @@ flowchart LR
   Router --> Version["/api-version"]
 
   Health & Capabilities & Actions & Sessions & Events & Version -->|"{ ... } or { error: { code, message, details } }"| Client
-```
+```sh
 
 ## Compatibility Handshake
 
@@ -73,14 +73,14 @@ sequenceDiagram
     Client->>Daemon: GET /api/v1/sessions ...
     Daemon-->>Client: SessionRecord[]
   end
-```
+```sh
 
 ## Structured Error Envelope
 
 All failures return a structured envelope. Clients should branch on `error.code`, not on message text.
 
 ```mermaid
-flowchart TD
+flowchart LR
   Req[Incoming request] --> Parse{Parse + version check}
   Parse -- bad shape --> ErrInvalid["400 invalid_request"]
   Parse -- unknown version --> ErrInvalid
@@ -98,7 +98,7 @@ flowchart TD
   Action -- ok --> Success[Documented success shape]
 
   ErrInvalid & ErrNotFound & ErrCwd & ErrSession & ErrLive & ErrPty & ErrRuntime & ErrInternal -->|"{ error: { code, message, details } }"| Client[Client branches on code]
-```
+```sh
 
 ## Incremental Event Reads
 
@@ -119,7 +119,7 @@ sequenceDiagram
   note over Client,Daemon: Client crash + restart
   Client->>Daemon: GET ?sessionId=S1&afterSeq=78
   Daemon-->>Client: { events: [seq 79..82], nextCursor: { afterSeq: 82 }, hasMore: false }
-```
+```sh
 
 ## Live Session Control
 
@@ -151,7 +151,7 @@ sequenceDiagram
   else session missing or not live
     Daemon-->>Client: structured error envelope
   end
-```
+```sh
 
 ## Session Launch Lifecycle
 
@@ -189,14 +189,14 @@ sequenceDiagram
     PTY->>Daemon: process exits with code
     Daemon->>Store: update status=completed|failed, exit_code
   end
-```
+```sh
 
 ## Daemon Authority Boundary
 
 Clients may validate for UX, but daemon validation is the enforcement boundary. Unknown API versions, unsupported harness ids, invalid session ids, unknown action ids, and outside-root working directories fail closed.
 
 ```mermaid
-flowchart TB
+flowchart LR
   subgraph UntrustedZone["Untrusted for enforcement (UX layer only)"]
     direction LR
     CLI[CovenCLI / TUI]
@@ -209,7 +209,7 @@ flowchart TB
   UntrustedZone -->|HTTP over Unix socket| Boundary{{Daemon authority boundary}}
 
   subgraph TrustedZone["Trusted for enforcement"]
-    direction TB
+    direction LR
     Boundary --> ValidateRoot[Canonicalize projectRoot]
     ValidateRoot --> ValidateCwd[Canonicalize cwd inside root]
     ValidateCwd --> AllowHarness[Allowlist harness id]

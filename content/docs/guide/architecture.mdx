@@ -9,7 +9,7 @@ import { Mermaid } from '@/components/mermaid';
 ## System Overview
 
 <Mermaid chart={`
-flowchart TD
+flowchart LR
     U[User / Developer] --> SURF[Channels and surfaces\nTelegram / Discord / CLI / CastCodes / OpenClaw]
     SURF --> CODE[Cast Codes\nportable intent grammar]
     CODE --> AGENT[Cast Agent\nsubstrate + session backend]
@@ -58,7 +58,7 @@ flowchart LR
   Daemon --> Events[(append-only event log)]
   Codex --> Events
   Claude --> Events
-```
+```sh
 
 ## Session Lifecycle
 
@@ -86,12 +86,12 @@ sequenceDiagram
   U->>C: Rejoin / View Log / Summon / Archive / Sacrifice
   C->>D: attach/input/kill when live
   C->>S: archive/summon/sacrifice non-live session rituals
-```
+```sh
 
 ## Authority Boundary
 
 ```mermaid
-flowchart TD
+flowchart LR
   Client[CLI/TUI, CastCodes/Cast Agent, OpenClaw plugin, scripts] --> Request[Launch / input / kill / list request]
   Request --> Rust[Rank 0 authority: Rust daemon]
   Rust --> RootCheck{projectRoot explicit?}
@@ -102,7 +102,7 @@ flowchart TD
   HarnessCheck -- no --> RejectHarness[Reject with install hint]
   HarnessCheck -- yes --> Spawn[Spawn harness with argv APIs]
   Spawn --> Ledger[Persist session + events]
-```
+```sh
 
 Cast Codes are parsed intent. Every sensitive request they produce is still revalidated by the Rust daemon.
 
@@ -121,7 +121,7 @@ sequenceDiagram
   A->>D: list/open local Coven sessions
   D-->>A: session records/events
   A-->>UI: stream response + session affordances
-```
+```sh
 
 ## Automation Boundary
 

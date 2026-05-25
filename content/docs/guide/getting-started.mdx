@@ -33,7 +33,7 @@ Use the npm wrapper when you want the fastest public install:
 ```sh
 npx @opencoven/cli doctor
 pnpm dlx @opencoven/cli doctor
-```
+```sh
 
 Build from source when you are contributing to Coven:
 
@@ -42,7 +42,7 @@ git clone https://github.com/OpenCoven/coven.git
 cd coven
 cargo build --workspace
 cargo run -p coven-cli -- doctor
-```
+```sh
 
 ## Prerequisites
 
@@ -74,7 +74,7 @@ codex login
 
 npm install -g @anthropic-ai/claude-code
 claude doctor
-```
+```sh
 
 ## First Run
 
@@ -82,7 +82,7 @@ From a project directory:
 
 ```sh
 coven
-```
+```sh
 
 The default command opens the prompt-first TUI.
 
@@ -106,7 +106,7 @@ If you prefer to run the explicit setup checks:
 
 ```sh
 coven doctor
-```
+```sh
 
 `coven doctor` checks setup readiness before you launch work.
 
@@ -133,25 +133,25 @@ Start the daemon, then launch a harness session from a repository or project dir
 ```sh
 coven daemon start
 coven run codex "fix the failing tests"
-```
+```sh
 
 or:
 
 ```sh
 coven run claude "polish the CLI help text"
-```
+```sh
 
 For a more readable session list, pass a title:
 
 ```sh
 coven run codex "update the docs" --title "Docs refresh"
-```
+```sh
 
 Use a specific working directory only when it is inside the detected project root:
 
 ```sh
 coven run codex "inspect this package" --cwd packages/cli
-```
+```sh
 
 Coven rejects outside-root working directories. Clients may validate for nicer UX, but the Rust daemon is the authority.
 
@@ -161,7 +161,7 @@ In an interactive terminal:
 
 ```sh
 coven sessions
-```
+```sh
 
 This opens the session browser. You can select a session and choose contextual actions.
 
@@ -189,7 +189,7 @@ coven sessions --plain
 coven sessions --all --plain
 coven sessions --json
 coven sessions --json --all
-```
+```sh
 
 ## Attach, Archive, Summon, and Sacrifice
 
@@ -200,7 +200,7 @@ coven attach <session-id>
 coven archive <session-id>
 coven summon <session-id>
 coven sacrifice <session-id> --yes
-```
+```sh
 
 Archive is reversible. Summon restores an archived session to the active list. Sacrifice is destructive and refuses live sessions.
 
@@ -208,13 +208,13 @@ Archive is reversible. Summon restores an archived session to the active list. S
 
 ```sh
 coven daemon stop
-```
+```sh
 
 Use `restart` when the socket or daemon state looks stale:
 
 ```sh
 coven daemon restart
-```
+```sh
 
 ## Diagnostics and Relief
 
@@ -228,14 +228,14 @@ coven pc status           # one-line health summary with 🟢/🟡/🔴 indicato
 coven pc status --json    # machine-readable health summary
 coven pc top --n 10       # top-N processes by CPU usage
 coven pc disk             # disk usage breakdown
-```
+```sh
 
 Relief operations mutate system state and require an explicit `--confirm` gate:
 
 ```sh
 coven pc kill <pid> --confirm     # SIGTERM with PID identity re-check
 coven pc cache clear --confirm    # clear ~/Library/Caches + /Library/Caches
-```
+```sh
 
 Safety constraints in v1:
 
@@ -269,7 +269,7 @@ flowchart LR
 
   Doctor -. on failure .-> Harness["Install harness CLI\n+ provider login"]
   Harness --> Doctor
-```
+```sh
 
 The "install → doctor → daemon → run → sessions" loop is the entire happy path for a first session. Everything else in this guide is fallback or troubleshooting.
 
@@ -283,7 +283,7 @@ cargo fmt --check
 cargo clippy --workspace --all-targets -- -D warnings
 cargo test --workspace --locked
 python scripts/check-secrets.py
-```
+```sh
 
 For daemon/session changes, also run the smoke test:
 

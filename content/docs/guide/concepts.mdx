@@ -9,7 +9,7 @@ import { Mermaid } from '@/components/mermaid';
 This page defines the nouns used across CovenCLI, the daemon, API, docs, and client integrations.
 
 ```mermaid
-flowchart TB
+flowchart LR
   OpenCoven[OpenCoven ecosystem] --> Coven[Coven runtime]
   Coven --> CovenCLI[CovenCLI]
   OpenCoven --> CastCodes[CastCodes]
@@ -29,7 +29,7 @@ flowchart TB
   CastCode --> Client
   CastAgent --> Socket
   Session --> Ritual["Rituals: archive / summon / sacrifice"]
-```
+```sh
 
 Every term below is one node in the graph above.
 
@@ -108,7 +108,7 @@ Examples:
 ```sh
 coven run codex "fix tests"
 coven run codex "inspect the CLI package" --cwd packages/cli
-```
+```sh
 
 The second command is valid only when `packages/cli` resolves inside the selected project root.
 
@@ -250,7 +250,7 @@ Current stable prefix:
 
 ```text
 /api/v1
-```
+```sh
 
 Clients should handshake with:
 

@@ -11,7 +11,7 @@ Cast Agent is the Coven-native substrate manager and AI agent backend inside Cas
 Cast Agent is a client-side backend, not the daemon authority layer. It can collect context and submit requests, but Coven daemon validation still owns project-root, cwd, harness, session, and action safety.
 
 <Mermaid chart={`
-flowchart TD
+flowchart LR
   UI[CastCodes UI] --> Agent[Cast Agent\nsubstrate + session backend]
   Agent --> Gateway[Coven Gateway\nHTTP + WebSocket]
   Agent --> Daemon[Coven daemon\nlocal socket API]

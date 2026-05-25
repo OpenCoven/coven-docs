@@ -16,7 +16,7 @@ Current first-class migrations now include [Daemon](/docs/daemon/lifecycle), [CL
 The public homepage should expose the actual Coven runtime stack, not only the familiar-facing abstraction.
 
 ```mermaid
-flowchart TB
+flowchart LR
   Surfaces["Clients and surfaces\nCastCodes, CLI/TUI, OpenClaw plugin"]
   Codes["Cast Codes\nportable intent grammar"]
   Agent["Cast Agent\nsubstrate + session backend"]
@@ -34,7 +34,7 @@ flowchart TB
   Daemon --> Store
   Daemon --> Harness --> Pty
   Pty --> Familiar --> Model
-```
+```sh
 
 ## Already Migrated
 
@@ -275,12 +275,12 @@ flowchart LR
   Daemon --> Store
   Daemon --> Log
   Daemon --> Pty --> Harness
-```
+```sh
 
 ### Trust Boundary
 
 ```mermaid
-flowchart TB
+flowchart LR
   Client["Same-user local client"]
   Socket["COVEN_HOME/coven.sock"]
   Daemon["Rust daemon enforcement"]
@@ -290,7 +290,7 @@ flowchart TB
   Client --> Socket --> Daemon
   Daemon --> Deny
   Daemon --> Provider
-```
+```sh
 
 ### Session Lifecycle
 
@@ -305,7 +305,7 @@ stateDiagram-v2
   Summoned --> Exited
   Exited --> Sacrificed
   Archived --> Sacrificed
-```
+```sh
 
 ### Client Handshake
 
@@ -324,7 +324,7 @@ sequenceDiagram
   Daemon-->>Client: session record
   Client->>Daemon: GET /api/v1/events?sessionId=...
   Daemon-->>Client: event page and cursor
-```
+```sh
 
 ### Cast Codes Intent Mapping
 
@@ -334,7 +334,7 @@ flowchart LR
   Parser --> Request["Structured session/action request"]
   Request --> Daemon["Coven daemon validation"]
   Daemon --> Event["Session/event result"]
-```
+```sh
 
 ### Cast Agent Substrate Flow
 
@@ -347,7 +347,7 @@ flowchart LR
   Diagnostics["Recent diagnostics"] --> Agent
   Agent --> Gateway["Coven Gateway request"]
   Agent --> Daemon["Local Coven session request"]
-```
+```sh
 
 ### Harness Adapter Lifecycle
 
@@ -361,12 +361,12 @@ flowchart LR
   Cleanup["Exit and cleanup"]
 
   Detect --> Auth --> Command --> Spawn --> Record --> Cleanup
-```
+```sh
 
 ### Troubleshooting Flow
 
 ```mermaid
-flowchart TB
+flowchart LR
   Doctor["Run coven doctor"]
   Command{"coven command found?"}
   Daemon{"daemon reachable?"}

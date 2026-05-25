@@ -15,7 +15,7 @@ If `COVEN_HOME` is not set, Coven uses:
 
 ```bash
 $HOME/.coven
-```
+```sh
 
 The daemon expects this layout:
 
@@ -34,13 +34,13 @@ Set `COVEN_HOME` before starting or restarting the daemon:
 ```bash
 export COVEN_HOME="$HOME/.local/share/coven"
 coven daemon restart
-```
+```sh
 
 After restart, confirm the selected socket and API contract:
 
 ```bash
 coven daemon status
-```
+```sh
 
 Scripts that call the socket should derive the socket path from the same environment:
 

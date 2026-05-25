@@ -34,7 +34,7 @@ Every client is untrusted for enforcement purposes.
 Clients may improve UX, but they must not be the only place where a sensitive decision is enforced.
 
 ```mermaid
-flowchart TB
+flowchart LR
   subgraph UntrustedZone["Untrusted for enforcement (UX layer only)"]
     direction LR
     CLI[CovenCLI / TUI]
@@ -47,7 +47,7 @@ flowchart TB
   UntrustedZone -->|HTTP over Unix socket| Boundary{{Daemon authority boundary}}
 
   subgraph TrustedZone["Trusted for enforcement"]
-    direction TB
+    direction LR
     Boundary --> ValidateRoot[Canonicalize projectRoot]
     ValidateRoot --> ValidateCwd[Canonicalize cwd inside root]
     ValidateCwd --> AllowHarness[Allowlist harness id]
@@ -56,7 +56,7 @@ flowchart TB
     RouteAction --> Spawn[Spawn argv only — never sh -c]
     Spawn --> Store[(SQLite store + append-only events)]
   end
-```
+```sh
 
 Anything in **UntrustedZone** can lie, drift, or be replaced. Anything in **TrustedZone** is the Rust daemon's job and must fail closed on unknowns. The arrow direction is the only direction a sensitive decision is allowed to flow: from untrusted into the boundary, where it is revalidated.
 

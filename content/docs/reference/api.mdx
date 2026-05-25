@@ -32,7 +32,7 @@ flowchart LR
   Router --> Version["/api-version"]
 
   Health & Capabilities & Actions & Sessions & Events & Version -->|"{ ... } or { error: { code, message, details } }"| Client
-```
+```sh
 
 Every route returns either a documented success shape or the structured error envelope. Unknown routes, unknown action ids, and unknown API versions all fail closed with `invalid_request` or `not_found`.
 
@@ -92,7 +92,7 @@ Unknown `/api/<version>/...` prefixes fail closed with an `unsupported API versi
     "socket": "/Users/example/.coven/coven.sock"
   }
 }
-```
+```sh
 
 When no daemon metadata is available, `daemon` is `null`.
 
@@ -105,7 +105,7 @@ Clients should treat `apiVersion: "coven.daemon.v1"` as the stable contract guar
   "apiVersion": "v1",
   "supportedApiVersions": ["v1"]
 }
-```
+```sh
 
 Use `/api/v1/health` for normal client handshakes. Use `/api/v1/api-version` only when debugging route-prefix support.
 
@@ -134,7 +134,7 @@ Use `/api/v1/health` for normal client handshakes. Use `/api/v1/api-version` onl
     }
   ]
 }
-```
+```sh
 
 ## Control-plane Actions
 
@@ -146,7 +146,7 @@ Use `/api/v1/health` for normal client handshakes. Use `/api/v1/api-version` onl
   "origin": "coven-client",
   "args": {}
 }
-```
+```sh
 
 Immediately completed safe actions return `200` with an event-shaped payload that clients can render optimistically or fold into later event streams:
 
@@ -163,7 +163,7 @@ Immediately completed safe actions return `200` with an event-shaped payload tha
     "payload": { "capabilities": 3 }
   }
 }
-```
+```sh
 
 ## Session Records
 
@@ -181,7 +181,7 @@ Session endpoints return the Rust daemon's `SessionRecord` shape with snake_case
   "created_at": "2026-05-09T06:43:00Z",
   "updated_at": "2026-05-09T06:43:05Z"
 }
-```
+```tsx
 
 <DocsDataTable
   caption="Session record endpoints"
@@ -209,7 +209,7 @@ Session endpoints return the Rust daemon's `SessionRecord` shape with snake_case
   "prompt": "Fix the failing tests",
   "title": "Fix failing tests"
 }
-```
+```sh
 
 `cwd` must resolve inside `projectRoot`. `harness` must be a supported harness id. Provider credentials are not part of this request; Codex, Claude Code, and future harnesses keep their own local auth flows.
 
@@ -250,7 +250,7 @@ Session endpoints return the Rust daemon's `SessionRecord` shape with snake_case
   },
   "hasMore": false
 }
-```
+```sh
 
 `nextCursor` is `null` when there are no events. Persisting `nextCursor.afterSeq` lets clients resume incremental reads after a daemon restart.
 
@@ -264,7 +264,7 @@ Request:
 {
   "data": "continue with the next failing test\n"
 }
-```
+```sh
 
 Success returns `202`:
 
@@ -273,7 +273,7 @@ Success returns `202`:
   "ok": true,
   "accepted": true
 }
-```
+```sh
 
 The daemon records accepted input as a session event. Completed, failed, killed, archived, or orphaned sessions are replay/log surfaces, not live input targets.
 
@@ -288,7 +288,7 @@ Success returns `202`:
   "ok": true,
   "accepted": true
 }
-```
+```sh
 
 After a successful kill, the daemon updates the session status to `killed` and writes a `kill` event. Killing a session is not the same as deleting its history; use archive/summon/sacrifice lifecycle commands for record management.
 
@@ -306,7 +306,7 @@ All API failures use this structured envelope. Clients should branch on `error.c
     }
   }
 }
-```
+```tsx
 
 <DocsDataTable
   caption="Stable daemon error codes"
@@ -338,7 +338,7 @@ Unknown session:
     "details": { "sessionId": "session-1" }
   }
 }
-```
+```sh
 
 Non-live input or kill:
 

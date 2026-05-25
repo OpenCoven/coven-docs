@@ -14,7 +14,7 @@ coven daemon start
 coven daemon status
 coven daemon restart
 coven daemon stop
-```
+```sh
 
 For the process model and recovery behavior, see [Daemon lifecycle](/docs/daemon/lifecycle).
 
@@ -24,7 +24,7 @@ Starts the daemon, creates `COVEN_HOME` if needed, opens the SQLite store, binds
 
 ```bash
 coven daemon start
-```
+```sh
 
 Use this before daemon-backed clients or local socket integrations.
 
@@ -34,7 +34,7 @@ Prints whether the daemon is running, stale, or stopped.
 
 ```bash
 coven daemon status
-```
+```sh
 
 Use `status` in support flows before deleting socket files or restarting manually.
 
@@ -44,7 +44,7 @@ Stops the current daemon when present, then starts a fresh process and rebinds t
 
 ```bash
 coven daemon restart
-```
+```sh
 
 Use this after upgrades, after changing `COVEN_HOME`, or when `coven doctor` reports stale daemon metadata.
 

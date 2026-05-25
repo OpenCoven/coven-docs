@@ -34,7 +34,7 @@ Archive state is stored separately as `archived_at`. A completed or failed sessi
 
 ```mermaid
 stateDiagram-v2
-  direction TB
+  direction LR
   [*] --> created: coven run
 
   created --> running: PTY spawn ok
@@ -57,7 +57,7 @@ stateDiagram-v2
 
   Terminal --> [*]: coven sacrifice --yes
   archived --> [*]: coven sacrifice --yes
-```
+```sh
 
 The diagram above is normative for the v0 store. `running` sessions cannot be archived or sacrificed directly — kill them or wait for exit first. `created → running` is the only transition that requires PTY spawn; every other transition is a store-only state change managed by the Rust daemon. `coven summon` restores an archived session to whichever terminal status it held before archival (`completed`, `failed`, `killed`, or `orphaned`).
 
@@ -120,7 +120,7 @@ sequenceDiagram
     PTY->>Daemon: process exits with code
     Daemon->>Store: update status=completed|failed, exit_code
   end
-```
+```sh
 
 ## Detached Records
 
@@ -172,7 +172,7 @@ Archive hides a non-running session from the default active list while preservin
 
 ```sh
 coven archive <session-id>
-```
+```sh
 
 Use archive for old work that should remain inspectable.
 
@@ -182,7 +182,7 @@ Summon restores an archived session to the active list and then replays/follows 
 
 ```sh
 coven summon <session-id>
-```
+```sh
 
 Summon does not re-run the original harness prompt. It changes archive state and opens the existing record.
 

@@ -11,7 +11,7 @@ Cast Codes are OpenCoven's portable intent grammar. They give humans, agents, an
 Cast Codes are **intent**, not enforcement. A client or Cast Agent can parse a Cast Code into a Coven request, but the Rust daemon still validates project roots, working directories, harness ids, live-session state, and action ids before anything sensitive happens.
 
 <Mermaid chart={`
-flowchart TD
+flowchart LR
   Intent[Human or agent intent] --> Grammar[Cast Code grammar]
   Grammar --> Client[Client parser or Cast Agent]
   Client --> Request[Coven session/action/capability request]
