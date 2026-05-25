@@ -1,0 +1,91 @@
+---
+title: "Step 1 — Open the project"
+description: "Pick a project root and confirm the Coven daemon is running there before any agent work begins."
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+import { File, Files, Folder } from 'fumadocs-ui/components/files';
+import { Mermaid } from '@/components/mermaid';
+
+A Coven session is always scoped to a project root — an absolute path on this machine that the daemon canonicalizes and uses as the trust boundary for harness `cwd` checks. Step 1 is making that root explicit, both to the daemon and to CastCodes.
+
+## What "project root" means
+
+Coven's daemon will refuse any session whose harness `cwd` does not canonicalize inside the requested `projectRoot`. The project root you open in CastCodes is the same string you would pass to `coven run --project <root>` or to a `POST /api/v1/sessions` request.
+
+<Files>
+  <Folder name="example-project" defaultOpen>
+    <Folder name=".git" />
+    <Folder name="src">
+      <File name="index.ts" />
+    </Folder>
+    <File name="package.json" />
+    <File name="README.md" />
+  </Folder>
+</Files>
+
+Anything inside `example-project/` is a valid `cwd`. Anything outside is rejected before the harness starts.
+
+## The flow
+
+<Steps>
+  <Step>
+    ### Start (or confirm) the daemon
+
+    The daemon owns session state, the SQLite ledger, and the socket. CastCodes will refuse to launch agent panes if the daemon is unreachable, and so will the CLI.
+
+    ```bash
+    coven daemon start
+    coven daemon status   # expect pid + socket path
+    ```
+
+    If `coven daemon status` reports nothing, see [Daemon lifecycle](/docs/daemon/lifecycle).
+  </Step>
+
+  <Step>
+    ### Open the project in CastCodes
+
+    > TODO: CastCodes UI specifics — exact label for the project picker (currently "Open Project"?), keyboard shortcut, whether dragging a folder onto the dock works, and where the project root is stored in user preferences.
+
+    Once opened, the project root appears in the CastCodes sidebar and is the implicit `--project` for every agent pane launched from this window.
+  </Step>
+
+  <Step>
+    ### Confirm CastCodes sees the daemon
+
+    The agent panel renders a status pill (green) when CastCodes can reach `coven.daemon.v1`. If the pill is amber, the daemon isn't running on this machine; if it's red, CastCodes hit an error talking to the socket.
+
+    > TODO: screenshot of the agent-panel status pill in each state.
+  </Step>
+</Steps>
+
+## CLI equivalent
+
+There is no separate "open project" command in Coven. The project root is just an argument:
+
+```bash
+# `coven run` accepts an absolute path; if omitted, the cwd is used.
+coven run codex --project ~/code/example-project "fix the failing tests"
+```
+
+## Handshake (under the hood)
+
+<Mermaid chart={`
+sequenceDiagram
+  participant CC as CastCodes
+  participant D as coven daemon
+  participant FS as Project filesystem
+
+  CC->>D: GET /api/v1/health
+  D-->>CC: 200 { apiVersion, covenVersion, daemon }
+  CC->>D: GET /api/v1/capabilities
+  D-->>CC: 200 { adapters: ["codex","claude"], actions: [...] }
+  CC->>FS: stat(projectRoot)
+  FS-->>CC: ok
+  Note over CC,D: Project is "open" — no session created yet.
+`} />
+
+<Callout type="info" title="Next">
+  Continue to [Step 2 — Launch a session](/docs/guide/demo-loop/launch-session). The project is open; nothing is running yet.
+</Callout>
