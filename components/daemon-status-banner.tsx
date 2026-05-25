@@ -239,7 +239,7 @@ function renderBody(state: State) {
           <p>To enable the Try It buttons on this page, run the docs site locally on the same machine as a Coven daemon:</p>
           <ol className="list-decimal list-inside space-y-0.5 pl-1">
             <li>Clone <code className="font-mono">OpenCoven/coven-docs</code></li>
-            <li>Run <code className="font-mono">npm install &amp;&amp; npm run dev</code></li>
+            <li>Run <code className="font-mono">pnpm install &amp;&amp; pnpm dev</code></li>
             <li>In another terminal: <code className="font-mono">coven daemon start</code></li>
             <li>Reload this page</li>
           </ol>
