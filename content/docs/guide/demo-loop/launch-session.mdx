@@ -92,12 +92,12 @@ sequenceDiagram
   participant L as SQLite ledger
   participant H as Harness PTY
 
-  CC->>D: POST /api/v1/sessions { projectRoot, cwd, harness, prompt, title }
-  D->>L: INSERT SessionRecord (status: created)
+  CC->>D: POST /api/v1/sessions with projectRoot, cwd, harness, prompt, title
+  D->>L: INSERT SessionRecord, status created
   D->>H: spawn harness in PTY
   H-->>D: stdout/stderr stream
-  D->>L: append OutputEvent rows; flip status to running
-  D-->>CC: 201 { id, status: "running", ... }
+  D->>L: append OutputEvent rows, flip status to running
+  D-->>CC: 201 with id and status running
 `} />
 
 <Callout type="warn" title="Validation, not magic">
