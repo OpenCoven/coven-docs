@@ -51,12 +51,12 @@ The grammar is being documented as product language and client intent syntax. Tr
     { key: 'status', label: 'Status', filter: true },
   ]}
   rows={[
-    { code: '`~>sage`', intent: 'Switch familiar', runtimeMapping: 'Select Sage as the active familiar or lane.', status: 'Draft syntax' },
-    { code: '`~cody: review this diff`', intent: 'Delegate task', runtimeMapping: 'Create a task for Cody with the quoted prompt.', status: 'Draft syntax' },
-    { code: '`~* "new constraint: local-only"`', intent: 'Broadcast context', runtimeMapping: 'Fan out a shared constraint to active familiars or sessions.', status: 'Draft syntax' },
-    { code: '`~?`', intent: 'Status', runtimeMapping: 'Read active familiar/session status.', status: 'Nearest to shipped session/status behavior' },
-    { code: '`~^sage`', intent: 'Resume', runtimeMapping: 'Resume Sage or the matching prior lane.', status: 'Draft syntax' },
-    { code: '`~<echo`', intent: 'Handoff request', runtimeMapping: 'Request a handoff packet for Echo or from Echo.', status: 'Planned orchestration' },
+    { code: '`:>sage`', intent: 'Switch familiar', runtimeMapping: 'Select Sage as the active familiar or lane.', status: 'Draft syntax' },
+    { code: '`:cody: review this diff`', intent: 'Delegate task', runtimeMapping: 'Create a task for Cody with the quoted prompt.', status: 'Draft syntax' },
+    { code: '`:* "new constraint: local-only"`', intent: 'Broadcast context', runtimeMapping: 'Fan out a shared constraint to active familiars or sessions.', status: 'Draft syntax' },
+    { code: '`:?`', intent: 'Status', runtimeMapping: 'Read active familiar/session status.', status: 'Nearest to shipped session/status behavior' },
+    { code: '`:^sage`', intent: 'Resume', runtimeMapping: 'Resume Sage or the matching prior lane.', status: 'Draft syntax' },
+    { code: '`:<echo`', intent: 'Handoff request', runtimeMapping: 'Request a handoff packet for Echo or from Echo.', status: 'Planned orchestration' },
   ]}
 />
 
@@ -110,7 +110,7 @@ flowchart LR
   ]}
   rows={[
     { step: 'Step 1: Open Project', userAction: 'Open a repository or worktree in CastCodes.', runtimePath: 'Client selects a visible project context.', status: 'CastCodes-owned UI' },
-    { step: 'Step 2: Launch Session', userAction: 'Type a Cast Code or task such as `~cody: fix failing tests`, then choose Codex or Claude Code (or let the client map the intent to a supported harness).', runtimePath: 'Cast Agent parses intent into a structured launch request; `POST /api/v1/sessions` with explicit project root, cwd, harness, prompt, and optional title.', status: 'Coven shipped API' },
+    { step: 'Step 2: Launch Session', userAction: 'Type a Cast Code or task such as `:cody: fix failing tests`, then choose Codex or Claude Code (or let the client map the intent to a supported harness).', runtimePath: 'Cast Agent parses intent into a structured launch request; `POST /api/v1/sessions` with explicit project root, cwd, harness, prompt, and optional title.', status: 'Coven shipped API' },
     { step: 'Step 3: Watch Session', userAction: 'Keep the session visible in a pane/session row.', runtimePath: '`GET /api/v1/sessions` plus `GET /api/v1/events?sessionId=...`; live attach/input only after daemon liveness checks.', status: 'Coven shipped API, client UI stabilizing' },
     { step: 'Step 4: Inspect Files', userAction: 'Inspect changed files, terminal output, and diffs before accepting anything.', runtimePath: 'Client reads repo state and event history; Coven remains the session source of truth.', status: 'CastCodes-owned review UI' },
     { step: 'Step 5: Finish Loop', userAction: 'Merge locally, open a PR, archive the session, summon it later, or sacrifice it when logs should be deleted.', runtimePath: 'Client commands plus daemon-backed archive/summon/sacrifice lifecycle.', status: 'Mixed: client workflow plus Coven session lifecycle' },
