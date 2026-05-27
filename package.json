@@ -61,5 +61,12 @@
     "@types/react-dom": "^19",
     "js-yaml": "^4.1.1",
     "typescript": "^5"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild",
+      "puppeteer",
+      "sharp"
+    ]
   }
 }

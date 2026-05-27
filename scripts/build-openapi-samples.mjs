@@ -251,7 +251,7 @@ const header =
   `# THIS FILE IS GENERATED — DO NOT EDIT.\n` +
   `# Source:  openapi/coven.daemon.v1.yaml\n` +
   `# Builder: scripts/build-openapi-samples.mjs\n` +
-  `# Run:     npm run openapi:build\n#\n`;
+  `# Run:     pnpm run openapi:build\n#\n`;
 
 fs.writeFileSync(
   OUT,

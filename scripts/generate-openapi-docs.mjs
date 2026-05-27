@@ -21,7 +21,7 @@ const GENERATED_HEADER =
   '{/* THIS FILE IS GENERATED — DO NOT EDIT.\n' +
   '    Source:    openapi/coven.daemon.v1.yaml\n' +
   '    Generator: scripts/generate-openapi-docs.mjs\n' +
-  '    Run:       npm run openapi:build */}\n';
+  '    Run:       pnpm run openapi:build */}\n';
 
 const TAGS = [
   { name: 'Meta',     slug: 'meta',     title: 'Meta',     description: 'Handshake and capability discovery. Always call `/health` first.' },
