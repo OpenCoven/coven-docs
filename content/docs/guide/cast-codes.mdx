@@ -79,24 +79,23 @@ The grammar is being documented as product language and client intent syntax. Tr
   ]}
 />
 
-## CastCodes Demo Loop
+## CastCodes → Coven Demo Loop
 
 This is the public demo path a new technical user should be able to follow: CastCodes captures intent, Coven launches and records the harness session, CastCodes keeps the work visible, and the user reviews the result before any merge or cleanup.
 
 <Mermaid chart={`
 flowchart LR
-  Project["Open project in CastCodes"]
-  Intent["Cast Code or task prompt"]
-  Agent["Cast Agent\nclient backend"]
-  Daemon["Coven daemon\n/api/v1 authority"]
-  Harness["Codex or Claude Code\nPTY session"]
-  Pane["Visible pane/session"]
-  Diff["File + diff review"]
-  Finish["Merge / PR / archive / cleanup"]
+  Step1["Step 1: Open Project"]
+  Step2["Step 2: Launch Session"]
+  Step3["Step 3: Watch Session"]
+  Step4["Step 4: Inspect Files"]
+  Step5["Step 5: Finish Loop"]
 
-  Project --> Intent --> Agent --> Daemon --> Harness
-  Harness --> Daemon --> Pane --> Diff --> Finish
-  Finish --> Daemon
+  Step1 -->|Cast Code intent| Step2
+  Step2 -->|POST /api/v1/sessions| Step3
+  Step3 -->|events stream| Step4
+  Step4 -->|review diffs| Step5
+  Step5 -->|archive / summon / sacrifice| Step1
 `}
 />
 
@@ -110,12 +109,11 @@ flowchart LR
     { key: 'status', label: 'Status', filter: true },
   ]}
   rows={[
-    { step: '1. Open project', userAction: 'Open a repository or worktree in CastCodes.', runtimePath: 'Client selects a visible project context.', status: 'CastCodes-owned UI' },
-    { step: '2. Express intent', userAction: 'Type a Cast Code or task such as `~cody: fix failing tests`.', runtimePath: 'Cast Agent parses intent into a structured launch request.', status: 'Grammar direction' },
-    { step: '3. Launch session', userAction: 'Choose Codex or Claude Code, or let the client map the intent to a supported harness.', runtimePath: '`POST /api/v1/sessions` with explicit project root, cwd, harness, prompt, and optional title.', status: 'Coven shipped API' },
-    { step: '4. Watch work', userAction: 'Keep the session visible in a pane/session row.', runtimePath: '`GET /api/v1/sessions` plus `GET /api/v1/events?sessionId=...`; live attach/input only after daemon liveness checks.', status: 'Coven shipped API, client UI stabilizing' },
-    { step: '5. Review output', userAction: 'Inspect changed files, terminal output, and diffs before accepting anything.', runtimePath: 'Client reads repo state and event history; Coven remains the session source of truth.', status: 'CastCodes-owned review UI' },
-    { step: '6. Finish explicitly', userAction: 'Merge locally, open a PR, archive the session, summon it later, or sacrifice it when logs should be deleted.', runtimePath: 'Client commands plus daemon-backed archive/summon/sacrifice lifecycle.', status: 'Mixed: client workflow plus Coven session lifecycle' },
+    { step: 'Step 1: Open Project', userAction: 'Open a repository or worktree in CastCodes.', runtimePath: 'Client selects a visible project context.', status: 'CastCodes-owned UI' },
+    { step: 'Step 2: Launch Session', userAction: 'Type a Cast Code or task such as `~cody: fix failing tests`, then choose Codex or Claude Code (or let the client map the intent to a supported harness).', runtimePath: 'Cast Agent parses intent into a structured launch request; `POST /api/v1/sessions` with explicit project root, cwd, harness, prompt, and optional title.', status: 'Coven shipped API' },
+    { step: 'Step 3: Watch Session', userAction: 'Keep the session visible in a pane/session row.', runtimePath: '`GET /api/v1/sessions` plus `GET /api/v1/events?sessionId=...`; live attach/input only after daemon liveness checks.', status: 'Coven shipped API, client UI stabilizing' },
+    { step: 'Step 4: Inspect Files', userAction: 'Inspect changed files, terminal output, and diffs before accepting anything.', runtimePath: 'Client reads repo state and event history; Coven remains the session source of truth.', status: 'CastCodes-owned review UI' },
+    { step: 'Step 5: Finish Loop', userAction: 'Merge locally, open a PR, archive the session, summon it later, or sacrifice it when logs should be deleted.', runtimePath: 'Client commands plus daemon-backed archive/summon/sacrifice lifecycle.', status: 'Mixed: client workflow plus Coven session lifecycle' },
   ]}
 />
 
