@@ -11,7 +11,7 @@ Coven records project-scoped harness work as sessions. Use `coven sessions` to b
 
 ```bash
 coven sessions
-```sh
+```
 
 For status meanings and archive semantics, see [Session Lifecycle](/docs/familiars/sessions).
 
@@ -33,7 +33,7 @@ Replay and follow a session:
 
 ```bash
 coven attach <session-id>
-```sh
+```
 
 For live daemon sessions, attach can also forward input to the running harness.
 
@@ -43,7 +43,7 @@ Hide completed work from the active list while preserving events:
 
 ```bash
 coven archive <session-id>
-```sh
+```
 
 Archive is reversible. It refuses live-session deletion semantics and keeps the event log.
 
@@ -53,7 +53,7 @@ Restore an archived session, then attach:
 
 ```bash
 coven summon <session-id>
-```sh
+```
 
 Use `coven sessions --all` when you need to find archived session ids.
 

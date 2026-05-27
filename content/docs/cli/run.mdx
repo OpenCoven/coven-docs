@@ -12,7 +12,7 @@ read_when:
 ```bash
 coven run codex "fix the failing tests"
 coven run claude "polish this UI"
-```sh
+```
 
 The current built-in harness ids are `codex` and `claude`.
 
@@ -20,7 +20,7 @@ The current built-in harness ids are `codex` and `claude`.
 
 ```bash
 coven run <harness> <prompt> [--cwd <path>] [--title <title>] [--detach]
-```sh
+```
 
 | Part | Meaning |
 | --- | --- |
@@ -37,7 +37,7 @@ Coven resolves the current project root before launch. If you pass `--cwd`, the 
 ```bash
 cd /path/to/project
 coven run codex "add focused tests for the auth helper" --cwd packages/api
-```sh
+```
 
 The daemon and CLI validate project and cwd boundaries so a client cannot quietly widen a session beyond the intended project.
 
@@ -47,7 +47,7 @@ Use `--title` when the prompt is long or when the session will be selected later
 
 ```bash
 coven run claude "review the settings page for mobile layout issues" --title "Settings mobile review"
-```sh
+```
 
 ## Detached records
 

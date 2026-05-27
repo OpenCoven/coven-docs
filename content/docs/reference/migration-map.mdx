@@ -34,7 +34,7 @@ flowchart LR
   Daemon --> Store
   Daemon --> Harness --> Pty
   Pty --> Familiar --> Model
-```sh
+```
 
 ## Already Migrated
 
@@ -275,7 +275,7 @@ flowchart LR
   Daemon --> Store
   Daemon --> Log
   Daemon --> Pty --> Harness
-```sh
+```
 
 ### Trust Boundary
 
@@ -290,7 +290,7 @@ flowchart LR
   Client --> Socket --> Daemon
   Daemon --> Deny
   Daemon --> Provider
-```sh
+```
 
 ### Session Lifecycle
 
@@ -305,7 +305,7 @@ stateDiagram-v2
   Summoned --> Exited
   Exited --> Sacrificed
   Archived --> Sacrificed
-```sh
+```
 
 ### Client Handshake
 
@@ -324,7 +324,7 @@ sequenceDiagram
   Daemon-->>Client: session record
   Client->>Daemon: GET /api/v1/events?sessionId=...
   Daemon-->>Client: event page and cursor
-```sh
+```
 
 ### Cast Codes Intent Mapping
 
@@ -334,7 +334,7 @@ flowchart LR
   Parser --> Request["Structured session/action request"]
   Request --> Daemon["Coven daemon validation"]
   Daemon --> Event["Session/event result"]
-```sh
+```
 
 ### Cast Agent Substrate Flow
 
@@ -347,7 +347,7 @@ flowchart LR
   Diagnostics["Recent diagnostics"] --> Agent
   Agent --> Gateway["Coven Gateway request"]
   Agent --> Daemon["Local Coven session request"]
-```sh
+```
 
 ### Harness Adapter Lifecycle
 
@@ -361,7 +361,7 @@ flowchart LR
   Cleanup["Exit and cleanup"]
 
   Detect --> Auth --> Command --> Spawn --> Record --> Cleanup
-```sh
+```
 
 ### Troubleshooting Flow
 

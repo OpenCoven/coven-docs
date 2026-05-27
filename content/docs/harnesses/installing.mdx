@@ -22,7 +22,7 @@ After installing, run:
 
 ```bash
 coven doctor
-```sh
+```
 
 `coven doctor` reports whether the executable is available. It does not read provider credentials; the login command remains provider-owned.
 
@@ -46,14 +46,14 @@ If you install a harness after the daemon is already running, restart the daemon
 ```bash
 coven daemon restart
 coven doctor
-```sh
+```
 
 If `coven doctor` still reports a missing harness, check duplicate or unexpected binaries:
 
 ```bash
 which -a codex
 which -a claude
-```sh
+```
 
 ## First launch
 

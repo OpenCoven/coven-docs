@@ -37,7 +37,7 @@ npm view @opencoven/cli version dist-tags
 npm view @opencoven/cli-macos version dist-tags
 npm view @opencoven/cli-linux-x64 version dist-tags
 npm view @opencoven/cli-windows version dist-tags
-```sh
+```
 
 ## Install With npm
 
@@ -46,14 +46,14 @@ For one-off use:
 ```sh
 npx @opencoven/cli doctor
 pnpm dlx @opencoven/cli doctor
-```sh
+```
 
 For repeated local use:
 
 ```sh
 npm install -g @opencoven/cli
 coven doctor
-```sh
+```
 
 CovenCLI is the user-facing command surface, and the shell command is always `coven`. The wrapper downloads the matching native package when npm can resolve one for your OS/CPU pair. If npm reports a missing optional dependency, reinstall `@opencoven/cli` from the same environment where you plan to run Coven.
 
@@ -66,20 +66,20 @@ git clone https://github.com/OpenCoven/coven.git
 cd coven
 cargo build --workspace
 cargo run -p coven-cli -- doctor
-```sh
+```
 
 To install the Rust binary onto your Cargo bin path:
 
 ```sh
 cargo install --path crates/coven-cli
 coven doctor
-```sh
+```
 
 Make sure Cargo's bin directory is on `PATH`:
 
 ```sh
 echo "$PATH" | tr ':' '\n' | grep "$HOME/.cargo/bin"
-```sh
+```
 
 ## Platform Notes
 
@@ -95,7 +95,7 @@ echo "$PATH" | tr ':' '\n' | grep "$HOME/.cargo/bin"
 npx @opencoven/cli doctor
 coven daemon start
 coven run codex "summarize this repo"
-```sh
+```
 
 ### Linux
 
@@ -108,7 +108,7 @@ coven run codex "summarize this repo"
 npx @opencoven/cli doctor
 coven daemon start
 coven sessions --plain
-```sh
+```
 
 ### Windows
 
@@ -121,7 +121,7 @@ coven sessions --plain
 npx @opencoven/cli doctor
 coven daemon start
 coven run codex "inspect this project"
-```sh
+```
 
 ### WSL2
 
@@ -135,7 +135,7 @@ WSL2 is the safest Windows path when you want Unix-socket behavior to match macO
 npx @opencoven/cli doctor
 coven daemon start
 coven run claude "review the current diff"
-```sh
+```
 
 ## Harness Prerequisites
 
@@ -160,7 +160,7 @@ After installing or authenticating a harness, open a new terminal if your packag
 
 ```sh
 coven doctor
-```sh
+```
 
 ## Smoke Test
 
@@ -171,20 +171,20 @@ coven doctor
 coven daemon start
 coven run codex "summarize the project structure" --title "Install smoke"
 coven sessions
-```sh
+```
 
 For scripts:
 
 ```sh
 coven sessions --json
-```sh
+```
 
 If the daemon is stale or the socket cannot be reached:
 
 ```sh
 coven daemon restart
 coven daemon status
-```sh
+```
 
 ## Update And Uninstall
 
@@ -193,13 +193,13 @@ Update npm installs:
 ```sh
 npm install -g @opencoven/cli@latest
 coven doctor
-```sh
+```
 
 Remove a global npm install:
 
 ```sh
 npm uninstall -g @opencoven/cli
-```sh
+```
 
 Remove local Coven state only when you intentionally want to delete local session history:
 

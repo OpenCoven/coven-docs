@@ -7,7 +7,7 @@ Start with:
 
 ```sh
 coven doctor
-```sh
+```
 
 `doctor` is the fastest way to check store, project, daemon, and harness readiness.
 
@@ -34,7 +34,7 @@ flowchart LR
   InstallHarness --> Doctor
   RunFix --> Doctor
   AttachFix --> Doctor
-```sh
+```
 
 Follow the failing branch. Almost every issue in the rest of this page is one of these branches in detail.
 
@@ -45,13 +45,13 @@ If using npm:
 ```sh
 npx @opencoven/cli doctor
 pnpm dlx @opencoven/cli doctor
-```sh
+```
 
 If building from source:
 
 ```sh
 cargo run -p coven-cli -- doctor
-```sh
+```
 
 If you installed a native binary, make sure its directory is on `PATH`.
 
@@ -64,20 +64,20 @@ Codex:
 ```sh
 npm install -g @openai/codex
 codex login
-```sh
+```
 
 Claude Code:
 
 ```sh
 npm install -g @anthropic-ai/claude-code
 claude doctor
-```sh
+```
 
 Then retry:
 
 ```sh
 coven doctor
-```sh
+```
 
 ## Daemon Unavailable
 
@@ -87,7 +87,7 @@ Start or restart it:
 coven daemon start
 coven daemon status
 coven daemon restart
-```sh
+```
 
 If a client cannot connect, verify it is using the same `COVEN_HOME` as the CLI.
 
@@ -102,14 +102,14 @@ coven pc                  # full report: CPU, memory, disk, top processes
 coven pc status           # one-line health summary
 coven pc top --n 10       # top-N processes by CPU usage
 coven pc disk             # disk usage breakdown
-```sh
+```
 
 Relief operations mutate system state and require an explicit `--confirm` gate:
 
 ```sh
 coven pc kill <pid> --confirm     # SIGTERM with PID identity re-check
 coven pc cache clear --confirm    # clear ~/Library/Caches + /Library/Caches
-```sh
+```
 
 `coven pc` is currently macOS-first. See [Getting Started](/docs/guide/getting-started) for the full command reference.
 
@@ -121,7 +121,7 @@ Use:
 
 ```sh
 coven sessions --all
-```sh
+```
 
 Then view logs, archive the record, or sacrifice it if it is no longer useful.
 
@@ -139,7 +139,7 @@ Use a path inside the project:
 
 ```sh
 coven run codex "inspect package" --cwd packages/cli
-```sh
+```
 
 Do not use symlink tricks or parent paths to escape the project boundary.
 
@@ -151,7 +151,7 @@ Check daemon compatibility:
 
 ```text
 GET /api/v1/health
-```sh
+```
 
 If the client expects a newer API than the daemon exposes, update Coven or the client so their supported versions overlap.
 
@@ -163,13 +163,13 @@ Force browser mode:
 
 ```sh
 coven sessions --manage
-```sh
+```
 
 Force table mode:
 
 ```sh
 coven sessions --plain
-```sh
+```
 
 ## Archive, Summon, and Sacrifice Confusion
 
@@ -181,7 +181,7 @@ Use the interactive browser when possible:
 
 ```sh
 coven sessions --all --manage
-```sh
+```
 
 ## Secret Scan Failure
 
@@ -189,7 +189,7 @@ Run:
 
 ```sh
 python scripts/check-secrets.py
-```sh
+```
 
 If it fails, remove the secret from the working tree. If a secret entered git history, rotate the credential before rewriting history or publishing.
 
@@ -202,7 +202,7 @@ At minimum run:
 ```sh
 python scripts/check-secrets.py
 git diff --check
-```sh
+```
 
 For code changes, run the full gate:
 

@@ -14,7 +14,7 @@ The socket is local by default:
 ```bash
 curl --unix-socket "$HOME/.coven/coven.sock" \
   http://localhost/api/v1/health
-```sh
+```
 
 For the full endpoint reference, see [Coven local socket API](/docs/reference/api). For diagrams of the handshake, event cursors, launch lifecycle, and authority boundary, see [API architecture diagrams](/docs/reference/api-architecture).
 
@@ -24,7 +24,7 @@ Every client should begin with:
 
 ```http
 GET /api/v1/health
-```sh
+```
 
 Expected shape:
 
@@ -45,7 +45,7 @@ Expected shape:
     "socket": "/Users/example/.coven/coven.sock"
   }
 }
-```sh
+```
 
 Clients should branch on `apiVersion`, then use `capabilities` to decide which surfaces to show. `covenVersion` is useful diagnostics metadata, not the compatibility guard.
 

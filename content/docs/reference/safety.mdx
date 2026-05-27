@@ -56,7 +56,7 @@ flowchart LR
     RouteAction --> Spawn[Spawn argv only — never sh -c]
     Spawn --> Store[(SQLite store + append-only events)]
   end
-```sh
+```
 
 Anything in **UntrustedZone** can lie, drift, or be replaced. Anything in **TrustedZone** is the Rust daemon's job and must fail closed on unknowns. The arrow direction is the only direction a sensitive decision is allowed to flow: from untrusted into the boundary, where it is revalidated.
 
