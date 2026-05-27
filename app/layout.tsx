@@ -4,6 +4,7 @@ import 'fumadocs-ui/style.css';
 import 'fumadocs-ui/components/image-zoom2.css';
 import { Inter } from 'next/font/google';
 import type { ReactNode } from 'react';
+import Script from 'next/script';
 import { Analytics } from '@vercel/analytics/next';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import { CovenSearchDialog } from '@/components/search-dialog';
@@ -73,6 +74,14 @@ export default function Layout({ children }: { children: ReactNode }) {
         </RootProvider>
         <Analytics />
         <SpeedInsights />
+        {/* OpenCoven Feedback widget — loads anonymously; identify() called per-page when user is known */}
+        <Script
+          id="opencoven-feedback"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `(function(w,d){if(w.OpenCovenFeedback)return;w.OpenCovenFeedback=function(){(w.OpenCovenFeedback.q=w.OpenCovenFeedback.q||[]).push(arguments)};var s=d.createElement('script');s.async=true;s.src='https://feedback.opencoven.ai/api/widget/sdk.js';d.head.appendChild(s)})(window,document);OpenCovenFeedback('init');`,
+          }}
+        />
       </body>
     </html>
   );
