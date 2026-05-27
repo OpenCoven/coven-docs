@@ -330,7 +330,7 @@ sequenceDiagram
 
 ```mermaid
 flowchart LR
-  Intent["~cody: review this diff"] --> Parser["Cast Code parser"]
+  Intent[":cody: review this diff"] --> Parser["Cast Code parser"]
   Parser --> Request["Structured session/action request"]
   Request --> Daemon["Coven daemon validation"]
   Daemon --> Event["Session/event result"]
