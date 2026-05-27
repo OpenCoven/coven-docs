@@ -3,9 +3,6 @@
  * via the ancestor chain. Light overrides under `html.light`. */
 .shell,
 .tabbed {
-  --dt-shell-bg:          rgba(154, 142, 205, 0.025);
-  --dt-shell-border:      rgba(180, 170, 235, 0.10);
-
   --dt-th-bg:             rgba(154, 142, 205, 0.05);
   --dt-th-fg:             rgba(245, 243, 255, 0.58);
   --dt-th-border:         rgba(180, 170, 235, 0.18);
@@ -28,17 +25,10 @@
 
 .shell {
   margin: 1.5rem 0 2rem;
-  background: var(--dt-shell-bg);
-  border: 1px solid var(--dt-shell-border);
-  border-radius: var(--radius-md);
-  overflow: hidden;
 }
 
 :global(html.light) .shell,
 :global(html.light) .tabbed {
-  --dt-shell-bg:          rgba(108, 90, 200, 0.02);
-  --dt-shell-border:      rgba(108, 90, 200, 0.12);
-
   --dt-th-bg:             rgba(108, 90, 200, 0.04);
   --dt-th-fg:             rgba(31, 26, 51, 0.58);
   --dt-th-border:         rgba(108, 90, 200, 0.20);
