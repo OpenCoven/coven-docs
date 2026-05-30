@@ -10,7 +10,7 @@ import { Mermaid } from '@/components/mermaid';
 
 <Mermaid chart={`
 flowchart LR
-    U[User / Developer] --> SURF[Channels and surfaces\nTelegram / Discord / CLI / CastCodes / OpenClaw]
+    U[User / Developer] --> SURF[Channels and surfaces\nTelegram / Discord / CLI / CastCodes / Cave / OpenClaw]
     SURF --> CODE[Cast Codes\nportable intent grammar]
     CODE --> AGENT[Cast Agent\nsubstrate + session backend]
     AGENT --> DAEMON[Coven daemon\nRust authority boundary]
@@ -25,7 +25,7 @@ flowchart LR
 
 # Coven Architecture
 
-Coven is a local-first harness substrate. The Rust CLI/daemon is the authority layer; clients such as the CLI/TUI, CastCodes, Cast Agent, and the optional OpenClaw plugin are presentation/integration layers.
+Coven is a local-first harness substrate. The Rust CLI/daemon is the authority layer; clients such as the CLI/TUI, CastCodes, Cave, Cast Agent, and the optional OpenClaw plugin are presentation/integration layers.
 
 The versioned local socket API contract lives in [Coven Local API](/docs/reference/api). Clients should use `GET /api/v1/health` and negotiate against `apiVersion: "coven.daemon.v1"` and the `capabilities` object before depending on session or event response shapes. All error responses use the structured `{ error: { code, message, details } }` envelope documented there.
 
@@ -35,12 +35,14 @@ The versioned local socket API contract lives in [Coven Local API](/docs/referen
 flowchart LR
   User[Developer] --> CLI[CovenCLI / TUI]
   User --> CastCodes[CastCodes app]
+  User --> Cave[Cave desktop app]
   CLI -->|direct commands| Rust[Coven Rust CLI]
   Rust --> Daemon[Coven daemon]
 
   CastCodes --> CastAgent[Cast Agent]
   CastAgent -->|sessions + stream + substrate| Gateway[Coven Gateway]
   CastAgent -->|local session operations| Daemon
+  Cave -->|HTTP over Unix socket| Daemon
   OpenClaw[OpenClaw] --> Plugin[external @opencoven/coven plugin]
   Plugin -->|HTTP over Unix socket| Daemon
   Daemon --> Control[Control plane: capability discovery + action routing]
@@ -92,7 +94,7 @@ sequenceDiagram
 
 ```mermaid
 flowchart LR
-  Client[CLI/TUI, CastCodes/Cast Agent, OpenClaw plugin, scripts] --> Request[Launch / input / kill / list request]
+  Client[CLI/TUI, CastCodes/Cast Agent, Cave, OpenClaw plugin, scripts] --> Request[Launch / input / kill / list request]
   Request --> Rust[Rank 0 authority: Rust daemon]
   Rust --> RootCheck{projectRoot explicit?}
   RootCheck -- no --> RejectRoot[Reject]

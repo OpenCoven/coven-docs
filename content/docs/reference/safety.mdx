@@ -24,6 +24,7 @@ Every client is untrusted for enforcement purposes.
   rows={[
     { surface: 'CLI/TUI', status: 'Current', trustPosture: 'Presentation layer; daemon still enforces sensitive decisions.' },
     { surface: 'CastCodes', status: 'Current', trustPosture: 'Workspace layer; cannot widen project or session policy.' },
+    { surface: 'Cave', status: 'Current', trustPosture: 'Desktop home layer; talks to the daemon over the socket like any other client.' },
     { surface: 'Cast Agent', status: 'Current backend', trustPosture: 'Substrate and session backend; still submits to daemon enforcement.' },
     { surface: 'External OpenClaw plugin', status: 'External bridge', trustPosture: 'Bridge layer; must use daemon validation.' },
     { surface: 'Scripts', status: 'Current', trustPosture: 'Automation callers; treated like any other untrusted client.' },
@@ -39,6 +40,7 @@ flowchart LR
     direction LR
     CLI[CovenCLI / TUI]
     CastCodes[CastCodes]
+    Cave[Cave desktop app]
     CastAgent[Cast Agent]
     Plugin["@opencoven/coven plugin"]
     Scripts[Scripts / other clients]

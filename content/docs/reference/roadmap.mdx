@@ -30,7 +30,7 @@ OpenCoven is building a local-first agent workspace where autonomous coding harn
     { layer: '**CastCodes**', role: 'First-party workspace', meaning: 'Visible panes, files, diagnostics, agent lanes, sessions, review, and merge flow.' },
     { layer: '**Cast Agent**', role: 'Substrate and session backend', meaning: 'Collects workspace context, streams gateway responses, and keeps Coven sessions visible.' },
     { layer: '**Cast Codes**', role: 'Portable intent grammar', meaning: 'Routes switching, delegation, broadcast, status, resume, and handoff intent across clients.' },
-    { layer: '**OpenClaw integrations**', role: 'Orchestration surfaces', meaning: 'Hand work into the same local runtime without hiding what happened.' },
+    { layer: '**External integrations**', role: 'Optional bridges', meaning: 'Let surfaces such as OpenClaw hand work into the same local runtime without becoming Coven dependencies.' },
   ]}
 />
 
@@ -170,7 +170,7 @@ The simple promise:
     { item: 'Local socket/API boundary makes Coven the authority layer', status: 'Shipped', area: 'Architecture' },
     { item: 'Treat the Coven API as the compatibility boundary', status: 'Now', area: 'API' },
     { item: 'Keep compatibility tests and API versioning as the gate before encouraging broad plugin usage', status: 'Now', area: 'Testing' },
-    { item: 'Keep OpenClaw copy honest: orchestration sits above Coven; it does not replace the runtime substrate', status: 'Now', area: 'Messaging' },
+    { item: 'Keep OpenClaw copy honest: it is a separate optional bridge, not an OpenCoven dependency or replacement runtime', status: 'Now', area: 'Messaging' },
     { item: 'Publicly document the external plugin path, trust boundary, and compatibility gate', status: 'Shipped', area: 'Docs' },
     { item: 'Add a demo showing a task moving from intake to Coven runtime to CastCodes review', status: 'Next', area: 'Demo' },
   ]}

@@ -13,8 +13,10 @@ flowchart LR
   OpenCoven[OpenCoven ecosystem] --> Coven[Coven runtime]
   Coven --> CovenCLI[CovenCLI]
   OpenCoven --> CastCodes[CastCodes]
+  OpenCoven --> Cave[Cave]
   CastCodes --> CastAgent[Cast Agent]
   CastCodes --> CastCode[Cast Codes]
+  Cave --> Socket
   Coven --> Daemon[Daemon]
   Daemon --> Project[Project root]
   Daemon --> Cwd[Working directory]
@@ -58,6 +60,14 @@ Do not tell users to run `opencoven` or `@opencoven`. The package names live und
 CastCodes is the first-party OpenCoven workspace and cockpit app. It gives Coven sessions a visible place to live alongside panes, files, diffs, diagnostics, and review flow.
 
 Use **CastCodes** when talking about the product surface.
+
+## Cave
+
+Cave is the OpenCoven desktop application — the native home for your Coven. It is a Tauri 2 + Next.js workspace for talking to familiars, watching their tools, inspecting their memory, and watching session events.
+
+Cave is a sibling of CastCodes, not a replacement. Cave is the desktop home for the Coven itself; CastCodes is the terminal and code workspace. Both talk to the same local `coven` daemon over `~/.coven/coven.sock`.
+
+The macOS app installs as **CovenCave**. The brand is **Cave**.
 
 ## Cast Agent
 
@@ -194,6 +204,7 @@ Known client shapes:
   rows={[
     { client: 'CovenCLI (`coven`)', status: 'Current', role: 'First-party command and terminal UI.' },
     { client: 'CastCodes', status: 'Current', role: 'First-party workspace for panes, sessions, agent substrate, and review.' },
+    { client: 'Cave', status: 'Current', role: 'First-party desktop home for talking to familiars, watching tools, and inspecting memory.' },
     { client: 'Cast Agent', status: 'Current backend', role: 'CastCodes substrate manager and Coven-native agent backend.' },
     { client: '`@opencoven/coven` OpenClaw plugin', status: 'External bridge', role: 'Optional OpenClaw integration package.' },
     { client: 'Future desktop intake surfaces', status: 'Future', role: 'Local UI entrypoints that hand work into Coven.' },

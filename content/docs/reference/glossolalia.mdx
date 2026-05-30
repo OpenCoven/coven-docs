@@ -27,12 +27,14 @@ Start here. These terms name the layers people usually confuse when they are new
   pathways={[
     ['OpenCoven', 'Coven', 'CovenCLI'],
     ['CastCodes', 'Cast Agent', 'Cast Codes'],
+    ['Cave'],
   ]}
   rows={[
-    { term: 'OpenCoven', definition: 'The broader project family and organization around Coven, CastCodes, Cast Agent, Cast Codes, and integrations.', why: 'Use this when talking about the ecosystem, not one runtime process.', related: 'Coven, CastCodes, Cast Agent, OpenClaw Plugin' },
+    { term: 'OpenCoven', definition: 'The broader project family and organization around Coven, CastCodes, Cave, Cast Agent, Cast Codes, and integrations.', why: 'Use this when talking about the ecosystem, not one runtime process.', related: 'Coven, CastCodes, Cave, Cast Agent, OpenClaw Plugin' },
     { term: 'Coven', definition: 'The local runtime substrate and command-line product for launching and supervising agent work.', why: 'This owns local sessions, harness runs, logs, and the daemon API.', related: 'CovenCLI, Daemon, Session, Harness' },
     { term: 'CovenCLI', definition: 'The user-facing command surface for the `coven` binary.', why: 'Package names live under OpenCoven, product docs say CovenCLI, and shell examples still run `coven`.', related: 'Coven, Prompt-first TUI, Daemon' },
     { term: 'CastCodes', definition: 'The first-party OpenCoven workspace for panes, files, diagnostics, agent lanes, sessions, review, and merge flow.', why: 'It is the visible cockpit for agent work, while Coven remains the local runtime boundary.', related: 'Cast Agent, Cast Codes, Client, Coven' },
+    { term: 'Cave', definition: 'The first-party OpenCoven desktop application — the native home for your Coven. Tauri 2 + Next.js workspace for talking to familiars, watching tools, and inspecting memory. The macOS app is named CovenCave; the brand is Cave.', why: 'CastCodes is the terminal/code workspace; Cave is the desktop home for the Coven itself. Use Cave when you mean the ambient desktop surface for familiars.', related: 'CastCodes, Client, Coven, Daemon' },
     { term: 'Cast Agent', definition: 'The Coven-native substrate manager and AI agent backend inside CastCodes.', why: 'It can collect workspace context and surface Coven sessions, but it does not replace daemon validation.', related: 'CastCodes, Socket API, Daemon, Client' },
     { term: 'Cast Codes', definition: 'The portable intent grammar for switching, delegation, broadcast, status, resume, and handoff requests.', why: 'Cast Codes make intent portable across clients without becoming permission or policy.', related: 'CastCodes, Client, Daemon, Control Plane' },
   ]}
@@ -51,7 +53,7 @@ These are the nouns that do work, hold identity, or represent a boundary in the 
     ['OpenClaw Plugin', 'Familiar'],
   ]}
   rows={[
-    { term: 'Client', definition: 'Any process or UI that talks to the Coven daemon instead of launching harnesses directly.', why: 'Clients are convenience layers, not trust roots.', related: 'Socket API, Daemon, CastCodes, OpenClaw Plugin' },
+    { term: 'Client', definition: 'Any process or UI that talks to the Coven daemon instead of launching harnesses directly.', why: 'Clients are convenience layers, not trust roots.', related: 'Socket API, Daemon, CastCodes, Cave, OpenClaw Plugin' },
     { term: 'Harness', definition: 'A supported coding-agent CLI that Coven can launch and supervise.', why: 'Harnesses do the agent work; Coven wraps them with project scope, PTY handling, and session records.', related: 'PTY, Session, Project Root, Provider' },
     { term: 'Provider', definition: 'The external model or agent service used by a harness.', why: 'Coven does not store provider credentials; each harness keeps its own auth flow.', related: 'Harness, Capability, Security / Trust Boundaries' },
     { term: 'OpenClaw Plugin', definition: 'The external package `@opencoven/coven`, which lets OpenClaw use Coven through the socket API.', why: 'It bridges ecosystems without making Coven part of OpenClaw core.', related: 'Client, Socket API, ACP, OpenCoven' },
