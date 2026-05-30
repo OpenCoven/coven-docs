@@ -17,7 +17,6 @@ import {
 const filters = [
   { name: 'All', value: undefined, description: 'Search every Coven doc' },
   { name: 'Guide', value: 'guide', description: 'Only framework and setup guides' },
-  { name: 'Familiars', value: 'familiars', description: 'Only familiar runtime docs' },
   { name: 'Reference', value: 'reference', description: 'Only API and safety reference' },
   { name: 'API Reference', value: 'openapi', description: 'Only the interactive daemon API reference' },
 ] as const;

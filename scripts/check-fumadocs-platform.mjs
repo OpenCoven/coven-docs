@@ -14,11 +14,28 @@ function assertIncludes(file, text, label = text) {
   }
 }
 
+function assertNotIncludes(file, text, label = text) {
+  const content = read(file);
+  if (content.includes(text)) {
+    throw new Error(`${file} still includes ${label}`);
+  }
+}
+
 function assertFile(file) {
   if (!fs.existsSync(path.join(root, file))) {
     throw new Error(`${file} does not exist`);
   }
 }
+
+assertIncludes('app/layout.config.tsx', "text: 'Home'", 'Home header link');
+assertIncludes('app/layout.config.tsx', "url: '/'", 'Home header route');
+assertIncludes('app/layout.config.tsx', "text: 'Archives'", 'Archives header link');
+assertIncludes('app/layout.config.tsx', "url: '/archives'", 'Archives header route');
+assertIncludes('app/layout.config.tsx', "text: 'Covenant'", 'Covenant header link');
+assertIncludes('app/layout.config.tsx', "url: '/covenant'", 'Covenant header route');
+assertFile('app/(home)/archives/page.tsx');
+assertFile('app/(home)/covenant/page.tsx');
+assertNotIncludes('content/docs/meta.json', '"familiars"', 'Familiars root navigation option');
 
 assertFile('components/mdx-components.tsx');
 assertIncludes('components/mdx-components.tsx', 'fumadocs-ui/components/codeblock', 'CodeBlock MDX wiring');
@@ -42,7 +59,7 @@ assertFile('components/search-dialog.tsx');
 assertIncludes('components/search-dialog.tsx', 'Filter', 'search filter UI');
 assertIncludes('components/search-dialog.tsx', 'aria-haspopup="listbox"', 'compact search filter dropdown');
 assertIncludes('components/search-dialog.tsx', 'Guide', 'Guide search filter');
-assertIncludes('components/search-dialog.tsx', 'Familiars', 'Familiars search filter');
+assertNotIncludes('components/search-dialog.tsx', 'Familiars', 'Familiars search filter');
 assertIncludes('components/search-dialog.tsx', 'Reference', 'Reference search filter');
 if (read('components/search-dialog.tsx').includes('SearchDialogFooter')) {
   throw new Error('components/search-dialog.tsx still uses SearchDialogFooter for filters');

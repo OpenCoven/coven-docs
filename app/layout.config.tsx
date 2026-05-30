@@ -16,6 +16,21 @@ export const baseOptions: BaseLayoutProps = {
   },
   links: [
     {
+      text: 'Home',
+      url: '/',
+      active: 'url',
+    },
+    {
+      text: 'Archives',
+      url: '/archives',
+      active: 'nested-url',
+    },
+    {
+      text: 'Covenant',
+      url: '/covenant',
+      active: 'nested-url',
+    },
+    {
       type: 'icon',
       text: 'GitHub',
       label: 'GitHub',
@@ -30,15 +45,6 @@ export const baseOptions: BaseLayoutProps = {
       label: 'Discord',
       url: 'https://discord.gg/opencoven',
       icon: <Icon icon="ph:discord-logo-duotone" width={18} />,
-      secondary: true,
-      external: true,
-    },
-    {
-      type: 'icon',
-      text: 'Fumadocs',
-      label: 'Fumadocs',
-      url: 'https://fumadocs.dev',
-      icon: <Icon icon="ph:book-open-duotone" width={18} />,
       secondary: true,
       external: true,
     },
