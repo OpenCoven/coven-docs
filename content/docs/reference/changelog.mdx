@@ -1,0 +1,44 @@
+---
+title: "Changelog"
+description: "What shipped in each CovenCave release."
+---
+
+_Generated from release tags. See [GitHub Releases](https://github.com/OpenCoven/coven-cave/releases) for full diffs and artifacts._
+
+---
+
+## v0.0.13 — 2026-06-01
+
+### Cave Is Now Public
+
+The `OpenCoven/coven-cave` repository is now public. Cave is the native Tauri workspace for OpenCoven: a place to talk to your familiars, watch their tools, inspect their memory, and follow the work they're doing across sessions.
+
+### What Shipped
+
+| Feature | PR | Description |
+|---------|-----|-------------|
+| **AgentPanel** | #36 | First-class right-side agent chat pane. Slide-in, docked, full session context. |
+| **Integrated Terminal** | #37 | Bottom-pane terminal backed by `portable-pty` and xterm.js. Real PTY, not a fake shell. |
+| **Embedded Browser Pane** | #38 | Tauri child `WebviewBuilder` browser pane with address bar, navigation, and DevTools toggle. |
+| **Border Opacity Tuning** | #39 | Mood C–calibrated border tokens. `--border` and `--border-hairline` aligned to the design system. |
+| **Tailwind 4 CSS Var Fix** | #42 | All `bg-[var(--x)]` and `text-[var(--x)]` classes wrapped in `var()` for Tailwind 4 compatibility. |
+| **Val's Inbox** | #32 | Humans-only escalation surface. `/api/vals-inbox` routes, `~/.coven/vals-inbox.json` persistence, pending/deferred/archive lanes, inline answer affordance, origin chips, severity dots in daemon bar. |
+| **Health Strip** | #15 | Colored health dots in the daemon bar — one per surface (daemon, familiars, gateway), degraded/offline states, click-to-popover. |
+| **Demo Seed** | #40 | `NEXT_PUBLIC_DEMO=true` fixture layer: 7 familiars, 5 inbox escalations, 5 board cards, demo chat turns. Zero-effect when unset. |
+| **Coven Live** | #41 | Full-bleed hero takeover mode. "Coven" nav button; familiar constellation with ambient float; activity ticker; lavender radial glow. |
+
+### Upgrade
+
+CovenCave is a local Tauri app — pull the latest from `main` or download the tagged release artifact.
+
+---
+
+## v0.0.12 — 2026-05-31
+
+Internal pre-public release. Zinc → Mood C migration, shell layout rewrite, familiar rail polish, command palette, Mood C design system tokens.
+
+---
+
+## v0.0.1 – v0.0.11
+
+Early private development. Not publicly documented.
