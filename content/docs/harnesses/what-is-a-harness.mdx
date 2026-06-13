@@ -51,3 +51,11 @@ coven run claude "review this module"
 ```
 
 Use [Install harness CLIs](/docs/harnesses/installing) if either harness is missing, and [CLI run reference](/docs/cli/run) for command syntax.
+
+## A note on the word "harness"
+
+In Coven's software architecture, "harness" refers specifically to the PTY-driven adapter for an external coding-agent CLI (Codex, Claude Code, etc.). This is Coven's technical term for that adapter layer.
+
+This is distinct from "harness engineering" in the broader AI literature — where "harness" (in Lopopolo's sense and related research) refers to the scaffolding humans design *around* agents: prompts, constraints, feedback loops, taste invariants, and evaluation mechanisms. That broader sense describes engineering choices, not a specific software component.
+
+When Coven docs say "harness," they mean the PTY adapter. When AI research literature says "harness," it often means the engineered scaffolding. Both usages are legitimate in their contexts.
