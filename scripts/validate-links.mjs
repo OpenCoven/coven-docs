@@ -24,6 +24,7 @@ async function walk(dir) {
 function slugForFile(file) {
   const relative = path.relative(docsDir, file).replace(/\\/g, '/').replace(/\.mdx$/, '');
   if (relative === 'index') return [];
+  if (relative.endsWith('/index')) return relative.replace(/\/index$/, '').split('/');
   return relative.split('/');
 }
 
