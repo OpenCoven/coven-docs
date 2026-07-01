@@ -29,7 +29,8 @@
     "export:pdf": "node scripts/export-pdf.mjs",
     "export:obsidian": "node scripts/generate-obsidian.mjs",
     "start": "next start",
-    "postinstall": "fumadocs-mdx"
+    "postinstall": "fumadocs-mdx",
+    "prepare": "git config core.hooksPath .githooks || true"
   },
   "dependencies": {
     "@iconify/react": "^5.2.1",
