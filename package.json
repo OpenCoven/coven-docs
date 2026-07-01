@@ -12,7 +12,7 @@
   "scripts": {
     "preinstall": "npx -y only-allow pnpm",
     "dev": "next dev",
-    "build": "pnpm run check:english-only && pnpm run check:no-leading-h1 && pnpm run check:daemon-docs && pnpm run check:cli-docs && pnpm run check:harness-docs && pnpm run check:memory-models-docs && pnpm run openapi:samples && next build",
+    "build": "pnpm run check:english-only && pnpm run check:no-leading-h1 && pnpm run check:daemon-docs && pnpm run check:cli-docs && pnpm run check:harness-docs && pnpm run check:memory-models-docs && pnpm run check:mermaid && pnpm run openapi:samples && next build",
     "check:fumadocs": "node scripts/check-fumadocs-platform.mjs",
     "check:english-only": "node scripts/check-english-only.mjs",
     "check:no-leading-h1": "node scripts/check-no-leading-h1.mjs",
@@ -21,7 +21,8 @@
     "check:harness-docs": "node scripts/check-harness-docs.mjs",
     "check:memory-models-docs": "node scripts/check-memory-models-docs.mjs",
     "check:links": "node scripts/validate-links.mjs",
-    "check:mermaid": "node scripts/check-mermaid-transform.mjs && node scripts/check-mermaid-svg-normalize.mjs",
+    "check:mermaid": "node scripts/check-mermaid-transform.mjs && node scripts/check-mermaid-svg-normalize.mjs && node scripts/check-mermaid-parse.mjs",
+    "check:mermaid-parse": "node scripts/check-mermaid-parse.mjs",
     "openapi:samples": "node scripts/build-openapi-samples.mjs",
     "openapi:gen": "node scripts/generate-openapi-docs.mjs",
     "openapi:build": "pnpm run openapi:samples && pnpm run openapi:gen",
@@ -60,6 +61,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "js-yaml": "^4.1.1",
+    "jsdom": "^29.1.1",
     "typescript": "^5"
   },
   "pnpm": {
