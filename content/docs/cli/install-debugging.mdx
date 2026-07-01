@@ -34,7 +34,7 @@ pnpm dlx @opencoven/cli doctor
 ```mermaid
 flowchart LR
   Start([coven install broken?]) --> Runs{coven runs at all?}
-  Runs -- no --> Found["`coven` not found\ncheck install method + PATH"]
+  Runs -- no --> Found["coven not found\ncheck install method + PATH"]
   Runs -- yes --> Version{correct version?}
   Version -- no --> Stale["Stale npx cache or old global\nreinstall @latest"]
   Version -- yes --> Native{native package resolved?}
