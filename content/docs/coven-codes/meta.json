@@ -1,0 +1,10 @@
+{
+  "title": "Coven Codes",
+  "description": "The Coven Codes desktop app",
+  "root": true,
+  "icon": "LuMonitor",
+  "pages": [
+    "install-debugging",
+    "uninstall"
+  ]
+}

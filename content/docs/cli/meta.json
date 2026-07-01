@@ -6,6 +6,8 @@
   "pages": [
     "index",
     "install",
+    "install-debugging",
+    "uninstall",
     "interactive",
     "doctor",
     "daemon",
