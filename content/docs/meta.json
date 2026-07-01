@@ -1,3 +1,3 @@
 {
-  "pages": ["guide", "cli", "daemon", "harnesses", "memory-models", "openapi", "reference"]
+  "pages": ["guide", "cli", "coven-codes", "daemon", "harnesses", "memory-models", "openapi", "reference"]
 }

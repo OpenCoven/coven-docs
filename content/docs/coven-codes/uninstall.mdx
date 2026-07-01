@@ -1,0 +1,68 @@
+---
+title: "Uninstall"
+summary: "Remove the Coven Codes desktop app on macOS, Linux, and Windows, and decide what to do with local Coven state."
+description: "Uninstall reference for the Coven Codes desktop application, including per-OS removal and shared Coven state under COVEN_HOME."
+read_when:
+  - You want to remove the Coven Codes app
+  - You are deciding whether to delete local Coven state
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+Use this page to remove the Coven Codes desktop app. Removing the app, clearing its own settings, and deleting shared Coven state are separate steps — a routine uninstall only needs the first.
+
+## Close The App First
+
+Quit Coven Codes before removing it so no window is holding a connection to the daemon. Removing the app does not stop the `coven` daemon or end running sessions — the daemon is a separate process managed by the CLI. If you also want to stop background work, see [CLI Uninstall → Stop the daemon first](/docs/cli/uninstall#stop-the-daemon-first).
+
+## Remove The App
+
+Uninstall using the method that matches how you installed the desktop build.
+
+### macOS
+
+Quit the app, then move the bundle to the Trash:
+
+```sh
+rm -rf "/Applications/Coven Codes.app"
+```
+
+If you installed from a `.dmg`, eject any mounted disk image and delete the downloaded `.dmg`.
+
+### Windows
+
+Uninstall through **Settings → Apps → Installed apps**, or **Control Panel → Programs and Features**, and select Coven Codes. If you ran a portable build, delete the folder you extracted it to.
+
+### Linux
+
+For an `AppImage`, delete the file you downloaded and any desktop entry you created for it. For a `.deb`/`.rpm`, remove it with your system package manager, for example:
+
+```sh
+sudo apt remove coven-codes
+```
+
+## Remove App Settings And Caches
+
+The app stores its own window state, settings, and caches in the OS application-data location. Remove these only if you want a clean slate; they are separate from your Coven session history.
+
+- **macOS:** `~/Library/Application Support`, `~/Library/Caches`, and `~/Library/Preferences` entries for Coven Codes.
+- **Linux:** the app's directories under `~/.config`, `~/.cache`, and `~/.local/share`.
+- **Windows:** the app's folders under `%APPDATA%` and `%LOCALAPPDATA%`.
+
+## Local Coven State
+
+Coven Codes reads local Coven state from `COVEN_HOME` (default `~/.coven`), but it does not own it — the daemon and CLI do. Removing the app does not touch this directory, and you usually should not delete it when uninstalling only the app.
+
+<Callout type="warn" title="Do not delete ~/.coven to uninstall the app">
+`~/.coven` holds your session history, events, and the daemon socket, shared with the CLI and other clients. Delete it only when you intend to erase all local Coven data — not as part of removing the desktop app. See [CLI Uninstall → Local state](/docs/cli/uninstall#local-state).
+</Callout>
+
+## Verify Removal
+
+Confirm the app is gone from your applications list, and that no Coven Codes process is running. The `coven` CLI and daemon are unaffected:
+
+```sh
+coven doctor
+```
+
+To reinstall later, download the current build from [`OpenCoven/coven-codes` releases](https://github.com/OpenCoven/coven-codes/releases). If the reinstall does not open or cannot reach the daemon, see [Install Debugging](/docs/coven-codes/install-debugging).

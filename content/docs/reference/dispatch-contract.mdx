@@ -9,8 +9,6 @@ read_when:
   - Debugging duplicate execution, lost replies, or out-of-order processing
 ---
 
-# Dispatch contract
-
 The contract for message and task dispatch between the orchestrator and familiars,
 and for replies back. The bus guarantees **at-least-once delivery** and
 **per-stream FIFO ordering**; everything stronger (exactly-once, global order) is
