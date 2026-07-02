@@ -13,8 +13,11 @@ Visit `http://localhost:3000` in your browser.
 
 ## Structure
 
-- `apps/docs/` - Next.js documentation site
-- `apps/docs/content/` - Markdown documentation files
+- `app/` - Next.js App Router documentation site
+- `content/docs/` - MDX documentation, organized by section (each folder has a `meta.json`)
+- `components/` - React components used in the docs (e.g. `Mermaid`, data tables)
+- `scripts/` - build and validation scripts (docs conventions, Mermaid, OpenAPI)
+- `openapi/` - OpenAPI specs rendered into `content/docs/openapi/`
 
 ## Building
 
