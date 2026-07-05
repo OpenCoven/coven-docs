@@ -1,0 +1,62 @@
+---
+title: "Overview"
+summary: "Understand what Coven Code is, how it relates to the Coven CLI, and where its local state lives."
+description: "Coven Code overview for the agentic coding TUI, installed commands, provider boundary, local state, and daemon integration."
+read_when:
+  - You want to know what Coven Code is
+  - You need to choose between Coven Code, the CLI, and harness docs
+  - You are orienting someone to the coding TUI
+---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+Coven Code is OpenCoven's agentic coding TUI: a local terminal workspace for chatting with coding agents, reviewing file changes, switching providers, managing sessions, and driving the local Coven daemon without leaving the keyboard.
+
+It is not a hosted service. The TUI runs on your machine, reads project context from your current working directory, and sends model requests directly to the provider you connect. Provider credentials stay in the provider or local Coven Code auth store, while Coven daemon operations still go through the same authority boundary documented in [daemon security](/docs/daemon/security).
+
+<Callout type="info" title="Name and command shape">
+The product name is **Coven Code** and the lower-level binary is `coven-code`. The recommended install path is still `@opencoven/coven`, which installs `coven`, `coven tui`, and the compatibility `coven-code` command.
+</Callout>
+
+## When To Use Coven Code
+
+Use Coven Code when you want an interactive coding agent in a terminal:
+
+- Launch a project-scoped TUI with `coven tui` or `coven-code`.
+- Connect Anthropic or Codex credentials from `/connect`.
+- Change models and reasoning effort from `/model`.
+- Use `/coven` to inspect local Coven sessions and harness runs.
+- Run headless one-shot prompts with `coven-code --print`.
+
+If you only need daemon lifecycle commands, start with the [CLI Reference](/docs/cli). If you are integrating raw Codex or Claude Code harnesses through the daemon, read [Harnesses](/docs/harnesses).
+
+## Installed Commands
+
+The npm package installs a small command family:
+
+| Command | Purpose |
+| --- | --- |
+| `coven` | Main Coven CLI. In current installs, interactive TUI entry can exec into Coven Code. |
+| `coven tui` | Open the Coven Code TUI from the Coven command namespace. |
+| `coven-code` | Lower-level Coven Code binary. Use it directly for provider, model, and print-mode flags. |
+| `coven-cave` | Compatibility alias for the same CLI binary where present. |
+
+## Local State
+
+Coven Code owns `~/.coven-code` for its settings, provider account records, sessions, prompts, plugins, keybindings, and TUI-specific state. The Coven daemon owns `~/.coven` by default, including `~/.coven/coven.sock` and the session ledger used by daemon clients.
+
+Those directories are related but not interchangeable:
+
+- Delete `~/.coven-code` only when you want to reset Coven Code's TUI and account state.
+- Delete `~/.coven` only when you intend to erase local Coven daemon state shared by CLI, Cave, and other clients.
+- If you set `COVEN_HOME`, make sure daemon-aware workflows and `/coven` point to the same Coven home.
+
+## Core Pages
+
+<Cards>
+  <Card title="Install Coven Code" href="/docs/coven-code/install" description="Install through @opencoven/coven, use the direct package, download archives, or build from source." />
+  <Card title="Providers" href="/docs/coven-code/providers" description="Connect Anthropic and Codex, import Claude CLI credentials, and choose models." />
+  <Card title="Commands" href="/docs/coven-code/commands" description="Use CLI flags and in-session slash commands for coding workflows." />
+  <Card title="Configuration" href="/docs/coven-code/configuration" description="Understand settings, environment variables, state directories, and daemon integration." />
+</Cards>

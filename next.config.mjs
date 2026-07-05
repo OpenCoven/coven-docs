@@ -19,6 +19,16 @@ const nextConfig = {
         destination: '/docs/reference/glossolalia',
         permanent: true,
       },
+      {
+        source: '/docs/coven-codes',
+        destination: '/docs/coven-code',
+        permanent: true,
+      },
+      {
+        source: '/docs/coven-codes/:path*',
+        destination: '/docs/coven-code/:path*',
+        permanent: true,
+      },
     ];
   },
 };

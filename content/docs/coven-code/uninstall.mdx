@@ -1,0 +1,88 @@
+---
+title: "Uninstall"
+summary: "Remove Coven Code installs and decide what to do with ~/.coven-code and shared Coven state."
+description: "Uninstall reference for Coven Code, including npm packages, direct binaries, source installs, local TUI state, and shared Coven daemon state."
+read_when:
+  - You want to remove Coven Code
+  - You are cleaning up duplicate install channels
+  - You are deciding whether to delete local Coven Code or Coven daemon state
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+Use this page to remove Coven Code. Removing the binary, clearing Coven Code settings, and deleting shared Coven daemon state are separate steps. A routine uninstall usually removes only the package or binary.
+
+## Stop Running Sessions First
+
+Exit the TUI before removing the binary. Removing Coven Code does not stop the `coven` daemon or end daemon-managed sessions. If you also want to stop background work, see [CLI Uninstall -> Stop the daemon first](/docs/cli/uninstall#stop-the-daemon-first).
+
+## Remove Npm Installs
+
+For the recommended package:
+
+```sh
+npm uninstall -g @opencoven/coven
+```
+
+For the direct TUI package:
+
+```sh
+npm uninstall -g @opencoven/coven-code
+```
+
+Then verify what remains on `PATH`:
+
+```sh
+which coven-code
+which coven
+```
+
+On Windows, use `where coven-code` and `where coven`.
+
+## Remove Manual Binaries
+
+If you installed from a release archive, remove the binary from wherever you placed it:
+
+```sh
+sudo rm /usr/local/bin/coven-code
+rm ~/.local/bin/coven-code
+```
+
+If you installed into another directory, remove that copy instead. Check `which coven-code` first so you do not remove the wrong binary.
+
+## Remove Source Builds
+
+If you installed with Cargo, remove the installed binary:
+
+```sh
+cargo uninstall claurst
+```
+
+If Cargo reports no installed package, inspect `~/.cargo/bin` and remove only the Coven Code binary you installed.
+
+## Remove Coven Code State
+
+Coven Code stores TUI-specific state under `~/.coven-code`. Remove it only if you want to reset local Coven Code settings, account records, keybindings, plugins, and local session transcripts:
+
+```sh
+rm -rf ~/.coven-code
+```
+
+<Callout type="warn" title="Do not delete ~/.coven for a normal Coven Code uninstall">
+`~/.coven` belongs to the Coven daemon and is shared with the CLI, Cave, and other clients. Delete it only when you intend to erase shared local Coven sessions and events. See [CLI Uninstall -> Local state](/docs/cli/uninstall#local-state).
+</Callout>
+
+If you want a reversible reset, move the directory aside instead of deleting it.
+
+## Verify Removal
+
+Confirm no Coven Code binary remains on `PATH`:
+
+```sh
+coven-code --version
+which coven-code
+```
+
+If the command still exists, another install channel is present. Remove that channel too or leave it intentionally.
+
+To reinstall later, use [Install](/docs/coven-code/install). If the reinstall opens but cannot connect providers or the daemon, see [Troubleshooting](/docs/coven-code/troubleshooting).

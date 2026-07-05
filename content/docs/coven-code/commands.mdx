@@ -1,0 +1,97 @@
+---
+title: "Commands"
+summary: "Use Coven Code CLI flags, print mode, provider commands, and in-session slash commands."
+description: "Command reference for Coven Code, including CLI flags, headless print mode, provider login commands, slash commands, and daemon-aware /coven workflows."
+read_when:
+  - You need Coven Code command examples
+  - You want headless or scripted usage
+  - You are looking for /connect, /model, /coven, or /help behavior
+---
+
+## Shell Commands
+
+Open the TUI:
+
+```sh
+coven tui
+coven-code
+```
+
+Run a one-shot prompt and print the result:
+
+```sh
+coven-code --print "Explain the failing test"
+coven-code -p --provider codex "Summarize this repository"
+```
+
+Resume a previous session:
+
+```sh
+coven-code --resume
+coven-code --resume <session-id>
+```
+
+Choose provider, model, and effort:
+
+```sh
+coven-code --provider anthropic --model claude-sonnet-4-6
+coven-code --provider codex --effort high
+coven-code --fallback-model claude-haiku-4-6
+```
+
+## Core Flags
+
+| Flag | Purpose |
+| --- | --- |
+| `--provider <provider>` | Select `anthropic` or `codex`. Env: `COVEN_CODE_PROVIDER`. |
+| `--model <model>` | Choose the active model. |
+| `--effort <level>` | Set reasoning effort for supported models: `low`, `medium`, `high`, or `max`. |
+| `--thinking <tokens>` | Set an extended-thinking token budget where supported. |
+| `--resume [id]` | Resume the most recent session or a specific session. |
+| `--print`, `-p` | Run in non-interactive print mode and exit. |
+| `--permission-mode <mode>` | Use `default`, `accept-edits`, `bypass-permissions`, or `plan`. |
+| `--max-turns <n>` | Stop after a maximum number of agentic turns. |
+| `--system-prompt <text>` | Replace the system prompt. |
+| `--append-system-prompt <text>` | Append extra system instructions. |
+| `--no-claude-md` | Disable AGENTS.md memory file injection. |
+| `--output-format <format>` | Use `text`, `json`, or `stream-json`. |
+| `--api-key <key>` | Override provider key for the active process. |
+| `--api-base <url>` | Override provider base URL. Env: `COVEN_CODE_API_BASE`. |
+| `--agent <name>` | Use a named agent profile such as `build`, `plan`, or `explore`. |
+| `--verbose` | Enable verbose logging. |
+
+## Provider Commands
+
+```sh
+coven-code auth login
+coven-code codex login
+coven-code models
+coven-code models anthropic --refresh
+coven-code models codex --json
+```
+
+Use `/connect` in the TUI when you prefer an interactive provider picker.
+
+## Slash Commands
+
+| Command | Purpose |
+| --- | --- |
+| `/connect` | Connect, import, or switch provider accounts. |
+| `/model` | Open the model picker for the active provider. |
+| `/effort LEVEL` | Set reasoning effort to `low`, `medium`, `high`, or `max`, or open an effort picker with no argument. |
+| `/coven` | Use the local Coven daemon from inside the TUI. |
+| `/help` | Open command and keybinding help. |
+| `/share` | Share a session through an unlisted GitHub Gist when configured. |
+| `/goal OBJECTIVE` | Keep the agent working toward an objective across turns. |
+
+## Daemon-Aware Commands
+
+The `/coven` command talks to the local daemon over `~/.coven/coven.sock` by default. Before relying on it, verify:
+
+```sh
+coven doctor
+coven daemon status
+coven daemon start
+```
+
+If the daemon is unreachable, Coven Code can still operate as a coding TUI, but `/coven` actions that list or manage daemon sessions will fail closed. For the daemon lifecycle, see [CLI Daemon](/docs/cli/daemon) and [Daemon Lifecycle](/docs/daemon/lifecycle).
