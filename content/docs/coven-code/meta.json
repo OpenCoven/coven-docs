@@ -1,0 +1,15 @@
+{
+  "title": "Coven Code",
+  "description": "Agentic Coding TUI",
+  "root": true,
+  "icon": "LuTerminal",
+  "pages": [
+    "index",
+    "install",
+    "providers",
+    "commands",
+    "configuration",
+    "troubleshooting",
+    "uninstall"
+  ]
+}

@@ -1,0 +1,115 @@
+---
+title: "Install"
+summary: "Install Coven Code through the @opencoven/coven-code npm package, release archives, or source builds."
+description: "Installation guide for Coven Code, including recommended npm install, the companion Coven daemon CLI, GitHub Releases archives, source builds, upgrades, and verification."
+read_when:
+  - You need to install Coven Code
+  - You are choosing between @opencoven/coven-code and @opencoven/cli
+  - You need to verify which binary is on PATH
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+## Recommended Install
+
+Install the Coven Code package:
+
+```sh
+npm install -g @opencoven/coven-code
+```
+
+Then open a new terminal and verify the command:
+
+```sh
+coven-code --version
+coven-code
+```
+
+This installs the `coven-code` binary and the `coven-cave` compatibility alias. You can also run it without a permanent install:
+
+```sh
+npx @opencoven/coven-code
+```
+
+## The Coven Daemon CLI
+
+The bare `coven` command ships separately with `@opencoven/cli`, the Coven daemon CLI. When `coven-code` is on `PATH`, `coven` and `coven tui` exec into Coven Code automatically (opt out with `COVEN_LEGACY_TUI=1`):
+
+```sh
+npm install -g @opencoven/cli
+coven --version
+coven doctor
+coven tui
+```
+
+Install it when you want daemon workflows (`coven daemon`, `coven sessions`, `/coven` from the TUI); Coven Code itself does not require it.
+
+<Callout type="warn" title="Prefer one install channel per binary">
+Avoid keeping stale copies from several install paths on `PATH`. If `which coven-code` or `where coven-code` points somewhere unexpected, uninstall the old channel before debugging provider or daemon behavior.
+</Callout>
+
+## Manual Release Archives
+
+Prebuilt archives ship from [`OpenCoven/coven-code` releases](https://github.com/OpenCoven/coven-code/releases). Download the archive that matches your OS and CPU:
+
+| Platform | Archive |
+| --- | --- |
+| Windows x86_64 | `coven-code-windows-x86_64.zip` |
+| Linux x86_64 | `coven-code-linux-x86_64.tar.gz` |
+| Linux aarch64 | `coven-code-linux-aarch64.tar.gz` |
+| macOS Intel | `coven-code-macos-x86_64.tar.gz` |
+| macOS Apple Silicon | `coven-code-macos-aarch64.tar.gz` |
+
+Each archive contains `coven-code` or `coven-code.exe`. Put the binary somewhere on `PATH`, then run:
+
+```sh
+coven-code --version
+```
+
+On macOS, a downloaded binary may keep a quarantine flag. If you trust the release you downloaded, clear it with:
+
+```sh
+xattr -rd com.apple.quarantine /path/to/coven-code
+```
+
+## Build From Source
+
+Source builds require Rust and the repo checkout:
+
+```sh
+git clone https://github.com/OpenCoven/coven-code.git
+cd coven-code/src-rust
+cargo build --release --package claurst
+```
+
+The internal Rust crate names still use `claurst-*` for upstream merge compatibility. The compiled binary is user-facing as `coven-code`.
+
+## Upgrade
+
+For the Coven Code package:
+
+```sh
+npm install -g @opencoven/coven-code@latest
+```
+
+For the Coven daemon CLI:
+
+```sh
+npm install -g @opencoven/cli@latest
+```
+
+Settings under `~/.coven-code` and daemon state under `~/.coven` are preserved.
+
+## Verify The Install
+
+Run:
+
+```sh
+coven-code --version
+coven-code --provider codex --print "Say installed"
+coven daemon status
+```
+
+The first command verifies the binary. The second verifies a headless prompt path after provider setup. The third verifies the local Coven daemon if you plan to use `/coven` from the TUI.
+
+If installation succeeds but launch fails, see [Troubleshooting](/docs/coven-code/troubleshooting).

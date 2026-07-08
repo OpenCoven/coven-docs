@@ -1,0 +1,89 @@
+---
+title: "Providers"
+summary: "Connect Anthropic and Codex providers, import Claude CLI credentials, choose models, and understand the provider boundary."
+description: "Provider setup guide for Coven Code, including Anthropic, Codex, Claude CLI import, model selection, rate limits, and credential boundaries."
+read_when:
+  - You need to connect a model provider
+  - /connect or /model is confusing
+  - You need to understand Claude CLI import vs running Claude Code
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+Coven Code currently supports Anthropic and Codex provider paths. You can connect from the startup provider prompt, the `/connect` picker inside the TUI, or provider-specific shell commands.
+
+## Provider Setup Prompt
+
+On first launch, if no credentials are configured, Coven Code opens a provider setup prompt:
+
+| Choice | Meaning |
+| --- | --- |
+| `1` | Start the best available Claude path, preferring local Claude CLI import when present and falling back to API key setup. |
+| `2` | Start Codex browser login. |
+| `Enter` | Open the full `/connect` picker. |
+| `Esc` | Skip setup for now. |
+
+You can always run `/connect` later.
+
+## Anthropic
+
+Use Anthropic when you want Claude models through Coven Code's direct provider client. You can provide an API key:
+
+```sh
+export ANTHROPIC_API_KEY=<your-key>
+coven-code --provider anthropic
+```
+
+Or use the in-app `/connect` flow. For environments that support Coven Code's Anthropic OAuth client, `coven-code auth login` can store an OAuth account.
+
+## Claude CLI Import
+
+Claude CLI import means Coven Code imports usable local Claude Code credentials into a Coven Code account profile. It is a credential import path, not a request proxy through the official `claude` CLI process.
+
+<Callout type="warn" title="Import is not the same as running Claude Code">
+When a session uses an imported Claude CLI account, Coven Code still sends requests through its own Anthropic provider client. Headers, retry behavior, queueing, and provider rate-limit buckets can differ from the official Claude Code CLI.
+</Callout>
+
+This distinction matters when debugging `429` rate limits: re-importing the same Claude CLI credentials will not create a new quota pool. Wait for provider limits to reset, choose a lighter model, switch providers, or run the official Claude Code CLI outside Coven Code when you specifically need that execution path.
+
+## Codex
+
+Use Codex when you want the OpenAI Codex provider path through a ChatGPT/Codex login:
+
+```sh
+coven-code codex login
+coven-code --provider codex
+```
+
+Inside the TUI, `/connect` can start the Codex login flow and `/model` can switch among available Codex models.
+
+## Model And Effort Selection
+
+Use `/model` in the TUI to change models for the active provider. Use the left and right arrow controls in that picker, or the `/effort` command, to change reasoning effort where the model supports it.
+
+From the shell:
+
+```sh
+coven-code --provider anthropic --model claude-sonnet-4-6
+coven-code --provider codex --model gpt-5-codex
+coven-code --effort high
+```
+
+You can list the model catalog with:
+
+```sh
+coven-code models
+coven-code models anthropic --refresh
+coven-code models codex --json
+```
+
+## Provider Boundary
+
+Coven Code is local-first, but providers are still provider-owned services:
+
+- API keys and OAuth records are local account state, not OpenCoven hosted accounts.
+- `COVEN_CODE_PROVIDER` selects the default provider.
+- `COVEN_CODE_API_BASE` can override the API base URL for compatible provider endpoints.
+- Model requests go to the selected provider; daemon requests go to Coven over the local socket.
+
+For daemon-level harness auth, see [Harness Provider Auth](/docs/harnesses/provider-auth). For general auth assumptions, see [Authentication Reference](/docs/reference/auth).

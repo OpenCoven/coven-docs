@@ -1,0 +1,95 @@
+---
+title: "Configuration"
+summary: "Configure Coven Code settings, environment variables, local state, keybindings, and daemon integration."
+description: "Configuration reference for Coven Code, including settings files, environment variables, provider defaults, local state directories, and Coven daemon integration."
+read_when:
+  - You need to configure Coven Code
+  - You are moving state between machines
+  - You are debugging COVEN_HOME, COVEN_CODE_PROVIDER, or local settings
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+Coven Code stores TUI-specific state under `~/.coven-code` and reads shared daemon state from `COVEN_HOME` when it uses the local Coven daemon.
+
+## State Directories
+
+| Path | Owner | Contains |
+| --- | --- | --- |
+| `~/.coven-code/settings.json` | Coven Code | TUI settings, provider defaults, and feature preferences. |
+| `~/.coven-code/projects/` | Coven Code | Project-scoped session transcripts and local session state. |
+| `~/.coven-code/keybindings.json` | Coven Code | Custom keybindings. |
+| `~/.coven-code/plugins/` | Coven Code | Local plugin manifests and plugin files. |
+| `~/.coven` | Coven daemon | Daemon socket, session ledger, and shared Coven state. |
+
+<Callout type="warn" title="Do not mix reset scopes">
+Removing `~/.coven-code` resets Coven Code. Removing `~/.coven` resets shared daemon state used by the CLI, Cave, and other clients. They solve different problems.
+</Callout>
+
+## Environment Variables
+
+| Variable | Purpose |
+| --- | --- |
+| `COVEN_CODE_PROVIDER` | Default provider, such as `anthropic` or `codex`. |
+| `COVEN_CODE_API_BASE` | Override the provider API base URL. |
+| `COVEN_CODE_SKIP_PROMPT_HISTORY` | Disable prompt history when set to `1`. |
+| `COVEN_CODE_ANTHROPIC_OAUTH_CLIENT_ID` | Configure a registered Anthropic OAuth client for Coven Code auth login. |
+| `ANTHROPIC_API_KEY` | Anthropic API key used by the Anthropic provider path. |
+| `COVEN_HOME` | Coven daemon home. Defaults to `~/.coven`. |
+| `COVEN_LEGACY_TUI` | Opt out of `coven` / `coven tui` exec behavior where legacy TUI support is available. |
+
+## Provider Defaults
+
+Set a default provider for new launches:
+
+```sh
+export COVEN_CODE_PROVIDER=codex
+coven-code
+```
+
+Or choose explicitly per run:
+
+```sh
+coven-code --provider anthropic
+coven-code --provider codex
+```
+
+Use `/connect` to manage accounts and `/model` to pick a model in the interactive UI.
+
+## Project Context
+
+Coven Code runs from the current working directory unless a command or workflow changes it. Keep these boundaries in mind:
+
+- Project files and AGENTS.md-style instructions are read from the local project context.
+- Session state under `~/.coven-code/projects/` is project-scoped.
+- Daemon operations invoked through `/coven` still go through Coven's project-root and working-directory validation.
+
+For daemon project-root rules, see [Harness Project Roots](/docs/harnesses/project-roots) and [Working Directories](/docs/harnesses/working-directories).
+
+## Keybindings
+
+Keybindings are stored in:
+
+```txt
+~/.coven-code/keybindings.json
+```
+
+Edit them through the TUI where possible. If you edit the file manually, restart Coven Code afterward so the current process reloads the new bindings.
+
+## Daemon Integration
+
+The `/coven` command and welcome daemon status block use the typed daemon client over:
+
+```txt
+~/.coven/coven.sock
+```
+
+If you use a custom Coven home:
+
+```sh
+export COVEN_HOME=/path/to/coven-home
+coven daemon status
+coven-code
+```
+
+Make sure both the daemon command and the Coven Code process see the same `COVEN_HOME`. If they do not, the TUI may show no daemon sessions even though the CLI can see a different daemon.
