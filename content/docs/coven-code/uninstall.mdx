@@ -18,16 +18,16 @@ Exit the TUI before removing the binary. Removing Coven Code does not stop the `
 
 ## Remove Npm Installs
 
-For the recommended package:
-
-```sh
-npm uninstall -g @opencoven/coven
-```
-
-For the direct TUI package:
+For the Coven Code package:
 
 ```sh
 npm uninstall -g @opencoven/coven-code
+```
+
+If you also installed the Coven daemon CLI and want it gone too:
+
+```sh
+npm uninstall -g @opencoven/cli
 ```
 
 Then verify what remains on `PATH`:

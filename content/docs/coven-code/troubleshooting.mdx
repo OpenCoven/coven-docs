@@ -56,7 +56,7 @@ which coven
 which coven-code
 ```
 
-If several installs exist, keep one channel. The recommended channel is `@opencoven/coven`; the direct TUI-only channel is `@opencoven/coven-code`.
+If several installs exist, keep one channel per binary. Coven Code ships as `@opencoven/coven-code`; the bare `coven` daemon CLI ships as `@opencoven/cli`. Installing a stale or unofficial package that also claims the `coven` bin makes the command depend on install order.
 
 For archive installs, confirm the binary is executable:
 
@@ -128,7 +128,7 @@ Reset only the layer that is broken:
 For a support report, include:
 
 - Coven Code version from `coven-code --version`.
-- Install channel: `@opencoven/coven`, `@opencoven/coven-code`, archive, or source.
+- Install channel: `@opencoven/coven-code`, archive, or source.
 - OS and CPU architecture.
 - Active provider and model, without secrets.
 - Output of `coven doctor` and `coven daemon status` if `/coven` is involved.

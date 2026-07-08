@@ -16,7 +16,7 @@ Coven Code is OpenCoven's agentic coding TUI: a local terminal workspace for cha
 It is not a hosted service. The TUI runs on your machine, reads project context from your current working directory, and sends model requests directly to the provider you connect. Provider credentials stay in the provider or local Coven Code auth store, while Coven daemon operations still go through the same authority boundary documented in [daemon security](/docs/daemon/security).
 
 <Callout type="info" title="Name and command shape">
-The product name is **Coven Code** and the lower-level binary is `coven-code`. The recommended install path is still `@opencoven/coven`, which installs `coven`, `coven tui`, and the compatibility `coven-code` command.
+The product name is **Coven Code** and the binary is `coven-code`, installed from the [`@opencoven/coven-code`](https://www.npmjs.com/package/@opencoven/coven-code) npm package along with the `coven-cave` alias. The bare `coven` command belongs to the separate Coven daemon CLI (`@opencoven/cli`), which execs into Coven Code for `coven` and `coven tui` when `coven-code` is on `PATH`.
 </Callout>
 
 ## When To Use Coven Code
@@ -33,14 +33,14 @@ If you only need daemon lifecycle commands, start with the [CLI Reference](/docs
 
 ## Installed Commands
 
-The npm package installs a small command family:
+Two npm packages cooperate here:
 
-| Command | Purpose |
-| --- | --- |
-| `coven` | Main Coven CLI. In current installs, interactive TUI entry can exec into Coven Code. |
-| `coven tui` | Open the Coven Code TUI from the Coven command namespace. |
-| `coven-code` | Lower-level Coven Code binary. Use it directly for provider, model, and print-mode flags. |
-| `coven-cave` | Compatibility alias for the same CLI binary where present. |
+| Command | Ships with | Purpose |
+| --- | --- | --- |
+| `coven-code` | `@opencoven/coven-code` | The Coven Code binary. Use it directly for provider, model, and print-mode flags. |
+| `coven-cave` | `@opencoven/coven-code` | Compatibility alias for the same binary. |
+| `coven` | `@opencoven/cli` | Main Coven daemon CLI. When `coven-code` is on `PATH`, interactive entry execs into Coven Code (opt out with `COVEN_LEGACY_TUI=1`). |
+| `coven tui` | `@opencoven/cli` | Open the Coven Code TUI from the Coven command namespace. |
 
 ## Local State
 
@@ -55,7 +55,7 @@ Those directories are related but not interchangeable:
 ## Core Pages
 
 <Cards>
-  <Card title="Install Coven Code" href="/docs/coven-code/install" description="Install through @opencoven/coven, use the direct package, download archives, or build from source." />
+  <Card title="Install Coven Code" href="/docs/coven-code/install" description="Install through @opencoven/coven-code, download archives, or build from source." />
   <Card title="Providers" href="/docs/coven-code/providers" description="Connect Anthropic and Codex, import Claude CLI credentials, and choose models." />
   <Card title="Commands" href="/docs/coven-code/commands" description="Use CLI flags and in-session slash commands for coding workflows." />
   <Card title="Configuration" href="/docs/coven-code/configuration" description="Understand settings, environment variables, state directories, and daemon integration." />

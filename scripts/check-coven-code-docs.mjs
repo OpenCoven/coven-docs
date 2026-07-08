@@ -19,8 +19,8 @@ const requiredPages = [
 const requiredMentions = [
   'Coven Code',
   'coven-code',
-  '@opencoven/coven',
   '@opencoven/coven-code',
+  '@opencoven/cli',
   'coven tui',
   '/connect',
   '/model',

@@ -25,6 +25,12 @@ const nextConfig = {
         permanent: true,
       },
       {
+        // The old section's install-debugging page split into install + troubleshooting.
+        source: '/docs/coven-codes/install-debugging',
+        destination: '/docs/coven-code/troubleshooting',
+        permanent: true,
+      },
+      {
         source: '/docs/coven-codes/:path*',
         destination: '/docs/coven-code/:path*',
         permanent: true,
