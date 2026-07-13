@@ -22,6 +22,30 @@ Codex owns OpenAI provider credentials and model calls. Coven owns the session r
 
 Coven does not read OpenAI API keys, OAuth refresh tokens, or Codex auth files. If Codex auth expires, run `codex login` and retry.
 
+## How OpenAI failures surface under Coven
+
+Because Codex owns the provider relationship, OpenAI problems appear as harness behavior, never as Coven credential errors:
+
+| Symptom | Likely cause | Fix |
+| --- | --- | --- |
+| `coven doctor` reports Codex missing | `codex` is not on `PATH` | `npm install -g @openai/codex`, then re-run `coven doctor`. |
+| `coven run codex ...` fails with `pty_spawn_failed` | Executable found but could not launch | Check that `codex` runs standalone; reinstall if it crashes at startup. |
+| Session starts, then exits with auth errors in the log | Expired or missing OpenAI login | Run `codex login`, then relaunch. The failed session stays replayable. |
+| Session runs but hits rate limits or model errors | OpenAI account limits or model availability | Resolve in the OpenAI account or Codex config; Coven has no quota controls. |
+
+In every case the session record and event log survive: `coven attach <session-id>` replays exactly what Codex printed, which is usually the fastest way to see the provider's own error text.
+
+## What Coven records — and never reads
+
+| Data | Coven's posture |
+| --- | --- |
+| Session record, status, exit code | Recorded in the ledger. |
+| Codex terminal output, including any error text | Recorded as append-only events. |
+| OpenAI API keys, OAuth tokens, Codex auth files | **Never read, proxied, or stored.** |
+| Model selection and provider configuration | Owned by Codex; Coven does not pass or override models. |
+
+Choosing which OpenAI model Codex uses is Codex configuration, not a `coven run` flag. Coven treats the harness as a black box that writes output.
+
 ## Related
 
 - [Codex harness](/docs/harnesses/codex)

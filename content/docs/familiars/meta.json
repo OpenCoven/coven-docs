@@ -4,6 +4,7 @@
   "root": true,
   "icon": "LuUsers",
   "pages": [
+    "what-is-a-familiar",
     "sessions",
     "harnesses",
     "clients",

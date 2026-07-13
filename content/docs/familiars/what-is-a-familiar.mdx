@@ -1,0 +1,102 @@
+---
+title: "What Is a Familiar?"
+summary: "A familiar is a named, persistent agent persona with identity, memory, tools, and policy — the layer above raw harness processes."
+description: "Definition of a Coven familiar and the boundary between familiars, harnesses, sessions, and clients."
+read_when:
+  - You are new to Coven terminology
+  - You need to explain how a familiar differs from a harness or a session
+  - You are deciding which layer should own identity, memory, or continuity
+---
+
+import { DocsDataTable } from '@/components/docs-data-table';
+import { Mermaid } from '@/components/mermaid';
+
+A familiar is a named, persistent agent persona: identity, memory, tools, and policy that survive across sessions. Familiars are the human-facing layer of Coven — the agent you talk to, delegate to, and recognize by name — while harness processes come and go underneath.
+
+A harness run is ephemeral: it starts, works, and exits. A familiar is durable: it accumulates memory from those runs, keeps a stable identity and role, and can pick up tomorrow where it left off today. When the docs say "persistent AI familiars," this is the layer they mean.
+
+## The four nouns people confuse
+
+<DocsDataTable
+  caption="Familiar vs harness vs session vs client"
+  searchPlaceholder="Filter terms..."
+  columns={[
+    { key: 'term', label: 'Term' },
+    { key: 'lifetime', label: 'Lifetime', filter: true },
+    { key: 'role', label: 'Role' },
+  ]}
+  rows={[
+    { term: '**Familiar**', lifetime: 'Persistent', role: 'Named agent persona with identity, memory, tools, and policy. Lives above individual runs.' },
+    { term: '**Harness**', lifetime: 'Per process', role: 'External coding-agent CLI (Codex, Claude Code) that executes one run inside a PTY.' },
+    { term: '**Session**', lifetime: 'Per run, recorded forever', role: 'Coven-owned record of one harness run: status, events, replay.' },
+    { term: '**Client**', lifetime: 'Per surface', role: 'UI or process (CLI, Cave, CastCodes, plugin) that presents familiars and talks to the daemon.' },
+  ]}
+/>
+
+One familiar can span many sessions, run through different harnesses, and appear in several clients at once. The familiar is the continuity; everything else is machinery.
+
+## What makes a familiar persistent
+
+The Coven daemon records sessions and append-only events. A familiar's continuity is derived from that ledger plus the [memory layers](/docs/memory-models/memory) built on top of it:
+
+- **Identity** — a stable name, role, and personality (for example, Sage the reviewer or Cody the fixer).
+- **Memory** — [working](/docs/memory-models/working-memory), [persistent](/docs/memory-models/persistent-memory), [episodic](/docs/memory-models/episodic-memory), and [semantic](/docs/memory-models/semantic-memory) layers that decide what each run should remember.
+- **Tools** — the capabilities a familiar may use, surfaced and gated through daemon-validated requests.
+- **Policy** — the constraints and conventions the familiar operates under.
+
+The daemon does not store a "familiar table" in v0. It stores sessions and events; familiar identity and memory are composed by clients and agent backends from that durable record. This is deliberate: the substrate stays small and auditable, and the familiar layer stays flexible.
+
+## How a familiar handles one message
+
+<Mermaid chart={`
+sequenceDiagram
+    participant U as User
+    participant C as Channel
+    participant F as Familiar
+    participant H as Harness
+    participant T as Tools
+
+    U->>C: Send message
+    C->>F: Route to familiar
+    F->>F: Load memory context
+    F->>H: Forward with context
+    H->>T: Call tools (optional)
+    T-->>H: Tool results
+    H-->>F: Model response
+    F->>F: Update memory
+    F-->>C: Reply
+    C-->>U: Deliver
+`} />
+
+A channel (Cave conversation, Telegram, the CLI prompt) routes the message to a familiar. The familiar loads relevant memory, forwards work to a harness with that context, records the outcome, and updates memory before replying. Coven supervises the harness run and appends the events; the familiar layer decides what those events should mean for the future.
+
+## Where familiars appear today
+
+<DocsDataTable
+  caption="Familiar surfaces in v0"
+  searchPlaceholder="Filter familiar surfaces..."
+  columns={[
+    { key: 'surface', label: 'Surface' },
+    { key: 'shape', label: 'Shape', filter: true },
+    { key: 'whatYouSee', label: 'What you see' },
+  ]}
+  rows={[
+    { surface: '[Cave](/docs/guide/cave)', shape: 'Desktop app', whatYouSee: 'The familiar rail and conversation pane — talk to named familiars, watch their tools and memory.' },
+    { surface: '[Cast Codes](/docs/guide/cast-codes)', shape: 'Intent grammar', whatYouSee: 'Familiar names as routing targets: `:>sage` switches, `:cody: review this diff` delegates.' },
+    { surface: '[CastCodes](/docs/guide/cast-codes#where-cast-codes-can-appear)', shape: 'Workspace', whatYouSee: 'Familiar lanes alongside panes, sessions, and review flow.' },
+    { surface: '`coven` CLI/TUI', shape: 'Command line', whatYouSee: 'Harness sessions and prompts; familiar continuity arrives through the memory layer above them.' },
+  ]}
+/>
+
+## Boundary rules
+
+- **A familiar is not authorization.** Addressing Cody by name routes intent; the daemon still validates the project root, working directory, harness id, and session liveness for every request. See the [authority rule](/docs/guide/cast-codes#authority-rule).
+- **A familiar is not a harness.** Codex and Claude Code do the model work inside one process. The familiar persists across processes. See [What is a harness?](/docs/harnesses/what-is-a-harness).
+- **A familiar is not stored provider credentials.** Harnesses own provider auth; familiar memory should never contain tokens or secrets. See [Provider boundary](/docs/memory-models/provider-boundary).
+
+## Related
+
+- [Session lifecycle](/docs/familiars/sessions)
+- [Memory overview](/docs/memory-models/memory)
+- [Cast Codes](/docs/guide/cast-codes)
+- [Concepts](/docs/guide/concepts)

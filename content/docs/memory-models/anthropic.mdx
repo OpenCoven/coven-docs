@@ -22,6 +22,30 @@ Claude Code owns Anthropic provider credentials and model calls. Coven owns the 
 
 Coven does not read Anthropic API keys, OAuth state, or Claude Code credential stores. If Claude Code setup is incomplete, run `claude doctor` and retry.
 
+## How Anthropic failures surface under Coven
+
+Because Claude Code owns the provider relationship, Anthropic problems appear as harness behavior, never as Coven credential errors:
+
+| Symptom | Likely cause | Fix |
+| --- | --- | --- |
+| `coven doctor` reports Claude Code missing | `claude` is not on `PATH` | `npm install -g @anthropic-ai/claude-code`, then re-run `coven doctor`. |
+| `coven run claude ...` fails with `pty_spawn_failed` | Executable found but could not launch | Check that `claude` runs standalone; run `claude doctor` for its own diagnostics. |
+| Session starts, then exits with auth errors in the log | Incomplete or expired Anthropic setup | Fix login via `claude doctor` prompts, then relaunch. The failed session stays replayable. |
+| Session runs but hits rate limits or model errors | Anthropic account limits or model availability | Resolve in the Anthropic account or Claude Code settings; Coven has no quota controls. |
+
+In every case the session record and event log survive: `coven attach <session-id>` replays exactly what Claude Code printed, which is usually the fastest way to see the provider's own error text.
+
+## What Coven records — and never reads
+
+| Data | Coven's posture |
+| --- | --- |
+| Session record, status, exit code | Recorded in the ledger. |
+| Claude Code terminal output, including any error text | Recorded as append-only events. |
+| Anthropic API keys, OAuth state, credential stores | **Never read, proxied, or stored.** |
+| Model selection and provider configuration | Owned by Claude Code; Coven does not pass or override models. |
+
+Choosing which Anthropic model Claude Code uses is Claude Code configuration, not a `coven run` flag. Coven treats the harness as a black box that writes output.
+
 ## Related
 
 - [Claude Code harness](/docs/harnesses/claude-code)

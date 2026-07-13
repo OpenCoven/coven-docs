@@ -38,6 +38,23 @@ flowchart LR
 
 Follow the failing branch. Almost every issue in the rest of this page is one of these branches in detail.
 
+## Error Code Lookup
+
+When a client or `curl` call fails, the daemon returns a structured envelope. Match on `error.code` and jump to the fix:
+
+| You see | Start here |
+| --- | --- |
+| `not_found` | Check the route path and [API version](/docs/reference/troubleshooting#api-version-rejected). |
+| `invalid_request` | Compare the request body against the [endpoint reference](/docs/reference/api); check the harness id spelling. |
+| `session_not_found` | Run `coven sessions --all`; the id may be stale, sacrificed, or in a different `COVEN_HOME`. |
+| `session_not_live` | The run already ended. See [Session does not accept input](/docs/reference/troubleshooting#session-does-not-accept-input). |
+| `project_root_violation` | See [`cwd` rejected](/docs/reference/troubleshooting#cwd-rejected). |
+| `pty_spawn_failed` | See [Harness missing](/docs/reference/troubleshooting#harness-missing). |
+| `runtime_unavailable` | See [Daemon unavailable](/docs/reference/troubleshooting#daemon-unavailable). |
+| `internal_error` | Restart the daemon; report reproducible cases. |
+
+The full code table with HTTP statuses, causes, and fixes lives in the [error envelope reference](/docs/reference/api#error-envelope).
+
 ## `coven` command not found
 
 If using npm:
@@ -176,6 +193,8 @@ coven sessions --plain
 - Archive hides a non-running session but keeps events.
 - Summon restores an archived session to the active list.
 - Sacrifice permanently deletes a non-running session and its events.
+
+The [rituals cheat sheet](/docs/cli/sessions#rituals-cheat-sheet) maps every ritual to its command, allowed states, reversibility, and event effects.
 
 Use the interactive browser when possible:
 

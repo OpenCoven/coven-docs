@@ -15,6 +15,26 @@ coven sessions
 
 For status meanings and archive semantics, see [Session Lifecycle](/docs/familiars/sessions).
 
+## Rituals Cheat Sheet
+
+Coven names its session-management verbs *rituals*. The whimsy is deliberate; the semantics are conventional and conservative. This table is the full mapping in one place:
+
+| Ritual | Plain meaning | Command | Allowed for | Reversible | Events |
+| --- | --- | --- | --- | --- | --- |
+| **Archive** | Hide from the active list | `coven archive <session-id>` | Any non-running session | Yes — summon it back | Preserved |
+| **Summon** | Restore an archived record | `coven summon <session-id>` | Archived sessions | Yes — archive again | Preserved |
+| **Sacrifice** | Delete permanently | `coven sacrifice <session-id> --yes` | Any non-running session | **No** | **Deleted** |
+
+Three rules cover almost every question:
+
+- **Running sessions are untouchable.** Kill the process or wait for exit before any ritual applies.
+- **Only sacrifice destroys data.** Archive and summon flip visibility; the session record and event log survive both.
+- **Summon does not re-run anything.** It restores the record to its prior terminal status (`completed`, `failed`, `killed`, or `orphaned`) and opens the existing log.
+
+Rituals are CLI-owned in `coven.daemon.v1`: the public socket API has no archive, summon, or sacrifice endpoints yet, and `GET /api/v1/sessions` simply excludes archived records. Clients that need record management should use the CLI verbs above.
+
+The rituals in detail:
+
 ## Listing modes
 
 | Command | Output |

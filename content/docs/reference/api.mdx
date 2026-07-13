@@ -315,18 +315,22 @@ All API failures use this structured envelope. Clients should branch on `error.c
     { key: 'code', label: 'Code' },
     { key: 'status', label: 'HTTP status', filter: true },
     { key: 'meaning', label: 'Meaning' },
+    { key: 'typicalCause', label: 'Typical cause' },
+    { key: 'fix', label: 'Fix' },
   ]}
   rows={[
-    { code: '`not_found`', status: '`404`', meaning: 'Route not found.' },
-    { code: '`invalid_request`', status: '`400` or `404`', meaning: 'Malformed request, unsupported API version, or unknown control action.' },
-    { code: '`session_not_found`', status: '`404`', meaning: 'Session id does not exist.' },
-    { code: '`session_not_live`', status: '`409`', meaning: 'Session exists but cannot accept input or kill because it is not running in this daemon.' },
-    { code: '`project_root_violation`', status: '`400`', meaning: 'Requested cwd resolves outside the declared project root.' },
-    { code: '`pty_spawn_failed`', status: '`500`', meaning: 'Harness PTY could not be launched.' },
-    { code: '`runtime_unavailable`', status: '`503`', meaning: 'The session runtime is unavailable.' },
-    { code: '`internal_error`', status: '`500`', meaning: 'Unexpected internal daemon error.' },
+    { code: '`not_found`', status: '`404`', meaning: 'Route not found.', typicalCause: 'Typo in the path, or a client calling an endpoint this daemon version does not serve.', fix: 'Check the route against this reference and confirm `apiVersion` via `GET /api/v1/health`.' },
+    { code: '`invalid_request`', status: '`400` or `404`', meaning: 'Malformed request, unsupported API version, or unknown control action.', typicalCause: 'Missing required body fields, an unknown harness id, an unversioned path, or an action id the daemon does not recognize.', fix: 'Compare the request body with the endpoint examples; list valid action ids via `GET /api/v1/capabilities`.' },
+    { code: '`session_not_found`', status: '`404`', meaning: 'Session id does not exist.', typicalCause: 'Stale id, a sacrificed session, or a client pointed at a different `COVEN_HOME`.', fix: 'List current ids with `coven sessions --all --json` and confirm both processes share one `COVEN_HOME`.' },
+    { code: '`session_not_live`', status: '`409`', meaning: 'Session exists but cannot accept input or kill because it is not running in this daemon.', typicalCause: 'The session already completed, failed, was killed, was archived, or was orphaned by a daemon restart.', fix: 'Treat the record as replay-only: attach for logs instead of sending input. See the session lifecycle states.' },
+    { code: '`project_root_violation`', status: '`400`', meaning: 'Requested cwd resolves outside the declared project root.', typicalCause: 'A `--cwd` value using `..`, an absolute path outside the root, or a symlink that escapes the boundary.', fix: 'Pass a cwd that canonicalizes inside the project root, such as `--cwd packages/cli`.' },
+    { code: '`pty_spawn_failed`', status: '`500`', meaning: 'Harness PTY could not be launched.', typicalCause: 'Harness executable missing from `PATH`, not executable, or the process failed immediately at spawn.', fix: 'Run `coven doctor`, install or authenticate the harness CLI, then retry the launch.' },
+    { code: '`runtime_unavailable`', status: '`503`', meaning: 'The session runtime is unavailable.', typicalCause: 'The daemon is running but its session runtime is not ready to accept work.', fix: 'Retry after `coven daemon status`; restart with `coven daemon restart` if the state persists.' },
+    { code: '`internal_error`', status: '`500`', meaning: 'Unexpected internal daemon error.', typicalCause: 'A daemon-side bug or an unexpected local failure such as a full disk.', fix: 'Check daemon logs, then `coven daemon restart`. Report reproducible cases with the request shape.' },
   ]}
 />
+
+For a symptom-first walkthrough of the same failures, see [error code lookup](/docs/reference/troubleshooting#error-code-lookup) in Troubleshooting.
 
 Unknown session:
 

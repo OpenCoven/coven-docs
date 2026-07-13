@@ -1,0 +1,84 @@
+---
+title: "Choosing Your Surface"
+summary: "Which first-party surface to use — coven CLI/TUI, Coven Code, Cave, or CastCodes — and how they share one daemon."
+description: "Orientation guide for the OpenCoven product surfaces: the coven CLI, the Coven Code TUI, the Cave desktop app, and the CastCodes workspace."
+read_when:
+  - You are new and unsure which OpenCoven app or command to start with
+  - You need to explain how the coven command relates to coven-code
+  - You are deciding which surface fits a workflow
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+import { DocsDataTable } from '@/components/docs-data-table';
+import { Mermaid } from '@/components/mermaid';
+
+OpenCoven ships several first-party surfaces. They are not competing products: every one of them is a client of the same local Coven daemon, the same session ledger, and the same `/api/v1` socket contract. Choosing a surface changes how you see your familiars and sessions — never what the daemon enforces.
+
+<Mermaid chart={`
+flowchart TB
+  CLI["coven CLI / TUI"] --> Daemon["Coven daemon\none authority boundary"]
+  Code["Coven Code\ncoding TUI"] --> Daemon
+  Cave["Cave\ndesktop app"] --> Daemon
+  Cast["CastCodes\nworkspace"] --> Daemon
+  Daemon --> Ledger[("one session ledger\nSQLite + events")]
+`} />
+
+## The four surfaces
+
+<DocsDataTable
+  caption="First-party surface comparison"
+  searchPlaceholder="Filter surfaces..."
+  columns={[
+    { key: 'surface', label: 'Surface' },
+    { key: 'shape', label: 'Shape', filter: true },
+    { key: 'bestFor', label: 'Best for' },
+    { key: 'startHere', label: 'Start here' },
+  ]}
+  rows={[
+    { surface: '**`coven` CLI/TUI**', shape: 'Command line', bestFor: 'Daemon control, launching harness sessions, scripting, headless and SSH workflows.', startHere: '[CLI Reference](/docs/cli)' },
+    { surface: '**Coven Code**', shape: 'Coding TUI (`coven-code`)', bestFor: 'Interactive agent coding in the terminal: chat, file review, provider and model switching.', startHere: '[Coven Code overview](/docs/coven-code)' },
+    { surface: '**Cave**', shape: 'Desktop app (Tauri 2)', bestFor: 'Talking to familiars, watching tools and memory, ambient presence outside the terminal.', startHere: '[Cave](/docs/guide/cave)' },
+    { surface: '**CastCodes**', shape: 'Terminal + code workspace', bestFor: 'The demo loop: panes, sessions, diffs, review, and Cast Code routing.', startHere: '[Cast Codes](/docs/guide/cast-codes)' },
+  ]}
+/>
+
+## Quick decision guide
+
+- **"I want to run one agent task from my shell."** Use `coven run codex "fix the failing tests"` — the [CLI](/docs/cli/run) is the shortest path.
+- **"I want to pair with a coding agent in my terminal."** Use [Coven Code](/docs/coven-code): `coven tui` or `coven-code`.
+- **"I want to talk to my familiars and watch what they do."** Use [Cave](/docs/guide/cave), the desktop home.
+- **"I want visible panes, diffs, and review around agent sessions."** Use [CastCodes](/docs/guide/cast-codes) and the [demo loop](/docs/guide/demo-loop).
+- **"I am scripting or building a client."** Skip all of the above and speak to the [socket API](/docs/daemon/socket-api) directly.
+
+You can switch surfaces at any time. A session launched from the CLI is visible in CastCodes and Cave, because there is only one daemon and one ledger underneath.
+
+## How `coven` and `coven-code` relate
+
+<Callout type="warn" title="One command, two binaries">
+The bare `coven` command ships with `@opencoven/cli` (the daemon CLI). The `coven-code` binary ships separately with `@opencoven/coven-code` (the coding TUI). When `coven-code` is on `PATH`, interactive `coven` and `coven tui` invocations exec into Coven Code automatically. Set `COVEN_LEGACY_TUI=1` to opt out and keep the legacy TUI.
+</Callout>
+
+Explicit subcommands such as `coven run`, `coven daemon`, and `coven sessions` always belong to the daemon CLI regardless of what is on `PATH`. Only the interactive entry point hands off. If a surface behaves unexpectedly, check which binary answered with `coven doctor` and see the [Coven Code install notes](/docs/coven-code/install).
+
+Local state is split the same way:
+
+| Directory | Owner | Contents |
+| --- | --- | --- |
+| `~/.coven` (or `$COVEN_HOME`) | Coven daemon | Socket, SQLite session ledger, daemon metadata. |
+| `~/.coven-code` | Coven Code | TUI settings, provider accounts, prompts, keybindings. |
+
+## What never changes between surfaces
+
+Every surface is a client. None of them can widen the authority boundary:
+
+- The daemon validates project roots, working directories, harness ids, and session liveness for every request.
+- Provider credentials stay with harnesses and Coven Code's own auth store — no surface proxies them through the daemon.
+- Session history is recorded once, in the daemon ledger, no matter which surface launched the work.
+
+See the [authority rule](/docs/guide/cast-codes#authority-rule) and [daemon security](/docs/daemon/security) for the enforcement details.
+
+## Related
+
+- [Getting started](/docs/guide/getting-started)
+- [Client integration](/docs/familiars/clients)
+- [What is a familiar?](/docs/familiars/what-is-a-familiar)

@@ -98,6 +98,8 @@ All failures should use the structured error envelope:
 
 Clients should branch on `error.code`, not message text. Message text can improve human debugging, but codes are the stable behavior surface.
 
+The [full error code table](/docs/reference/api#error-envelope) lists every stable code with its HTTP status, typical cause, and fix; [error code lookup](/docs/reference/troubleshooting#error-code-lookup) maps each code to a troubleshooting walkthrough.
+
 Common classes:
 
 | Code class | Client behavior |

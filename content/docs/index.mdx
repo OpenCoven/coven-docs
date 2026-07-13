@@ -43,16 +43,14 @@ _Familiars_ are the agents that live inside Coven — persistent, named, and you
   ]}
 />
 
-```typescript
-// Your familiar, your workspace
-const familiar = await coven.spawn({
-  name: 'Nova',
-  personality: 'warm, direct, practical',
-  tools: ['exec', 'web_search', 'memory'],
-});
-
-await familiar.chat('Remind me about the deployment at 3pm.');
+```sh
+# Your familiar's work, recorded and replayable
+coven run codex "remind me what changed since the last release" --title "Release recap"
+coven sessions        # browse, rejoin, or replay the run
+coven attach <id>     # watch it live, or replay it later
 ```
+
+Familiars build on that substrate: every session a familiar runs is recorded, replayable, and feeds the [memory layers](/docs/memory-models/memory) that make the familiar persistent. See [What is a familiar?](/docs/familiars/what-is-a-familiar) for the full picture.
 
 ## Docs Map
 

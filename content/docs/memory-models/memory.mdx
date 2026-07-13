@@ -7,6 +7,8 @@ read_when:
   - You are choosing which memory layer a feature should write to
 ---
 
+import { Mermaid } from '@/components/mermaid';
+
 Coven's daemon records what happened. A familiar's memory layer decides what should be remembered, summarized, searched, and loaded into future sessions.
 
 The daemon does not enforce one memory backend. It gives clients a durable session ledger and event log. Familiar layers can build working, persistent, episodic, and semantic memory on top.
@@ -19,6 +21,44 @@ The daemon does not enforce one memory backend. It gives clients a durable sessi
 | Persistent memory | Cross-session durable facts | User preferences, familiar identity, project conventions. |
 | Episodic memory | Specific events and outcomes | PR #6 merged, release succeeded, incident root cause found. |
 | Semantic memory | Meaning-based recall | Similar past debugging patterns, docs topics, architecture concepts. |
+
+## Which layer should this go to?
+
+Route each candidate memory with three questions: is it still useful after this session, is it a specific event or a general fact, and will it be recalled by wording or by meaning?
+
+<Mermaid chart={`
+flowchart TD
+  Start["New piece of context"] --> Q1{"Useful after\nthis session ends?"}
+  Q1 -- no --> Working["Working memory\nkeep for this task only"]
+  Q1 -- yes --> Q2{"Specific event\nor durable fact?"}
+  Q2 -- "specific event" --> Episodic["Episodic memory\nwhat happened, when, evidence"]
+  Q2 -- "durable fact" --> Persistent["Persistent memory\nidentity, preferences, conventions"]
+  Episodic --> Q3{"Should it be found\nby meaning, not keywords?"}
+  Persistent --> Q3
+  Q3 -- yes --> Semantic["Also index into\nsemantic memory"]
+  Q3 -- no --> DoneNode["Done"]
+`} />
+
+| The context is... | Route it to | Because |
+| --- | --- | --- |
+| "The user wants tests before merge *in this task*" | Working memory | Task-local constraint; expires with the session. |
+| "The user always wants tests before merge" | Persistent memory | Durable preference that should shape every future session. |
+| "Release 1.4 failed because a token expired" | Episodic memory | A dated event with evidence; useful history, not a standing rule. |
+| "Find past debugging work that *feels like* this bug" | Semantic memory | Recall by meaning, where exact keywords will not match. |
+
+When in doubt, keep it in working memory. Promotion into a durable layer should be deliberate — see the [promotion rule](/docs/memory-models/persistent-memory#promotion-rule).
+
+## A worked example
+
+One debugging session, flowing through all four layers:
+
+1. **Session runs.** `coven run codex "find why the daemon drops events"` — the daemon records every turn in the session ledger and event log.
+2. **Working memory serves the task.** The active goal, the two suspect files, and the "do not touch generated code" constraint live in the prompt context. When the session ends, this dissolves.
+3. **Episodic memory keeps the outcome.** The client writes one note: "2026-07-12: event drops traced to stale socket metadata after crash; fixed in PR #41." Dated, specific, linked to evidence.
+4. **Persistent memory keeps the lesson.** After the same failure appears twice, the durable fact is promoted: "Always check `daemon.json` staleness before debugging socket issues."
+5. **Semantic memory makes it findable.** The episodic note is indexed by meaning, so next month's "daemon seems deaf after a crash" search recalls it even though no words match.
+
+The daemon owned step 1 only. Steps 2–5 are client- and familiar-owned choices built on the ledger.
 
 ## What the daemon provides
 

@@ -3,6 +3,7 @@ title: "Concepts"
 description: "Core ideas behind Coven and how it works."
 ---
 
+import { Callout } from 'fumadocs-ui/components/callout';
 import { DocsDataTable } from '@/components/docs-data-table';
 import { Mermaid } from '@/components/mermaid';
 
@@ -25,6 +26,8 @@ flowchart LR
   Session --> Event[Event]
   Daemon --> Store[Store / SQLite]
   Daemon --> Socket[Socket API /api/v1]
+  Coven --> Familiar[Familiar]
+  Familiar --> Session
   Socket --> ControlPlane[Control plane]
   ControlPlane --> Capability[Capability]
   Socket --> Client[Client]
@@ -56,6 +59,17 @@ CovenCLI is the user-facing command surface for the `coven` binary.
 Do not tell users to run `opencoven` or `@opencoven`. The package names live under `@opencoven/*`, the docs name is **CovenCLI**, and the shell command remains `coven`.
 
 ## CastCodes
+
+<Callout type="info" title="Four similar names, four different things">
+The "Cast" family is the most confusable naming cluster in OpenCoven. CastCodes is *where* you work, Cast Codes are *what* you type, a Cast Code is *one* such expression, and Cast Agent is *who* parses them.
+</Callout>
+
+| Name | Kind | One-line meaning |
+| --- | --- | --- |
+| **CastCodes** (one word) | App | The first-party workspace and cockpit application. |
+| **Cast Codes** (two words) | Grammar | The portable intent syntax, such as `:>sage` or `:cody: review this diff`. |
+| **Cast Code** (singular) | One expression | A single intent expression written in that grammar. |
+| **Cast Agent** | Backend | The substrate manager and agent backend inside CastCodes. |
 
 CastCodes is the first-party OpenCoven workspace and cockpit app. It gives Coven sessions a visible place to live alongside panes, files, diffs, diagnostics, and review flow.
 
@@ -102,6 +116,16 @@ Current v0 harnesses:
 />
 
 Coven does not store provider credentials. Each harness keeps using its own local authentication flow.
+
+## Familiar
+
+A familiar is a named, persistent agent persona: identity, memory, tools, and policy that survive across sessions.
+
+The familiar is the durable layer above harness runs. A harness process starts, works, and exits; the familiar accumulates memory from those runs and keeps a stable identity across them. One familiar can span many sessions, run through different harnesses, and appear in several clients.
+
+Familiars are not authorization. Addressing a familiar by name routes intent, but the daemon still validates every sensitive request.
+
+See [What is a familiar?](/docs/familiars/what-is-a-familiar) for the full boundary.
 
 ## Project Root
 
