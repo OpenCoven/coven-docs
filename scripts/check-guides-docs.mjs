@@ -5,7 +5,7 @@ const root = process.cwd();
 const docsRoot = join(root, 'content', 'docs');
 const guidesRoot = join(docsRoot, 'guides');
 
-const requiredPages = ['index', 'install-and-first-run'];
+const requiredPages = ['index', 'install-and-first-run', 'connect-a-harness'];
 
 const requiredMentions = [
   'step-by-step',
@@ -23,6 +23,10 @@ const requiredMentions = [
   'coven run codex',
   'coven sessions --plain',
   'Coven session created',
+  'coven engine install',
+  'coven adapter install',
+  '@github/copilot',
+  'copilot login',
 ];
 
 function fail(message) {
@@ -96,6 +100,10 @@ if (!joined.includes('/docs/guide/getting-started') || !joined.includes('/docs/r
 
 if (!readFileSync(join(guidesRoot, 'install-and-first-run.mdx'), 'utf8').includes('/docs/cli/install-debugging')) {
   fail('install-and-first-run guide must link to the install debugging reference.');
+}
+
+if (!readFileSync(join(guidesRoot, 'connect-a-harness.mdx'), 'utf8').includes('/docs/harnesses/provider-auth')) {
+  fail('connect-a-harness guide must link to the provider auth boundary.');
 }
 
 console.log('Guides docs check passed.');

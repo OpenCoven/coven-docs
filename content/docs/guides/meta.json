@@ -3,5 +3,5 @@
   "description": "Step-by-Step How-Tos",
   "root": true,
   "icon": "LuCompass",
-  "pages": ["index", "install-and-first-run"]
+  "pages": ["index", "install-and-first-run", "connect-a-harness"]
 }
