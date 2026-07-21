@@ -8,12 +8,11 @@ import s from './home.module.css';
 const VIOLET = 'var(--home-violet)';
 const VIOLET_TEXT = 'var(--home-violet-text)';
 const VIOLET_DIM = 'var(--home-violet-soft)';
-const BORDER = '1px solid var(--home-border)';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 type Feature = {
-  icon: string;
+  icon?: string;
   title: string;
   desc: string;
   href: string;
@@ -139,15 +138,8 @@ export function HeroTerminal() {
         <span style={{ marginLeft: '0.5rem', color: 'rgba(255,255,255,0.35)', fontSize: '0.72rem' }}>
           coven — zsh
         </span>
-        <span style={{
-          marginLeft: 'auto',
-          fontSize: '0.65rem',
-          fontWeight: 600,
-          color: VIOLET_TEXT,
-          letterSpacing: '0.06em',
-          textTransform: 'uppercase',
-        }}>
-          ● live
+        <span className={s.termLive}>
+          ● rec
         </span>
       </div>
 
@@ -184,57 +176,18 @@ export function HeroTerminal() {
 // ─── Feature Grid ─────────────────────────────────────────────────────────────
 
 export function FeatureGrid({ features }: { features: Feature[] }) {
-  const [active, setActive] = useState<string | null>(null);
-
   return (
     <div className={s.fg}>
       {features.map((f) => (
-        <Link
-          key={f.title}
-          href={f.href}
-          className={s.fc}
-          onMouseEnter={() => setActive(f.title)}
-          onMouseLeave={() => setActive(null)}
-          style={{
-            padding: '1.75rem',
-            background: active === f.title ? 'var(--home-surface-elev)' : 'var(--home-surface)',
-          }}
-        >
-          {/* Icon badge */}
-          <div
-            className={s.fcIconWrap}
-            style={{
-              width: '42px',
-              height: '42px',
-              borderRadius: '11px',
-              background: active === f.title ? 'var(--home-violet-soft)' : VIOLET_DIM,
-              border: `1px solid var(--home-border${active === f.title ? '-strong' : ''})`,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              marginBottom: '1.1rem',
-            }}
-          >
-            <Icon icon={f.icon} width={20} color={VIOLET} />
-          </div>
-
-          {/* Title row */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.45rem' }}>
-            <span style={{ fontWeight: 700, fontSize: '0.95rem', color: 'var(--home-fg)', letterSpacing: 0 }}>
-              {f.title}
-            </span>
+        <Link key={f.title} href={f.href} className={s.fc}>
+          {f.tag && <span className={s.fcEyebrow}>{f.tag}</span>}
+          <div className={s.fcTitleRow}>
+            <span className={s.fcTitle}>{f.title}</span>
             <span className={s.fcArrow}>
               <Icon icon="ph:arrow-right" width={14} color={VIOLET} />
             </span>
           </div>
-
-          {/* Description */}
-          <p style={{ fontSize: '0.84rem', color: 'var(--home-fg-muted)', lineHeight: 1.65, margin: 0 }}>
-            {f.desc}
-          </p>
-
-          {/* Tag */}
-          {f.tag && <span className={s.fcTag}>{f.tag}</span>}
+          <p className={s.fcDesc}>{f.desc}</p>
         </Link>
       ))}
     </div>
