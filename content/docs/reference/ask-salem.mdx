@@ -1,0 +1,49 @@
+---
+title: "Ask Salem assistant"
+summary: "How the Ask Salem docs assistant works — transport paths, rate limits, and the abuse protections on the /api/ask-salem bridge."
+description: "Reference for the Ask Salem documentation assistant: the salem.opencoven.ai backend, direct vs bridged transport, per-visitor rate limiting, and the input, origin, and header protections applied to every request."
+read_when:
+  - Understanding why the docs chat widget rate-limits or rejects a question
+  - Debugging the /api/ask-salem bridge locally or on a preview deployment
+  - Auditing what visitor data does and does not reach salem.opencoven.ai
+---
+
+Every page on this site includes **Ask Salem**, a floating assistant backed by [salem.opencoven.ai](https://salem.opencoven.ai) — a retrieval service that indexes this documentation and answers questions with linked sources. No account or token is required.
+
+## Transport paths
+
+The widget picks its transport by origin:
+
+| Origin | Path | Rate-limit budget |
+| --- | --- | --- |
+| `https://docs.opencoven.ai` | Browser calls Salem's `POST /api/chat` directly (Salem's CORS allowlists this origin). | Salem's own per-visitor-IP limit. |
+| Anything else (local dev, previews) | Same-origin bridge at `POST /api/ask-salem`, which forwards to Salem server-side. | Bridge limits below, then Salem's per-IP limit on the deployment's shared egress IP. |
+
+The direct path is preferred in production because each visitor spends their own Salem quota. The bridge exists for origins Salem's CORS rejects; since all bridged traffic reaches Salem from one egress IP, the bridge enforces its own limits to keep one visitor from draining the shared budget.
+
+## Contract
+
+Questions are **single-turn**: Salem gates multi-turn history behind an admin password, so the widget sends every question standalone and keeps the conversation log client-side only. Questions are capped at 2,000 characters, matching Salem's own input limit.
+
+## Bridge protections
+
+`POST /api/ask-salem` (`app/api/ask-salem/route.ts`) applies, in order:
+
+1. **Method and content type** — `POST` with `application/json` only.
+2. **Same-origin guard** — the `Origin` header must match the deployment's own origin; requests without one (plain `curl`) get `403`.
+3. **Body caps** — bodies over 8 KB are rejected (`413`); `message` must be a non-empty string of at most 2,000 characters.
+4. **No history passthrough** — requests carrying a non-empty `history` are rejected rather than forwarded.
+5. **Pinned parameters** — `model` and `retrieval` are set server-side; client-supplied values are ignored.
+6. **Header hygiene** — no inbound header is forwarded upstream. In particular `X-Salem-Admin-Password` and cookies never leave the bridge.
+7. **Rate limits** (`lib/ask-salem-limiter.ts`) — a sliding 3-minute window allows 4 requests per client IP and 8 per server instance. The per-instance cap bounds total upstream spend even if per-IP limits are evaded with spoofed `X-Forwarded-For` values; Salem itself keys on the real connection IP, so spoofing buys nothing upstream either. Limited requests get `429` with `Retry-After`.
+8. **Concurrency and time caps** — at most 2 upstream requests in flight (`503` beyond that) and a 60-second upstream timeout (`504`).
+
+The limiter state is in-memory and per-instance, which is sufficient for the bridge's audience (local dev and previews); production widget traffic never touches it.
+
+## Widget-side behavior
+
+The widget adds its own client-side courtesy limits: one in-flight question at a time, a 3-second floor between sends, and a visible cooldown countdown when a `429`/`Retry-After` arrives. Answers stream in as plain text and are rendered from a minimal markdown subset as React elements — never raw HTML — with `docs.opencoven.ai` links rewritten to in-app relative links.
+
+## What reaches Salem
+
+Only the question text, sent from either the visitor's browser (production) or the bridge (elsewhere). The bridge forwards no cookies, no auth headers, no visitor IP, and no page context. Salem's response headers (`x-query-id`, `x-ratelimit-*`, retrieval diagnostics) pass back through for debugging.
