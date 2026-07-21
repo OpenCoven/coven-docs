@@ -56,7 +56,10 @@ function endpointForOrigin(): string {
 
 /** docs.opencoven.ai links navigate in-app; everything else opens a new tab. */
 function AnswerLink({ href, children }: { href: string; children: ReactNode }) {
-  const internal = href.startsWith(`${PRODUCTION_ORIGIN}/`) || href.startsWith('/');
+  // Note: a bare "//host" prefix is protocol-relative (off-site), not internal.
+  const internal =
+    href.startsWith(`${PRODUCTION_ORIGIN}/`) ||
+    (href.startsWith('/') && !href.startsWith('//'));
   const resolved = internal
     ? href.replace(PRODUCTION_ORIGIN, '') || '/'
     : href;

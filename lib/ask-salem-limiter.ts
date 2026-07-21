@@ -66,7 +66,9 @@ function sweep(now: number): void {
 
 /**
  * Record-and-check a request from `ip`. Consumes quota only when allowed, so
- * rejected requests do not extend the caller's own lockout.
+ * requests rejected *by this limiter* do not extend the caller's lockout.
+ * (Rejections elsewhere in the route — e.g. the concurrency cap — happen after
+ * quota is consumed and are outside this function's control.)
  */
 export function checkRateLimit(ip: string, now = Date.now()): LimitDecision {
   sweep(now);
@@ -88,7 +90,7 @@ export function checkRateLimit(ip: string, now = Date.now()): LimitDecision {
       ok: false,
       retryAfterSec: retryAfter(globalBucket, now),
       remaining: 0,
-      limit: PER_IP_LIMIT,
+      limit: GLOBAL_LIMIT,
     };
   }
 
