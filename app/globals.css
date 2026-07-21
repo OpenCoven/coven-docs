@@ -221,6 +221,14 @@ a:hover { color: var(--coven-violet-light); }
   font-size: 0.875em;
 }
 
+/* fumadocs-openapi splits API routes on "/" and renders the leading empty
+ * segment as an empty <code>; the pill styling above turns it into a stray
+ * blob before the path (e.g. "GET ▢/sessions"). An empty inline code never
+ * carries content, so hide it everywhere. */
+:not(pre) > code:empty {
+  display: none;
+}
+
 @media print {
   #nd-docs-layout {
     --fd-sidebar-width: 0px !important;
