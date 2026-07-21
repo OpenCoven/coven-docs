@@ -12,6 +12,12 @@
 // admin password upstream, so every question here is sent standalone (the
 // conversation log is client-side only). Answers are rendered from a minimal
 // markdown subset using React elements — never innerHTML.
+//
+// The launcher is shared with the OpenCoven Feedback widget: one pill,
+// bottom-left, with an "Ask Salem" segment (this chat panel) and a
+// "Feedback" segment (the feedback panel from feedback.opencoven.ai,
+// mounted with its own launcher disabled — see lib/feedback-widget). The
+// two panels are mutually exclusive.
 
 import {
   useCallback,
@@ -27,6 +33,12 @@ import {
   CLIENT_MARKER_HEADER,
   CLIENT_MARKER_VALUE,
 } from '@/lib/ask-salem-guards';
+import {
+  FEEDBACK_PORTAL,
+  closeFeedback,
+  onFeedbackEvent,
+  openFeedback,
+} from '@/lib/feedback-widget';
 import s from './ask-salem.module.css';
 
 const PRODUCTION_ORIGIN = 'https://docs.opencoven.ai';
@@ -160,6 +172,7 @@ function parseRetryAfterSec(res: Response): number {
 
 export function AskSalem() {
   const [open, setOpen] = useState(false);
+  const [feedbackOpen, setFeedbackOpen] = useState(false);
   const pathname = usePathname();
   // Docs pages pin a sidebar footer bottom-left; lift the launcher above it.
   const overSidebar = pathname?.startsWith('/docs') ?? false;
@@ -198,14 +211,49 @@ export function AskSalem() {
   }, [log]);
 
   const close = useCallback(() => setOpen(false), []);
+
+  // The feedback panel is closable from inside its own iframe (close button,
+  // mobile backdrop), so mirror the SDK's open/close events into local state.
   useEffect(() => {
-    if (!open) return;
+    const offOpen = onFeedbackEvent('open', () => setFeedbackOpen(true));
+    const offClose = onFeedbackEvent('close', () => setFeedbackOpen(false));
+    return () => {
+      offOpen();
+      offClose();
+    };
+  }, []);
+
+  const openSalem = useCallback(() => {
+    closeFeedback();
+    setFeedbackOpen(false);
+    setOpen(true);
+  }, []);
+
+  const showFeedback = useCallback(() => {
+    setOpen(false);
+    setFeedbackOpen(true);
+    openFeedback().catch(() => {
+      // SDK blocked or unreachable — fall back to the public portal.
+      setFeedbackOpen(false);
+      window.open(FEEDBACK_PORTAL, '_blank', 'noopener,noreferrer');
+    });
+  }, []);
+
+  const hideFeedback = useCallback(() => {
+    closeFeedback();
+    setFeedbackOpen(false);
+  }, []);
+
+  useEffect(() => {
+    if (!open && !feedbackOpen) return;
     const onKey = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') close();
+      if (event.key !== 'Escape') return;
+      if (open) close();
+      if (feedbackOpen) hideFeedback();
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [open, close]);
+  }, [open, feedbackOpen, close, hideFeedback]);
 
   const appendAssistant = useCallback((content: string) => {
     setLog((turns) => {
@@ -311,16 +359,47 @@ export function AskSalem() {
   const blocked = streaming || cooldownSec > 0;
 
   if (!open) {
+    // The feedback panel sits at bottom: 88px in this corner, so while it is
+    // open the sidebar lift is dropped to keep the launcher clear of it.
+    const lifted = overSidebar && !feedbackOpen;
     return (
-      <button
-        type="button"
-        className={overSidebar ? `${s.launcher} ${s.overSidebar}` : s.launcher}
-        onClick={() => setOpen(true)}
-        aria-label="Ask Salem, the OpenCoven documentation assistant"
+      <div
+        className={lifted ? `${s.launcherGroup} ${s.overSidebar}` : s.launcherGroup}
+        role="group"
+        aria-label="Documentation assistant and feedback"
       >
-        <Icon icon="ph:moon-stars-duotone" width={16} color="var(--coven-violet)" aria-hidden="true" />
-        Ask Salem
-      </button>
+        <button
+          type="button"
+          className={s.launcherSegment}
+          onClick={openSalem}
+          aria-label="Ask Salem, the OpenCoven documentation assistant"
+        >
+          <Icon icon="ph:moon-stars-duotone" width={16} color="var(--coven-violet)" aria-hidden="true" />
+          Ask Salem
+        </button>
+        <span className={s.launcherDivider} aria-hidden="true" />
+        <button
+          type="button"
+          className={
+            feedbackOpen
+              ? `${s.launcherSegment} ${s.launcherSegmentActive}`
+              : s.launcherSegment
+          }
+          onClick={feedbackOpen ? hideFeedback : showFeedback}
+          aria-expanded={feedbackOpen}
+          aria-label={
+            feedbackOpen ? 'Close feedback panel' : 'Open feedback panel'
+          }
+        >
+          <Icon
+            icon={feedbackOpen ? 'ph:x-bold' : 'ph:chat-circle-dots-duotone'}
+            width={16}
+            color="var(--coven-violet)"
+            aria-hidden="true"
+          />
+          Feedback
+        </button>
+      </div>
     );
   }
 
@@ -338,6 +417,15 @@ export function AskSalem() {
           <div className={s.headerTitle}>Ask Salem</div>
           <div className={s.headerSub}>Searches these docs · answers may be imperfect</div>
         </div>
+        <button
+          type="button"
+          className={s.headerAction}
+          onClick={showFeedback}
+          aria-label="Switch to the feedback panel"
+          title="Send feedback"
+        >
+          <Icon icon="ph:chat-circle-dots-duotone" width={15} aria-hidden="true" />
+        </button>
         <button
           type="button"
           className={s.headerClose}
