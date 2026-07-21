@@ -18,9 +18,11 @@ The listen address defaults to `0.0.0.0:8080` and is overridable with `LISTEN_AD
 
 ```sh
 cargo run -p coven-relay
-# or
-LISTEN_ADDR=127.0.0.1:9000 cargo run -p coven-relay
 curl http://localhost:8080/healthz
+
+# or override the listen address
+LISTEN_ADDR=127.0.0.1:9000 cargo run -p coven-relay
+curl http://127.0.0.1:9000/healthz
 ```
 
 Later phases are planned in the crate itself, not yet implemented:

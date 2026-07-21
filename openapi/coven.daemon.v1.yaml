@@ -248,7 +248,7 @@ paths:
                       message: Harness "gpt-9" is not supported.
                       details:
                         harness: gpt-9
-                        supportedHarnesses: [codex, claude]
+                        supportedHarnesses: [codex, claude, coven-code, copilot]
                 unknownFamiliar:
                   summary: Unknown familiar id
                   value:
