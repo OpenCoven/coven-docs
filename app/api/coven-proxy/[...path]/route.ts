@@ -1,6 +1,7 @@
 // Path-prefix bridge for direct daemon calls (status banner, curl tests).
 // Sibling route at app/api/coven-proxy/route.ts handles the fumadocs-openapi
-// playground's `?url=` style. Dialing logic lives in lib/coven-proxy-dial.ts.
+// playground's `?url=` style. Dialing logic lives in lib/coven-proxy-dial.ts
+// (Unix socket first, loopback TCP fallback on the standard port).
 
 import { dialDaemon } from '@/lib/coven-proxy-dial';
 
@@ -19,7 +20,9 @@ async function proxy(
   const hasBody = method !== 'GET' && method !== 'HEAD';
   const body = hasBody ? Buffer.from(await req.arrayBuffer()) : undefined;
 
-  return dialDaemon(targetPath, method, req.headers, body);
+  return dialDaemon(targetPath, method, req.headers, body, {
+    selfHost: req.headers.get('host'),
+  });
 }
 
 export const GET = proxy;

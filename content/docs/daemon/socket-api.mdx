@@ -13,14 +13,14 @@ The socket is local by default:
 
 ```bash
 curl --unix-socket "$HOME/.coven/coven.sock" \
-  http://localhost/api/v1/health
+  http://localhost/api/v1/health | jq .
 ```
 
 For the full endpoint reference, see [Coven local socket API](/docs/reference/api). For diagrams of the handshake, event cursors, launch lifecycle, and authority boundary, see [API architecture diagrams](/docs/reference/api-architecture).
 
 ## Transports
 
-The Unix socket at `$COVEN_HOME/coven.sock` is the default and recommended transport. The daemon can additionally bind a TCP listener with `coven daemon serve --tcp <addr>`, guarded so it stays local:
+The Unix socket at `$COVEN_HOME/coven.sock` is the default and recommended transport. The daemon can additionally bind a TCP listener with `coven daemon serve --tcp <addr>` — the standard loopback address is `127.0.0.1:3000`, which is also the default port the docs-site Try It panels fall back to — guarded so it stays local:
 
 - The bind address must resolve to loopback (`127.0.0.1` / `::1`); the daemon refuses non-loopback addresses.
 - Each TCP request's `Host` and `Origin` headers must be loopback, or exactly match a host passed via the repeatable `--allow-host <host>` flag (for a trusted reverse proxy that forwards a fixed hostname, such as a Tailscale-served FQDN).

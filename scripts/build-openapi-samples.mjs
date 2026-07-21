@@ -121,7 +121,7 @@ function sampleCurl({ method, fullPath, body }) {
     lines.push(`  -H 'content-type: application/json' \\`);
     lines.push(`  --data '${JSON.stringify(body)}' \\`);
   }
-  lines.push(`  "http://localhost${API_PREFIX}${fullPath}"`);
+  lines.push(`  "http://localhost${API_PREFIX}${fullPath}" | jq .`);
   return lines.join('\n');
 }
 
@@ -154,13 +154,15 @@ function sampleTypeScript({ method, fullPath, body }) {
   lines.push(`  },`);
   lines.push(`);`);
   lines.push(``);
-  lines.push(`console.log(res.status, await res.json());`);
+  lines.push(`console.log(res.status);`);
+  lines.push(`console.log(JSON.stringify(await res.json(), null, 2));`);
   return lines.join('\n');
 }
 
 function samplePython({ method, fullPath, body }) {
   const lines = [
     `# pip install httpx`,
+    `import json`,
     `import os`,
     `import httpx`,
     ``,
@@ -176,7 +178,8 @@ function samplePython({ method, fullPath, body }) {
   const args = [`"${fullPath}"`];
   if (body !== undefined) args.push(`json=${pyLiteral(body, 8)}`);
   lines.push(`    response = client.${method.toLowerCase()}(${args.join(', ')})`);
-  lines.push(`    print(response.status_code, response.json())`);
+  lines.push(`    print(response.status_code)`);
+  lines.push(`    print(json.dumps(response.json(), indent=2))`);
   return lines.join('\n');
 }
 
@@ -187,6 +190,7 @@ function sampleRust({ method, fullPath, body }) {
     `//   hyperlocal = "0.8"`,
     `//   tokio      = { version = "1", features = ["full"] }`,
     `//   dirs       = "5"`,
+    `//   serde_json = "1"`,
     ``,
     `use hyper::{Body, Client, Method, Request};`,
     `use hyperlocal::{UnixConnector, Uri};`,
@@ -220,6 +224,10 @@ function sampleRust({ method, fullPath, body }) {
   lines.push(``);
   lines.push(`    let resp = client.request(req).await?;`);
   lines.push(`    println!("{}", resp.status());`);
+  lines.push(``);
+  lines.push(`    let bytes = hyper::body::to_bytes(resp.into_body()).await?;`);
+  lines.push(`    let json: serde_json::Value = serde_json::from_slice(&bytes)?;`);
+  lines.push(`    println!("{}", serde_json::to_string_pretty(&json)?);`);
   lines.push(`    Ok(())`);
   lines.push(`}`);
   return lines.join('\n');
