@@ -27,22 +27,28 @@ Questions are **single-turn**: Salem gates multi-turn history behind an admin pa
 
 ## Bridge protections
 
-`POST /api/ask-salem` (`app/api/ask-salem/route.ts`) applies, in order:
+`POST /api/ask-salem` (`app/api/ask-salem/route.ts`) applies, cheapest first:
 
 1. **Method and content type** — `POST` with `application/json` only.
-2. **Same-origin guard** — the `Origin` header must match the deployment's own origin; requests without one (plain `curl`) get `403`.
-3. **Body caps** — bodies over 8 KB are rejected (`413`); `message` must be a non-empty string of at most 2,000 characters.
-4. **No history passthrough** — requests carrying a non-empty `history` are rejected rather than forwarded.
-5. **Pinned parameters** — `model` and `retrieval` are set server-side; client-supplied values are ignored.
-6. **Header hygiene** — no inbound header is forwarded upstream. In particular `X-Salem-Admin-Password` and cookies never leave the bridge.
-7. **Rate limits** (`lib/ask-salem-limiter.ts`) — a sliding 3-minute window allows 4 requests per client IP and 8 per server instance. The per-instance cap bounds total upstream spend even if per-IP limits are evaded with spoofed `X-Forwarded-For` values; Salem itself keys on the real connection IP, so spoofing buys nothing upstream either. Limited requests get `429` with `Retry-After`.
-8. **Concurrency and time caps** — at most 2 upstream requests in flight (`503` beyond that) and a 60-second upstream timeout (`504`).
+2. **Ban list** — requests that keep tripping the guards below earn strikes; five strikes inside ten minutes bans the address, and repeat bans double in length (15 minutes up to 2 hours). Banned addresses get `429` with `Retry-After` before any other work happens.
+3. **Same-origin guard** — the `Origin` header must match the deployment's own origin; requests without one (plain `curl`) get `403`.
+4. **Bot fingerprint** (`lib/ask-salem-guards.ts`) — requests must carry the `Sec-Fetch-Site: same-origin`, `Sec-Fetch-Mode`, and `Sec-Fetch-Dest: empty` headers browsers attach automatically, a `User-Agent` that does not match known tool and bot signatures (`curl`, `python`, `headless`, crawlers, …), and the widget's own marker header. Failures earn strikes.
+5. **Body caps and strict schema** — bodies over 8 KB are rejected (`413`); `message` must be a non-empty string of at most 2,000 characters; unknown fields are rejected.
+6. **Spam heuristics** — control characters, more than three links, and repeated-filler payloads (one character or word repeated at length, long strings from a tiny alphabet) are rejected and earn strikes.
+7. **No history passthrough** — requests carrying a non-empty `history` are rejected rather than forwarded.
+8. **Duplicate suppression** — a question this address already had answered in the last five minutes is refused (`409`) without burning quota; rephrasing asks sooner.
+9. **Rate limits** (`lib/ask-salem-limiter.ts`) — a 2-second per-address floor between requests, then sliding windows: 3 requests per address and 8 per server instance every 3 minutes, and 12 per address and 48 per instance every hour. The instance-wide caps bound total upstream spend even if per-address keying is evaded. Limited requests get `429` with `Retry-After`; hammering a full window earns strikes toward a ban.
+10. **Pinned parameters** — `model` and `retrieval` are set server-side; client-supplied values are ignored.
+11. **Header hygiene** — no inbound header is forwarded upstream. In particular `X-Salem-Admin-Password` and cookies never leave the bridge.
+12. **Concurrency and time caps** — at most 2 upstream requests in flight (`503` beyond that) and a 60-second upstream timeout (`504`).
 
-The limiter state is in-memory and per-instance, which is sufficient for the bridge's audience (local dev and previews); production widget traffic never touches it.
+The client address is read only from platform-set headers (`x-real-ip`, else `x-forwarded-for`, which Vercel overwrites so client-supplied values never survive), so forwarding headers cannot be spoofed on Vercel. Salem itself also keys on the real connection IP, so spoofing buys nothing upstream either.
+
+The limiter state is in-memory and per-instance, which is sufficient for the bridge's audience (local dev and previews); production widget traffic never touches it. On the production direct path, abuse protection is Salem's own: per-visitor-IP rate limits, a CORS allowlist, and password-gated history.
 
 ## Widget-side behavior
 
-The widget adds its own client-side courtesy limits: one in-flight question at a time, a 3-second floor between sends, and a visible cooldown countdown when a `429`/`Retry-After` arrives. Answers stream in as plain text and are rendered from a minimal markdown subset as React elements — never raw HTML — with `docs.opencoven.ai` links rewritten to in-app relative links.
+The widget adds its own client-side courtesy limits: one in-flight question at a time, a 3-second floor between sends, and a visible cooldown countdown when a `429`/`Retry-After` arrives. On the bridge path it also sends the marker header the bot fingerprint requires. Answers stream in as plain text and are rendered from a minimal markdown subset as React elements — never raw HTML — with `docs.opencoven.ai` links rewritten to in-app relative links.
 
 ## What reaches Salem
 

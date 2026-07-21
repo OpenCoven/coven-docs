@@ -5,24 +5,48 @@
 // widget talks to Salem directly from the browser and inherits Salem's own
 // per-visitor-IP rate limit. This bridge exists for every other origin (local
 // dev, preview deployments), where all proxied traffic shares one egress IP
-// and one upstream quota — so it defends itself:
+// and one upstream quota — so it defends itself, cheapest checks first:
 //
-//   1. POST + application/json only
-//   2. Same-origin guard: Origin header must match this deployment
-//   3. Body cap (8 KB) and strict schema — a single `message` of 1..2000 chars
-//   4. Single-turn only: history is never forwarded (Salem gates follow-up
-//      history behind an admin password; this bridge never carries secrets)
-//   5. Model + retrieval pinned server-side; client values ignored
-//   6. No client header passthrough — X-Salem-Admin-Password in particular
-//      is dropped, never proxied
-//   7. Per-IP + per-instance sliding-window rate limits (lib/ask-salem-limiter)
-//   8. Upstream concurrency cap and hard timeout so held-open streams cannot
-//      pile up
+//    1. POST + application/json only
+//    2. Ban list — IPs that keep tripping the guards below are refused
+//       outright, with escalating ban lengths (lib/ask-salem-limiter)
+//    3. Same-origin guard: Origin header must match this deployment
+//    4. Bot fingerprint: real-browser Sec-Fetch-* headers, a non-tool
+//       User-Agent, and the widget's own marker header are all required
+//       (lib/ask-salem-guards); failures earn strikes toward a ban
+//    5. Body cap (8 KB) and strict schema — a single `message` of 1..2000
+//       chars, no unknown fields
+//    6. Spam heuristics: control characters, link floods, and repeated-filler
+//       payloads are refused and earn strikes
+//    7. Single-turn only: history is never forwarded (Salem gates follow-up
+//       history behind an admin password; this bridge never carries secrets)
+//    8. Duplicate suppression: a question already answered for this IP inside
+//       the window is refused without burning quota
+//    9. Rate limits (lib/ask-salem-limiter): a per-IP burst floor, short
+//       (3-minute) and hourly sliding windows per IP, and per-instance global
+//       windows that bound total upstream spend even if per-IP keying is
+//       evaded; hammering a full window earns strikes
+//   10. Model + retrieval pinned server-side; client values ignored
+//   11. No client header passthrough — X-Salem-Admin-Password in particular
+//       is dropped, never proxied
+//   12. Upstream concurrency cap and hard timeout so held-open streams cannot
+//       pile up
+//
+// The client IP is read from platform-set headers (x-real-ip, else
+// x-forwarded-for, which Vercel overwrites — client-supplied values never
+// survive), so it cannot be spoofed by inbound header values on Vercel.
 //
 // Responses stream back as text/plain, mirroring Salem, with its diagnostic
 // x-* headers forwarded.
 
-import { checkRateLimit } from '@/lib/ask-salem-limiter';
+import {
+  checkBan,
+  checkRateLimit,
+  isDuplicateQuestion,
+  recordAnsweredQuestion,
+  recordViolation,
+} from '@/lib/ask-salem-limiter';
+import { botVerdict, spamVerdict } from '@/lib/ask-salem-guards';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -35,6 +59,7 @@ const UPSTREAM_TIMEOUT_MS = 60_000;
 const MAX_CONCURRENT_UPSTREAM = 2;
 const PINNED_MODEL = 'gpt-5.2';
 const PINNED_RETRIEVAL = 'auto';
+const KNOWN_BODY_KEYS = new Set(['message', 'history', 'model', 'retrieval']);
 
 const FORWARDED_RESPONSE_HEADERS =
   /^(x-ratelimit-|x-query-id|x-best-score|x-threshold|x-low-confidence|x-result-count|x-strategy|x-intent|retry-after)/i;
@@ -48,19 +73,35 @@ function jsonError(
 ): Response {
   return new Response(JSON.stringify({ error: message, status }), {
     status,
-    headers: { 'content-type': 'application/json; charset=utf-8', ...headers },
+    headers: {
+      'content-type': 'application/json; charset=utf-8',
+      'cache-control': 'no-store',
+      ...headers,
+    },
   });
 }
 
+function bannedResponse(retryAfterSec: number): Response {
+  return jsonError(
+    'This address is temporarily blocked after repeated abuse of the docs assistant.',
+    429,
+    { 'retry-after': String(retryAfterSec) },
+  );
+}
+
 function clientIp(req: Request): string {
-  // On Vercel, x-forwarded-for is set by the platform and the first entry is
-  // the client. In local dev the header is absent — everyone is "local".
+  // Trust only platform-set values. Vercel sets x-real-ip to the client IP
+  // and overwrites inbound x-forwarded-for entirely (client-supplied values
+  // are discarded), with the client IP first — so the first entry is safe on
+  // this platform. In local dev neither header exists — everyone is "local".
+  const realIp = req.headers.get('x-real-ip')?.trim();
+  if (realIp) return realIp;
   const xff = req.headers.get('x-forwarded-for');
   if (xff) {
     const first = xff.split(',')[0]?.trim();
     if (first) return first;
   }
-  return req.headers.get('x-real-ip')?.trim() || 'local';
+  return 'local';
 }
 
 /** Browser-only endpoint: the Origin header must match this deployment. */
@@ -111,6 +152,12 @@ async function readBody(req: Request): Promise<{ message: string } | Response> {
     return jsonError('Request body must be a JSON object.', 400);
   }
 
+  for (const key of Object.keys(parsed)) {
+    if (!KNOWN_BODY_KEYS.has(key)) {
+      return jsonError(`Unexpected field "${key}" in request body.`, 400);
+    }
+  }
+
   const { message, history } = parsed as {
     message?: unknown;
     history?: unknown;
@@ -135,16 +182,50 @@ async function readBody(req: Request): Promise<{ message: string } | Response> {
 }
 
 export async function POST(req: Request): Promise<Response> {
+  const ip = clientIp(req);
+
+  const ban = checkBan(ip);
+  if (ban.banned) return bannedResponse(ban.retryAfterSec);
+
   const originError = sameOriginGuard(req);
   if (originError) return originError;
+
+  const bot = botVerdict(req.headers);
+  if (!bot.ok) {
+    const after = recordViolation(ip);
+    if (after.banned) return bannedResponse(after.retryAfterSec);
+    return jsonError(bot.reason, 403);
+  }
 
   const body = await readBody(req);
   if (body instanceof Response) return body;
 
-  const decision = checkRateLimit(clientIp(req));
-  if (!decision.ok) {
+  const spam = spamVerdict(body.message);
+  if (!spam.ok) {
+    const after = recordViolation(ip);
+    if (after.banned) return bannedResponse(after.retryAfterSec);
+    return jsonError(spam.reason, 400);
+  }
+
+  const dup = isDuplicateQuestion(ip, body.message);
+  if (dup.duplicate) {
     return jsonError(
-      'Rate limit reached. Salem answers a few questions per visitor every 3 minutes — please retry shortly.',
+      'You just asked this — the previous answer still stands. Rephrase the question to ask again sooner.',
+      409,
+      { 'retry-after': String(dup.retryAfterSec) },
+    );
+  }
+
+  const decision = checkRateLimit(ip);
+  if (!decision.ok) {
+    // checkRateLimit records strikes for hammered windows; a strike may have
+    // just crossed the ban threshold.
+    const banNow = checkBan(ip);
+    if (banNow.banned) return bannedResponse(banNow.retryAfterSec);
+    return jsonError(
+      decision.reason === 'burst'
+        ? 'Sending too fast — wait a moment between questions.'
+        : 'Rate limit reached. Salem answers a few questions per visitor every few minutes — please retry shortly.',
       429,
       {
         'retry-after': String(decision.retryAfterSec),
@@ -191,6 +272,10 @@ export async function POST(req: Request): Promise<Response> {
       timedOut ? 504 : 502,
     );
   }
+
+  // Only remember questions Salem actually answered, so a visitor retrying
+  // after an upstream failure is not misread as a spammer replaying.
+  if (upstream.ok) recordAnsweredQuestion(ip, body.message);
 
   const headers = new Headers({
     'content-type':
