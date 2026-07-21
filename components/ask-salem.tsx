@@ -23,6 +23,10 @@ import {
 } from 'react';
 import { Icon } from '@iconify/react';
 import { usePathname } from 'next/navigation';
+import {
+  CLIENT_MARKER_HEADER,
+  CLIENT_MARKER_VALUE,
+} from '@/lib/ask-salem-guards';
 import s from './ask-salem.module.css';
 
 const PRODUCTION_ORIGIN = 'https://docs.opencoven.ai';
@@ -230,9 +234,19 @@ export function AskSalem() {
       ]);
 
       try {
-        const res = await fetch(endpointForOrigin(), {
+        // The bridge requires the widget's marker header (part of its bot
+        // fingerprint). The direct path must NOT send it: Salem's CORS
+        // preflight only allows Content-Type, so an extra header would fail.
+        const endpoint = endpointForOrigin();
+        const headers: Record<string, string> = {
+          'Content-Type': 'application/json',
+        };
+        if (endpoint === BRIDGE_ENDPOINT) {
+          headers[CLIENT_MARKER_HEADER] = CLIENT_MARKER_VALUE;
+        }
+        const res = await fetch(endpoint, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers,
           body: JSON.stringify({
             message,
             history: [],
