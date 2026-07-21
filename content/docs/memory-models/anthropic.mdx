@@ -42,9 +42,9 @@ In every case the session record and event log survive: `coven attach <session-i
 | Session record, status, exit code | Recorded in the ledger. |
 | Claude Code terminal output, including any error text | Recorded as append-only events. |
 | Anthropic API keys, OAuth state, credential stores | **Never read, proxied, or stored.** |
-| Model selection and provider configuration | Owned by Claude Code; Coven does not pass or override models. |
+| Model selection | `coven run --model` forwards a model id to Claude Code's native `--model` flag; provider configuration and credentials stay with Claude Code. |
 
-Choosing which Anthropic model Claude Code uses is Claude Code configuration, not a `coven run` flag. Coven treats the harness as a black box that writes output.
+Passing `--model` is argv forwarding, not provider access: Coven strips any `anthropic/` prefix and hands the bare id to Claude Code. Coven still treats the harness as a black box that writes output.
 
 ## Related
 

@@ -1,7 +1,7 @@
 ---
 title: "Install Harness CLIs"
 summary: "Coven detects external harness CLIs on PATH and fails closed with setup hints when they are missing."
-description: "How to install Codex and Claude Code for Coven, how detection works, and how to recover from PATH or auth setup problems."
+description: "How to install Codex, Claude Code, Copilot CLI, and the Coven Code engine for Coven, how detection works, and how to recover from PATH or auth setup problems."
 read_when:
   - Setting up a new machine for Coven
   - Resolving missing harness errors from coven doctor
@@ -9,14 +9,18 @@ read_when:
 
 import { Mermaid } from '@/components/mermaid';
 
-Coven does not bundle harness CLIs. Each harness is installed and authenticated through its own provider's tooling, then Coven detects the executable on `PATH`.
+Coven manages one harness itself — the bundled Coven Code engine — and detects every other harness CLI on `PATH`. External harnesses are installed and authenticated through their own provider's tooling.
 
-## Supported v0 harnesses
+## Built-in harnesses
 
 | Harness id | Executable | Install command | Provider login |
 | --- | --- | --- | --- |
 | `codex` | `codex` | `npm install -g @openai/codex` | `codex login` |
 | `claude` | `claude` | `npm install -g @anthropic-ai/claude-code` | `claude doctor` |
+| `copilot` | `copilot` | `npm install -g @github/copilot` | `copilot login` |
+| `coven-code` | `coven-code` | `coven engine install` | Inside Coven Code (`/connect`) |
+
+Beyond these, trusted adapter recipes (`grok`, `hermes`) and your own manifests can register external harnesses — see [Custom adapters](/docs/harnesses/custom-adapters).
 
 After installing, run:
 
@@ -37,7 +41,7 @@ flowchart LR
   Path -- yes --> Spawn[Spawn fixed adapter argv in PTY]
 `} />
 
-Only built-in harness ids are accepted. A client cannot send an arbitrary executable path through the daemon API.
+Only registered harness ids are accepted: the built-ins plus any adapter manifests configured on the machine running Coven. A client cannot send an arbitrary executable path through the daemon API.
 
 ## PATH and daemon environment
 
@@ -53,13 +57,17 @@ If `coven doctor` still reports a missing harness, check duplicate or unexpected
 ```bash
 which -a codex
 which -a claude
+which -a copilot
 ```
+
+The bundled engine is not a `PATH` install: use `coven engine status` and `coven engine which` instead — see [Coven Code harness](/docs/harnesses/coven-code).
 
 ## First launch
 
 ```bash
 coven run codex "describe this project"
 coven run claude "review this project for risky defaults"
+coven run copilot "summarize open TODOs"
 ```
 
 Use [Provider auth boundary](/docs/harnesses/provider-auth) if a harness launches but exits with a provider login error.

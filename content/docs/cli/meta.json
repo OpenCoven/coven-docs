@@ -13,6 +13,10 @@
     "daemon",
     "run",
     "sessions",
+    "observe",
+    "hub-scheduler",
+    "engine-auth",
+    "repo-workflow",
     "patch-openclaw",
     "pc"
   ]

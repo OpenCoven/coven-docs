@@ -1,23 +1,25 @@
 ---
 title: "Local Models"
-summary: "Local models are a future harness direction, not a daemon-owned provider shortcut."
-description: "How local models should fit Coven through harnesses that talk to local runtimes such as Ollama or llama.cpp."
+summary: "Local models run in Coven today for memory embeddings, and local-model agents arrive through the harness boundary — not a daemon-owned provider shortcut."
+description: "Where local models fit Coven: the fastembed embedding model used by coven-memory, and local-model harnesses through adapter manifests."
 read_when:
   - Planning offline or local-model support
   - Deciding whether Coven should talk directly to a local model server
 ---
 
-Local models are a natural fit for Coven, but they should still arrive through the harness boundary.
+Local models fit Coven in two places today, and neither one turns the daemon into a model gateway.
 
-Examples of future local-model paths:
+## Local embeddings: shipping now
 
-- A harness CLI that talks to Ollama.
-- A harness CLI that talks to llama.cpp.
-- A custom adapter that runs a local model-backed agent process.
+The `coven-memory` archival layer runs a local embedding model: `nomic-embed-text-v1.5` (768-dimensional) via fastembed. The model downloads once on first run and is cached; every ingest and search after that is fully local and air-gapped. No provider account or API key is involved. See [Semantic memory](/docs/memory-models/semantic-memory) for the full stack.
 
-## Current posture
+## Local-model agents: through the harness boundary
 
-Local models are not a special daemon credential feature. The daemon should not grow provider-specific model routing just because the provider is local.
+A local model that powers an agent (Ollama, llama.cpp, or a custom local runtime) still arrives as a harness. Any CLI that fronts a local model can be registered through an [adapter manifest](/docs/harnesses/custom-adapters) today — the same mechanism the trusted `grok` and `hermes` recipes use — as long as it meets the adapter bar.
+
+## Posture
+
+Local models are not a special daemon credential feature. The daemon does not grow provider-specific model routing just because the provider is local.
 
 The same rules apply:
 

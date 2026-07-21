@@ -26,6 +26,48 @@ Coven Code stores TUI-specific state under `~/.coven-code` and reads shared daem
 Removing `~/.coven-code` resets Coven Code. Removing `~/.coven` resets shared daemon state used by the CLI, Cave, and other clients. They solve different problems.
 </Callout>
 
+## Settings Reference
+
+`~/.coven-code/settings.json` accepts the keys below. Change them with `/config` in the TUI or by editing the file directly.
+
+### Display & Notifications
+
+| Key | Default | Purpose |
+| --- | --- | --- |
+| `showCwd` | `true` | Show the current working directory in the footer. |
+| `showGitBranch` | `true` | Show the git branch in the footer. |
+| `notifications` | `true` | Enable desktop notifications. |
+| `completionToast` | `true` | Show a toast when a background task or assistant turn finishes. |
+| `bellOnComplete` | `false` | Ring the terminal bell when a background task or assistant turn finishes. |
+| `showTurnDuration` | `false` | Show turn duration in output. |
+| `reduceMotion` | `false` | Reduce motion in the UI. |
+| `terminalProgressBar` | `true` | Show terminal progress bars. |
+| `autoCopyOnHighlight` | `false` | Copy a drag selection to the system clipboard when the drag is released. |
+
+### Context & File Handling
+
+| Key | Default | Purpose |
+| --- | --- | --- |
+| `autoCompact` | `true` | Automatically compact the conversation as the context window fills. |
+| `fileAutocompleteLimit` | `15` | Maximum number of file suggestions shown in autocomplete. |
+| `fileAutocompleteShowHiddenFiles` | `false` | Show hidden files in file autocomplete. |
+| `fileInjectionEnabled` | `true` | Automatically inject `@file` references into message context before sending. |
+| `fileInjectionMaxSize` | `100` | Maximum file size to auto-inject, in KB. Set to `0` for no limit. |
+
+### Structured Sections
+
+| Key | Default | Purpose |
+| --- | --- | --- |
+| `provider` | unset | Active provider ID, such as `anthropic` or `codex`. |
+| `providers` | empty map | Per-provider configurations. |
+| `commands` | empty map | User-defined slash command templates. |
+| `formatter` | empty map | Formatter configurations keyed by a user-defined name. |
+| `agents` | empty map | Named agent definitions that override built-in defaults. |
+| `familiar` | unset | Active familiar persona for the welcome screen and `/familiar`. |
+| `skills` | empty | Skill-discovery configuration: extra paths and git URLs. |
+| `managed_agents` | unset | Manager-executor (managed agent) architecture configuration. |
+| `daemonLedger` | `false` | Register interactive sessions in the Coven daemon ledger (best-effort, opt-in). |
+
 ## Environment Variables
 
 | Variable | Purpose |
@@ -35,6 +77,9 @@ Removing `~/.coven-code` resets Coven Code. Removing `~/.coven` resets shared da
 | `COVEN_CODE_SKIP_PROMPT_HISTORY` | Disable prompt history when set to `1`. |
 | `COVEN_CODE_ANTHROPIC_OAUTH_CLIENT_ID` | Configure a registered Anthropic OAuth client for Coven Code auth login. |
 | `ANTHROPIC_API_KEY` | Anthropic API key used by the Anthropic provider path. |
+| `OPENAI_API_KEY` | OpenAI API key used by the Codex provider path when no stored credential exists. |
+| `ANTHROPIC_BASE_URL` | Override the Anthropic API base URL. |
+| `OPENAI_BASE_URL` | Override the OpenAI API base URL for the Codex provider. |
 | `COVEN_HOME` | Coven daemon home. Defaults to `~/.coven`. |
 | `COVEN_LEGACY_TUI` | Opt out of `coven` / `coven tui` exec behavior where legacy TUI support is available. |
 

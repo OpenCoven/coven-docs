@@ -34,6 +34,15 @@ const requiredMentions = [
   'OpenAI',
   'Anthropic',
   'local models',
+  'coven-memory',
+  'fastembed',
+  'nomic-embed-text-v1.5',
+  'turbovec',
+  'SQLite',
+  '~/.coven/memory/',
+  'coven-memory ingest',
+  'coven-memory search',
+  'coven-memory status',
 ];
 
 function fail(message) {

@@ -1,18 +1,19 @@
 ---
 title: "Choosing Your Surface"
-summary: "Which first-party surface to use — coven CLI/TUI, Coven Code, Cave, or CastCodes — and how they share one daemon."
-description: "Orientation guide for the OpenCoven product surfaces: the coven CLI, the Coven Code TUI, the Cave desktop app, and the CastCodes workspace."
+summary: "How OpenCoven's surfaces group into UI surfaces (CLI/TUI, Coven Code, Cave, CastCodes), channel connectors (Discord, Telegram), and CLI observability views."
+description: "Orientation guide for the OpenCoven surfaces: the UI surfaces (coven CLI, Coven Code TUI, Cave, CastCodes), the Discord and Telegram channel connectors, and the read-only CLI observability commands."
 read_when:
   - You are new and unsure which OpenCoven app or command to start with
   - You need to explain how the coven command relates to coven-code
   - You are deciding which surface fits a workflow
+  - You want familiars to post to Discord or Telegram
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
 import { DocsDataTable } from '@/components/docs-data-table';
 import { Mermaid } from '@/components/mermaid';
 
-OpenCoven ships several first-party surfaces. They are not competing products: every one of them is a client of the same local Coven daemon, the same session ledger, and the same `/api/v1` socket contract. Choosing a surface changes how you see your familiars and sessions — never what the daemon enforces.
+OpenCoven's first-party surfaces fall into three groups: **UI surfaces** you sit in front of, **channel connectors** that deliver familiar output to chat platforms, and **CLI observability views** that read coven state without changing it. The UI surfaces are not competing products: every one of them is a client of the same local Coven daemon, the same session ledger, and the same `/api/v1` socket contract. Choosing a surface changes how you see your familiars and sessions — never what the daemon enforces.
 
 <Mermaid chart={`
 flowchart TB
@@ -21,12 +22,14 @@ flowchart TB
   Cave["Cave\ndesktop app"] --> Daemon
   Cast["CastCodes\nworkspace"] --> Daemon
   Daemon --> Ledger[("one session ledger\nSQLite + events")]
+  Observe["CLI observability\ncoven status / memory / calls"] --> Home[("~/.coven state\nsame shapes as the socket API")]
+  Fam["Familiars"] --> Chan["Channel connectors\nDiscord / Telegram"] --> Ext["Platform bot APIs"]
 `} />
 
-## The four surfaces
+## UI surfaces
 
 <DocsDataTable
-  caption="First-party surface comparison"
+  caption="First-party UI surface comparison"
   searchPlaceholder="Filter surfaces..."
   columns={[
     { key: 'surface', label: 'Surface' },
@@ -50,7 +53,33 @@ flowchart TB
 - **"I want visible panes, diffs, and review around agent sessions."** Use [CastCodes](/docs/guide/cast-codes) and the [demo loop](/docs/guide/demo-loop).
 - **"I am scripting or building a client."** Skip all of the above and speak to the [socket API](/docs/daemon/socket-api) directly.
 
-You can switch surfaces at any time. A session launched from the CLI is visible in CastCodes and Cave, because there is only one daemon and one ledger underneath.
+You can switch UI surfaces at any time. A session launched from the CLI is visible in CastCodes and Cave, because there is only one daemon and one ledger underneath.
+
+## Channel connectors
+
+Channel connectors let familiars post to chat platforms. They are delivery adapters, not session clients: they send outbound messages through platform bot APIs and never launch, attach to, or control daemon sessions.
+
+<DocsDataTable
+  caption="Channel connectors in @opencoven/channels"
+  searchPlaceholder="Filter connectors..."
+  columns={[
+    { key: 'connector', label: 'Connector' },
+    { key: 'transport', label: 'Transport', filter: true },
+    { key: 'notes', label: 'Notes' },
+  ]}
+  rows={[
+    { connector: '**Discord**', transport: 'Discord bot API', notes: 'Sends text and rich embeds to channels addressed by raw IDs or logical channel names.' },
+    { connector: '**Telegram**', transport: 'Telegram Bot API', notes: 'Uses the same message envelope; renders embed content into readable plain text. Outbound-only today — no inbound updates, pairing, or group management.' },
+  ]}
+/>
+
+Both connectors ship in the `@opencoven/channels` package, read bot tokens through 1Password references (never raw tokens in config), and let callers address targets by raw IDs or logical target names. See [Channels](/docs/reference/channels) for setup and configuration.
+
+## CLI observability surfaces
+
+The `coven` CLI also ships a set of read-only observability commands: `coven status`, `coven familiars`, `coven skills`, `coven memory`, `coven research`, `coven calls`, and `coven hub status`. Each renders through the same in-process API router the daemon socket uses, so `--json` output carries exactly the body the daemon serves for the same route — one source of truth for shapes. They are offline reads over `~/.coven` files and the SQLite store, and the Cast shell and chat UI reuse the same views, so every surface renders the same data the same way.
+
+See [Observability commands](/docs/cli/observe) for each command and its output.
 
 ## How `coven` and `coven-code` relate
 
@@ -69,11 +98,12 @@ Local state is split the same way:
 
 ## What never changes between surfaces
 
-Every surface is a client. None of them can widen the authority boundary:
+Every UI surface is a client. None of them can widen the authority boundary:
 
 - The daemon validates project roots, working directories, harness ids, and session liveness for every request.
 - Provider credentials stay with harnesses and Coven Code's own auth store — no surface proxies them through the daemon.
 - Session history is recorded once, in the daemon ledger, no matter which surface launched the work.
+- Channel connectors stay outbound-only delivery adapters; they read bot tokens through 1Password references and hold no daemon authority.
 
 See the [authority rule](/docs/guide/cast-codes#authority-rule) and [daemon security](/docs/daemon/security) for the enforcement details.
 

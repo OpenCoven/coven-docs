@@ -4,10 +4,26 @@ info:
   version: coven.daemon.v1
   summary: Local HTTP-over-Unix-socket control plane for the Coven daemon.
   description: |
-    The Coven daemon exposes a small HTTP/1.1 API over a Unix domain socket at
-    `$COVEN_HOME/coven.sock` (default `~/.coven/coven.sock`). Clients connect to
-    the socket file directly — there is no TCP listener, no TLS, and no Bearer /
-    JWT / API-key / cookie auth.
+    The Coven daemon exposes an HTTP/1.1 API over a Unix domain socket at
+    `$COVEN_HOME/coven.sock` (default `~/.coven/coven.sock`). Clients connect
+    to the socket file directly. The daemon can additionally bind a TCP
+    listener with `coven daemon serve --tcp <addr>`, guarded to loopback bind
+    addresses and loopback (or explicitly `--allow-host`-listed) `Host` /
+    `Origin` headers. There is no TLS and no token-based auth (no Bearer /
+    JWT / API-key / cookie schemes) on either transport.
+
+    ### Spec scope
+
+    This document covers the **stable public `coven.daemon.v1` contract**:
+    the meta/handshake, session, event, and action routes. The daemon also
+    serves a broader first-party control plane under the same `/api/v1`
+    prefix (`/overview`, `/cast`, `/cast-codes`, `/familiars/*`,
+    `/threads/*`, `/skills/*`, `/coven-calls`, `/memory`, `/research`,
+    `/store/vacuum`, `/travel/*`, `/scheduler/*`, `/hub/*`,
+    `/capabilities/harnesses`, `/capabilities/{harnessId}`). Those routes
+    are used by first-party clients (Cave, CastCodes), may evolve without a
+    version bump, and are **intentionally out of scope for this spec** — see
+    the [control-plane surface map](/docs/reference/api#control-plane-surface-map).
 
     ### Trust model
 
@@ -202,7 +218,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CreateSessionRequest'
       responses:
-        '200':
+        '201':
           description: Session created and harness launched.
           content:
             application/json:
@@ -233,21 +249,83 @@ paths:
                       details:
                         harness: gpt-9
                         supportedHarnesses: [codex, claude]
+                unknownFamiliar:
+                  summary: Unknown familiar id
+                  value:
+                    error:
+                      code: unknown_familiar
+                      message: Familiar "charm" is not configured.
+                      details:
+                        familiarId: charm
         '500':
-          description: The harness PTY could not be launched.
+          description: The harness could not be launched. The session row is marked `failed`.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorEnvelope'
               example:
                 error:
-                  code: pty_spawn_failed
-                  message: Could not spawn harness PTY.
+                  code: launch_failed
+                  message: Could not launch harness session.
                   details:
-                    harness: codex
-                    cause: ENOENT
+                    sessionId: session-1
         '503':
           $ref: '#/components/responses/RuntimeUnavailable'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+
+  /sessions/external:
+    post:
+      tags: [Sessions]
+      operationId: registerExternalSession
+      summary: Register an externally-launched session
+      description: |
+        Registers a session that was launched outside the daemon (for example
+        by the coven engine TUI) so it appears in the shared session ledger.
+        The daemon does not own a PTY for external sessions — it only holds
+        the ledger row, which is created with `status: running` and
+        `external: true`.
+
+        Registration is idempotent on `id`: re-registering an existing
+        external session returns `200` with the persisted record instead of
+        failing. If a **daemon-managed** session already holds the id, the
+        request is rejected with `409 session_id_conflict`.
+
+        Finish an external session with
+        [`POST /sessions/{id}/complete`](#tag/sessions/post/sessions/{id}/complete).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterExternalSessionRequest'
+      responses:
+        '201':
+          description: External session registered.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionRecord'
+        '200':
+          description: A session with this id was already registered; the persisted record is returned.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionRecord'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '409':
+          description: A daemon-managed session already holds this id.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+              example:
+                error:
+                  code: session_id_conflict
+                  message: A daemon-managed session with this id already exists.
+                  details:
+                    sessionId: session-1
         default:
           $ref: '#/components/responses/UnexpectedError'
 
@@ -337,6 +415,161 @@ paths:
         default:
           $ref: '#/components/responses/UnexpectedError'
 
+  /sessions/{id}/complete:
+    parameters:
+      - $ref: '#/components/parameters/SessionId'
+    post:
+      tags: [Sessions]
+      operationId: completeExternalSession
+      summary: Complete an externally-registered session
+      description: |
+        Marks an externally-registered session finished. A non-zero `exitCode`
+        transitions the session to `failed`; zero or a missing `exitCode`
+        transitions it to `completed`. The body may be omitted entirely.
+
+        Only valid for sessions registered via
+        [`POST /sessions/external`](#tag/sessions/post/sessions/external).
+        Daemon-managed sessions return `422 not_external_session` — use
+        [`POST /sessions/{id}/kill`](#tag/sessions/post/sessions/{id}/kill)
+        for those instead.
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CompleteExternalSessionRequest'
+      responses:
+        '200':
+          description: The updated session record.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionRecord'
+        '404':
+          $ref: '#/components/responses/SessionNotFound'
+        '422':
+          description: The session exists but is daemon-managed, not external.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+              example:
+                error:
+                  code: not_external_session
+                  message: POST /sessions/<id>/complete is only valid for externally-registered sessions. Use POST /sessions/<id>/kill for daemon-managed sessions.
+                  details:
+                    sessionId: session-1
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+
+  /sessions/{id}/log:
+    parameters:
+      - $ref: '#/components/parameters/SessionId'
+    get:
+      tags: [Sessions]
+      operationId: getSessionLog
+      summary: Read a rendered log view of one session
+      description: |
+        Returns the session's full event stream rendered as display-ready log
+        lines (`ts`, `level`, `message`). Payloads are previewed and
+        truncated for display — use
+        [`GET /sessions/{id}/events`](#tag/events/get/sessions/{id}/events)
+        when you need raw event payloads or cursor-based pagination.
+      responses:
+        '200':
+          description: Rendered log lines, oldest first.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/LogLine'
+        '404':
+          $ref: '#/components/responses/SessionNotFound'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+
+  /sessions/{id}/artifacts/{artifactId}:
+    parameters:
+      - $ref: '#/components/parameters/SessionId'
+      - name: artifactId
+        in: path
+        required: true
+        description: Id of the sensitive artifact recorded for this session.
+        schema:
+          type: string
+          examples: [artifact-1]
+    get:
+      tags: [Sessions]
+      operationId: getSessionArtifact
+      summary: Fetch a sensitive session artifact
+      description: |
+        Returns the decrypted payload of one sensitive artifact (redacted
+        material that was moved out of the plain event log).
+
+        Two explicit opt-ins gate this read: the request must pass `raw=1`
+        (otherwise `400 raw_artifact_requires_raw_flag`), and raw artifact
+        persistence must be enabled in the daemon's privacy configuration
+        (otherwise `403 raw_artifacts_disabled`). Expired artifacts return
+        `404 artifact_expired`.
+      parameters:
+        - name: raw
+          in: query
+          required: true
+          description: Must be `1`. Explicit acknowledgement that the caller wants raw (unredacted) artifact content.
+          schema:
+            type: string
+            enum: ['1']
+            examples: ['1']
+      responses:
+        '200':
+          description: The decrypted artifact payload.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionArtifact'
+        '400':
+          description: The `raw=1` acknowledgement flag is missing.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+              example:
+                error:
+                  code: raw_artifact_requires_raw_flag
+                  message: Raw artifact retrieval requires raw=1.
+                  details:
+                    sessionId: session-1
+                    artifactId: artifact-1
+        '403':
+          description: Raw artifact persistence is not enabled in the daemon's privacy configuration.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+              example:
+                error:
+                  code: raw_artifacts_disabled
+                  message: Raw artifact persistence is not enabled.
+                  details:
+                    sessionId: session-1
+                    artifactId: artifact-1
+        '404':
+          description: The session or artifact does not exist, or the artifact has expired (`session_not_found`, `artifact_not_found`, or `artifact_expired`).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+              example:
+                error:
+                  code: artifact_not_found
+                  message: Sensitive artifact was not found.
+                  details:
+                    sessionId: session-1
+                    artifactId: artifact-1
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+
   /events:
     get:
       tags: [Events]
@@ -376,12 +609,60 @@ paths:
         - name: limit
           in: query
           required: false
-          description: Maximum number of events to return. The daemon enforces a maximum of 1000.
+          description: Maximum number of events to return, clamped to 1–1000. When omitted, all events after the cursor are returned.
           schema:
             type: integer
             minimum: 1
             maximum: 1000
-            default: 100
+      responses:
+        '200':
+          description: A page of events.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventsResponse'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '404':
+          $ref: '#/components/responses/SessionNotFound'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+
+  /sessions/{id}/events:
+    parameters:
+      - $ref: '#/components/parameters/SessionId'
+    get:
+      tags: [Events]
+      operationId: listSessionEvents
+      summary: Read one session's events (path-scoped)
+      description: |
+        Path-scoped form of [`GET /events`](#tag/events/get/events): identical
+        cursor parameters and response shape, with the session id taken from
+        the path instead of a `sessionId` query parameter.
+      parameters:
+        - name: afterSeq
+          in: query
+          required: false
+          description: Preferred cursor. Returns events with `seq > afterSeq`.
+          schema:
+            type: integer
+            minimum: 0
+            examples: [41]
+        - name: afterEventId
+          in: query
+          required: false
+          description: Compatibility cursor, resolved by the daemon to a sequence position.
+          schema:
+            type: string
+            examples: [event-41]
+        - name: limit
+          in: query
+          required: false
+          description: Maximum number of events to return, clamped to 1–1000. When omitted, all events after the cursor are returned.
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 1000
       responses:
         '200':
           description: A page of events.
@@ -530,6 +811,9 @@ components:
             - $ref: '#/components/schemas/DaemonMetadata'
             - type: 'null'
           description: Daemon process metadata, or `null` when unavailable.
+        hub:
+          $ref: '#/components/schemas/HubHealth'
+          description: Hub control-plane summary (role and node availability). Omitted when the response is built without store access.
       examples:
         - ok: true
           apiVersion: coven.daemon.v1
@@ -537,6 +821,10 @@ components:
           capabilities:
             sessions: true
             events: true
+            travel: true
+            scheduler: true
+            hub: true
+            executorDispatch: true
             eventCursor: sequence
             structuredErrors: true
           daemon:
@@ -547,7 +835,7 @@ components:
     HealthCapabilities:
       type: object
       description: Machine-readable capability flags. Additional fields may be added in `v1`; clients should ignore unknown keys.
-      required: [sessions, events, eventCursor, structuredErrors]
+      required: [sessions, events, travel, scheduler, hub, executorDispatch, eventCursor, structuredErrors]
       properties:
         sessions:
           type: boolean
@@ -555,6 +843,18 @@ components:
         events:
           type: boolean
           description: Whether `/events` is served.
+        travel:
+          type: boolean
+          description: Whether the travel-profile control-plane routes (`/travel/*`) are served.
+        scheduler:
+          type: boolean
+          description: Whether the scheduler control-plane routes (`/scheduler/*`) are served.
+        hub:
+          type: boolean
+          description: Whether the hub control-plane routes (`/hub/*`) are served.
+        executorDispatch:
+          type: boolean
+          description: Whether hub executor dispatch (`/hub/nodes/{id}/dispatch`) is supported.
         eventCursor:
           type: string
           description: Event cursor strategy. Only `sequence` is defined in `coven.daemon.v1`.
@@ -562,6 +862,26 @@ components:
         structuredErrors:
           type: boolean
           description: Whether failure responses use the `ErrorEnvelope` shape (always `true` in `coven.daemon.v1`).
+
+    HubHealth:
+      type: object
+      description: Hub control-plane summary embedded in the health response.
+      required: [role, hubId, nodesTotal, nodesAvailable]
+      properties:
+        role:
+          type: string
+          description: This daemon's hub role (e.g., `hub`).
+        hubId:
+          type: string
+          description: Stable id of the hub this daemon belongs to.
+        nodesTotal:
+          type: integer
+          minimum: 0
+          description: Total registered executor nodes.
+        nodesAvailable:
+          type: integer
+          minimum: 0
+          description: Executor nodes currently available for dispatch.
 
     DaemonMetadata:
       type: object
@@ -716,6 +1036,12 @@ components:
         - archived_at
         - created_at
         - updated_at
+        - conversation_id
+        - familiar_id
+        - labels
+        - visibility
+        - external
+        - transcript_path
       properties:
         id:
           type: string
@@ -747,6 +1073,39 @@ components:
         updated_at:
           type: string
           format: date-time
+        conversation_id:
+          type: [string, 'null']
+          description: |
+            Optional grouping id so multi-turn chat conversations show as one
+            thread in `/sessions` instead of one row per turn. `null` for
+            ungrouped one-off runs.
+        familiar_id:
+          type: [string, 'null']
+          description: |
+            Familiar id this session was launched with (e.g. via
+            `coven run --familiar <id>`). `null` for direct launches without
+            the flag and for legacy sessions.
+        labels:
+          type: array
+          description: Client-facing labels attached to this session. Empty when unlabeled.
+          items:
+            type: string
+        visibility:
+          type: string
+          description: Session visibility. Defaults to `private`.
+          examples: [private]
+        external:
+          type: boolean
+          description: |
+            `true` when the session was launched outside the daemon (e.g. by
+            the coven engine TUI) and registered via `POST /sessions/external`.
+            The daemon does not own the PTY for external sessions; it only
+            holds the ledger row.
+        transcript_path:
+          type: [string, 'null']
+          description: |
+            Absolute path to the transcript file written by an external
+            session. Only meaningful when `external` is `true`.
       examples:
         - id: session-1
           project_root: /Users/example/project
@@ -757,6 +1116,12 @@ components:
           archived_at: null
           created_at: 2026-05-09T06:43:00Z
           updated_at: 2026-05-09T06:43:05Z
+          conversation_id: null
+          familiar_id: null
+          labels: []
+          visibility: private
+          external: false
+          transcript_path: null
 
     SessionStatus:
       type: string
@@ -772,7 +1137,7 @@ components:
 
     CreateSessionRequest:
       type: object
-      required: [projectRoot, cwd, harness, prompt, title]
+      required: [projectRoot, harness, prompt]
       properties:
         projectRoot:
           type: string
@@ -780,7 +1145,7 @@ components:
           examples: [/Users/example/project]
         cwd:
           type: string
-          description: Working directory for the harness. Must canonicalize inside `projectRoot`.
+          description: Working directory for the harness. Must canonicalize inside `projectRoot`. Defaults to the project root when omitted.
           examples: [/Users/example/project]
         harness:
           type: string
@@ -792,8 +1157,39 @@ components:
           examples: [Fix the failing tests]
         title:
           type: string
-          description: Readable session title for UI.
+          description: Readable session title for UI. Defaults to the prompt when omitted.
           examples: [Fix failing tests]
+        model:
+          type: string
+          description: Optional namespaced model id (e.g. `openai/gpt-5.6-sol`). The harness adapter normalizes the provider prefix for the underlying CLI.
+        launchMode:
+          type: string
+          description: How the harness process is driven. Defaults to `interactive`.
+          enum: [interactive, nonInteractive, stream]
+        conversation:
+          type: [object, 'null']
+          description: |
+            Optional harness-native conversation hint. `mode: init` starts a
+            new harness conversation with the given id; `mode: resume`
+            resumes one. The id is forwarded verbatim to the harness CLI and
+            is restricted to `[A-Za-z0-9._-]`.
+          required: [mode, id]
+          properties:
+            mode:
+              type: string
+              enum: [init, resume]
+            id:
+              type: string
+              pattern: '^[A-Za-z0-9._-]+$'
+        conversationId:
+          type: string
+          description: Caller-supplied id used to group this session with other turns of the same chat conversation in `/sessions`. Independent of the harness CLI's own resume mechanism.
+        familiarId:
+          type: string
+          description: Optional familiar id whose identity should be injected into the harness invocation. Unknown ids fail with `400 unknown_familiar`.
+        callerFamiliarId:
+          type: string
+          description: Optional id of the familiar that spawned this session in a delegation; recorded in the Coven Calls ledger when set alongside `familiarId`.
       examples:
         - projectRoot: /Users/example/project
           cwd: /Users/example/project
@@ -812,6 +1208,95 @@ components:
             - "continue with the next failing test\n"
       examples:
         - data: "continue with the next failing test\n"
+
+    RegisterExternalSessionRequest:
+      type: object
+      required: [id, projectRoot, harness]
+      properties:
+        id:
+          type: string
+          description: Caller-chosen session id. Registration is idempotent on this id.
+          examples: [engine-session-1]
+        projectRoot:
+          type: string
+          description: Absolute project root path the external session ran in.
+          examples: [/Users/example/project]
+        harness:
+          type: string
+          description: Harness id the external session used.
+          examples: [codex]
+        title:
+          type: string
+          description: Readable session title. Defaults to `External session` when omitted or blank.
+        transcriptPath:
+          type: string
+          description: Absolute path to the transcript file written by the external session.
+      examples:
+        - id: engine-session-1
+          projectRoot: /Users/example/project
+          harness: codex
+          title: Engine TUI run
+          transcriptPath: /Users/example/.coven/transcripts/engine-session-1.jsonl
+
+    CompleteExternalSessionRequest:
+      type: object
+      description: Optional completion metadata. An empty or missing body marks the session `completed`.
+      properties:
+        exitCode:
+          type: integer
+          description: Process exit code of the external session. Non-zero marks the session `failed`; zero (or omitted) marks it `completed`.
+          examples: [0]
+      examples:
+        - exitCode: 0
+
+    LogLine:
+      type: object
+      description: One display-ready log line rendered from a session event.
+      required: [ts, level, message]
+      properties:
+        ts:
+          type: string
+          format: date-time
+          description: Timestamp of the underlying event.
+        level:
+          type: string
+          description: Render hint derived from the event kind (`input`/`output` map to `info`, `tool_call` to `tool`, `error` to `error`).
+          enum: [info, tool, error]
+        message:
+          type: string
+          description: Truncated, display-safe preview of the event payload.
+      examples:
+        - ts: 2026-05-09T06:43:10Z
+          level: info
+          message: "> continue with the next failing test"
+
+    SessionArtifact:
+      type: object
+      description: Decrypted payload of one sensitive session artifact.
+      required: [sessionId, artifactId, eventId, kind, payload]
+      properties:
+        sessionId:
+          type: string
+          examples: [session-1]
+        artifactId:
+          type: string
+          examples: [artifact-1]
+        eventId:
+          type: string
+          description: Id of the event this artifact was redacted from.
+          examples: [event-1]
+        kind:
+          type: string
+          description: Artifact kind recorded at redaction time.
+        payload:
+          description: Decrypted artifact content — JSON when the plaintext parses as JSON, otherwise a string.
+      examples:
+        - sessionId: session-1
+          artifactId: artifact-1
+          eventId: event-1
+          kind: output
+          payload:
+            data: redacted material
 
     SessionActionResponse:
       type: object
@@ -839,11 +1324,15 @@ components:
             - $ref: '#/components/schemas/EventCursor'
             - type: 'null'
           description: |
-            Cursor to read the next page. `null` when there are no events.
+            Cursor to read the next page — `afterSeq` is the `seq` of the last
+            event in this page. `null` when the page is empty.
             Persist `nextCursor.afterSeq` to resume across restarts.
         hasMore:
           type: boolean
-          description: Whether more events follow the returned page.
+          description: |
+            Whether more events may follow the returned page. `true` when the
+            page filled a requested `limit`; always `false` when `limit` was
+            omitted (the full remainder was returned).
       examples:
         - events:
             - seq: 42
@@ -949,7 +1438,16 @@ components:
         - `session_not_found` (404): Session id does not exist.
         - `session_not_live` (409): Session exists but cannot accept input or kill (not running in this daemon).
         - `project_root_violation` (400): cwd resolves outside the declared project root.
-        - `pty_spawn_failed` (500): Harness PTY could not be launched.
+        - `unknown_familiar` (400): `familiarId` does not match a configured familiar.
+        - `launch_failed` (500): The harness session could not be launched (missing harness CLI, missing auth, spawn failure); the session row is marked `failed`.
+        - `send_input_failed` (500): The runtime failed to forward input to a live session.
+        - `session_id_conflict` (409): `POST /sessions/external` targeted an id owned by a daemon-managed session.
+        - `not_external_session` (422): `POST /sessions/{id}/complete` targeted a daemon-managed session.
+        - `raw_artifact_requires_raw_flag` (400): Artifact read without the explicit `raw=1` acknowledgement.
+        - `raw_artifacts_disabled` (403): Raw artifact persistence is not enabled in the privacy configuration.
+        - `artifact_not_found` (404): No such sensitive artifact for this session.
+        - `artifact_expired` (404): The sensitive artifact exists but has passed its expiry.
+        - `pty_spawn_failed` (500): Reserved. Harness PTY could not be launched.
         - `runtime_unavailable` (503): The session runtime is unavailable.
         - `internal_error` (500): Unexpected internal daemon error.
       enum:
@@ -958,6 +1456,15 @@ components:
         - session_not_found
         - session_not_live
         - project_root_violation
+        - unknown_familiar
+        - launch_failed
+        - send_input_failed
+        - session_id_conflict
+        - not_external_session
+        - raw_artifact_requires_raw_flag
+        - raw_artifacts_disabled
+        - artifact_not_found
+        - artifact_expired
         - pty_spawn_failed
         - runtime_unavailable
         - internal_error

@@ -230,6 +230,23 @@ These areas are present in the docs site and should now be polished, not duplica
   ]}
 />
 
+## Renamed Site Pages
+
+Old slugs that were replaced on this site, kept here so external links and history stay traceable.
+
+<DocsDataTable
+  caption="Renamed docs site slugs"
+  searchPlaceholder="Filter renamed slugs..."
+  columns={[
+    { key: 'old', label: 'Old slug' },
+    { key: 'new', label: 'New slug' },
+    { key: 'note', label: 'Note' },
+  ]}
+  rows={[
+    { old: '`/docs/reference/research-coven-github-agent`', new: '[/docs/reference/coven-github-agent](/docs/reference/coven-github-agent)', note: 'The research abstract became a current-state page once coven-github and coven-github-webhook shipped.' },
+  ]}
+/>
+
 ## API Naming Note
 
 The current **Future Hosted API** section is intentionally hidden from the main docs nav until it has a real auth and product contract. Current API docs should point to the local daemon API only.

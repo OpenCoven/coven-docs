@@ -2,6 +2,7 @@
   "title": "Events",
   "description": "Append-only event log for a single session.",
   "pages": [
-    "list-events"
+    "list-events",
+    "list-session-events"
   ]
 }

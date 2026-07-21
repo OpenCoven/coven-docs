@@ -35,6 +35,8 @@ If Coven cannot resolve a project root, `coven doctor` and `coven run` give setu
 
 Clients should treat project root as authority-sensitive input. They can collect and display it, but the daemon still validates it.
 
+On every launch request the daemon canonicalizes the supplied `projectRoot` (resolving symlinks and relative segments) and then requires the working directory to canonicalize to the root itself or a path inside it. A `projectRoot` that does not exist fails resolution, and a cwd that escapes the canonical root — including via symlink — is rejected before any PTY is spawned.
+
 Do not trust a browser or chat client to enforce project boundaries on its own. The daemon remains the validation boundary described in [Daemon security posture](/docs/daemon/security).
 
 ## Related

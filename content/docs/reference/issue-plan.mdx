@@ -7,6 +7,8 @@ import { DocsDataTable } from '@/components/docs-data-table';
 
 This page is the docs-first issue plan for Coven. It is not a GitHub issue tracker and it does not imply that issues or milestones have been created. If GitHub writes are authorized later, copy each row's title, scope, acceptance criteria, verification command, and links into the matching issue or milestone.
 
+_Progress note (2026-07-21):_ the docs tree now ships the Install guide, the demo loop pages under Guide, and a full Harnesses section (per-harness pages plus custom adapters), so `docs/install`, `docs/demo-loop`, and `docs/harness-compat` are complete as initial page work and remain listed only for maintenance follow-ups.
+
 ## Planned Issue Groups
 
 <DocsDataTable
@@ -15,17 +17,18 @@ This page is the docs-first issue plan for Coven. It is not a GitHub issue track
   columns={[
     { key: 'slug', label: 'Slug' },
     { key: 'publicTitle', label: 'Public title' },
+    { key: 'status', label: 'Status', filter: true },
     { key: 'why', label: 'Why it matters' },
     { key: 'verification', label: 'Verification command' },
   ]}
   rows={[
-    { slug: '`docs/api-contract`', publicTitle: 'Complete and keep current the Coven daemon API contract', why: 'Client implementers need exact request, response, versioning, and error behavior before they build against Coven.', verification: '`npm run check:fumadocs && npm run check:mermaid && npm run check:links && npm run build && git diff --check`' },
-    { slug: '`docs/install`', publicTitle: 'Make Coven installable without private context', why: 'New users need a working install path before architecture or integration docs are useful.', verification: '`npm run check:fumadocs && npm run check:links && npm run build && git diff --check`' },
-    { slug: '`docs/demo-loop`', publicTitle: 'Document the CastCodes to Coven review loop', why: 'Users need to see how intent becomes a visible session, reviewable diff, and explicit finish action.', verification: '`npm run check:links && npm run build && git diff --check`' },
-    { slug: '`docs/openclaw-plugin`', publicTitle: 'Document the external OpenClaw bridge boundary', why: 'OpenClaw users need to understand that Coven is reached through an external plugin and the daemon API remains the trust root.', verification: '`npm run check:links && npm run build && git diff --check`' },
-    { slug: '`docs/harness-compat`', publicTitle: 'Make harness adapter compatibility expectations concrete', why: 'Adapter authors need to know what a supported harness must prove before it is advertised.', verification: '`npm run check:links && npm run build && git diff --check`' },
-    { slug: '`docs/platform-qa`', publicTitle: 'QA the public docs platform surfaces', why: 'Search, graph, Mermaid, EPUB/PDF, and mobile layout must help users navigate the operational docs.', verification: '`npm run check:fumadocs && npm run check:mermaid && node scripts/check-mermaid-preview-ui.mjs && npm run check:links && npm run build && git diff --check`' },
-    { slug: '`community/roadmap-loop`', publicTitle: 'Keep roadmap and issue text aligned with shipped reality', why: 'Public contributors need an honest, current work map without aspirational claims becoming implied support.', verification: '`npm run check:links && npm run build && git diff --check`' },
+    { slug: '`docs/api-contract`', publicTitle: 'Complete and keep current the Coven daemon API contract', status: 'Open (ongoing)', why: 'Client implementers need exact request, response, versioning, and error behavior before they build against Coven.', verification: '`npm run check:fumadocs && npm run check:mermaid && npm run check:links && npm run build && git diff --check`' },
+    { slug: '`docs/install`', publicTitle: 'Make Coven installable without private context', status: 'Done (docs shipped)', why: 'New users need a working install path before architecture or integration docs are useful.', verification: '`npm run check:fumadocs && npm run check:links && npm run build && git diff --check`' },
+    { slug: '`docs/demo-loop`', publicTitle: 'Document the CastCodes to Coven review loop', status: 'Done (docs shipped)', why: 'Users need to see how intent becomes a visible session, reviewable diff, and explicit finish action.', verification: '`npm run check:links && npm run build && git diff --check`' },
+    { slug: '`docs/openclaw-plugin`', publicTitle: 'Document the external OpenClaw bridge boundary', status: 'Open', why: 'OpenClaw users need to understand that Coven is reached through an external plugin and the daemon API remains the trust root.', verification: '`npm run check:links && npm run build && git diff --check`' },
+    { slug: '`docs/harness-compat`', publicTitle: 'Make harness adapter compatibility expectations concrete', status: 'Done (docs shipped)', why: 'Adapter authors need to know what a supported harness must prove before it is advertised.', verification: '`npm run check:links && npm run build && git diff --check`' },
+    { slug: '`docs/platform-qa`', publicTitle: 'QA the public docs platform surfaces', status: 'Open', why: 'Search, graph, Mermaid, EPUB/PDF, and mobile layout must help users navigate the operational docs.', verification: '`npm run check:fumadocs && npm run check:mermaid && node scripts/check-mermaid-preview-ui.mjs && npm run check:links && npm run build && git diff --check`' },
+    { slug: '`community/roadmap-loop`', publicTitle: 'Keep roadmap and issue text aligned with shipped reality', status: 'Open (ongoing)', why: 'Public contributors need an honest, current work map without aspirational claims becoming implied support.', verification: '`npm run check:links && npm run build && git diff --check`' },
   ]}
 />
 

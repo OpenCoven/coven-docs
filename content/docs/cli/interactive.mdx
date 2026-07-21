@@ -1,6 +1,6 @@
 ---
 title: "Interactive Shell and TUI"
-summary: "Use coven or coven tui for the beginner-friendly interactive Coven shell."
+summary: "Use coven, coven chat, or coven tui for the beginner-friendly interactive Coven shell."
 description: "Reference for the default interactive Coven shell, explicit TUI entrypoint, and bare prompt shortcut."
 read_when:
   - You are new to Coven and want the guided entrypoint
@@ -13,9 +13,10 @@ Run `coven` with no arguments when you want Coven to choose the interactive shel
 coven
 ```
 
-Run `coven tui` when you want to be explicit:
+Run `coven chat` — or its identical alias `coven tui` — when you want to be explicit:
 
 ```bash
+coven chat
 coven tui
 ```
 
@@ -23,7 +24,7 @@ The interactive surface is designed for humans who do not want to memorize subco
 
 ## When Coven Code is installed
 
-If the `coven-code` binary is on `PATH`, interactive `coven` and `coven tui` invocations exec into [Coven Code](/docs/coven-code), the full coding TUI, instead of the legacy shell. Set `COVEN_LEGACY_TUI=1` to opt out and keep the shell described on this page.
+If the `coven-code` binary is on `PATH`, interactive `coven`, `coven chat`, and `coven tui` invocations exec into [Coven Code](/docs/coven-code), the full coding TUI, instead of the legacy shell. Set `COVEN_LEGACY_TUI=1` to opt out and keep the shell described on this page.
 
 Explicit subcommands such as `coven run`, `coven daemon`, and `coven sessions` are never redirected — only the interactive entry point hands off. See [Choosing your surface](/docs/guide/surfaces) for how the surfaces relate.
 

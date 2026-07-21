@@ -58,12 +58,10 @@ The session is now reachable by id from the API (`/api/v1/sessions/<id>`), the C
 ```bash
 coven run codex "fix the failing tests"
 
-# Equivalent explicit form:
-coven run \
-  --harness codex \
-  --project ~/code/example-project \
-  --title "fix tests" \
-  "fix the failing tests"
+# Equivalent explicit form (the harness is positional; the project root
+# is the directory you run the command from):
+cd ~/code/example-project
+coven run codex "fix the failing tests" --title "fix tests"
 ```
 
 Or directly via the socket API:

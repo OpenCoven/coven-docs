@@ -1,6 +1,6 @@
 {
   "title": "Harnesses",
-  "description": "Codex and Claude Code Adapters",
+  "description": "Codex, Claude Code, Coven Code, and Copilot Adapters",
   "root": true,
   "icon": "LuCable",
   "pages": [
@@ -12,6 +12,8 @@
     "working-directories",
     "codex",
     "claude-code",
+    "copilot",
+    "coven-code",
     "custom-adapters",
     "troubleshooting"
   ]

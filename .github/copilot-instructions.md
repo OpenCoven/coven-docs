@@ -15,7 +15,9 @@ pnpm dev
 
 ## Structure
 
-- `apps/docs/` — Next.js Fumadocs site
-- `apps/docs/content/docs/` — MDX documentation files
-- `apps/docs/app/` — Next.js App Router pages
-- `apps/docs/lib/source.ts` — Fumadocs source loader
+- `app/` — Next.js App Router documentation site
+- `content/docs/` — MDX documentation, organized by section (each folder has a `meta.json`)
+- `components/` — React components used in the docs (e.g. `Mermaid`, data tables)
+- `lib/` — Fumadocs source loader and shared utilities
+- `scripts/` — build and validation scripts (docs conventions, Mermaid, OpenAPI)
+- `openapi/` — OpenAPI specs rendered into `content/docs/openapi/`

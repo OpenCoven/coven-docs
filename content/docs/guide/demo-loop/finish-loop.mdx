@@ -23,8 +23,8 @@ flowchart LR
 | --- | --- | --- |
 | **Merge** | The agent's worktree changes land on your active branch. | Yes (revert commit). |
 | **PR** | A pull request is opened for review. | Yes (close the PR). |
-| **Archive** | The session record + event log stay; the live PTY stops. | Yes (rejoin replays the log). |
-| **Sacrifice** | The session record, event log, and worktree are deleted. | No. |
+| **Archive** | The session record + event log stay for later replay. | Yes (`coven summon` restores and replays it). |
+| **Sacrifice** | The session record and event log are deleted. | No. |
 
 ## The flow
 
@@ -42,8 +42,8 @@ flowchart LR
     git checkout main
     git merge <worktree-branch>
     git worktree remove <worktree-path>
-    coven sessions archive <session-id>
-    ```sh
+    coven archive <session-id>
+    ```
   </Step>
 
   <Step>
@@ -58,29 +58,29 @@ flowchart LR
     ```bash
     git push -u origin <worktree-branch>
     gh pr create --title "..." --body "..."
-    coven sessions archive <session-id>
-    ```sh
+    coven archive <session-id>
+    ```
   </Step>
 
   <Step>
     ### Archive
 
-    Stop the PTY (if still running), but keep the session record and event log so you can rejoin and replay the work later. Useful when you don't want to ship the changes but want to remember what the agent tried.
+    Keep the session record and event log so you can replay the work later. Useful when you don't want to ship the changes but want to remember what the agent tried. Archive refuses running sessions — stop the process first with `coven kill <session-id>` if it is still live.
 
     ```bash
-    coven sessions archive <session-id>
-    ```sh
+    coven archive <session-id>
+    ```
 
-    Archived sessions appear in `coven sessions --all` and remain replayable through `coven rejoin --replay`.
+    Archived sessions appear in `coven sessions --all` and remain replayable through `coven summon <session-id>`, which restores the record and then replays its log.
   </Step>
 
   <Step>
     ### Sacrifice
 
-    Delete the session record, its event log, and (if it lived in a per-lane worktree) the worktree itself. This is the explicit "throw it all away" path.
+    Delete the session record and its event log. This is the explicit "throw it all away" path. If the work lived in a per-lane worktree, remove the worktree separately (`git worktree remove <worktree-path>`).
 
     ```bash
-    coven sessions sacrifice <session-id>
+    coven sacrifice <session-id> --yes
     ```
 
     <Callout type="warn" title="Destructive">

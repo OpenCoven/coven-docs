@@ -65,6 +65,19 @@ Restart should drain the old listener, release the previous socket, reopen the s
 
 `stop` shuts down the background daemon. Live sessions should be treated conservatively: clients must not assume a stopped daemon means a harness completed its work. Reattach or inspect the session ledger after starting the daemon again.
 
+## Running under a service manager
+
+Coven ships supervision recipes in the main repo, and their names are the convention to follow:
+
+| Platform | Unit / label | Source |
+| --- | --- | --- |
+| macOS (launchd) | Label `coven`, plist at `~/Library/LaunchAgents/coven.plist`, running `coven daemon start`. | `docs/install/launchd.md` in the Coven repo. |
+| Linux (systemd) | Unit `coven-daemon.service`, installed at `/etc/systemd/system/coven-daemon.service`, running `coven daemon serve` in the foreground under a dedicated `coven` user with `COVEN_HOME=/var/lib/coven`. | `docs/daemon/coven-daemon.service` in the Coven repo. |
+
+macOS convention note: launchd labels are conventionally reverse-DNS (which for this project would look like `com.opencoven.coven-daemon`), but the shipped guide deliberately uses the short label `coven` — use that label in `launchctl` commands (`launchctl kickstart -k gui/UID/coven`, `launchctl bootout gui/UID/coven`) unless you have renamed the plist yourself.
+
+Whichever supervisor you use, keep single-instance discipline: the daemon refuses to take over a healthy socket and holds a serve lock, so let one supervisor own the process rather than mixing `coven daemon start` with a service unit.
+
 ## Client behavior during lifecycle changes
 
 Clients should handle these states explicitly:

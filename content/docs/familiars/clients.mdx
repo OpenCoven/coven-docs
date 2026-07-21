@@ -41,6 +41,27 @@ sequenceDiagram
 
 Clients should treat the handshake as **mandatory before any other request**. Skipping it means depending on undefined response shapes from a future daemon version.
 
+## Presentation Clients and Channel Connectors
+
+Coven integrations come in two shapes, and the rest of this page applies to the first one:
+
+<DocsDataTable
+  caption="Client shapes"
+  searchPlaceholder="Filter client shapes..."
+  columns={[
+    { key: 'shape', label: 'Shape' },
+    { key: 'examples', label: 'Examples' },
+    { key: 'transport', label: 'Transport', filter: true },
+    { key: 'role', label: 'Role' },
+  ]}
+  rows={[
+    { shape: '**Presentation client**', examples: '[Cave](/docs/guide/cave), [CastCodes](/docs/guide/cast-codes), `coven` CLI/TUI', transport: 'Local daemon socket (`/api/v1`)', role: 'Launch, observe, and review sessions; render memory, events, and approvals.' },
+    { shape: '**Channel connector**', examples: 'Discord, Telegram (`@opencoven/channels`)', transport: 'Platform bot APIs', role: 'Deliver outbound familiar messages to chat targets; no daemon session control.' },
+  ]}
+/>
+
+Presentation clients follow the socket handshake above. Channel connectors do not speak the daemon socket at all: they send outbound messages through bot APIs, read bot tokens through 1Password references, and address targets by raw IDs or logical target names. Telegram is outbound-only today. See [Channels](/docs/reference/channels) for connector setup and configuration.
+
 ## Client Responsibilities
 
 <DocsDataTable
@@ -201,7 +222,7 @@ Avoid making intake clients the automation engine. Reusable automation should li
 
 A native control room can make Coven easier to operate by showing the operational surface in one place.
 
-[**Cave**](/docs/guide/cave) is the first-party desktop control room. It is a Tauri 2 + Next.js application (macOS / Windows / Linux) for talking to familiars, watching tools, inspecting memory, and following session events. Cave talks to the local daemon over the same socket API as every other client; it does not bypass authority.
+[**Cave**](/docs/guide/cave) is the first-party desktop control room. It is a Tauri 2 + Next.js application (macOS / Windows / Linux, plus a native SwiftUI iOS client) for talking to familiars, watching tools, inspecting memory, and following session events. Cave talks to the local daemon over the same socket API as every other client; it does not bypass authority.
 
 The patterns below describe the general control-room contract — Cave follows it, and third-party desktop clients should follow it too.
 

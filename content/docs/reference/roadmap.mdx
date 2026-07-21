@@ -5,7 +5,7 @@ description: "Where Coven is headed."
 
 import { DocsDataTable, DocsTabbedTables } from '@/components/docs-data-table';
 
-_Last updated: 2026-06-01_
+_Last updated: 2026-07-21_
 
 This roadmap is the public progress ledger for **OpenCoven**, **Coven**, **CastCodes**, **Cast Agent**, and **Cast Codes**.
 
@@ -77,7 +77,8 @@ The simple promise:
     { item: '`coven doctor` setup checks', status: 'Shipped', area: 'Diagnostics' },
     { item: 'Local daemon lifecycle: `coven daemon start/status/restart/stop`', status: 'Shipped', area: 'Daemon' },
     { item: 'Project-root and cwd boundary guard', status: 'Shipped', area: 'Safety' },
-    { item: 'Built-in Codex and Claude Code harness adapters', status: 'Shipped', area: 'Harnesses' },
+    { item: 'Built-in Codex, Claude Code, Copilot CLI, and Coven Code harness adapters', status: 'Shipped', area: 'Harnesses' },
+    { item: 'Bundled Coven Code engine, pinned and checksum-verified via `engine.lock` and managed by `coven engine install`', status: 'Shipped', area: 'Engine' },
     { item: 'PTY-backed `coven run codex|claude <prompt>` sessions', status: 'Shipped', area: 'Sessions' },
     { item: 'SQLite-backed session metadata and event log', status: 'Shipped', area: 'Store' },
     { item: 'Session browser and rituals: **Rejoin**, **View Log**, **Summon**, **Archive**, **Sacrifice**', status: 'Shipped', area: 'Sessions' },
@@ -92,12 +93,15 @@ The simple promise:
     { item: 'Public install guide for npm, Cargo/source, macOS, Linux, Windows, WSL2, and planned container/Nix paths', status: 'Shipped', area: 'Docs' },
     { item: 'External OpenClaw bridge package kept outside OpenClaw core', status: 'Shipped', area: 'Integration' },
     { item: 'Architecture, operational model, product spec, brand docs, and MVP plan', status: 'Shipped', area: 'Docs' },
+    { item: 'Archival familiar memory crate: local embeddings plus a compressed vector index over `~/.coven/memory/`', status: 'Shipped', area: 'Memory' },
+    { item: 'Multi-host hub control plane with read-only `coven hub`, `coven scheduler`, and `coven travel` inspection commands', status: 'Shipped', area: 'Multi-host' },
+    { item: '`@opencoven/channels` outbound Discord and Telegram connectors for familiars', status: 'Shipped', area: 'Channels' },
     { item: 'Keep versioned daemon API contract and external-client compatibility aligned', status: 'Now', area: 'API' },
     { item: 'Keep public docs aligned with the actual CLI/API surface', status: 'Now', area: 'Docs' },
     { item: 'Turn the MVP checklist into linked GitHub issues/milestones', status: 'Next', area: 'Planning' },
-    { item: 'Generic command adapter after enough real usage', status: 'Later', area: 'Harnesses' },
-    { item: 'Additional harness adapters such as Hermes, Aider, Gemini, OpenCode, or user-defined local harnesses', status: 'Later', area: 'Harnesses' },
-    { item: 'Policy/approval hooks for sensitive actions', status: 'Later', area: 'Safety' },
+    { item: 'User-defined external harness adapters via adapter manifests, including trusted Hermes and Grok recipes', status: 'Shipped', area: 'Harnesses' },
+    { item: 'Additional bundled harness adapters such as Aider, Gemini, or OpenCode', status: 'Later', area: 'Harnesses' },
+    { item: 'Policy/approval hooks for sensitive actions (Ward identity gates exist; API wiring pending)', status: 'Now', area: 'Safety' },
     { item: 'Richer session artifacts and attachments', status: 'Later', area: 'Sessions' },
     { item: 'Phase 1: Handoff protocol and context transfer between harnesses', status: 'Later', area: 'Multi-harness orchestration' },
     { item: 'Phase 2: Capability discovery and intelligent task routing', status: 'Later', area: 'Multi-harness orchestration' },
@@ -287,8 +291,8 @@ Colour coding mirrors maturity: filled lavender is shipped or stabilising; outli
       rows: [
         { item: 'Future harness research started', status: 'Done' },
         { item: 'Adapter contract documented', status: 'Done' },
-        { item: 'Generic command adapter design from real usage', status: 'Open' },
-        { item: 'Third harness proof', status: 'Open' },
+        { item: 'Generic command adapter design from real usage', status: 'Done' },
+        { item: 'Third harness proof', status: 'Done' },
         { item: 'Harness compatibility docs', status: 'Done' },
       ],
     },

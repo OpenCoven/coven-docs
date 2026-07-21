@@ -48,6 +48,19 @@ The minimum fields to make the guarantees above hold.
 }
 ```
 
+### Concrete anchors in the daemon API today
+
+The envelope above is the conceptual contract; the daemon's `coven.daemon.v1` HTTP surface already exposes the concrete fields that dispatch clients negotiate against:
+
+| Concept | Concrete field today | Where |
+| --- | --- | --- |
+| Contract version | `apiVersion` (`"coven.daemon.v1"`) | `GET /api/v1/health` |
+| Binary build (diagnostics only) | `covenVersion` | `GET /api/v1/health` |
+| Feature negotiation | `capabilities` (`sessions`, `events`, `travel`, `scheduler`, `hub`, `executorDispatch`, `eventCursor`, `structuredErrors`) | `GET /api/v1/health` |
+| Per-stream ordering cursor | `eventCursor: "sequence"` capability; events carry a monotonic `seq`, and pages return `nextCursor.afterSeq` + `hasMore` | `GET /api/v1/events` |
+
+The event log's `seq`/`nextCursor.afterSeq` pairing is the same per-stream FIFO idea as the envelope's `seq`: consumers persist the cursor and resume without gaps or reordering.
+
 ## Dispatch rules (orchestrator → familiar)
 
 1. Assign `msg_id` once; **reuse it on every retry** (else dedupe can't work).

@@ -70,7 +70,7 @@ The daemon provides:
 - Attach and replay behavior.
 - Local socket access for clients.
 
-Memory lives above that. A client can summarize a session into persistent memory, index event text into semantic memory, or load selected memories back into a familiar prompt.
+Memory lives above that. A client can summarize a session into persistent memory, index event text into semantic memory, or load selected memories back into a familiar prompt. The semantic layer ships a concrete local implementation — the coven-memory archival index described in [Semantic memory](/docs/memory-models/semantic-memory) — while durable familiar notes live as files under `~/.coven/memory/<familiar>/`, listable with `coven memory`.
 
 ## Related
 

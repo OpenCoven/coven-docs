@@ -4,8 +4,12 @@
   "pages": [
     "list-sessions",
     "create-session",
+    "register-external-session",
     "get-session",
     "send-session-input",
-    "kill-session"
+    "kill-session",
+    "complete-external-session",
+    "get-session-log",
+    "get-session-artifact"
   ]
 }

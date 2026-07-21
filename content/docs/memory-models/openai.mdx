@@ -42,9 +42,9 @@ In every case the session record and event log survive: `coven attach <session-i
 | Session record, status, exit code | Recorded in the ledger. |
 | Codex terminal output, including any error text | Recorded as append-only events. |
 | OpenAI API keys, OAuth tokens, Codex auth files | **Never read, proxied, or stored.** |
-| Model selection and provider configuration | Owned by Codex; Coven does not pass or override models. |
+| Model selection | `coven run --model` forwards a model id to Codex's native `--model` flag; provider configuration and credentials stay with Codex. |
 
-Choosing which OpenAI model Codex uses is Codex configuration, not a `coven run` flag. Coven treats the harness as a black box that writes output.
+Passing `--model` is argv forwarding, not provider access: Coven strips any `openai/` prefix and hands the bare id to Codex. Coven still treats the harness as a black box that writes output.
 
 ## Related
 

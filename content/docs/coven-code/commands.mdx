@@ -1,11 +1,11 @@
 ---
 title: "Commands"
-summary: "Use Coven Code CLI flags, print mode, provider commands, and in-session slash commands."
-description: "Command reference for Coven Code, including CLI flags, headless print mode, provider login commands, slash commands, and daemon-aware /coven workflows."
+summary: "Use Coven Code CLI flags, print mode, provider commands, and the full in-session slash-command catalog."
+description: "Command reference for Coven Code, including CLI flags, headless print mode, provider login commands, the complete slash-command catalog, and daemon-aware /coven workflows."
 read_when:
   - You need Coven Code command examples
   - You want headless or scripted usage
-  - You are looking for /connect, /model, /coven, or /help behavior
+  - You are looking for /connect, /model, /coven, or any other slash command
 ---
 
 ## Shell Commands
@@ -29,6 +29,7 @@ Resume a previous session:
 ```sh
 coven-code --resume
 coven-code --resume <session-id>
+coven-code --continue
 ```
 
 Choose provider, model, and effort:
@@ -39,26 +40,71 @@ coven-code --provider codex --effort high
 coven-code --fallback-model claude-haiku-4-6
 ```
 
-## Core Flags
+## Common Flags
+
+All flags below are defined by the `coven-code` binary itself. Run `coven-code --help` for the authoritative list in your installed version.
+
+### Launch & Session
 
 | Flag | Purpose |
 | --- | --- |
+| `[PROMPT]` | Positional initial prompt. Combined with `--print` or `--headless` it runs one-shot. |
+| `--print`, `-p` | Print mode: send the prompt and exit (non-interactive). |
+| `--continue`, `-c` | Continue the most recent conversation. |
+| `--resume [id]` | Resume a previous session by ID, or the most recent session when the ID is omitted. |
+| `--session-id <id>` | Tag a headless run with a session ID for tracking in logs and hooks. |
+| `--cwd <dir>` | Set the working directory. |
+| `--add-dir <dir>` | Grant Coven access to an additional directory. Repeatable. |
+| `--model <model>`, `-m` | Choose the active model. |
+| `--fallback-model <model>` | Fallback model if the primary model is overloaded or unavailable. |
 | `--provider <provider>` | Select `anthropic` or `codex`. Env: `COVEN_CODE_PROVIDER`. |
-| `--model <model>` | Choose the active model. |
-| `--effort <level>` | Set reasoning effort for supported models: `low`, `medium`, `high`, or `max`. |
-| `--thinking <tokens>` | Set an extended-thinking token budget where supported. |
-| `--resume [id]` | Resume the most recent session or a specific session. |
-| `--print`, `-p` | Run in non-interactive print mode and exit. |
+| `--api-base <url>` | Override the API base URL for the selected provider. Env: `COVEN_CODE_API_BASE`. |
+| `--api-key <key>` | API key for the active provider; overrides provider-specific env vars. |
+| `--agent <name>`, `-A` | Use a named agent profile such as `build`, `plan`, or `explore`. |
+| `--effort <level>` | Effort level for extended thinking: `low`, `medium`, `high`, or `max`. |
+| `--thinking <tokens>` | Extended-thinking budget in tokens (enables extended thinking). |
+
+### Permissions & Safety
+
+| Flag | Purpose |
+| --- | --- |
 | `--permission-mode <mode>` | Use `default`, `accept-edits`, `bypass-permissions`, or `plan`. |
-| `--max-turns <n>` | Stop after a maximum number of agentic turns. |
-| `--system-prompt <text>` | Replace the system prompt. |
-| `--append-system-prompt <text>` | Append extra system instructions. |
-| `--no-claude-md` | Disable AGENTS.md memory file injection. |
+| `--dangerously-skip-permissions` | Bypass all permission checks. Alias: `--yolo`. |
+| `--allowed-tools <tools>` | Comma-separated list of tools to allow (default: all). |
+| `--disallowed-tools <tools>` | Comma-separated list of tools to disallow. |
+| `--max-turns <n>` | Stop after a maximum number of agentic turns (default: 10). |
+| `--max-tokens <n>` | Maximum tokens per response. |
+| `--max-budget-usd <usd>` | Maximum spend in USD before aborting the query loop. |
+
+### Input, Output & Automation
+
+| Flag | Purpose |
+| --- | --- |
 | `--output-format <format>` | Use `text`, `json`, or `stream-json`. |
-| `--api-key <key>` | Override provider key for the active process. |
-| `--api-base <url>` | Override provider base URL. Env: `COVEN_CODE_API_BASE`. |
-| `--agent <name>` | Use a named agent profile such as `build`, `plan`, or `explore`. |
-| `--verbose` | Enable verbose logging. |
+| `--input-format <format>` | Input format for `--print` mode: `text` or `stream-json` (newline-delimited JSON messages). |
+| `--prefill <text>` | Prefill the first assistant turn with this text. |
+| `--headless` | Run without the TUI: non-interactive, structured output. Equivalent to `--print` for input and output handling. |
+| `--context <brief.json>` | Load a session brief (JSON) for fully automated headless runs; implies headless mode. |
+| `--output <result.json>` | Write a structured result envelope (status, branch, commits, files changed, summary) on exit. |
+| `--hosted-review` | Run with hosted review memory isolation. Env: `COVEN_CODE_HOSTED_REVIEW`. |
+| `--hosted-repair` | Hosted repair mode: allow repository file edits but no command execution, plugins, MCP servers, sub-agents, or network tools. Requires `--headless`, `--context`, and `--output`. |
+| `--workload <tag>` | Billing workload tag. |
+| `--verbose`, `-v` | Enable verbose logging. |
+
+### Config & Prompt
+
+| Flag | Purpose |
+| --- | --- |
+| `--system-prompt <text>`, `-s` | Replace the system prompt. |
+| `--append-system-prompt <text>` | Append extra system instructions. |
+| `--system-prompt-file <path>` | Override the system prompt from a file. |
+| `--no-claude-md` | Disable AGENTS.md memory file injection. |
+| `--mcp-config <json>` | Inline MCP server definitions as a JSON string. |
+| `--no-auto-compact` | Disable auto-compaction. |
+| `--auto-commits` | Enable shadow-git auto-commit snapshots, which power `/rewind list`, `/rewind diff`, and turn rollback. |
+| `--betas <headers>` | Extra beta feature headers to send (comma-separated). |
+| `--disable-slash-commands` | Disable all slash commands. |
+| `--bare` | Run in bare mode: no hooks, no plugins, no AGENTS.md. |
 
 ## Provider Commands
 
@@ -72,17 +118,131 @@ coven-code models codex --json
 
 Use `/connect` in the TUI when you prefer an interactive provider picker.
 
-## Slash Commands
+## Key Slash Commands
+
+The commands you will reach for most often:
 
 | Command | Purpose |
 | --- | --- |
-| `/connect` | Connect, import, or switch provider accounts. |
-| `/model` | Open the model picker for the active provider. |
-| `/effort LEVEL` | Set reasoning effort to `low`, `medium`, `high`, or `max`, or open an effort picker with no argument. |
-| `/coven` | Use the local Coven daemon from inside the TUI. |
-| `/help` | Open command and keybinding help. |
-| `/share` | Share a session through an unlisted GitHub Gist when configured. |
-| `/goal OBJECTIVE` | Keep the agent working toward an objective across turns. |
+| `/connect` | Connect an AI provider: connect, import, or switch provider accounts. |
+| `/model` | Show or change the current model with the provider's model picker. |
+| `/effort LEVEL` | Set the model's thinking effort to `low`, `normal`, or `high`. `/effort fast` toggles fast mode (smaller, quicker model). |
+| `/coven` | Drive the local Coven daemon (sessions, harness runs, rituals) from inside the TUI. |
+| `/help` | Show available commands and usage information. Aliases: `/h`, `/?`. |
+| `/export share` | Upload the current session as a secret GitHub gist and return a shareable URL. |
+| `/goal OBJECTIVE` | Set or manage a durable long-running goal for autonomous work across turns. |
+
+## Slash Command Catalog
+
+The full built-in registry, grouped by task. Aliases appear in parentheses.
+
+### Session & Context
+
+| Command | Purpose |
+| --- | --- |
+| `/clear` (`/c`, `/reset`, `/new`) | Clear the conversation history. |
+| `/compact` | Compact the conversation to reduce token usage. |
+| `/resume` (`/r`, `/continue`) | Resume a previous conversation. |
+| `/rewind [list\|diff [n]\|last\|<n>]` | Rewind the conversation or roll back a turn's file changes recorded by the shadow-git snapshot system. |
+| `/session` (`/remote`) | Show or manage conversation sessions. Subcommands: `rename`, `fork`, `branch`, `tag`, `add-dir`. |
+| `/search` | Search across all sessions. |
+| `/export` | Export the conversation to markdown or JSON. Subcommands: `copy [n]`, `share`. |
+| `/status` | Show comprehensive system and session status. `/status doctor` runs the full diagnostic suite. |
+| `/usage` | Show API usage, quotas, and rate limit status. Subcommands: `cost`, `context`, `stats`. |
+| `/memory` | View, edit, or clear AGENTS.md memory files. |
+| `/init` | Initialize a new project with AGENTS.md. |
+| `/tasks` (`/bashes`) | List and manage background tasks. |
+| `/goal` | Set or manage a durable long-running goal for autonomous work. |
+
+### Config & Auth
+
+| Command | Purpose |
+| --- | --- |
+| `/config` (`/settings`) | Show or modify configuration settings. Also hosts `theme`, `keybindings`, `output-style`, `color`, `vim`, `voice`, `statusline`, `terminal-setup`, `import`, and `advisor` subcommands. |
+| `/login` | Authenticate with Anthropic or Codex (multi-account). `/login switch [name]` switches the active account; `/login refresh` clears saved provider auth and model caches. |
+| `/logout` | Clear credentials for the active account. |
+| `/accounts` | List stored Anthropic and Codex accounts. |
+| `/providers` | List available AI providers and their status. |
+| `/connect` | Connect an AI provider. |
+| `/model` | Show or change the current model. |
+| `/effort` | Set the model's thinking effort (`low`, `normal`, `high`). |
+| `/thinking` (`/think`) | Toggle extended thinking mode. `/thinking back [play]` shows or replays extended-thinking traces. |
+| `/permissions` | View or change tool permission settings. |
+| `/config import` | Import CLAUDE.md and settings.json from `~/.claude` (Claude CLI import). |
+| `/status doctor` | Check system health and diagnose issues. |
+
+### Review & Safety
+
+| Command | Purpose |
+| --- | --- |
+| `/review` | Review code changes via LLM and optionally post to a GitHub PR. |
+| `/review security` | Run a security review of the current project (absorbs the former `/security-review`). |
+| `/review ultra` | Run an exhaustive multi-dimensional code review (absorbs the former `/ultrareview`). |
+| `/review comments` | Get comments from a GitHub pull request. |
+| `/diff` | Show the git diff of changes in the working directory. |
+| `/commit` | Ask Coven to commit staged changes. |
+| `/plan` | Enter plan mode: the model outputs a plan for approval before acting. |
+| `/sandbox` | Enable or disable sandboxed execution of shell commands. |
+| `/rewind list` | List assistant turns that have recorded file changes. |
+| `/rewind diff [n]` | Show the shadow-git diff of a turn's file changes without reverting. |
+| `/rewind last` | Revert file changes from the most recent assistant turn back to pre-turn state. |
+
+### Editor & UX
+
+| Command | Purpose |
+| --- | --- |
+| `/config theme` | Show or change the current theme. |
+| `/config keybindings` | Create or open `~/.coven-code/keybindings.json`. |
+| `/config output-style` | Show or switch the current output style. |
+| `/config color` | Set or show the prompt bar color for this session. |
+| `/config vim` | Toggle vim keybinding mode on or off. |
+| `/config voice` | Toggle voice input mode on or off. |
+| `/config statusline` | Configure what is shown in the status line. |
+| `/config terminal-setup` | Help configure your terminal for optimal Coven use. |
+| `/splash` (`/welcome-screen`) | Show, hide, or toggle the empty-session splash screen. |
+| `/export copy [n]` | Copy the (n-th most recent) assistant response to the clipboard. |
+
+### Integrations
+
+| Command | Purpose |
+| --- | --- |
+| `/mcp` | Show MCP server status and manage connections. |
+| `/hooks` | Show configured event hooks. |
+| `/chrome` | Browser automation via the Chrome DevTools Protocol (CDP). |
+| `/plugin` (`/plugins`) | Manage plugins. `/plugin reload` reloads all plugins without restarting. |
+| `/coven` | Drive the local Coven daemon (sessions, harness runs, rituals). |
+| `/link` (`/links`) | Save and manage links in the structured stash. |
+| `/attach` (`/attachments`) | Save and manage file attachments in the structured stash. |
+
+### Agents & Experimental
+
+| Command | Purpose |
+| --- | --- |
+| `/familiar` (`/familiars`, `/agent`) | Your familiar and agents: switch persona, inspect, and manage. `/familiar managed` configures the manager-executor architecture (absorbs the former `/managed-agents` and `/agents`). |
+| `/config advisor` | Set or unset the server-side advisor model. |
+| `/effort fast` | Toggle fast mode, which uses a faster and cheaper model (absorbs the former `/fast`). |
+| `/thinking back [play]` | Show thinking traces from previous responses, or replay one as an animated walkthrough (absorbs the former `/think-back` and `/thinkback-play`). |
+| `/whisper` (`/btw`) | Whisper a side question to your familiar without adding it to history. |
+| `/incant` | Cast a speech incantation: change the model's voice (caveman, rocky) or lift it. |
+| `/learn` (`/scribe`) | Codify a script or workflow you just built into a reusable skill. |
+| `/skills` (`/skill`) | List available skills in `.coven-code/commands/`. |
+
+### General & System
+
+| Command | Purpose |
+| --- | --- |
+| `/help` (`/h`, `/?`) | Show available commands and usage information. |
+| `/exit` (`/quit`, `/q`) | Exit Coven. |
+| `/version` (`/v`) | Show version information. |
+| `/release-notes` (`/whats-new`, `/changelog`) | Show recent Coven highlights. |
+| `/update` (`/upgrade`) | Check for updates and download the latest release. |
+| `/feedback` (`/bug`) | Submit feedback about Coven. |
+
+### Legacy Names & Custom Commands
+
+Several commands were folded into their parent surfaces. Old top-level names such as `/doctor`, `/switch`, `/refresh`, `/copy`, `/share`, `/fork`, `/branch`, `/tag`, `/add-dir`, `/theme`, `/keybindings`, `/output-style`, `/import-config`, `/advisor`, `/fast`, `/think-back`, `/reload-plugins`, `/agents`, `/managed-agents`, and `/pr-comments` remain hidden one-release compatibility aliases; prefer the subcommand forms above. Fully retired names (`/cost`, `/context`, `/stats`, `/color`, `/vim`, `/voice`, `/statusline`, `/terminal-setup`, `/revert`, `/undo`) now live only as subcommands of `/usage`, `/config`, and `/rewind`.
+
+You can extend the registry yourself: user-defined command templates in `~/.coven-code/settings.json` (`commands`), discovered skills, and plugins all contribute additional slash commands. See [Configuration](/docs/coven-code/configuration).
 
 ## Daemon-Aware Commands
 

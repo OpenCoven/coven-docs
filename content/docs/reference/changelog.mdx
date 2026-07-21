@@ -1,9 +1,84 @@
 ---
 title: "Changelog"
-description: "What shipped in each CovenCave release."
+description: "What shipped in each CovenCave release, plus the Coven CLI release stream."
 ---
 
 _Generated from release tags. See [GitHub Releases](https://github.com/OpenCoven/coven-cave/releases) for full diffs and artifacts._
+
+## Coven CLI Releases
+
+The `coven` CLI (npm package `@opencoven/cli`, currently in the 0.0.5x stream) ships on its own faster cadence and is not duplicated entry-by-entry here. See [Coven releases on GitHub](https://github.com/OpenCoven/coven/releases) for the CLI release ledger, and the [Roadmap](/docs/reference/roadmap) for what each stream is working toward.
+
+## CovenCave Releases
+
+---
+
+## v0.1.4 — 2026-07-19
+
+### Home-First, Safer, and Calmer
+
+The Cave now opens on Home with a redesigned navigation and chat interface, a broad security-hardening pass locks down mobile and project surfaces, and a neutral-graphite repaint unifies the design system.
+
+- **Home-first launch** — every fresh launch opens on the Home surface, with sidebar open/collapsed state remembered across launches and surfaces.
+- **Chat and navigation revamp** — icon-rail information architecture, a single command bar, a progressive-disclosure composer, and a chats rail beside the global nav.
+- **First-project onboarding** — a first-project gate with an inline folder picker and project-root guidance.
+- **Rituals and queue** — rituals sidepanel redesign with per-item mute/snooze/done, plus a queue triage toolbar with search, priority bands, and sort.
+- **Dashboard and analytics** — a bento-grid dashboard with a progression band: renown tier, next-rung meter, and ritual streak.
+- **Security lockdown** — mobile access rejected on local-only APIs, SVG familiar avatars rejected, local confirmation required for installs, and timing-safe compares for sidecar token checks.
+- **Neutral-graphite repaint** — the default palette repainted toward neutral graphite with darker default surfaces.
+- **iOS chat performance** — debounced thread persistence, coalesced stream tokens, and cached ISO-8601 parsers.
+- **Fixes** — chat stream-drop recovery, Windows Cave launch and Hermes chat, canvas/board store hardening, and projects allowed anywhere under `$HOME`.
+
+---
+
+## v0.1.3 — 2026-07-18
+
+### A More Capable, Resilient Cave
+
+- **Selectable Coven dispatch modes** — Broadcast sends a prompt to every familiar at once; Round robin advances through the roster one familiar at a time.
+- **Richer chat continuity** — familiar task handoffs route back into chat, and reconnectable stream cursors let desktop and iOS re-attach to live turns without restarting them.
+- **Weaves and progression** — a verified weave graph connects threads to memory; renown tiers and ritual streaks add milestone feedback; Canvas gains an in-grid add flow.
+- **Deeper diagnostics** — filtered chat debug tools with safer exports, daemon status that distinguishes offline from failed checks, and explained mobile-pairing probe steps.
+- **New appearance and model choices** — the OpenAI monochrome theme, a scalable familiar-selection dropdown, and GPT-5.6 variants in the Copilot catalog.
+- **Faster rendering** — unchanged transcripts are no longer reparsed, and route-scoped styles cut the root stylesheet from 886 KiB to 630 KiB.
+- **Thread-backed truth** — daemon adapters become the default for Threads, and dashboard confidence reads from thread self-reports.
+- **Security pass** — user-controlled paths validated before reads or execution, routes fail closed when tokens or loopback guarantees are absent, and toolchain secrets scrubbed at child-process boundaries.
+
+---
+
+## v0.1.2 — 2026-07-16
+
+### A Safer, Leaner Cave
+
+- **Encrypted backup and restore** — export Cave state into a manually controlled encrypted archive and restore it through the new persistence flow.
+- **Voice model registry** — discover speech engines and models and download them with checksum verification.
+- **Threads Phase 4 surfaces** — read plumbing, weave rail, thread pane, strand inspection, and proposal approval.
+- **Multi-host workspace routing** — Omnigent hosts can map their own workspaces for multi-machine runs.
+- **Theme: Snow** — a frost-blue palette on desktop and iOS with contrast-tuned light and dark tokens.
+- **Faster startup** — the familiar glyph catalogue is lazy-loaded and guarded by a production bundle budget.
+- **Lossless Windows home migration** — legacy Cave homes reconcile without overwriting divergent user data.
+- **Security** — unsafe project roots rejected, sidecar-only environment variables scrubbed from child processes, and pending listings fail closed.
+
+---
+
+## v0.1.1 — 2026-07-15
+
+### One Install, a Real Voice
+
+- **One Coven install** — installing `@opencoven/cli` is all a user needs: the unified `coven` CLI downloads, checksum-verifies, pins, and updates the engine itself, so Cave no longer provisions `@opencoven/coven-code` as a second tool.
+- **Native macOS speech recognition** — the desktop shell streams the mic into `SFSpeechRecognizer`, preferring the on-device dictation model, so keyless voice modes work in the packaged app.
+- **Honest ears** — the "Local (on-device)" provider refuses to fall back silently to Apple's cloud dictation, and a live badge shows how each call hears.
+- **ElevenLabs and Familiar-brain voice providers** — voice calls can run as real chat turns through the familiar's own harness runtime, spoken by the system synthesizer or ElevenLabs streaming TTS, with account-backed voice/model pickers.
+- **Homebrew tap** — macOS installs via `brew install --cask opencoven/tap/coven-cave`, kept current from releases.
+- **Marketplace Build** — a template gallery of skill kinds, "Draft with AI" description-to-form drafting, and a dry-run tester that proves a skill's trigger fires.
+- **Crafts and Grimoire** — the craft create drawer waits for the familiar's build and opens the arrived draft for review; sewing can target stitch patterns and file entries into vault collections, with a "Sew in chat" round trip.
+- **Fixes** — recent chats stop disappearing from PR mis-attribution, auto reflections no longer archive live threads, and tool updates can clear stale PATH launchers.
+
+---
+
+## v0.1.0 — 2026-07-12
+
+First minor milestone. Rebuilt marketplace (Capabilities retired, Skills modernized, Crafts agentically buildable), familiar access groups with per-project read/write levels, cross-platform find-anything search, first-class OpenCode runtime support, a bounded research mission desk, and a wide band of chat, settings, performance, and accessibility hardening.
 
 ---
 

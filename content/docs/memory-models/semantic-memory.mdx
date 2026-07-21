@@ -1,10 +1,11 @@
 ---
 title: "Semantic Memory"
-summary: "Semantic memory uses embeddings or related indexing to recall concepts, patterns, and similar past work."
-description: "Semantic memory for meaning-based recall across sessions, docs, project notes, and familiar history."
+summary: "Semantic memory is meaning-based recall, implemented locally by the coven-memory archival layer: fastembed embeddings, a turbovec ANN index, and a SQLite store."
+description: "Semantic memory for meaning-based recall across sessions, docs, project notes, and familiar history, backed by the coven-memory crate."
 read_when:
   - Adding concept-based recall
   - Deciding when embeddings help more than keyword search
+  - Ingesting or searching archival memory from the command line
 ---
 
 Semantic memory is meaning-based recall. It helps a familiar find related past work even when the exact words differ.
@@ -21,8 +22,31 @@ Semantic memory is meaning-based recall. It helps a familiar find related past w
 
 Semantic memory is not an authority source by itself. It returns likely relevant material. The familiar should still read the underlying note, event, or document before acting on it.
 
-## Backend posture
+## The local implementation: coven-memory
 
-Coven does not require one embedding database or hosted vector store. A client can use SQLite extensions, local vector indexes, or a hosted backend. The important contract is that memory search returns bounded, attributable context instead of dumping unrestricted private history.
+OpenCoven ships semantic memory as the `coven-memory` archival layer. It is fully local:
+
+| Component | Implementation |
+| --- | --- |
+| Embeddings | fastembed running `nomic-embed-text-v1.5` (768-dimensional, ONNX). The model downloads once on first run (~270 MB) and is cached; after that, embedding is air-gapped. |
+| Vector index | turbovec `IdMapIndex` with 4-bit compression — a compact approximate-nearest-neighbor index with stable document ids. |
+| Metadata store | SQLite, holding document records: source path, owning familiar, chunk text, chunk offset, content hash for staleness detection, and ingest timestamp. |
+| Default location | `~/.coven/memory/` — `archival.tvim` for the vector index, `archival.sqlite3` for metadata. Override with `--index` and `--db`. |
+
+Every chunk is tagged with the familiar it belongs to, and searches can be scoped to one familiar via an id allowlist, so one familiar's recall does not leak into another's.
+
+## CLI usage
+
+```bash
+coven-memory ingest ./notes --familiar sage     # ingest a file or directory
+coven-memory search "socket metadata staleness" --familiar sage --k 5
+coven-memory status                             # index and db stats
+```
+
+`ingest` chunks and embeds new content (unchanged chunks are skipped via content hash), `search` embeds the query and returns the top `--k` scored chunks with their source paths, and `status` reports how many chunks and vectors are stored. The related `coven memory` command lists familiars' durable note files under `~/.coven/memory/<familiar>/` — the persistent-memory side, not the semantic index.
+
+## Boundary
+
+Embedding and search run in your local process. No provider credentials are involved, and nothing is sent to a hosted embedding API. The important contract stands: memory search returns bounded, attributable context instead of dumping unrestricted private history.
 
 For model-provider credential boundaries, see [Provider boundary](/docs/memory-models/provider-boundary).

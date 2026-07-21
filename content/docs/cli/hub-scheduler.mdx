@@ -1,0 +1,64 @@
+---
+title: "Hub and Scheduling"
+summary: "Inspect the multi-host hub control plane, scheduler decisions, travel handoff state, and the executor-node protocol."
+description: "Reference for coven hub, scheduler, travel, and executor commands."
+read_when:
+  - You run Coven across more than one machine
+  - You are chasing a hub routing or scheduler decision from a terminal
+---
+
+Multi-host Coven splits into a hub (owns queues and routing) and executor nodes (stateless workers). The `hub`, `scheduler`, and `travel` commands are read-only inspection views; the write side of these protocols stays machine-to-machine.
+
+## Hub
+
+`coven hub` inspects the multi-host hub control plane:
+
+```bash
+coven hub status                 # hub role, node availability, queue depth
+coven hub nodes                  # registered executor nodes
+coven hub nodes <node-id>        # one node in detail
+coven hub jobs                   # hub jobs
+coven hub jobs --state queued    # filter by state: queued, assigned, held, completed, failed, cancelled
+coven hub jobs <job-id>          # one job in detail
+coven hub dispatch <job-id>      # executor dispatch record for a job
+coven hub routing                # the job-to-node routing table
+```
+
+Every verb takes `--json` and prints the matching `/api/v1/hub/*` response body unchanged, so scripts and humans read the same contract.
+
+## Scheduler
+
+`coven scheduler` inspects scheduler decisions and loop recovery. Ids come from hub views: `coven hub routing` rows carry a decision id, and redispatch responses carry a loop id.
+
+```bash
+coven scheduler decision <decision-id>   # target, reason, inputs
+coven scheduler loop <loop-id>           # recovery state and preserved subqueue
+```
+
+## Travel
+
+`coven travel` inspects travel-mode handoff state for a client:
+
+```bash
+coven travel state --client <client-id>
+coven travel state --client <client-id> --profile <profile-id>   # add profile freshness
+```
+
+Unknown ids fail closed with the structured API error, mirroring the daemon routes.
+
+## Executor
+
+`coven executor` implements the stateless executor-node side of the protocol. These commands are not meant for interactive use: the hub invokes them over SSH or a private network. Executors never push registration or heartbeats to the hub.
+
+```bash
+coven executor probe     # print this node's availability envelope as JSON
+coven executor run-job   # run one hub-dispatched job from a JSON spec on stdin
+```
+
+`probe` reports the node's role and advertised capabilities (from the optional `~/.coven/executor.json`). `run-job` reads one job spec from stdin, executes it, and replies on stdout with a normalized result envelope that `coven hub dispatch <job-id>` can later show.
+
+## Related
+
+- [Observability commands](/docs/cli/observe) for single-host runtime state.
+- [Daemon lifecycle](/docs/daemon/lifecycle) for the local daemon the hub builds on.
+- [Session lifecycle](/docs/familiars/sessions) for what dispatched work records look like.
