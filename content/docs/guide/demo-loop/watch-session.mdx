@@ -7,7 +7,7 @@ import { Callout } from 'fumadocs-ui/components/callout';
 import { Step, Steps } from 'fumadocs-ui/components/steps';
 import { Mermaid } from '@/components/mermaid';
 
-Once the harness is running, CastCodes streams its output into a pane and reflects state transitions in the agent panel. From the CLI, the same stream is reachable by polling `/api/v1/sessions/<id>/events` with a cursor, or by rejoining the session interactively.
+Once the harness is running, CastCodes streams its output into a pane and reflects state transitions in the agent panel. From the CLI, the same stream is reachable by polling `/api/v1/sessions/<id>/events` with a cursor, or by attaching to the session with `coven attach`.
 
 ## What you see
 
@@ -60,16 +60,19 @@ Once the harness is running, CastCodes streams its output into a pane and reflec
 # Live list with status
 coven sessions
 
-# Tail output for one session
-coven rejoin <session-id>
-
-# Send input to a running session
-echo "y" | coven sessions input <session-id>
+# Replay/follow output for one session
+coven attach <session-id>
 ```
 
-Or via the API directly:
+While attached to a live session, lines you type are forwarded to the running harness — there is no separate CLI input verb. For scripts, send input through the daemon's socket API instead:
 
 ```bash
+# Send input to a running session
+curl --unix-socket "$HOME/.coven/coven.sock" \
+  -X POST -H 'content-type: application/json' \
+  -d '{"data": "y\n"}' \
+  "http://localhost/api/v1/sessions/<id>/input"
+
 # Replayable event stream with afterSeq cursor for resume
 curl --unix-socket "$HOME/.coven/coven.sock" \
   "http://localhost/api/v1/sessions/<id>/events?afterSeq=0"

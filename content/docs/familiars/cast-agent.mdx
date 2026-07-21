@@ -8,7 +8,7 @@ import { Mermaid } from '@/components/mermaid';
 
 Cast Agent is the Coven-native substrate manager and AI agent backend inside CastCodes. It gives the first-party workspace a concrete backend for gateway health, streaming messages, local session visibility, and host-substrate collection.
 
-Cast Agent is a client-side backend, not the daemon authority layer. It can collect context and submit requests, but Coven daemon validation still owns project-root, cwd, harness, session, and action safety.
+Cast Agent is a CastCodes-side, client-side backend — a bridge that lives inside the workspace, not the daemon authority layer. It can collect context and submit requests, but Coven daemon validation still owns project-root, cwd, harness, session, and action safety.
 
 <Mermaid chart={`
 flowchart LR
@@ -41,8 +41,8 @@ The current CastCodes implementation already gives Cast Agent enough shape to do
     { surface: 'Dedicated Tokio runtime', status: 'Implemented', purpose: 'Runs gateway and substrate work off the UI thread.' },
     { surface: 'Gateway health probe', status: 'Implemented', purpose: 'Tracks availability and powers status UI.' },
     { surface: 'Gateway status pill', status: 'Implemented', purpose: 'Shows reachable/degraded state in the agent panel.' },
-    { surface: 'Coven Sessions section', status: 'Implemented', purpose: 'Lists active Coven sessions in the workspace.' },
-    { surface: 'Session click-through', status: 'Implemented', purpose: 'Opens a session row in a new CastCodes tab at the session cwd.' },
+    { surface: 'Coven Sessions list', status: 'Implemented', purpose: 'Read-only sessions list under the transcript in the agent panel; hidden until the gateway answers at least once.' },
+    { surface: 'Session click-through', status: 'Implemented', purpose: 'Clicking a session row opens a new terminal tab whose shell starts at the session cwd; rows without a cwd stay inert.' },
     { surface: 'Streaming responses', status: 'Implemented', purpose: 'Streams gateway message chunks over WebSocket.' },
     { surface: 'Host substrate bridge', status: 'Implemented', purpose: 'Collects active file, panes, cwd, git branch, and diagnostics for gateway requests.' },
   ]}

@@ -13,13 +13,13 @@ The provider credential boundary sits at the harness CLI. Coven launches and sup
 
 <Mermaid chart={`
 flowchart LR
-  User[User] --> Login["codex login / claude doctor"]
+  User[User] --> Login["codex login / claude doctor / copilot login"]
   Login --> CredentialStore[(provider credential store)]
   User --> Coven["coven run"]
   Coven --> Daemon[Coven daemon]
   Daemon --> Harness[Harness PTY]
   Harness --> CredentialStore
-  Harness --> Provider[OpenAI / Anthropic / local runtime]
+  Harness --> Provider[OpenAI / Anthropic / GitHub / local runtime]
   Daemon -. no provider credentials .-> Provider
 `} />
 
@@ -37,6 +37,7 @@ Use the provider's own setup flow:
 ```bash
 codex login
 claude doctor
+copilot login
 coven doctor
 ```
 

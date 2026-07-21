@@ -1,0 +1,86 @@
+---
+title: "Coven Code Harness"
+summary: "Run the bundled Coven Code engine under Coven supervision with harness id coven-code."
+description: "Coven Code engine harness deep dive: engine.lock pinning, managed install, coven engine commands, and how it differs from external harness CLIs."
+read_when:
+  - Setting up the built-in Coven Code engine as a harness
+  - Understanding engine pinning, resolution, and version gating
+---
+
+import { Mermaid } from '@/components/mermaid';
+
+Coven Code is OpenCoven's own agent runtime. Unlike Codex, Claude Code, or Copilot CLI, it is not a third-party install: the `coven` CLI manages the engine binary itself and launches it through the same harness boundary as every external CLI.
+
+| Field | Value |
+| --- | --- |
+| Harness id | `coven-code` |
+| Executable | `coven-code` (`coven-code.exe` on Windows) |
+| Install | `coven engine install` |
+| Provider auth | Inside Coven Code (`/connect`); see [Coven Code providers](/docs/coven-code/providers) |
+| First run | `coven run coven-code "explain this repo"` |
+
+## What makes it different
+
+- **Bundled, not detected.** External harnesses are provider-owned CLIs that Coven finds on `PATH`. The engine is downloaded and verified by `coven engine install` into a Coven-managed directory.
+- **Pinned by `engine.lock`.** Each `coven` build pins one engine release: currently version `0.7.0`, engine contract `1`, with a SHA-256 checksum per platform artifact (Linux x86_64/aarch64, macOS x86_64/aarch64, Windows x86_64). Installs verify the archive checksum before unpacking.
+- **Version-gated.** Coven refuses engines older than its minimum supported version (currently `0.6.1`), which moves independently of the pinned release.
+- **Separate process by license.** The engine is GPL-3.0 while Coven is MIT, so the engine is always launched as a separate process by path — never linked in.
+
+## Engine resolution order
+
+When launching the `coven-code` harness, Coven resolves the binary in this order:
+
+1. `COVEN_ENGINE_BIN` environment override.
+2. Managed install at `~/.coven/engine/<current>/` (the `current` file names the active version).
+3. `coven-code` on `PATH`.
+4. Legacy `~/.coven-code/bin/` installs.
+
+## Management commands
+
+```bash
+coven engine status    # resolved path, source, version, and pin state (--json available)
+coven engine install   # download and install the pinned engine into ~/.coven/engine
+coven engine which     # print the engine binary path coven will use (exit 1 if none)
+```
+
+`coven engine install` accepts `--version <v>` to install a specific release, `--sha256 <hex>` when no built-in pin exists for that version, and `--force` to reinstall.
+
+## Launch shape
+
+```bash
+coven run coven-code "add tests for the parser" --cwd crates/parser
+```
+
+Non-interactive runs use the engine's `--print` mode. The engine composes its own base system prompt, so familiar identity is appended via `--append-system-prompt` rather than replacing the prompt. Model selection maps to `--model`, and `--permission full` / `--permission read-only` map to the engine's kebab-case `--permission-mode bypass-permissions` / `--permission-mode plan`. Additional writable directories map to `--add-dir` (repeatable).
+
+The engine supports Coven's long-lived stream-json mode (`--print --input-format stream-json --output-format stream-json`) with pre-assigned session ids (`--session-id`) and resume (`--resume`). `coven run --think` maps to the engine's `--effort high`; the engine declares no speed levels, so `--speed` warns and continues.
+
+## Supervision flow
+
+<Mermaid chart={`
+sequenceDiagram
+  participant U as User
+  participant C as coven CLI
+  participant D as Coven daemon
+  participant E as Coven Code PTY
+  participant P as Connected provider
+
+  U->>C: coven run coven-code "explain this repo"
+  C->>D: Launch session request
+  D->>D: validate harness id, project root, cwd
+  D->>E: spawn pinned engine in PTY
+  E->>P: provider auth and model calls
+  E-->>D: stdout, stderr, exit
+  D-->>C: session id and status
+`} />
+
+## Common failures
+
+| Symptom | Likely cause | Fix |
+| --- | --- | --- |
+| `coven doctor` reports the engine missing | No engine installed or resolvable | Run `coven engine install`, then `coven engine status`. |
+| Engine rejected as too old | Installed engine is below the minimum supported version | Run `coven engine install` to install the pinned release. |
+| Checksum mismatch during install | Corrupted or tampered download | Retry the install; the pinned SHA-256 must match before unpacking. |
+| Launch rejects cwd | `--cwd` escapes the project root | Use a cwd inside the project. |
+
+For the product itself — the interactive TUI, providers, configuration, and slash commands — see the [Coven Code docs](/docs/coven-code). For shared harness rules, see [Install harness CLIs](/docs/harnesses/installing).

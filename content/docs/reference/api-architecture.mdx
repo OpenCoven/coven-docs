@@ -10,7 +10,7 @@ read_when:
 
 import { DocsDataTable } from '@/components/docs-data-table';
 
-_Last updated: 2026-05-24_
+_Last updated: 2026-07-21_
 
 This page collects the API architecture diagrams that live across the Coven source docs and makes them visible from the docs website in one place. Use it as the visual companion to [Coven Local API](/docs/reference/api), [Client Integration](/docs/familiars/clients), [Session Lifecycle](/docs/familiars/sessions), [Authentication and local access](/docs/reference/auth), and [Safety Model](/docs/reference/safety).
 
@@ -34,7 +34,7 @@ This page collects the API architecture diagrams that live across the Coven sour
 
 ## Route Topology
 
-The public v0 contract is local HTTP over the user's Unix socket. The route prefix is `/api/v1`; legacy unversioned aliases are early-MVP compatibility only.
+The public v1 contract is local HTTP served over the user's Unix socket by default (with an optional loopback-guarded TCP listener via `coven daemon serve --tcp`). The route prefix is `/api/v1`; legacy unversioned aliases are early-MVP compatibility only. The diagram shows the stable v1 core; the daemon also serves first-party control-plane routes (familiars, threads, skills, travel, scheduler, hub) mapped in [Coven Local API](/docs/reference/api#control-plane-surface-map).
 
 ```mermaid
 flowchart LR
@@ -184,7 +184,7 @@ sequenceDiagram
     Daemon-->>Client: 500 pty_spawn_failed
   else PTY spawn ok
     Daemon->>Store: update status=running
-    Daemon-->>Client: 200 SessionRecord
+    Daemon-->>Client: 201 SessionRecord
     PTY-->>Store: append output / exit events
     PTY->>Daemon: process exits with code
     Daemon->>Store: update status=completed|failed, exit_code

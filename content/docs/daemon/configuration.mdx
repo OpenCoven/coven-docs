@@ -24,6 +24,9 @@ The daemon expects this layout:
 | `$COVEN_HOME/coven.sock` | Unix socket for same-user local API access. |
 | `$COVEN_HOME/coven.sqlite3` | SQLite ledger for sessions and append-only events. |
 | `$COVEN_HOME/daemon.json` | Daemon metadata such as pid, start time, and socket path. |
+| `$COVEN_HOME/daemon.lock` | Lifecycle lock (advisory `flock`) that serializes `daemon start`/`stop`/`restart` orchestration so concurrent lifecycle commands cannot race. |
+| `$COVEN_HOME/daemon-serve.lock` | Serve lock held for the whole life of a `daemon serve` process, guaranteeing at most one daemon writes a given SQLite store. |
+| `$COVEN_HOME/daemon-recovery.log` | Append-only, timestamped log of lifecycle and recovery events: startups, terminated duplicate daemons, accept-loop errors, API handler errors, and panics. |
 
 Do not commit this directory. It can contain prompts, model output, local paths, and operational metadata.
 

@@ -14,6 +14,8 @@ const requiredPages = [
   'working-directories',
   'codex',
   'claude-code',
+  'copilot',
+  'coven-code',
   'custom-adapters',
   'troubleshooting',
 ];
@@ -22,11 +24,24 @@ const requiredMentions = [
   'Harness id',
   'codex',
   'claude',
+  'copilot',
+  'coven-code',
   'coven run codex',
   'coven run claude',
+  'coven run copilot',
+  'coven run coven-code',
   'coven doctor',
   'codex login',
   'claude doctor',
+  'copilot login',
+  'coven engine install',
+  'engine.lock',
+  'coven adapter install',
+  'COVEN_HARNESS_ADAPTER_MANIFEST',
+  'COVEN_HARNESS_ADAPTER_DIRS',
+  'grok',
+  'hermes',
+  'XAI_API_KEY',
   'Provider credentials',
   'project root',
   'working directory',
@@ -64,7 +79,7 @@ if (harnessMeta.title !== 'Harnesses') {
   fail('content/docs/harnesses/meta.json must use title "Harnesses".');
 }
 
-if (harnessMeta.description !== 'Codex and Claude Code Adapters') {
+if (harnessMeta.description !== 'Codex, Claude Code, Coven Code, and Copilot Adapters') {
   fail('content/docs/harnesses/meta.json description must describe the harness deep-dive section.');
 }
 

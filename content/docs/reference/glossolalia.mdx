@@ -84,6 +84,52 @@ These terms describe what exists while Coven is running work.
   ]}
 />
 
+## Familiar Capabilities
+
+These terms name what a familiar can carry, learn, and be forbidden from changing.
+
+<GlossolaliaConceptMap
+  caption="Familiar capability terms"
+  eyebrow="What a familiar carries"
+  intro="Use these names for the skill, craft, knowledge, and boundary layers that travel with a familiar rather than with one harness process."
+  searchPlaceholder="Filter capability terms..."
+  pathways={[
+    ['Skill', 'Craft'],
+    ['Stitch', 'Ward'],
+  ]}
+  rows={[
+    { term: 'Skill', definition: "A reusable instruction package (a `SKILL.md`) that teaches a familiar a repeatable procedure. Coven lists installed skills from `~/.coven/skills/` via `coven skills`, and Cave's marketplace Build tab drafts, enhances, and dry-run-tests new ones.", why: 'Skills make capability portable and reviewable instead of buried in prompts.', related: 'Craft, Familiar, CovenCLI' },
+    { term: 'Craft', definition: "A composed capability bundle in Cave's marketplace: a draft that gathers skills, tools, MCP servers, plugins, and workflows for a role, buildable agentically from a description.", why: 'Crafts name the unit above single skills, so a role can be equipped in one reviewable piece.', related: 'Skill, Familiar, Cave' },
+    { term: 'Stitch', definition: "A durable Knowledge Vault entry sewn from a thread of pins in Cave's Grimoire. A pin is one captured source fragment (URL, paste, file, chat, GitHub content, or memory section); a thread is the working trail of pins; the stitch is the distilled entry with pin provenance in its frontmatter.", why: 'Stitches keep familiar knowledge distilled and attributable instead of an unbounded archive.', related: 'Familiar, Cave, Store' },
+    { term: 'Ward', definition: "The enforcement mechanism for a familiar's protected surface: a versioned `ward.toml` declaring protected files, editable surfaces, and approval tiers, inspected and migrated with `coven ward`.", why: 'The Ward is enforced by an authority layer separate from the familiar, so a familiar cannot exempt itself or rewrite its own identity.', related: 'Familiar, Authority Boundary, Trust Root' },
+  ]}
+/>
+
+## Runtime Expansion
+
+These terms name the pieces that extend the local runtime beyond one machine and one bundled harness.
+
+<GlossolaliaConceptMap
+  caption="Runtime expansion terms"
+  eyebrow="Beyond one machine"
+  intro="Use these names for the engine, adapter, multi-host, and chat-surface layers that grew around the core daemon."
+  searchPlaceholder="Filter expansion terms..."
+  pathways={[
+    ['Engine', 'Adapter'],
+    ['Hub', 'Scheduler', 'Travel Mode'],
+    ['Relay', 'Channels'],
+  ]}
+  rows={[
+    { term: 'Engine', definition: 'The bundled Coven Code harness (`coven-code`) that the unified CLI manages itself: downloaded, checksum-verified, and pinned via `engine.lock`, installed with `coven engine install`.', why: 'Installing `@opencoven/cli` is all a user needs; the engine is CLI-managed runtime, not a second tool to install by hand.', related: 'Harness, CovenCLI, Adapter' },
+    { term: 'Adapter', definition: 'A harness command spec that tells Coven how to launch a coding CLI. Codex, Claude Code, Coven Code, and Copilot CLI ship built in; external adapters load from manifest files, including trusted Hermes and Grok recipes under `COVEN_HOME`.', why: 'Built-ins and manifest adapters travel the same code path, so users can add harnesses without forking Coven.', related: 'Harness, Engine, Capability' },
+    { term: 'Hub', definition: 'The multi-host control plane that tracks executor nodes, queue depth, and jobs across machines, inspected read-only with `coven hub status/nodes/jobs`.', why: 'The hub names the layer where work is routed between hosts rather than within one daemon.', related: 'Scheduler, Travel Mode, Daemon' },
+    { term: 'Scheduler', definition: 'The multi-host decision layer that picks a target node for a job and records why, inspected with `coven scheduler decision` and `coven scheduler loop` for loop recovery state.', why: 'Scheduler decisions stay inspectable records, not silent routing.', related: 'Hub, Daemon, Session' },
+    { term: 'Travel Mode', definition: 'The handoff state machine for a client moving between hosts, inspected with `coven travel state --client`.', why: 'Travel names the transition state so a moving client is debuggable mid-handoff.', related: 'Hub, Scheduler, Client' },
+    { term: 'Relay', definition: 'The stateless WebSocket relay (`coven-relay`, deployed at relay.opencoven.dev) that bridges a Mac-hosted Coven gateway to iOS clients.', why: 'The relay is dumb transport: it forwards traffic and holds no session state, leaving authority with the daemon.', related: 'Daemon, Hub, Client' },
+    { term: 'Channels', definition: 'The `@opencoven/channels` connectors that let any familiar post outbound to chat surfaces — Discord and Telegram first — using 1Password-referenced bot tokens and logical target names.', why: 'Channels are harness-agnostic delivery, with per-familiar identity expressed in the message rather than per-familiar bots.', related: 'Familiar, Client, Relay' },
+  ]}
+/>
+
 ## APIs / Interfaces
 
 These terms describe how clients and integrations talk to Coven.

@@ -18,6 +18,16 @@ Memory search is how a familiar finds relevant prior context. It should be scope
 | Timeline search | Recent events and session chronology. |
 | Manual pinned memory | Hard rules and durable preferences. |
 
+## Semantic search entrypoint
+
+The semantic mode is implemented by the local `coven-memory` archival layer — fastembed `nomic-embed-text-v1.5` embeddings over a turbovec ANN index with SQLite metadata under `~/.coven/memory/`:
+
+```bash
+coven-memory search "why did the daemon drop events" --familiar sage --k 5
+```
+
+Results are scored chunks with their source paths and owning familiar. Scoping with `--familiar` restricts the search to that familiar's ingested documents via an id allowlist. See [Semantic memory](/docs/memory-models/semantic-memory) for the full stack and ingest workflow.
+
 ## Safety rules
 
 - Search only the memory scope the current surface is allowed to see.
@@ -28,6 +38,6 @@ Memory search is how a familiar finds relevant prior context. It should be scope
 
 ## Relationship to sessions
 
-The session ledger and event log are useful evidence sources, but not every event should enter memory search. Clients should index curated notes, summaries, and selected event text according to the familiar's privacy and retention rules.
+The session ledger and event log are useful evidence sources, but not every event should enter memory search. Clients should index curated notes, summaries, and selected event text — `coven-memory ingest <path> --familiar <name>` is the ingestion verb — according to the familiar's privacy and retention rules.
 
 See [Episodic memory](/docs/memory-models/episodic-memory) and [Semantic memory](/docs/memory-models/semantic-memory).

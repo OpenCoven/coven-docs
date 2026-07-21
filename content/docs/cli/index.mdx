@@ -1,6 +1,6 @@
 ---
 title: "CLI Reference"
-summary: "The command map for Coven's local CLI: install, doctor, daemon, run, sessions, patch, and pressure diagnostics."
+summary: "The command map for Coven's local CLI: sessions, observability, hub and scheduling, engine and auth, and repo workflow."
 description: "First-class reference for the coven command and the current Coven CLI command surface."
 read_when:
   - You want copy-paste Coven commands
@@ -13,18 +13,24 @@ Run `coven` with no arguments when you want the guided interactive shell. Use ex
 
 ## Command map
 
+Every row below is a real top-level `coven` verb. Grouped reference pages cover subcommands, flags, and examples.
+
+### Core and sessions
+
 | Command | Use it for |
 | --- | --- |
 | `coven` | Open the interactive chat/shell when stdin/stdout are a terminal. |
-| `coven tui` | Explicitly open the slash-command TUI. |
-| `coven doctor` | Check store, project, daemon, socket, and harness readiness. |
+| `coven chat` | Open the interactive Coven UI explicitly (requires the coven-code engine). |
+| `coven tui` | Same as `coven chat`. See [Interactive shell](/docs/cli/interactive). |
+| `coven doctor` | Check local setup and print next steps; exits 1 when a blocking problem is found. |
+| `coven completions <shell>` | Generate shell completions (bash, zsh, fish, elvish, powershell). |
 | `coven daemon start` | Start the local daemon process. |
 | `coven daemon status` | Inspect daemon pid, socket, and health state. |
 | `coven daemon restart` | Rebind the local socket after changes or stale state. |
 | `coven daemon stop` | Stop the local daemon. |
 | `coven run codex "fix tests"` | Launch a project-scoped Codex harness session. |
 | `coven run claude "polish this UI"` | Launch a project-scoped Claude Code harness session. |
-| `coven sessions` | Browse, rejoin, view, archive, summon, or sacrifice sessions. |
+| `coven sessions` | Browse, attach, view, archive, summon, or sacrifice sessions. |
 | `coven sessions --all` | Include archived sessions. |
 | `coven sessions --manage` | Force the interactive session browser. |
 | `coven sessions --plain` | Print a plain table for scripts or copying. |
@@ -33,8 +39,59 @@ Run `coven` with no arguments when you want the guided interactive shell. Use ex
 | `coven summon <session-id>` | Restore an archived session, then attach. |
 | `coven archive <session-id>` | Hide a completed session while preserving events. |
 | `coven sacrifice <session-id> --yes` | Permanently delete a non-running session and its event log. |
-| `coven patch openclaw` | Launch the guided OpenClaw repair flow. |
-| `coven pc` | Inspect local machine pressure and recovery options. |
+| `coven kill <session-id>` | Kill a running session's process; its event log is kept. |
+| `coven patch openclaw` | Launch the guided repair flow for a registered repo. |
+
+### Observability and store maintenance
+
+| Command | Use it for |
+| --- | --- |
+| `coven status` | Show what's happening across your coven: daemon, sessions, familiars, skills, research, hub. |
+| `coven familiars` | List the familiar roster from `~/.coven/familiars.toml`. |
+| `coven skills` | List installed skills from `~/.coven/skills/`. |
+| `coven memory` | List familiar memory files from `~/.coven/memory/`. |
+| `coven research` | Show the research loop log from `~/.coven/research/`. |
+| `coven calls` | Show the Coven Calls delegation ledger. |
+| `coven logs prune` | Manage local log retention. |
+| `coven vacuum` | Repair and compact the local Coven session store. |
+| `coven pc` | Diagnose and relieve macOS system pressure. See [PC Diagnostics](/docs/cli/pc). |
+
+All of these except `coven pc` are covered on [Observability commands](/docs/cli/observe).
+
+### Hub and scheduling
+
+| Command | Use it for |
+| --- | --- |
+| `coven hub` | Inspect the multi-host hub control plane (read-only). |
+| `coven scheduler` | Inspect multi-host scheduler decisions and loop recovery (read-only). |
+| `coven travel` | Inspect travel-mode handoff state (read-only). |
+| `coven executor` | Stateless executor-node protocol commands, hub-dispatched over SSH or a private network. |
+
+Covered on [Hub and scheduling](/docs/cli/hub-scheduler).
+
+### Engine and auth
+
+| Command | Use it for |
+| --- | --- |
+| `coven engine` | Manage the Coven engine (the interactive agent runtime). |
+| `coven auth` | Manage model provider credentials (Anthropic, Codex) — runs in the Coven engine. |
+| `coven models` | List available models — runs in the Coven engine. |
+| `coven acp` | Start the Agent Client Protocol server (stdio JSON-RPC) — runs in the Coven engine. |
+| `coven code` | Run any Coven engine subcommand directly (escape hatch). |
+
+Covered on [Engine and auth](/docs/cli/engine-auth).
+
+### Repo workflow
+
+| Command | Use it for |
+| --- | --- |
+| `coven wt` | Create, list, diagnose, and prune Coven worktrees. |
+| `coven claim` | Manage TTL-bounded agent branch claims. |
+| `coven hooks install` | Install Coven Parallel Work Protocol git hooks. |
+| `coven ward` | Inspect and migrate Ward configuration. |
+| `coven adapter` | List and diagnose harness adapters. |
+
+Covered on [Repo workflow](/docs/cli/repo-workflow).
 
 ## What owns what
 
@@ -47,6 +104,10 @@ Use these references together:
 - [Daemon commands](/docs/cli/daemon) for local process lifecycle.
 - [Run](/docs/cli/run) for project-scoped harness sessions.
 - [Sessions](/docs/cli/sessions) for attach, archive, summon, and sacrifice.
+- [Observability commands](/docs/cli/observe) for status, familiars, skills, memory, research, calls, logs, and vacuum.
+- [Hub and scheduling](/docs/cli/hub-scheduler) for hub, scheduler, travel, and executor.
+- [Engine and auth](/docs/cli/engine-auth) for engine, auth, models, acp, and code.
+- [Repo workflow](/docs/cli/repo-workflow) for wt, claim, hooks, ward, and adapter.
 - [Daemon lifecycle](/docs/daemon/lifecycle) for the process and socket authority model.
 - [Session lifecycle](/docs/familiars/sessions) for status and archive semantics.
 

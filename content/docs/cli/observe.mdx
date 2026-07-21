@@ -1,0 +1,72 @@
+---
+title: "Observability Commands"
+summary: "Read-only terminal views of your coven — status, familiars, skills, memory, research, calls — plus log retention and store repair."
+description: "Reference for coven status, familiars, skills, memory, research, calls, logs prune, and vacuum."
+read_when:
+  - You want to see what your coven is doing without opening a dashboard
+  - You are tuning local log retention or repairing the session store
+---
+
+These commands are read-only views of the same state the daemon API serves. They work without a running daemon — they read the same `~/.coven` files and SQLite store — and each takes `--json` for machine-readable output that carries the same body as the corresponding daemon API route.
+
+| Command | Human view | `--json` body |
+| --- | --- | --- |
+| `coven status` | Ecosystem overview | Composition of `GET /api/v1/health` and `GET /api/v1/overview` |
+| `coven familiars` | Familiar roster table | `GET /api/v1/familiars` |
+| `coven familiars <id>` | One familiar's Ward surface (tiers, protected paths) | `GET /api/v1/familiars/:id/ward` |
+| `coven skills` | Skill inventory | `GET /api/v1/skills` |
+| `coven memory` | Familiar memory file table | `GET /api/v1/memory` |
+| `coven research` | Research loop log | `GET /api/v1/research` |
+| `coven calls` | Delegation ledger (pass an id for a detail view) | `GET /api/v1/coven-calls` |
+
+## Status
+
+`coven status` (alias `coven overview`) is the "what is my coven doing" front door. It complements `coven doctor` — is my *setup* healthy? — with runtime state: daemon liveness, open sessions, active familiars, installed skills, research iterations, and hub node availability when executor nodes are registered.
+
+```bash
+coven status
+coven status --json   # { "health": ..., "overview": ... }
+```
+
+## Roster, skills, memory, research, calls
+
+```bash
+coven familiars            # roster from ~/.coven/familiars.toml
+coven familiars charm      # one familiar's declared Ward surface (tiers)
+coven skills               # installed skills from ~/.coven/skills/
+coven memory               # familiar memory files from ~/.coven/memory/
+coven research             # research loop log from ~/.coven/research/
+coven calls                # Coven Calls delegation ledger
+coven calls <call-id>      # one call in detail
+```
+
+Each command's empty state points at the file or flow that populates it, so a fresh install can navigate the ecosystem without reading source.
+
+## Log retention
+
+`coven logs prune` applies both local retention windows: raw artifacts (short window) and redacted session events.
+
+```bash
+coven logs prune --dry-run                    # report what would be pruned
+coven logs prune                              # prune expired rows
+coven logs prune --raw-days 3 --event-days 14 # override the windows
+```
+
+Both windows are clamped to at least 1 day. Flags win over configured defaults.
+
+## Store repair
+
+`coven vacuum` repairs and compacts the local session store (`~/.coven/coven.sqlite3`): it rebuilds the full-text event index when needed and runs a SQLite integrity check.
+
+```bash
+coven vacuum
+```
+
+Run it when `coven sessions search` misbehaves or after unclean shutdowns.
+
+## Related
+
+- [Sessions](/docs/cli/sessions) for session listing and rituals.
+- [Doctor](/docs/cli/doctor) for setup checks rather than runtime state.
+- [Daemon observability](/docs/daemon/observability) for the daemon-side view.
+- [Session lifecycle](/docs/familiars/sessions) for status semantics.

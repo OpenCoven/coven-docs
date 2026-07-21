@@ -1,7 +1,7 @@
 ---
 title: "Models"
 summary: "Coven is not a model gateway. Harnesses own model provider access."
-description: "Model access overview for Coven: OpenAI through Codex, Anthropic through Claude Code, local models through future harnesses, and no daemon credential ownership."
+description: "Model access overview for Coven: OpenAI through Codex, Anthropic through Claude Code, GitHub through Copilot CLI, local models, and no daemon credential ownership."
 read_when:
   - Auditing where model calls happen
   - Deciding how a familiar should reach a provider
@@ -15,12 +15,16 @@ Coven is not a model gateway. It does not store provider credentials, route mode
 | --- | --- |
 | OpenAI | Through the [Codex harness](/docs/harnesses/codex). |
 | Anthropic | Through the [Claude Code harness](/docs/harnesses/claude-code). |
-| Google | Future adapter direction; not current v0 support. |
-| Local models | Future/local harness direction; not a daemon credential feature. |
+| GitHub | Through the [Copilot CLI harness](/docs/harnesses/copilot). |
+| Connected providers in Coven Code | Through the bundled [Coven Code harness](/docs/harnesses/coven-code); credentials live in the engine's own auth store. |
+| xAI | Through the `grok` [adapter recipe](/docs/harnesses/custom-adapters); auth via `grok login` or `XAI_API_KEY` in the harness's environment. |
+| Local models | Local embeddings ship today in the coven-memory archival layer; local-model agents arrive through [adapter manifests](/docs/harnesses/custom-adapters). See [Local models](/docs/memory-models/local-models). |
 
 ## What Coven sees
 
 Coven sees harness process output and exits. It does not see provider API requests unless the harness prints them. It does not need API keys to launch a session.
+
+`coven run --model <id>` is a launch convenience, not provider access: Coven strips any `provider/` prefix and forwards the bare id to the harness's native model flag (for example `codex --model` or `claude --model`). The harness still authenticates and calls the provider itself.
 
 ## Client rule
 

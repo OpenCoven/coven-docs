@@ -18,6 +18,8 @@ coven run codex "audit the API package" --cwd packages/api
 
 The effective working directory must canonicalize inside the session's project root.
 
+The daemon enforces this itself: it canonicalizes the requested project root, resolves the cwd (relative values are joined onto the root), canonicalizes the result — following symlinks — and rejects the launch unless the resolved cwd equals the root or sits strictly inside it. Clients cannot bypass the check by sending pre-resolved paths.
+
 | Input | Expected result |
 | --- | --- |
 | `--cwd packages/api` | Allowed when `packages/api` is inside the project root. |

@@ -1,7 +1,7 @@
 ---
 title: "Provider Auth Boundary"
 summary: "Provider credentials stay with each harness CLI. Coven never stores, proxies, or mints provider tokens."
-description: "Security boundary for OpenAI, Anthropic, and future provider credentials when running harnesses through Coven."
+description: "Security boundary for OpenAI, Anthropic, GitHub, xAI, and other provider credentials when running harnesses through Coven."
 read_when:
   - Auditing where OpenAI or Anthropic credentials live
   - Deciding whether a client should send provider tokens to Coven
@@ -9,7 +9,7 @@ read_when:
 
 import { Mermaid } from '@/components/mermaid';
 
-Provider credentials stay with the harness. Coven supervises a PTY; it does not become OpenAI, Anthropic, or any future provider's credential layer.
+Provider credentials stay with the harness. Coven supervises a PTY; it does not become OpenAI, Anthropic, GitHub, xAI, or any other provider's credential layer.
 
 ## Rule
 
@@ -19,6 +19,12 @@ Coven never stores, proxies, persists, or mints provider credentials.
 | --- | --- | --- |
 | `codex` | `codex login` | Codex CLI and OpenAI's local auth flow |
 | `claude` | `claude doctor` | Claude Code and Anthropic's local auth flow |
+| `copilot` | `copilot login` | Copilot CLI and GitHub's local auth flow |
+| `coven-code` | `/connect` inside Coven Code | The engine's own local auth store; see [Coven Code providers](/docs/coven-code/providers) |
+| `grok` (adapter recipe) | `grok login`, or `XAI_API_KEY` for headless auth | Grok Build CLI and xAI's local auth flow |
+| `hermes` (adapter recipe) | Hermes' own local setup | Hermes Agent CLI |
+
+The `XAI_API_KEY` environment variable is read by the Grok Build CLI itself, in its own process environment. It is not a Coven setting, and Coven never asks for it.
 
 ## Credential path
 

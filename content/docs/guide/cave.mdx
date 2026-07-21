@@ -6,11 +6,13 @@ description: "The desktop home for your Coven — a native workspace for talking
 import { Cards, Card } from 'fumadocs-ui/components/card';
 import { DocsDataTable } from '@/components/docs-data-table';
 
-**Cave** is OpenCoven's native desktop application. It is the place where your familiars live and where you go to be with them — to talk, watch what they're doing, and follow their work across sessions.
+**Cave** is OpenCoven's native desktop and mobile home. It is the place where your familiars live and where you go to be with them — to talk, watch what they're doing, and follow their work across sessions.
 
 A [familiar](/docs/familiars/what-is-a-familiar) is not a chat window. It has a name, a purpose, a memory, a toolset, and a place in your day. Cave is the surface that makes that visible.
 
 Cave is local-first. It talks to the `coven` daemon on your machine over a Unix socket at `~/.coven/coven.sock`. There is no cloud, no upstream, no remote authority.
+
+Because Cave runs as a native app rather than a browser tab, it can do things a web page can't: spawn local terminal and browser panes, drive local agent sessions through a sidecar, persist state offline, and hand a live session off to your phone over Tailscale.
 
 ## What Cave Is
 
@@ -31,6 +33,37 @@ Cave is local-first. It talks to the `coven` daemon on your machine over a Unix 
   ]}
 />
 
+Chat routes work through local agent sessions, with multi-session coordination when several familiars are working at once.
+
+## Work Surfaces
+
+As of Cave 0.1.4, chat is one surface among many. The same app carries task tracking, GitHub triage, knowledge browsing and authoring, automation, and mobile access — one row per capability below, grouped by area.
+
+<DocsDataTable
+  caption="Cave work surfaces"
+  searchPlaceholder="Filter work surfaces..."
+  columns={[
+    { key: 'surface', label: 'Surface' },
+    { key: 'group', label: 'Group', filter: true },
+    { key: 'what', label: 'What it does' },
+  ]}
+  rows={[
+    { surface: 'GitHub triage', group: 'GitHub', what: 'Review GitHub activity, PRs, and issues inline and feed them straight into familiar work.' },
+    { surface: 'Board', group: 'Tasks', what: 'Manage tasks on a board surface, with bulk edits and undo.' },
+    { surface: 'Gantt', group: 'Tasks', what: 'Track the same tasks on a Gantt timeline surface.' },
+    { surface: 'Reminders and reports', group: 'Tasks', what: 'Browse reminders, calendars, and daily/retro reports.' },
+    { surface: 'Workflows and automations', group: 'Automation', what: 'Run and inspect OpenCoven workflows, automations, and marketplace-seeded catalog data.' },
+    { surface: 'Memory, vault, and libraries', group: 'Knowledge', what: 'Browse project sessions, local libraries, the knowledge vault, and marketplace packages in one place.' },
+    { surface: 'Authoring surfaces', group: 'Knowledge', what: 'Turn intent into durable artifacts: stitches (pins sewn into Knowledge Vault entries), skills (Marketplace Build producing a SKILL.md), and crafts (role loadouts drafted into installable bundles).' },
+    { surface: 'Terminal panes', group: 'Local surfaces', what: 'Launch desktop-local terminal panes through the Cave sidecar, right inside the app window.' },
+    { surface: 'Browser panes', group: 'Local surfaces', what: 'Launch desktop-local browser panes through the Cave sidecar, next to chat and sessions.' },
+    { surface: 'Speech', group: 'Local surfaces', what: 'OS-level speech integration provided by the Tauri shell, with voice routes in the app.' },
+    { surface: 'Sidecar', group: 'Local surfaces', what: 'A local sidecar process behind the app drives local agent sessions and the terminal/browser panes.' },
+    { surface: 'Mobile handoff', group: 'Mobile', what: 'Hand the app off to a phone over Tailscale for LAN/remote device access.' },
+    { surface: 'Native iOS client', group: 'Mobile', what: 'A dedicated SwiftUI iOS client (shipped through TestFlight) with its own chat, code, tasks, and feed tabs.' },
+  ]}
+/>
+
 ## Cave and CastCodes
 
 Cave is **not** a replacement for [CastCodes](/docs/guide/cast-codes). They are siblings, with different jobs:
@@ -44,7 +77,7 @@ Cave is **not** a replacement for [CastCodes](/docs/guide/cast-codes). They are 
     { key: 'best_for', label: 'Best for' },
   ]}
   rows={[
-    { client: '**Cave**', shape: 'Desktop app (Tauri 2)', best_for: 'Talking to familiars, watching tools, inspecting memory, ambient presence.' },
+    { client: '**Cave**', shape: 'Desktop + mobile app (Tauri 2 / SwiftUI)', best_for: 'Talking to familiars, tracking tasks and GitHub work, browsing memory and libraries, ambient presence.' },
     { client: '**CastCodes**', shape: 'Terminal + code workspace', best_for: 'Running Cast Codes, code review, editing, and the demo loop.' },
     { client: '**`coven` CLI/TUI**', shape: 'Command line', best_for: 'Daemon control, scripting, and headless workflows.' },
   ]}
@@ -56,15 +89,25 @@ Both clients submit structured requests to the same Coven daemon. The daemon rem
 
 | Layer | Tech |
 |-------|------|
-| Native shell | Tauri 2 (macOS / Windows / Linux) |
-| Frontend | Next.js 16 (App Router, Turbopack) |
+| Native shell | Tauri 2 (macOS / Windows / Linux) — window and updater, pty terminal, browser pane, speech, sidecar archive |
+| Frontend | Next.js 16 (App Router) + React 19 + TypeScript |
 | Styles | Tailwind v4 |
+| Native mobile | SwiftUI iOS client (`apps/ios/CovenCave`) |
+| Mobile handoff | Tailscale |
 | Terminal | xterm.js |
 | IPC | Unix socket → `~/.coven/coven.sock` |
 
-## Install (Development)
+## Install
 
-Cave is in early development. To run from source:
+On macOS, install from the OpenCoven Homebrew tap — the cask ships the same signed and notarized DMG as the release pipeline:
+
+```bash
+brew install --cask opencoven/tap/coven-cave
+```
+
+Direct macOS, Windows, and Linux builds (plus update metadata and checksums) are on the [releases page](https://github.com/OpenCoven/coven-cave/releases/latest). The iOS client ships through TestFlight.
+
+To run from source instead:
 
 ```bash
 git clone https://github.com/OpenCoven/coven-cave.git

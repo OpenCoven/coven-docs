@@ -1,6 +1,6 @@
 {
   "title": "Reference",
-  "description": "API, Authentication, and Safety",
+  "description": "API, authentication, safety, and operational reference",
   "root": true,
   "icon": "LuCode",
   "pages": [
@@ -11,7 +11,10 @@
     "safety",
     "glossolalia",
     "docs-platform",
-    "research-coven-github-agent",
+    "coven-github-agent",
+    "familiar-contract",
+    "coven-relay",
+    "channels",
     "issue-plan",
     "migration-map",
     "roadmap",

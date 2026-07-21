@@ -12,7 +12,7 @@ A Coven session is always scoped to a project root — an absolute path on this 
 
 ## What "project root" means
 
-Coven's daemon will refuse any session whose harness `cwd` does not canonicalize inside the requested `projectRoot`. The project root you open in CastCodes is the same string you would pass to `coven run --project <root>` or to a `POST /api/v1/sessions` request.
+Coven's daemon will refuse any session whose harness `cwd` does not canonicalize inside the requested `projectRoot`. The project root you open in CastCodes is the same path `coven run` derives from the directory you run it in, and the same string you would pass as the `projectRoot` field of a `POST /api/v1/sessions` request.
 
 <Files>
   <Folder name="example-project" defaultOpen>
@@ -48,7 +48,7 @@ Anything inside `example-project/` is a valid `cwd`. Anything outside is rejecte
 
     > TODO: CastCodes UI specifics — exact label for the project picker (currently "Open Project"?), keyboard shortcut, whether dragging a folder onto the dock works, and where the project root is stored in user preferences.
 
-    Once opened, the project root appears in the CastCodes sidebar and is the implicit `--project` for every agent pane launched from this window.
+    Once opened, the project root appears in the CastCodes sidebar and is the implicit project root for every agent pane launched from this window.
   </Step>
 
   <Step>
@@ -62,11 +62,15 @@ Anything inside `example-project/` is a valid `cwd`. Anything outside is rejecte
 
 ## CLI equivalent
 
-There is no separate "open project" command in Coven. The project root is just an argument:
+There is no separate "open project" command in Coven. The CLI derives the project root from the directory you run it in:
 
 ```bash
-# `coven run` accepts an absolute path; if omitted, the cwd is used.
-coven run codex --project ~/code/example-project "fix the failing tests"
+# `coven run` uses your current directory (canonicalized) as the project root.
+cd ~/code/example-project
+coven run codex "fix the failing tests"
+
+# --cwd picks a working directory for the harness inside the project.
+coven run codex "fix the failing tests" --cwd packages/app
 ```
 
 ## Handshake (under the hood)

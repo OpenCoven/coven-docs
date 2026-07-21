@@ -1,13 +1,13 @@
 ---
 title: "Socket API"
-summary: "The local HTTP-over-Unix-socket API: health, capabilities, versioning, endpoints, and structured errors."
-description: "Reference for the Coven daemon socket API under /api/v1, including health, capability negotiation, versioning, endpoint families, and the structured error envelope."
+summary: "The local HTTP API over the Unix socket (and guarded loopback TCP): health, capabilities, versioning, endpoints, and structured errors."
+description: "Reference for the Coven daemon socket API under /api/v1, including health, capability negotiation, versioning, endpoint families, the control-plane surface map, and the structured error envelope."
 read_when:
   - Building a client for the Coven daemon
   - Auditing the local /api/v1 contract
 ---
 
-The daemon exposes a small HTTP API over a Unix socket. The current public contract is `coven.daemon.v1` under the `/api/v1` prefix.
+The daemon exposes an HTTP API over a Unix socket. The current public contract is `coven.daemon.v1` under the `/api/v1` prefix.
 
 The socket is local by default:
 
@@ -17,6 +17,16 @@ curl --unix-socket "$HOME/.coven/coven.sock" \
 ```
 
 For the full endpoint reference, see [Coven local socket API](/docs/reference/api). For diagrams of the handshake, event cursors, launch lifecycle, and authority boundary, see [API architecture diagrams](/docs/reference/api-architecture).
+
+## Transports
+
+The Unix socket at `$COVEN_HOME/coven.sock` is the default and recommended transport. The daemon can additionally bind a TCP listener with `coven daemon serve --tcp <addr>`, guarded so it stays local:
+
+- The bind address must resolve to loopback (`127.0.0.1` / `::1`); the daemon refuses non-loopback addresses.
+- Each TCP request's `Host` and `Origin` headers must be loopback, or exactly match a host passed via the repeatable `--allow-host <host>` flag (for a trusted reverse proxy that forwards a fixed hostname, such as a Tailscale-served FQDN).
+- The API is unauthenticated on both transports, so `--allow-host` should only name hosts fronted by an authenticated transport (Tailscale, SSH). The bind itself stays loopback.
+
+Docs that describe the API as Unix-socket-only are describing the default posture, not a hard limit.
 
 ## Health
 
@@ -36,6 +46,10 @@ Expected shape:
   "capabilities": {
     "sessions": true,
     "events": true,
+    "travel": true,
+    "scheduler": true,
+    "hub": true,
+    "executorDispatch": true,
     "eventCursor": "sequence",
     "structuredErrors": true
   },
@@ -46,6 +60,8 @@ Expected shape:
   }
 }
 ```
+
+`daemon` is `null` when process metadata is unavailable. The response may also include an optional `hub` object (`role`, `hubId`, `nodesTotal`, `nodesAvailable`) summarizing the hub control plane; it is omitted when the daemon has no store access.
 
 Clients should branch on `apiVersion`, then use `capabilities` to decide which surfaces to show. `covenVersion` is useful diagnostics metadata, not the compatibility guard.
 
@@ -64,6 +80,8 @@ Capabilities can describe:
 
 ## Endpoint families
 
+The stable public v1 core is the narrow session/event/action contract:
+
 | Endpoint | Purpose |
 | --- | --- |
 | `GET /api/v1/api-version` | Read route-prefix version metadata. |
@@ -72,12 +90,35 @@ Capabilities can describe:
 | `POST /api/v1/actions` | Route a known control-plane action. |
 | `GET /api/v1/sessions` | List sessions. |
 | `POST /api/v1/sessions` | Launch a session. |
+| `POST /api/v1/sessions/external` | Register an externally-launched session. |
 | `GET /api/v1/sessions/:id` | Fetch one session. |
+| `GET /api/v1/sessions/:id/log` | Read a rendered log view of one session. |
+| `GET /api/v1/sessions/:id/events` | Read one session's events (path-scoped form). |
+| `GET /api/v1/sessions/:id/artifacts/:artifactId` | Fetch a sensitive artifact (requires `raw=1`). |
 | `GET /api/v1/events?sessionId=...` | Read append-only session events. |
 | `POST /api/v1/sessions/:id/input` | Forward input to a live session. |
 | `POST /api/v1/sessions/:id/kill` | Kill a live session. |
+| `POST /api/v1/sessions/:id/complete` | Complete an externally-registered session. |
 
 New clients should use the `/api/v1` prefix. Early unversioned aliases are compatibility paths, not the contract to build around.
+
+## Control-plane surface map
+
+Beyond the documented v1 core, the daemon serves a broader control plane. **Scope statement:** the narrow session/event/action contract above is the stable public v1; the control-plane routes below are used by first-party clients (Cave, CastCodes) and may evolve without a version bump. Treat them as observable, not as a stable integration surface.
+
+| Area | Routes |
+| --- | --- |
+| Cockpit | `GET /api/v1/overview`, `POST /api/v1/cast`, `GET /api/v1/cast-codes` |
+| Familiars | `GET /api/v1/familiars`, `PUT /api/v1/familiars/:id/icon`, `GET /api/v1/familiars/:id/ward`, `POST /api/v1/familiars/:id/edits` |
+| Threads | `GET /api/v1/threads/weaves`, `GET /api/v1/threads/proposals`, `GET /api/v1/threads/proposals/:id`, `POST /api/v1/threads/proposals/:id/approve`, `POST /api/v1/threads/proposals/:id/reject` |
+| Skills | `GET /api/v1/skills`, `GET /api/v1/skills/eval-loop/:familiarId`, `POST /api/v1/skills/eval-loop/:familiarId/run`, `DELETE /api/v1/skills/eval-loop/:familiarId/run-lock` |
+| Coven Calls | `GET /api/v1/coven-calls`, `GET /api/v1/coven-calls/:callId` |
+| Memory and research | `GET /api/v1/memory`, `GET /api/v1/research` |
+| Store maintenance | `POST /api/v1/store/vacuum` |
+| Travel | `POST /api/v1/travel/profiles`, `POST /api/v1/travel/deltas`, `GET /api/v1/travel/state` |
+| Scheduler | `POST /api/v1/scheduler/decisions`, `POST /api/v1/scheduler/redispatch`, `GET /api/v1/scheduler/decisions/:id`, `GET /api/v1/scheduler/loops/:id` |
+| Hub | `GET /api/v1/hub/status`, `GET /api/v1/hub/nodes`, `POST /api/v1/hub/nodes`, `GET /api/v1/hub/nodes/:id`, `POST /api/v1/hub/nodes/:id/health`, `POST /api/v1/hub/nodes/:id/poll`, `POST /api/v1/hub/nodes/:id/dispatch`, `GET /api/v1/hub/dispatches/:jobId`, `GET /api/v1/hub/jobs`, `POST /api/v1/hub/jobs`, `GET /api/v1/hub/jobs/:id`, `POST /api/v1/hub/jobs/:id/assign`, `POST /api/v1/hub/jobs/:id/complete`, `GET /api/v1/hub/routing` |
+| Harness capabilities | `GET /api/v1/capabilities/harnesses`, `GET /api/v1/capabilities/:harnessId` |
 
 ## Error envelope
 

@@ -41,6 +41,15 @@ Do not paste secrets, provider tokens, private gateway URLs, or raw credentials 
 
 ## Logs
 
+The daemon keeps an append-only recovery log at `$COVEN_HOME/daemon-recovery.log`. Each line is timestamped and records lifecycle and recovery evidence:
+
+- Daemon startups (pid and socket path).
+- Termination of unreachable duplicate daemons.
+- Accept-loop and API handler errors.
+- Panics, including a captured backtrace.
+
+Read it first when the daemon restarted unexpectedly or a socket was left behind. The lock files `daemon.lock` (lifecycle orchestration) and `daemon-serve.lock` (single-writer serve guard) sit next to it; see [Configuration and COVEN_HOME](/docs/daemon/configuration) for the full state-directory layout.
+
 Daemon logs should answer:
 
 - Did the daemon bind the expected socket?

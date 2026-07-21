@@ -9,6 +9,8 @@ read_when:
 
 `coven pc` prints a local machine pressure report. It is intended for workstation support during heavy agent or build sessions.
 
+Run it bare — no subcommand — for the default full report (health summary, top processes, disk usage) in compact form:
+
 ```bash
 coven pc
 ```
@@ -17,7 +19,7 @@ coven pc
 
 | Command | Use it for |
 | --- | --- |
-| `coven pc` | Full compact report. |
+| `coven pc` | Full compact report (no subcommand). |
 | `coven pc status` | One-line health summary. |
 | `coven pc status --json` | Machine-readable health summary. |
 | `coven pc top` | Top processes by CPU and memory. |

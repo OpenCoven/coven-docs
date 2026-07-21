@@ -1,0 +1,81 @@
+---
+title: "Copilot CLI Harness"
+summary: "Run GitHub Copilot CLI under Coven supervision with harness id copilot."
+description: "Copilot CLI harness deep dive: setup, provider auth, launch arguments, permission mapping, and troubleshooting."
+read_when:
+  - Setting up GitHub Copilot CLI for Coven
+  - Diagnosing Copilot-specific launch or auth failures
+---
+
+import { Mermaid } from '@/components/mermaid';
+
+Copilot CLI is GitHub's coding-agent CLI. Coven launches it as a project-rooted PTY and records the run as a Coven session.
+
+| Field | Value |
+| --- | --- |
+| Harness id | `copilot` |
+| Executable | `copilot` |
+| Install | `npm install -g @github/copilot` or `brew install --cask copilot-cli` |
+| Provider auth | `copilot login` |
+| First run | `coven run copilot "summarize this repo"` |
+
+## Setup
+
+```bash
+npm install -g @github/copilot
+copilot login
+coven doctor
+```
+
+`coven doctor` checks that `copilot` is available on `PATH`. It does not read GitHub credentials.
+
+## Launch
+
+```bash
+coven run copilot "audit this repo" --cwd packages/cli --title "CLI audit"
+```
+
+Copilot rejects positional prompts, so Coven always passes the prompt through a flag: `--prompt` for non-interactive one-shots and `--interactive` for interactive sessions with an initial prompt. Non-interactive launches also add `--no-color` because Copilot colorizes whenever it sees a TTY and Coven runs those launches under a PTY.
+
+Other flags Coven maps for you:
+
+| Coven option | Copilot argv |
+| --- | --- |
+| `--model <id>` | `--model <id>` (`auto` lets Copilot pick) |
+| `--permission full` | `--allow-all` |
+| `--permission read-only` | `--deny-tool write --deny-tool shell` (deny rules beat every allow rule; reads stay allowed) |
+| `--add-dir <dir>` | `--add-dir <dir>` (repeatable) |
+| `--think` / `--speed` | `--effort <level>` |
+| Session continuity | `--session-id <uuid>` for both fresh launches and resumes |
+
+Copilot has no system-prompt flag, so familiar identity is injected as a bracketed preamble prepended to the prompt. Copilot does not support Coven's long-lived stream-json input mode; runs are one-shot `--prompt` launches.
+
+## Supervision flow
+
+<Mermaid chart={`
+sequenceDiagram
+  participant U as User
+  participant C as coven CLI
+  participant D as Coven daemon
+  participant P as Copilot PTY
+  participant G as GitHub
+
+  U->>C: coven run copilot "audit this repo"
+  C->>D: Launch session request
+  D->>D: validate harness id, project root, cwd
+  D->>P: spawn copilot in PTY
+  P->>G: provider auth and model calls
+  P-->>D: stdout, stderr, exit
+  D-->>C: session id and status
+`} />
+
+## Common failures
+
+| Symptom | Likely cause | Fix |
+| --- | --- | --- |
+| `coven doctor` reports Copilot missing | `copilot` is not on daemon `PATH` | Install Copilot CLI, restart daemon, rerun doctor. |
+| Copilot asks for login | GitHub auth state expired or missing | Run `copilot login`. |
+| Launch rejects cwd | `--cwd` escapes the project root | Use a cwd inside the project. |
+| Writes fail in read-only runs | `--permission read-only` denies the write and shell tools | Rerun with `--permission full` when mutation is intended. |
+
+For shared setup rules, see [Install harness CLIs](/docs/harnesses/installing) and [Provider auth boundary](/docs/harnesses/provider-auth).

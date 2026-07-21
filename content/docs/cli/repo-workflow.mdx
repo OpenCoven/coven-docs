@@ -1,0 +1,83 @@
+---
+title: "Repo Workflow"
+summary: "Worktrees, branch claims, protocol hooks, Ward configuration, and harness adapters for parallel agent work."
+description: "Reference for coven wt, claim, hooks, ward, and adapter commands."
+read_when:
+  - You are running parallel agent sessions against one repository
+  - You need worktree, claim, hook, Ward, or adapter management
+---
+
+These commands implement the Coven Parallel Work Protocol around a git repository, plus the Ward and adapter surfaces the sessions depend on.
+
+## Worktrees
+
+`coven wt` (aliases: `worktree`, `worktrees`) keeps every parallel session in its own git worktree so git operations do not race. Worktrees live in a sibling `<repo>.wt/<branch>` directory:
+
+```bash
+coven wt fix/output-polish   # create (or re-enter) a worktree for the branch
+coven wt --list              # branch, dirty state, active claim, path
+coven wt --list --json       # machine-readable
+coven wt --doctor            # layout and hook check; exits 1 on problems
+coven wt --prune-merged      # remove clean worktrees merged into the primary branch
+coven wt --prune-stale 14    # remove clean worktrees untouched for 14 days
+```
+
+Exactly one action per invocation. `coven wt <branch>` prints the worktree path, so it composes:
+
+```bash
+cd "$(coven wt fix/output-polish)"
+```
+
+## Claims
+
+`coven claim` manages TTL-bounded branch claims — shared locks that make intent visible so parallel sessions do not duplicate work. Claims live under the repository's common git dir, so every worktree sees the same registry.
+
+```bash
+coven claim status              # active and expired claims (--json available)
+coven claim acquire issue-42    # claim before touching code
+coven claim heartbeat issue-42  # extend the TTL on long tasks
+coven claim release issue-42    # release when the work lands or stops
+coven claim canary main         # record HEAD for later hook canary checks
+```
+
+`acquire` fails while another agent's claim is active; `release` refuses to remove another agent's active claim. Claims expire after one hour by default.
+
+## Hooks
+
+`coven hooks install` installs the pre-commit and pre-push Parallel Work Protocol hooks into the repository's hooks directory:
+
+```bash
+coven hooks install
+```
+
+It refuses to modify a tracked `core.hooksPath` hook directory and prints integration options instead.
+
+## Ward
+
+`coven ward` covers the principal-facing Ward lifecycle: proposals staged for the principal's decision and config migration.
+
+```bash
+coven ward pending                    # staged proposals awaiting the principal
+coven ward pending <proposal-id>      # one proposal in full
+coven ward pending --json             # exact daemon body
+coven ward migrate --fingerprint <FPR> --apply   # migrate v0.1 ward.toml to Phase-2 WardConfig
+```
+
+`migrate` is a dry-run report unless `--apply` is passed; `--familiar <id>` limits it to one familiar. A familiar's *declared* Ward surface is read with `coven familiars <id>` — see [Observability commands](/docs/cli/observe).
+
+## Adapters
+
+`coven adapter` (alias: `adapters`) lists and diagnoses the harness adapters `coven run` launches:
+
+```bash
+coven adapter list           # configured harness adapters (--json available)
+coven adapter doctor         # diagnose all adapters; exits 1 if any is unavailable
+coven adapter doctor codex   # diagnose one adapter id
+coven adapter install hermes # install a trusted local adapter recipe
+```
+
+## Related
+
+- [Run](/docs/cli/run) for launching sessions into these worktrees.
+- [Sessions](/docs/cli/sessions) for the session records the protocol wraps.
+- [Daemon lifecycle](/docs/daemon/lifecycle) for the authority boundary behind launches.

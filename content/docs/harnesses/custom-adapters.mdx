@@ -1,32 +1,72 @@
 ---
 title: "Custom Adapters"
-summary: "The adapter bar for future harnesses: stable ids, fixed argv, PATH detection, provider-auth separation, and daemon validation."
-description: "Guidance for adding future Coven harness adapters without weakening daemon authority or provider credential boundaries."
+summary: "External harness adapters ship today: trusted recipes via coven adapter install, plus manifest files loaded through COVEN_HARNESS_ADAPTER_MANIFEST and COVEN_HARNESS_ADAPTER_DIRS."
+description: "How Coven loads external harness adapters from JSON manifests, the trusted grok and hermes recipes, and the bar an adapter must meet."
 read_when:
-  - Evaluating a future harness integration
-  - Reviewing whether a custom adapter belongs in Coven
+  - Adding an external harness to Coven without changing Coven itself
+  - Installing the grok or hermes adapter recipes
+  - Reviewing whether a custom adapter is safe to run
 ---
 
-Coven v0 ships built-in adapters for Codex and Claude Code. Future adapters should meet the same bar before they are documented as supported.
+Coven ships built-in adapters for Codex, Claude Code, Coven Code, and Copilot CLI — and it loads external adapters from JSON manifests at startup. You can run another coding-agent CLI through Coven today without patching Coven, as long as the adapter meets the same bar as the built-ins.
 
-## Adapter contract
+## Three ways to register an adapter
 
-An adapter needs:
+| Mechanism | How it works |
+| --- | --- |
+| Trusted recipe | `coven adapter install <id>` writes a Coven-maintained manifest to `COVEN_HOME/adapters/<id>.json`. Loaded only while the file byte-for-byte matches the shipped recipe. |
+| `COVEN_HARNESS_ADAPTER_MANIFEST` | Environment variable pointing at one manifest JSON file. |
+| `COVEN_HARNESS_ADAPTER_DIRS` | Environment variable with a path-separated list of directories; every `*.json` file in each directory is loaded (sorted order). |
+
+Set the environment variables before starting Coven (both the CLI and the daemon read them at startup). Across all sources, the first manifest to claim an id wins; later duplicates are skipped with a warning. An adapter whose id matches a built-in harness is skipped — built-ins cannot be overridden.
+
+## Trusted recipes: grok and hermes
+
+Two external adapters ship as installable recipes:
+
+| Recipe | Label | Executable | Auth |
+| --- | --- | --- | --- |
+| `grok` | Grok Build | `grok` | `grok login`, or set `XAI_API_KEY` for headless auth |
+| `hermes` | Hermes Agent | `hermes` | Complete Hermes' own local setup |
+
+```bash
+coven adapter install grok
+coven adapter doctor grok
+coven run grok --permission full "what is in this project?"
+```
+
+Grok's headless runner never blocks on approvals: with `--permission` omitted it silently auto-cancels every tool call that would prompt (that is, every mutating call). Always pass `--permission full` or `--permission read-only` explicitly when running grok.
+
+## Adapter commands
+
+```bash
+coven adapter list            # configured adapters, source, availability (--json available)
+coven adapter doctor [id]     # diagnose all adapters or one id; exits 1 if unavailable
+coven adapter install <id>    # install a trusted recipe (grok or hermes)
+```
+
+`coven run` with an unregistered harness id fails closed and names the known recipes plus the manifest mechanism.
+
+## Manifest format
+
+A manifest is a JSON file with an `adapters` array. Required fields per adapter:
 
 | Field | Meaning |
 | --- | --- |
-| Stable `Harness id` | The id clients pass to `coven run` and the socket API. |
-| Label | Human-readable display name. |
-| Executable | Binary name resolved on `PATH`; not an arbitrary client-supplied path. |
-| Interactive prompt args | Fixed argv prefix for terminal sessions. |
-| Non-interactive prompt args | Fixed argv prefix for scripts and output capture. |
-| Install hint | Actionable setup text for `coven doctor`. |
+| `id` | Stable harness id clients pass to `coven run` and the socket API. |
+| `label` | Human-readable display name. |
+| `executable` | Binary name resolved on `PATH`; not an arbitrary client-supplied path. |
+| `interactive_prompt_prefix_args` | Fixed argv prefix for terminal sessions. |
+| `non_interactive_prompt_prefix_args` | Fixed argv prefix for scripts and output capture. |
+| `install_hint` | Actionable setup text for `coven doctor` and `coven adapter doctor`. |
 
-The prompt should be the final argument after any fixed prefix args unless the adapter design explicitly proves a different shape is safer.
+Optional fields: `system_prompt_flag`, `prompt_flag`, `interactive_prompt_flag`, `model_flag` or `model_arg_template`, `capabilities` (stream, preassigned_session_id, think, speed — all default off), `sandbox` (single-flag or argv-list permission mapping), `add_dir_flag`, `stream_args`, and `continuity_args`. Omitted mechanisms make the matching `coven run` flag a warned no-op rather than an error.
+
+The prompt is the final argument after the fixed prefix args unless the adapter declares a `prompt_flag`.
 
 ## Review checklist
 
-Before adding a new adapter, verify:
+Before registering a new adapter, verify:
 
 - The CLI can run inside a normal PTY.
 - It has a stable command-line prompt shape.
@@ -36,8 +76,6 @@ Before adding a new adapter, verify:
 - It does not require clients to pass secrets through Coven.
 - It can fail closed when the executable is missing.
 
-## Planned does not mean supported
+External adapters run with your user's authority, exactly like built-ins. Only load manifests you wrote or reviewed. The daemon still validates harness id, project root, and working directory for every launch — see [Daemon security posture](/docs/daemon/security).
 
-Hermes, Aider, Gemini CLI, Cline, and other runtimes may become useful future harnesses. Until they land in the adapter table and `coven doctor`, docs should describe them as roadmap or design work, not current support.
-
-For current commands, use [Codex](/docs/harnesses/codex), [Claude Code](/docs/harnesses/claude-code), and [CLI run reference](/docs/cli/run).
+For the built-in adapters, use [Codex](/docs/harnesses/codex), [Claude Code](/docs/harnesses/claude-code), [Copilot CLI](/docs/harnesses/copilot), [Coven Code](/docs/harnesses/coven-code), and the [CLI run reference](/docs/cli/run).

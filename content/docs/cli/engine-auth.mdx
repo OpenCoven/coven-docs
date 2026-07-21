@@ -1,0 +1,55 @@
+---
+title: "Engine and Auth"
+summary: "Manage the coven-code engine install and reach engine features through coven: auth, models, acp, and code."
+description: "Reference for coven engine, auth, models, acp, and code commands."
+read_when:
+  - You are installing, pinning, or debugging the coven-code engine
+  - You need provider credentials, model lists, or the ACP server through coven
+---
+
+The engine is the `coven-code` binary that powers the interactive surfaces (`coven`, `coven chat`) and the engine passthrough commands. Coven pins a known-good engine version and can manage the install itself.
+
+## Engine management
+
+`coven engine` manages the interactive agent runtime:
+
+```bash
+coven engine status          # resolved engine path, source, version, pin state
+coven engine status --json   # machine-readable
+coven engine install         # download the pinned engine into ~/.coven/engine
+coven engine install --version <v> --force   # specific version, reinstall
+coven engine which           # print the engine binary path (exit 1 if none)
+```
+
+`install` verifies the archive against a pinned SHA-256; `--sha256 <HEX>` supplies an expected checksum only when no built-in pin exists. `which` is designed for scripts and editor integrations:
+
+```bash
+"$(coven engine which)" --version
+```
+
+## Engine passthrough
+
+Four top-level commands forward directly to the installed engine, so you never have to invoke `coven-code` yourself:
+
+| Command | What it does |
+| --- | --- |
+| `coven auth` | Manage model provider credentials (Anthropic, Codex). |
+| `coven models` | List available models. |
+| `coven acp` | Start the Agent Client Protocol server (stdio JSON-RPC). |
+| `coven code` | Run any Coven engine subcommand directly (escape hatch). |
+
+Arguments after the verb are passed through unchanged. `coven code` adds no leading subcommand, so it reaches anything the engine exposes:
+
+```bash
+coven auth             # engine credential management
+coven models           # list models available to the engine
+coven code --help      # the engine's own help, via the escape hatch
+```
+
+All four require an installed engine and fail with a pointer to `coven engine install` when none resolves.
+
+## Related
+
+- [Interactive shell](/docs/cli/interactive) for how `coven` and `coven chat` hand off to the engine.
+- [Install](/docs/cli/install) for installing the `coven` CLI itself.
+- [Doctor](/docs/cli/doctor) reports the same engine resolution with the minimum supported version.
