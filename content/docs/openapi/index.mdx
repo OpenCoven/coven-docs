@@ -11,7 +11,7 @@ The Coven daemon serves a small HTTP/1.1 API over a Unix domain socket. This sec
 
 ## Start a daemon
 
-The Try It panels on each endpoint page bridge browser requests through a Next.js route handler to your local `$COVEN_HOME/coven.sock`. They only work when this docs site is running on the same machine as a live daemon.
+The Try It panels on each endpoint page target `http://localhost:{port}/api/v1` — click the server URL above any panel to change the `port` variable (default `3000`). Requests are bridged through a Next.js route handler that dials your local `$COVEN_HOME/coven.sock` first and falls back to a loopback TCP listener on the chosen port (`coven daemon serve --tcp 127.0.0.1:3000`). JSON responses are pretty-printed by the bridge. The panels only work when this docs site is running on the same machine as a live daemon (or a daemon tunneled to a local port).
 
 ```bash
 coven daemon start
@@ -23,9 +23,10 @@ coven daemon status   # verify pid + socket
 <Callout type="info" title="Sanity-check from the terminal">
   Without leaving the shell:
   ```bash
-  curl --unix-socket "$HOME/.coven/coven.sock" http://localhost/api/v1/health
+  curl --unix-socket "$HOME/.coven/coven.sock" \
+    http://localhost/api/v1/health | jq .
   ```
-  A healthy daemon returns `{"ok":true,"apiVersion":"coven.daemon.v1",...}`.
+  A healthy daemon returns `{ "ok": true, "apiVersion": "coven.daemon.v1", ... }`.
 </Callout>
 
 ## Transport and trust model
@@ -34,6 +35,7 @@ coven daemon status   # verify pid + socket
 | --- | --- |
 | Protocol | HTTP/1.1 over Unix domain socket |
 | Default socket | `~/.coven/coven.sock` (override via `$COVEN_HOME`) |
+| Optional TCP | Loopback-only listener via `coven daemon serve --tcp 127.0.0.1:3000` (standard port `3000`) |
 | Auth | File-system permissions on the socket — no Bearer / JWT / API-key / cookie |
 | Contract | `coven.daemon.v1` served under `/api/v1` |
 
@@ -75,4 +77,4 @@ Additive fields are allowed inside `v1`; breaking changes require a new route-pr
 
 ## Code samples
 
-Every endpoint includes runnable samples in **curl** (with `--unix-socket`), **TypeScript** (undici `Agent({ connect: { socketPath } })`), **Python** (`httpx.HTTPTransport(uds=...)`), and **Rust** (`hyperlocal::UnixConnector`). Each sample reads `$COVEN_HOME` with a `~/.coven` fallback, so they work as-is once a daemon is running.
+Every endpoint includes runnable samples in **curl** (with `--unix-socket`, piped through `jq` for formatted output), **TypeScript** (undici `Agent({ connect: { socketPath } })`), **Python** (`httpx.HTTPTransport(uds=...)`), and **Rust** (`hyperlocal::UnixConnector`). Each sample reads `$COVEN_HOME` with a `~/.coven` fallback and pretty-prints the JSON response, so they work as-is once a daemon is running.

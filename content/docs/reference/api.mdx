@@ -18,7 +18,7 @@ _Last updated: 2026-07-21_
 
 Coven exposes an HTTP API over the local Unix socket at `<covenHome>/coven.sock`. The Rust daemon is the authority boundary: clients may validate for UX, but the daemon still validates project roots, cwd, harness ids, session ids, input, and live-session state before acting.
 
-The Unix socket is the default transport. The daemon can also bind a TCP listener via `coven daemon serve --tcp <addr>`: the bind address must be loopback, and each request's `Host`/`Origin` headers must be loopback or exactly match a host added with the repeatable `--allow-host <host>` flag (for a trusted reverse proxy such as a Tailscale-served FQDN). The API is unauthenticated on both transports, so any non-loopback reach must be fronted by an authenticated transport.
+The Unix socket is the default transport. The daemon can also bind a TCP listener via `coven daemon serve --tcp <addr>` (standard loopback address: `127.0.0.1:3000`): the bind address must be loopback, and each request's `Host`/`Origin` headers must be loopback or exactly match a host added with the repeatable `--allow-host <host>` flag (for a trusted reverse proxy such as a Tailscale-served FQDN). The API is unauthenticated on both transports, so any non-loopback reach must be fronted by an authenticated transport.
 
 For a consolidated visual map of route topology, compatibility handshake, error flow, event cursors, live control, launch lifecycle, and authority boundaries, see [API architecture diagrams](/docs/reference/api-architecture).
 
