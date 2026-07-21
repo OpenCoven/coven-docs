@@ -29,7 +29,7 @@ const covenantPoints = [
 export default function CovenantPage() {
   return (
     <main className={s.homeMain}>
-      <section className={s.heroPanel}>
+      <section className={`${s.heroPanel} ${s.heroPanelSolo}`}>
         <div className={s.heroGridBg} />
         <p className={s.heroEyebrow}>Working Promises</p>
         <h1 className={s.heroTitle}>Covenant</h1>
@@ -48,7 +48,7 @@ export default function CovenantPage() {
         </div>
       </section>
 
-      <section className={s.introSection}>
+      <section className={`${s.introSection} ${s.introSectionSolo}`}>
         <div style={{ display: 'grid', gap: '0.9rem', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))' }}>
           {covenantPoints.map((item) => (
             <div
