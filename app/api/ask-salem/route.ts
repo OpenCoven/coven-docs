@@ -32,9 +32,9 @@
 //   12. Upstream concurrency cap and hard timeout so held-open streams cannot
 //       pile up
 //
-// The client IP is read from platform-set headers (x-real-ip, else the
-// rightmost x-forwarded-for entry — the one appended by the platform), so it
-// cannot be spoofed by client-supplied header values on Vercel.
+// The client IP is read from platform-set headers (x-real-ip, else
+// x-forwarded-for, which Vercel overwrites — client-supplied values never
+// survive), so it cannot be spoofed by inbound header values on Vercel.
 //
 // Responses stream back as text/plain, mirroring Salem, with its diagnostic
 // x-* headers forwarded.
@@ -91,16 +91,15 @@ function bannedResponse(retryAfterSec: number): Response {
 
 function clientIp(req: Request): string {
   // Trust only platform-set values. Vercel sets x-real-ip to the client IP
-  // and *appends* the real client IP to any inbound x-forwarded-for list, so
-  // the rightmost entry is platform-controlled while the leftmost entries are
-  // attacker-controlled. In local dev neither exists — everyone is "local".
+  // and overwrites inbound x-forwarded-for entirely (client-supplied values
+  // are discarded), with the client IP first — so the first entry is safe on
+  // this platform. In local dev neither header exists — everyone is "local".
   const realIp = req.headers.get('x-real-ip')?.trim();
   if (realIp) return realIp;
   const xff = req.headers.get('x-forwarded-for');
   if (xff) {
-    const parts = xff.split(',');
-    const last = parts[parts.length - 1]?.trim();
-    if (last) return last;
+    const first = xff.split(',')[0]?.trim();
+    if (first) return first;
   }
   return 'local';
 }

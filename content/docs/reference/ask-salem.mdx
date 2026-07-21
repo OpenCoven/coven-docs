@@ -32,7 +32,7 @@ Questions are **single-turn**: Salem gates multi-turn history behind an admin pa
 1. **Method and content type** — `POST` with `application/json` only.
 2. **Ban list** — requests that keep tripping the guards below earn strikes; five strikes inside ten minutes bans the address, and repeat bans double in length (15 minutes up to 2 hours). Banned addresses get `429` with `Retry-After` before any other work happens.
 3. **Same-origin guard** — the `Origin` header must match the deployment's own origin; requests without one (plain `curl`) get `403`.
-4. **Bot fingerprint** (`lib/ask-salem-guards.ts`) — requests must carry the `Sec-Fetch-Site: same-origin` and `Sec-Fetch-Mode` headers browsers attach automatically, a `User-Agent` that does not match known tool and bot signatures (`curl`, `python`, `headless`, crawlers, …), and the widget's own marker header. Failures earn strikes.
+4. **Bot fingerprint** (`lib/ask-salem-guards.ts`) — requests must carry the `Sec-Fetch-Site: same-origin`, `Sec-Fetch-Mode`, and `Sec-Fetch-Dest: empty` headers browsers attach automatically, a `User-Agent` that does not match known tool and bot signatures (`curl`, `python`, `headless`, crawlers, …), and the widget's own marker header. Failures earn strikes.
 5. **Body caps and strict schema** — bodies over 8 KB are rejected (`413`); `message` must be a non-empty string of at most 2,000 characters; unknown fields are rejected.
 6. **Spam heuristics** — control characters, more than three links, and repeated-filler payloads (one character or word repeated at length, long strings from a tiny alphabet) are rejected and earn strikes.
 7. **No history passthrough** — requests carrying a non-empty `history` are rejected rather than forwarded.
@@ -42,7 +42,7 @@ Questions are **single-turn**: Salem gates multi-turn history behind an admin pa
 11. **Header hygiene** — no inbound header is forwarded upstream. In particular `X-Salem-Admin-Password` and cookies never leave the bridge.
 12. **Concurrency and time caps** — at most 2 upstream requests in flight (`503` beyond that) and a 60-second upstream timeout (`504`).
 
-The client address is read only from platform-set headers (`x-real-ip`, else the platform-appended rightmost `x-forwarded-for` entry), so client-supplied forwarding headers cannot spoof it on Vercel. Salem itself also keys on the real connection IP, so spoofing buys nothing upstream either.
+The client address is read only from platform-set headers (`x-real-ip`, else `x-forwarded-for`, which Vercel overwrites so client-supplied values never survive), so forwarding headers cannot be spoofed on Vercel. Salem itself also keys on the real connection IP, so spoofing buys nothing upstream either.
 
 The limiter state is in-memory and per-instance, which is sufficient for the bridge's audience (local dev and previews); production widget traffic never touches it. On the production direct path, abuse protection is Salem's own: per-visitor-IP rate limits, a CORS allowlist, and password-gated history.
 

@@ -158,6 +158,20 @@ export function checkBan(
   };
 }
 
+/** Push a strike; crossing the threshold starts (or escalates) a ban. */
+function addStrike(state: IpState, now: number): void {
+  state.strikes.push(now);
+  if (state.strikes.length >= STRIKES_TO_BAN && state.banUntil <= now) {
+    const duration = Math.min(
+      BAN_BASE_MS * 2 ** Math.min(state.banCount, 10),
+      BAN_MAX_MS,
+    );
+    state.banUntil = now + duration;
+    state.banCount += 1;
+    state.strikes = [];
+  }
+}
+
 /**
  * Record a guard violation (bot fingerprint failure, spam payload,
  * rate-limit hammering) against `ip`. Enough strikes inside the strike
@@ -169,16 +183,7 @@ export function recordViolation(
 ): { banned: boolean; retryAfterSec: number } {
   sweep(now);
   const state = getState(ip, now);
-  state.strikes.push(now);
-  if (state.strikes.length >= STRIKES_TO_BAN && state.banUntil <= now) {
-    const duration = Math.min(
-      BAN_BASE_MS * 2 ** Math.min(state.banCount, 10),
-      BAN_MAX_MS,
-    );
-    state.banUntil = now + duration;
-    state.banCount += 1;
-    state.strikes = [];
-  }
+  addStrike(state, now);
   return checkBan(ip, now);
 }
 
@@ -264,7 +269,7 @@ export function checkRateLimit(ip: string, now = Date.now()): LimitDecision {
   }
 
   if (state.hits.length >= PER_IP_LIMIT) {
-    state.strikes.push(now);
+    addStrike(state, now);
     return {
       ok: false,
       retryAfterSec: retryAfterFrom(state.hits, WINDOW_MS, now),
@@ -274,7 +279,7 @@ export function checkRateLimit(ip: string, now = Date.now()): LimitDecision {
     };
   }
   if (state.hourHits.length >= PER_IP_HOURLY_LIMIT) {
-    state.strikes.push(now);
+    addStrike(state, now);
     return {
       ok: false,
       retryAfterSec: retryAfterFrom(state.hourHits, HOUR_MS, now),

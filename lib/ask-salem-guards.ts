@@ -21,9 +21,10 @@ const BOT_UA_PATTERN =
  * the docs widget:
  *
  * - `User-Agent` must be present and not match known tool/bot signatures.
- * - `Sec-Fetch-Site` / `Sec-Fetch-Mode` are forbidden headers that every
- *   modern browser attaches automatically and CLI tools do not. A same-origin
- *   widget fetch is always `same-origin` + `cors`.
+ * - `Sec-Fetch-Site` / `Sec-Fetch-Mode` / `Sec-Fetch-Dest` are forbidden
+ *   headers that every modern browser attaches automatically and CLI tools do
+ *   not. A same-origin widget fetch is always `same-origin` + `cors` +
+ *   `empty`; all three are required.
  * - The widget's own marker header must be present with the expected value.
  */
 export function botVerdict(headers: Headers): Verdict {
@@ -49,7 +50,7 @@ export function botVerdict(headers: Headers): Verdict {
   }
 
   const dest = headers.get('sec-fetch-dest')?.toLowerCase();
-  if (dest !== undefined && dest !== null && dest !== 'empty') {
+  if (dest !== 'empty') {
     return { ok: false, reason: 'Only same-origin browser requests are served.' };
   }
 
