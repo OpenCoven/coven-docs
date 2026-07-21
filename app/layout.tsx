@@ -8,6 +8,7 @@ import Script from 'next/script';
 import { Analytics } from '@vercel/analytics/next';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import { CovenSearchDialog } from '@/components/search-dialog';
+import { AskSalem } from '@/components/ask-salem';
 import './globals.css';
 
 const inter = Inter({ subsets: ['latin'] });
@@ -63,14 +64,15 @@ export default function Layout({ children }: { children: ReactNode }) {
             SearchDialog: CovenSearchDialog,
             options: {
               links: [
-                ['Getting Started', '/docs/getting-started'],
-                ['Architecture', '/docs/architecture'],
-                ['API Reference', '/docs/api'],
+                ['Getting Started', '/docs/guide/getting-started'],
+                ['Architecture', '/docs/guide/architecture'],
+                ['API Reference', '/docs/reference/api'],
               ],
             },
           }}
         >
           {children}
+          <AskSalem />
         </RootProvider>
         <Analytics />
         <SpeedInsights />
