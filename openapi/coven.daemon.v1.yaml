@@ -185,9 +185,10 @@ paths:
       description: |
         Returns all active, non-archived sessions known to this daemon.
 
-        Archived sessions are excluded; surface them through the CLI via
-        `coven sessions --all` or via tooling that calls this endpoint twice
-        (with and without archived filtering).
+        This endpoint accepts no filter parameters: archived sessions are
+        always excluded, and there is no `archived` query flag. Archived
+        records are surfaced through the CLI (`coven sessions --all`) and
+        TUI, which read the session store directly.
       responses:
         '200':
           description: List of active sessions.
@@ -587,33 +588,13 @@ paths:
         - name: sessionId
           in: query
           required: true
-          description: Session id whose events should be returned.
+          description: Session id whose events should be returned. Requests without it fail with `400 invalid_request`.
           schema:
             type: string
             examples: [session-1]
-        - name: afterSeq
-          in: query
-          required: false
-          description: Preferred cursor. Returns events with `seq > afterSeq`.
-          schema:
-            type: integer
-            minimum: 0
-            examples: [41]
-        - name: afterEventId
-          in: query
-          required: false
-          description: Compatibility cursor, resolved by the daemon to a sequence position.
-          schema:
-            type: string
-            examples: [event-41]
-        - name: limit
-          in: query
-          required: false
-          description: Maximum number of events to return, clamped to 1–1000. When omitted, all events after the cursor are returned.
-          schema:
-            type: integer
-            minimum: 1
-            maximum: 1000
+        - $ref: '#/components/parameters/AfterSeq'
+        - $ref: '#/components/parameters/AfterEventId'
+        - $ref: '#/components/parameters/EventsLimit'
       responses:
         '200':
           description: A page of events.
@@ -640,29 +621,9 @@ paths:
         cursor parameters and response shape, with the session id taken from
         the path instead of a `sessionId` query parameter.
       parameters:
-        - name: afterSeq
-          in: query
-          required: false
-          description: Preferred cursor. Returns events with `seq > afterSeq`.
-          schema:
-            type: integer
-            minimum: 0
-            examples: [41]
-        - name: afterEventId
-          in: query
-          required: false
-          description: Compatibility cursor, resolved by the daemon to a sequence position.
-          schema:
-            type: string
-            examples: [event-41]
-        - name: limit
-          in: query
-          required: false
-          description: Maximum number of events to return, clamped to 1–1000. When omitted, all events after the cursor are returned.
-          schema:
-            type: integer
-            minimum: 1
-            maximum: 1000
+        - $ref: '#/components/parameters/AfterSeq'
+        - $ref: '#/components/parameters/AfterEventId'
+        - $ref: '#/components/parameters/EventsLimit'
       responses:
         '200':
           description: A page of events.
@@ -687,6 +648,46 @@ components:
       schema:
         type: string
         examples: [session-1]
+    AfterSeq:
+      name: afterSeq
+      in: query
+      required: false
+      description: |
+        Preferred cursor. Returns events with `seq > afterSeq`; pass
+        `nextCursor.afterSeq` from the previous page to resume reading.
+        Takes precedence over `afterEventId` when both are supplied.
+        Non-integer values fail with `400 invalid_request`.
+      schema:
+        type: integer
+        minimum: 0
+        examples: [41]
+    AfterEventId:
+      name: afterEventId
+      in: query
+      required: false
+      description: |
+        Compatibility cursor for clients that stored event ids instead of
+        sequence numbers. The daemon resolves the id to its sequence position
+        and returns events after it. Ignored when `afterSeq` is also
+        supplied; unknown ids read from the start of the log.
+      schema:
+        type: string
+        examples: [event-41]
+    EventsLimit:
+      name: limit
+      in: query
+      required: false
+      description: |
+        Maximum number of events to return. Out-of-range values are clamped
+        to 1–1000 rather than rejected; non-integer values fail with
+        `400 invalid_request`. When omitted, all events after the cursor are
+        returned in one page. `hasMore` in the response is only meaningful
+        when a limit is set — it is `true` when the page filled the limit.
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 1000
+        examples: [200]
 
   responses:
     InvalidRequest:
