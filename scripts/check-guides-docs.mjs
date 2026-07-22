@@ -13,6 +13,7 @@ const requiredPages = [
   'set-up-memory',
   'fix-a-failed-install',
   'upgrade-coven',
+  'script-the-api',
 ];
 
 const requiredMentions = [
@@ -53,6 +54,11 @@ const requiredMentions = [
   'coven --version',
   '/api/v1/capabilities',
   'coven sessions --all --plain',
+  '/api/v1/sessions',
+  '/api/v1/events',
+  'nextCursor',
+  'error.code',
+  'session_not_found',
 ];
 
 function fail(message) {
@@ -146,6 +152,10 @@ if (!readFileSync(join(guidesRoot, 'fix-a-failed-install.mdx'), 'utf8').includes
 
 if (!readFileSync(join(guidesRoot, 'upgrade-coven.mdx'), 'utf8').includes('/docs/daemon/recovery-upgrades')) {
   fail('upgrade-coven guide must link to the recovery and upgrades reference.');
+}
+
+if (!readFileSync(join(guidesRoot, 'script-the-api.mdx'), 'utf8').includes('/docs/reference/api')) {
+  fail('script-the-api guide must link to the API reference.');
 }
 
 console.log('Guides docs check passed.');
