@@ -39,3 +39,4 @@ scripts/_local-*
 # openapi/coven.daemon.v1.yaml. The source spec is committed; the built file
 # (with injected x-codeSamples) is not.
 openapi/coven.daemon.v1.built.yaml
+/.superpowers
