@@ -19,7 +19,7 @@ flowchart LR
   Coven --> Daemon[Coven daemon]
   Daemon --> Harness[Harness PTY]
   Harness --> CredentialStore
-  Harness --> Provider[OpenAI / Anthropic / GitHub / local runtime]
+  Harness --> Provider[OpenAI / Anthropic / GitHub / local model runtime]
   Daemon -. no provider credentials .-> Provider
 `} />
 

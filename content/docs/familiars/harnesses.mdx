@@ -1,12 +1,12 @@
 ---
 title: "Harness Adapters"
-description: "Connecting different AI providers as harnesses."
+description: "Connecting external coding-agent CLIs to Coven as harnesses."
 ---
 
 import { DocsDataTable } from '@/components/docs-data-table';
 import { Mermaid } from '@/components/mermaid';
 
-Coven v0 supports Codex and Claude Code. This guide describes the current adapter shape and the bar for adding more harnesses.
+Coven ships four built-in harness adapters — Codex, Claude Code, Coven Code, and Copilot CLI — and loads external adapters from manifest files, including the trusted `grok` and `hermes` recipes. This guide describes the current adapter shape and the bar for adding more harnesses.
 
 For install, provider-auth, project-root, and per-harness operational details, see the first-class [Harnesses deep dives](/docs/harnesses/what-is-a-harness).
 
@@ -32,7 +32,7 @@ A built-in harness adapter defines a compact launch contract.
   ]}
 />
 
-The current implementation expects the prompt to be the final command argument after any fixed prefix args.
+Most adapters pass the prompt as the final command argument after any fixed prefix args; an adapter can instead declare a prompt flag (Copilot CLI passes the prompt through `--prompt` or `--interactive`).
 
 ## Built-in Harnesses
 
@@ -50,6 +50,8 @@ The current implementation expects the prompt to be the final command argument a
   rows={[
     { harness: 'Codex', id: '`codex`', executable: '`codex`', interactiveArgs: 'None', nonInteractiveArgs: '`exec --skip-git-repo-check --color never`', setup: '`npm install -g @openai/codex`; `codex login`' },
     { harness: 'Claude Code', id: '`claude`', executable: '`claude`', interactiveArgs: 'None', nonInteractiveArgs: '`--print`', setup: '`npm install -g @anthropic-ai/claude-code`; `claude doctor`' },
+    { harness: 'Coven Code', id: '`coven-code`', executable: '`coven-code`', interactiveArgs: 'None', nonInteractiveArgs: '`--print`', setup: '`coven engine install`' },
+    { harness: 'Copilot CLI', id: '`copilot`', executable: '`copilot`', interactiveArgs: 'Prompt via `--interactive`', nonInteractiveArgs: '`--no-color`; prompt via `--prompt`', setup: '`npm install -g @github/copilot`; `copilot login`' },
   ]}
 />
 
@@ -89,13 +91,16 @@ The current implementation expects the prompt to be the final command argument a
   rows={[
     { name: '`codex`', status: 'Current', reason: 'Built-in adapter and harness id in the daemon.' },
     { name: '`claude`', status: 'Current', reason: 'Built-in adapter and harness id in the daemon.' },
-    { name: 'Hermes', status: 'Future / planned', reason: 'Documented as a candidate, not a current daemon adapter.' },
+    { name: '`coven-code`', status: 'Current', reason: 'Built-in adapter for the CLI-managed Coven Code engine.' },
+    { name: '`copilot`', status: 'Current', reason: 'Built-in adapter and harness id in the daemon.' },
+    { name: '`grok`', status: 'Current (trusted recipe)', reason: 'Installed with `coven adapter install grok`; loaded from a Coven-maintained manifest.' },
+    { name: '`hermes`', status: 'Current (trusted recipe)', reason: 'Installed with `coven adapter install hermes`; loaded from a Coven-maintained manifest.' },
     { name: 'Aider', status: 'Future / planned', reason: 'Documented as a candidate, not a current daemon adapter.' },
     { name: 'Gemini CLI', status: 'Future / planned', reason: 'Documented as a candidate, not a current daemon adapter.' },
     { name: 'OpenCode', status: 'Future / planned', reason: 'Documented as a candidate, not a current daemon adapter.' },
-    { name: 'Custom local harness', status: 'Future / design', reason: 'Requires a policy and compatibility story before broad support.' },
+    { name: 'Custom local harness', status: 'Current via manifest', reason: 'External adapter manifests load through `COVEN_HARNESS_ADAPTER_MANIFEST` and `COVEN_HARNESS_ADAPTER_DIRS` when they meet the adapter bar.' },
     { name: 'OpenClaw', status: 'Not a Coven harness', reason: 'OpenClaw integration is an external client/plugin path through `@opencoven/coven`, not a daemon harness id.' },
-    { name: 'Generic command adapter', status: 'Not supported in v0', reason: 'Arbitrary commands need explicit policy, approval, and audit behavior before they can be safe.' },
+    { name: 'Generic command adapter', status: 'Not supported', reason: 'Arbitrary commands need explicit policy, approval, and audit behavior before they can be safe.' },
   ]}
 />
 

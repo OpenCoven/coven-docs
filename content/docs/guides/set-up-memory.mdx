@@ -1,0 +1,89 @@
+---
+title: "Set Up Memory"
+summary: "Create a familiar's first durable memory note, list it with coven memory, and build the local semantic index over it."
+description: "Step-by-step guide to Coven memory: persistent notes under ~/.coven/memory, inspecting them with coven memory, and semantic ingest/search with coven-memory."
+read_when:
+  - You want a familiar to remember durable facts across sessions
+  - coven memory prints no files and you want to know why
+---
+
+Coven's memory has two local surfaces: **persistent notes** — plain Markdown files a familiar keeps under `~/.coven/memory/<familiar>/` — and the **semantic archival index** that makes them searchable by meaning. This guide creates a note, inspects it, and indexes it. For the concepts behind the layers, read the [memory model](/docs/memory-models/memory) first.
+
+## Prerequisites
+
+- The Coven CLI installed — `coven memory` reads `~/.coven` directly and works without a running daemon; see [Install and first run](/docs/guides/install-and-first-run).
+- For the semantic index steps: a Rust toolchain and a checkout of the [Coven repo](https://github.com/OpenCoven/coven) — the `coven-memory` binary builds from the workspace and is not part of the npm wrapper.
+- About 300 MB of disk for the embedding model, downloaded once on first ingest.
+
+## Step 1 — Create a durable note
+
+Notes are ordinary Markdown files, one directory per familiar:
+
+```bash
+mkdir -p ~/.coven/memory/sage
+cat > ~/.coven/memory/sage/conventions.md <<'EOF'
+Always run the full test suite before merge.
+Prefer squash merges on feature branches.
+EOF
+```
+
+**Expected output:** the file exists. The file stem (`conventions`) becomes the note's title, and the first paragraph becomes its excerpt. Only `.md` files directly inside a familiar's directory are picked up.
+
+## Step 2 — List memory with the CLI
+
+```bash
+coven memory
+```
+
+**Expected output:** a table with your note:
+
+```text
+FAMILIAR  TITLE        UPDATED       EXCERPT
+sage      conventions  just now      Always run the full test suite before merge. …
+1 memory file(s)
+```
+
+Before you create any notes, the same command prints `No memory files.` with a hint that familiars keep durable notes under `~/.coven/memory/<familiar>/` — that empty state is normal, not an error. For scripts, use `coven memory --json`.
+
+## Step 3 — Build the semantic index
+
+From your Coven repo checkout, ingest the notes into the archival index:
+
+```bash
+cargo run -p coven-memory -- ingest ~/.coven/memory/sage --familiar sage
+```
+
+**Expected output:** the first run downloads the local embedding model once (roughly 270 MB, cached afterwards), then reports the ingested chunks. Re-running skips unchanged content via content hashes. The index lives next to your notes in `~/.coven/memory/`, as two files: `archival.tvim` (vectors) and `archival.sqlite3` (metadata).
+
+## Step 4 — Search by meaning
+
+```bash
+cargo run -p coven-memory -- search "what should happen before merging" --familiar sage --k 5
+```
+
+**Expected output:** scored chunks with their source paths, matching your note even though the wording differs — that is the point of semantic recall. `--familiar` keeps one familiar's memory from leaking into another's; `--k` bounds the result count.
+
+## Step 5 — Check index status
+
+```bash
+cargo run -p coven-memory -- status
+```
+
+**Expected output:** chunk and vector counts for the index and metadata db. If the numbers stay at zero after an ingest, the ingest step failed — check its output before searching.
+
+Everything in this guide ran locally: embeddings are computed on your machine and nothing is sent to a hosted API — see the [provider boundary](/docs/memory-models/provider-boundary).
+
+## Troubleshooting
+
+- **`coven memory` prints `No memory files.`** — the notes are not `.md` files directly under `~/.coven/memory/<familiar>/`; nested folders and other extensions are ignored.
+- **`coven memory` shows nothing even though notes exist** — you are pointed at a different `COVEN_HOME`; run `coven doctor` and confirm the store path it reports.
+- **First ingest stalls** — it is downloading the embedding model; give it bandwidth once, subsequent runs are offline.
+- **Search returns another familiar's content** — you searched without `--familiar`; scope the query.
+- **Anything else** — [Memory search](/docs/memory-models/memory-search) and [Troubleshooting](/docs/reference/troubleshooting).
+
+## Related
+
+- [Memory model overview](/docs/memory-models/memory)
+- [Persistent memory](/docs/memory-models/persistent-memory)
+- [Semantic memory](/docs/memory-models/semantic-memory)
+- [Memory search](/docs/memory-models/memory-search)

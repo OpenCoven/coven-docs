@@ -1,0 +1,91 @@
+---
+title: "Upgrade Coven"
+summary: "Upgrade the Coven CLI and daemon without losing sessions: check state, install the new version, restart, and verify the API contract."
+description: "Step-by-step upgrade guide for Coven: pre-upgrade session checks, npm or source upgrade, daemon restart, health and capability verification."
+read_when:
+  - A new Coven version is out and you want a safe upgrade path
+  - You upgraded and need to confirm the daemon still serves the same contract
+---
+
+Upgrades are a state transition, not just a reinstall: the daemon keeps a session ledger that must survive, and clients depend on the API contract staying compatible. This guide upgrades the CLI, restarts the daemon, and verifies both.
+
+## Prerequisites
+
+- An existing Coven install (npm wrapper or source build) — see [Install and first run](/docs/guides/install-and-first-run).
+- The daemon running if you use it — see [Set up the daemon](/docs/guides/set-up-the-daemon).
+- `curl` for the verification step.
+
+## Step 1 — Check what is live before touching anything
+
+Finish or pause work you care about, then record the current state:
+
+```bash
+coven sessions --plain
+coven daemon status
+coven --version
+```
+
+**Expected output:** your session list (note anything still `running`), the daemon's pid and socket, and the version you are upgrading from. Sessions live in the SQLite ledger under `$COVEN_HOME` — the upgrade does not touch it, but knowing what was live tells you what to reattach afterwards.
+
+## Step 2 — Install the new version
+
+For the npm wrapper:
+
+```bash
+npm install -g @opencoven/cli@latest
+coven --version
+```
+
+For a source build, pull and rebuild instead:
+
+```bash
+cd coven
+git pull
+cargo build --workspace
+cargo install --path crates/coven-cli
+```
+
+**Expected output:** `coven --version` reports the new version. If the old version still prints, an older install is shadowing the new one — run `which -a coven` and follow [Fix a failed install](/docs/guides/fix-a-failed-install).
+
+## Step 3 — Restart the daemon
+
+The running daemon still executes the old binary until you restart it:
+
+```bash
+coven daemon restart
+```
+
+**Expected output:** `Coven daemon: restarted (pid <pid>, socket <path>)` with a fresh pid. Restart drains the old listener, reopens the ledger, and serves the same `/api/v1` contract — see [Daemon lifecycle](/docs/daemon/lifecycle). If you supervise the daemon with launchd or systemd, restart it through the supervisor instead so it does not fight the CLI over the socket.
+
+## Step 4 — Verify health and the API contract
+
+```bash
+curl --unix-socket "$HOME/.coven/coven.sock" \
+  http://localhost/api/v1/health
+```
+
+**Expected output:** `"ok": true` and — critically — `"apiVersion": "coven.daemon.v1"`, the contract your clients support. Do not verify the upgrade against the health body's `covenVersion` (released builds report the crate version, not the release tag — Step 2's `coven --version` is the version check). Scripts that use optional features should also check `GET /api/v1/capabilities` before relying on them. If a future release ever changes the contract, clients should fail closed with an update message rather than guess at response shapes — see [Recovery and upgrades](/docs/daemon/recovery-upgrades).
+
+## Step 5 — Confirm your sessions survived
+
+```bash
+coven sessions --all --plain
+coven doctor
+```
+
+**Expected output:** the same sessions from Step 1, now all non-running unless you left something live; doctor passes its store and daemon checks. Sessions that were running through the restart may show as no longer live — that is recorded history, not data loss: view their logs or relaunch from the same project root. See [Recovery and upgrades](/docs/daemon/recovery-upgrades) for orphaned-session handling.
+
+## Troubleshooting
+
+- **Restart cannot bind the socket** — a stale socket from the old daemon; see [Recovery and upgrades](/docs/daemon/recovery-upgrades) before deleting files by hand.
+- **Health fails after restart** — check `coven daemon status` and `$COVEN_HOME` permissions; see [Daemon unavailable](/docs/reference/troubleshooting#daemon-unavailable).
+- **`coven --version` still shows the old version** — stale install shadowing the new one; [Fix a failed install](/docs/guides/fix-a-failed-install), Step 3.
+- **A client rejects the daemon after upgrade** — compare its supported `apiVersion` with health output; see [API version rejected](/docs/reference/troubleshooting#api-version-rejected).
+- **Engine (Coven Code) lags behind** — the engine pins separately; run `coven engine install` and check `coven doctor`'s Engine section. See [Engine and auth](/docs/cli/engine-auth).
+
+## Related
+
+- [Recovery and upgrades](/docs/daemon/recovery-upgrades)
+- [Daemon lifecycle](/docs/daemon/lifecycle)
+- [Set up the daemon](/docs/guides/set-up-the-daemon)
+- [Changelog](/docs/reference/changelog)

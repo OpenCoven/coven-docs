@@ -65,6 +65,8 @@ These are the nouns that do work, hold identity, or represent a boundary in the 
 
 These terms describe what exists while Coven is running work.
 
+The word "runtime" itself carries two senses in Coven docs, and both are always qualified: the **local runtime substrate** is Coven — the daemon, session records, and socket API that harnesses run on — while an **agent runtime** is the harness or engine process doing the agent work inside a PTY. See [Harness vs. runtime](/docs/reference/harness-vs-runtime) for the full usage rule.
+
 <GlossolaliaConceptMap
   caption="Runtime concepts"
   eyebrow="What exists at runtime"
@@ -120,7 +122,7 @@ These terms name the pieces that extend the local runtime beyond one machine and
     ['Relay', 'Channels'],
   ]}
   rows={[
-    { term: 'Engine', definition: 'The bundled Coven Code harness (`coven-code`) that the unified CLI manages itself: downloaded, checksum-verified, and pinned via `engine.lock`, installed with `coven engine install`.', why: 'Installing `@opencoven/cli` is all a user needs; the engine is CLI-managed runtime, not a second tool to install by hand.', related: 'Harness, CovenCLI, Adapter' },
+    { term: 'Engine', definition: 'The bundled Coven Code harness (`coven-code`) that the unified CLI manages itself: downloaded, checksum-verified, and pinned via `engine.lock`, installed with `coven engine install`.', why: 'Installing `@opencoven/cli` is all a user needs; the engine is a CLI-managed agent runtime, not a second tool to install by hand.', related: 'Harness, CovenCLI, Adapter' },
     { term: 'Adapter', definition: 'A harness command spec that tells Coven how to launch a coding CLI. Codex, Claude Code, Coven Code, and Copilot CLI ship built in; external adapters load from manifest files, including trusted Hermes and Grok recipes under `COVEN_HOME`.', why: 'Built-ins and manifest adapters travel the same code path, so users can add harnesses without forking Coven.', related: 'Harness, Engine, Capability' },
     { term: 'Hub', definition: 'The multi-host control plane that tracks executor nodes, queue depth, and jobs across machines, inspected read-only with `coven hub status/nodes/jobs`.', why: 'The hub names the layer where work is routed between hosts rather than within one daemon.', related: 'Scheduler, Travel Mode, Daemon' },
     { term: 'Scheduler', definition: 'The multi-host decision layer that picks a target node for a job and records why, inspected with `coven scheduler decision` and `coven scheduler loop` for loop recovery state.', why: 'Scheduler decisions stay inspectable records, not silent routing.', related: 'Hub, Daemon, Session' },
