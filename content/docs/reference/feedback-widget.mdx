@@ -71,7 +71,7 @@ OpenCovenFeedback('logout')
 
 To restrict the widget so only your own users can submit feedback, use the SSO token shape and call `init` with `launcher: false`. Then mount the launcher yourself once identity resolves.
 
-> `launcher: false` is also the hook for replacing the floating bubble with your own UI: call `open`/`close` from any element you control. This docs site does exactly that — its bottom-left launcher is shared with the [Ask Salem assistant](/docs/reference/ask-salem), and the Feedback segment drives the widget through `init({ launcher: false, placement: 'left' })` plus `open`.
+> `launcher: false` is also the hook for replacing the floating bubble with your own UI: call `open`/`close` from any element you control. This docs site does exactly that — its bottom-right launcher is shared with the [Ask Salem assistant](/docs/reference/ask-salem), and the Feedback segment drives the widget through `init({ launcher: false, placement: 'right' })` plus `open`.
 
 ```ts
 // 1. Load without showing the launcher

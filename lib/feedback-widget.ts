@@ -39,7 +39,7 @@ function quackback(): QuackbackFn {
 
 /**
  * Injects the SDK script once and initializes the widget without its own
- * launcher, panel anchored bottom-left next to the shared launcher. Resolves
+ * launcher, panel anchored bottom-right next to the shared launcher. Resolves
  * when the script has loaded; rejects if it fails (offline, content
  * blockers), letting callers fall back to FEEDBACK_PORTAL.
  */
@@ -48,7 +48,7 @@ export function ensureFeedbackWidget(): Promise<void> {
     return Promise.reject(new Error('Feedback widget is client-side only'));
   }
   if (loadPromise) return loadPromise;
-  quackback()('init', { launcher: false, placement: 'left' });
+  quackback()('init', { launcher: false, placement: 'right' });
   loadPromise = new Promise((resolve, reject) => {
     const script = document.createElement('script');
     script.id = SCRIPT_ID;

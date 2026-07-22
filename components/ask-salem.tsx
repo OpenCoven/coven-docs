@@ -14,7 +14,7 @@
 // markdown subset using React elements — never innerHTML.
 //
 // The launcher is shared with the OpenCoven Feedback widget: one pill,
-// bottom-left, with an "Ask Salem" segment (this chat panel) and a
+// bottom-right, with an "Ask Salem" segment (this chat panel) and a
 // "Feedback" segment (the feedback panel from feedback.opencoven.ai,
 // mounted with its own launcher disabled — see lib/feedback-widget). The
 // two panels are mutually exclusive.
@@ -28,7 +28,6 @@ import {
   type ReactNode,
 } from 'react';
 import { Icon } from '@iconify/react';
-import { usePathname } from 'next/navigation';
 import {
   CLIENT_MARKER_HEADER,
   CLIENT_MARKER_VALUE,
@@ -173,9 +172,6 @@ function parseRetryAfterSec(res: Response): number {
 export function AskSalem() {
   const [open, setOpen] = useState(false);
   const [feedbackOpen, setFeedbackOpen] = useState(false);
-  const pathname = usePathname();
-  // Docs pages pin a sidebar footer bottom-left; lift the launcher above it.
-  const overSidebar = pathname?.startsWith('/docs') ?? false;
   const [question, setQuestion] = useState('');
   const [log, setLog] = useState<Turn[]>([]);
   const [streaming, setStreaming] = useState(false);
@@ -359,12 +355,9 @@ export function AskSalem() {
   const blocked = streaming || cooldownSec > 0;
 
   if (!open) {
-    // The feedback panel sits at bottom: 88px in this corner, so while it is
-    // open the sidebar lift is dropped to keep the launcher clear of it.
-    const lifted = overSidebar && !feedbackOpen;
     return (
       <div
-        className={lifted ? `${s.launcherGroup} ${s.overSidebar}` : s.launcherGroup}
+        className={s.launcherGroup}
         role="group"
         aria-label="Documentation assistant and feedback"
       >
