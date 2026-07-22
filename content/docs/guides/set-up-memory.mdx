@@ -11,7 +11,7 @@ Coven's memory has two local surfaces: **persistent notes** — plain Markdown f
 
 ## Prerequisites
 
-- The Coven CLI installed and the daemon running — `coven memory` reads through the daemon API; see [Set up the daemon](/docs/guides/set-up-the-daemon).
+- The Coven CLI installed — `coven memory` reads `~/.coven` directly and works without a running daemon; see [Install and first run](/docs/guides/install-and-first-run).
 - For the semantic index steps: a Rust toolchain and a checkout of the [Coven repo](https://github.com/OpenCoven/coven) — the `coven-memory` binary builds from the workspace and is not part of the npm wrapper.
 - About 300 MB of disk for the embedding model, downloaded once on first ingest.
 
@@ -76,7 +76,7 @@ Everything in this guide ran locally: embeddings are computed on your machine an
 ## Troubleshooting
 
 - **`coven memory` prints `No memory files.`** — the notes are not `.md` files directly under `~/.coven/memory/<familiar>/`; nested folders and other extensions are ignored.
-- **`coven memory` fails with a connection error** — the daemon is down; see [Set up the daemon](/docs/guides/set-up-the-daemon) and [Daemon unavailable](/docs/reference/troubleshooting#daemon-unavailable).
+- **`coven memory` shows nothing even though notes exist** — you are pointed at a different `COVEN_HOME`; run `coven doctor` and confirm the store path it reports.
 - **First ingest stalls** — it is downloading the embedding model; give it bandwidth once, subsequent runs are offline.
 - **Search returns another familiar's content** — you searched without `--familiar`; scope the query.
 - **Anything else** — [Memory search](/docs/memory-models/memory-search) and [Troubleshooting](/docs/reference/troubleshooting).
