@@ -11,7 +11,8 @@ The daemon is Coven's background runtime: it owns the session ledger, supervises
 
 ## Prerequisites
 
-- The Coven CLI installed and passing `coven doctor` store checks — see [Install and first run](/docs/guides/install-and-first-run).
+- The Coven CLI installed and `coven doctor` passing — see [Install and first run](/docs/guides/install-and-first-run).
+- A connected harness for the session step — see [Connect a harness](/docs/guides/connect-a-harness).
 - A Unix-like system (the daemon binds a Unix socket at `$COVEN_HOME/coven.sock`).
 - `curl` for the health check step.
 
@@ -24,7 +25,7 @@ coven daemon start
 **Expected output:**
 
 ```text
-Coven daemon: running (pid <pid>, socket /Users/you/.coven/coven.sock)
+Coven daemon: running (pid <pid>, socket <coven-home>/coven.sock)
 ```
 
 Start creates `$COVEN_HOME` if needed, opens the SQLite ledger, binds the socket, and begins serving `/api/v1`. It fails closed if another live daemon already owns the socket — that is single-instance discipline, not an error to work around. See [Daemon lifecycle](/docs/daemon/lifecycle).
@@ -38,7 +39,7 @@ coven daemon status
 **Expected output:**
 
 ```text
-Coven daemon: running (pid <pid>, socket /Users/you/.coven/coven.sock)
+Coven daemon: running (pid <pid>, socket <coven-home>/coven.sock)
 ```
 
 If it prints `Coven daemon: not running`, the start step did not persist — jump to the troubleshooting footer. A `stale` line means a previous daemon exited without cleanup; see [Recovery and upgrades](/docs/daemon/recovery-upgrades) before deleting anything by hand.
@@ -48,7 +49,7 @@ If it prints `Coven daemon: not running`, the start step did not persist — jum
 Status text is for humans; clients and scripts should use the HTTP handshake:
 
 ```bash
-curl --unix-socket "$HOME/.coven/coven.sock" \
+curl --unix-socket "${COVEN_HOME:-$HOME/.coven}/coven.sock" \
   http://localhost/api/v1/health
 ```
 
@@ -59,15 +60,15 @@ curl --unix-socket "$HOME/.coven/coven.sock" \
   "ok": true,
   "apiVersion": "coven.daemon.v1",
   "capabilities": { "sessions": true, "events": true },
-  "daemon": { "pid": 12345, "socket": "/Users/you/.coven/coven.sock" }
+  "daemon": { "pid": 12345, "socket": "<coven-home>/coven.sock" }
 }
 ```
 
-If you exported a custom `COVEN_HOME`, substitute it for `$HOME/.coven` in the socket path. The full response shape is in the [socket API reference](/docs/daemon/socket-api) and the [health endpoint reference](/docs/openapi/meta/get-health).
+The command derives the socket path from `COVEN_HOME`, falling back to the default `$HOME/.coven`. The full response shape is in the [socket API reference](/docs/daemon/socket-api) and the [health endpoint reference](/docs/openapi/meta/get-health).
 
 ## Step 4 — Exercise it with a session
 
-From a project directory:
+From a project directory, with your harness connected:
 
 ```bash
 coven run codex "explain this repo in 5 bullets"

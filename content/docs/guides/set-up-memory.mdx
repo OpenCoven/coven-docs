@@ -53,7 +53,7 @@ From your Coven repo checkout, ingest the notes into the archival index:
 cargo run -p coven-memory -- ingest ~/.coven/memory/sage --familiar sage
 ```
 
-**Expected output:** the first run downloads the local embedding model once (roughly 270 MB, cached afterwards), then reports the ingested chunks. Re-running skips unchanged content via content hashes. The index lives next to your notes: `~/.coven/memory/archival.tvim` (vectors) and `archival.sqlite3` (metadata).
+**Expected output:** the first run downloads the local embedding model once (roughly 270 MB, cached afterwards), then reports the ingested chunks. Re-running skips unchanged content via content hashes. The index lives next to your notes in `~/.coven/memory/`, as two files: `archival.tvim` (vectors) and `archival.sqlite3` (metadata).
 
 ## Step 4 — Search by meaning
 
