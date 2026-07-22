@@ -1,0 +1,134 @@
+---
+title: "Install and First Run"
+summary: "Go from nothing installed to a completed, recorded Coven session in five verified steps."
+description: "Step-by-step guide covering CLI install, doctor checks, harness setup, the first coven run, and reviewing the recorded session."
+read_when:
+  - You are installing Coven for the first time
+  - You want the shortest verified path from install to a recorded session
+---
+
+This guide takes you from a machine with no Coven installed to your first completed, recorded session. Each step ends with expected output so you can verify before moving on.
+
+## Prerequisites
+
+- **Node.js and npm** — the CLI ships as the [`@opencoven/cli`](/docs/cli/install) npm package.
+- **Git** — Coven detects your project root from the repository tree.
+- **A terminal inside a project directory** — `coven run` resolves everything relative to a project root.
+- **A harness account** — an OpenAI account for Codex or an Anthropic account for Claude Code. See [Harnesses](/docs/harnesses) for the full list.
+
+## Step 1 — Install the CLI
+
+Install the wrapper globally so `coven` stays on your `PATH`:
+
+```bash
+npm install -g @opencoven/cli
+```
+
+To try it once without installing, use `npx @opencoven/cli doctor` or `pnpm dlx @opencoven/cli doctor` instead — see [Install](/docs/cli/install) for all options, including source builds.
+
+**Expected output:** npm reports the installed package with no errors, and `coven --help` prints the command list.
+
+## Step 2 — Run the doctor
+
+`coven doctor` checks your store, project detection, daemon state, harnesses, and engine in one pass:
+
+```bash
+coven doctor
+```
+
+**Expected output:** a report shaped like this —
+
+```text
+Coven doctor
+Store: /Users/you/.coven
+Project: /Users/you/code/your-repo
+
+Daemon:
+  Not running
+
+Harnesses:
+  [!!] Codex              `codex` is missing (built-in)
+       npm install -g @openai/codex && codex login
+  ...
+
+Next steps:
+  Install and authenticate at least one harness in this same shell.
+```
+
+A fresh machine fails the harness checks — that is expected. The `Next steps` block tells you exactly what to install next. Read the full report format in [Doctor](/docs/cli/doctor).
+
+## Step 3 — Install and authenticate a harness
+
+Install at least one harness CLI and log in with your provider account:
+
+```bash
+npm install -g @openai/codex
+codex login
+```
+
+or for Claude Code:
+
+```bash
+npm install -g @anthropic-ai/claude-code
+claude doctor
+```
+
+Provider credentials belong to the harness, not to Coven — Coven never reads them. See [Provider auth](/docs/harnesses/provider-auth).
+
+**Expected output:** rerun `coven doctor` and the harness line flips to ready:
+
+```text
+Harnesses:
+  [OK] Codex              `codex` is ready (built-in)
+```
+
+If the harness still shows missing, open a new terminal (so `PATH` changes apply) and run `coven doctor` again.
+
+## Step 4 — Run your first session
+
+From inside your project directory:
+
+```bash
+coven run codex "explain this repo in 5 bullets"
+```
+
+The daemon is optional for this step — `coven run` works without it. Start it with [`coven daemon start`](/docs/cli/daemon) when you want background supervision and the local API.
+
+**Expected output:** Coven prints the session record, then attaches you to the live harness:
+
+```text
+Coven session created
+  id:      <session-id>
+  harness: codex
+  cwd:     /Users/you/code/your-repo
+  title:   explain this repo in 5 bullets
+```
+
+The harness runs your prompt interactively. When it exits, the session and its full event log are recorded.
+
+## Step 5 — Review the recorded session
+
+List what you just ran:
+
+```bash
+coven sessions --plain
+```
+
+**Expected output:** a table with your session id, harness, title, and status. In an interactive terminal, plain `coven sessions` opens the session browser instead, where you can rejoin live sessions or replay completed ones — see [Sessions](/docs/cli/sessions).
+
+You now have the full loop: install → doctor → harness → run → review. Every future session follows the same last two steps.
+
+## Troubleshooting
+
+- **`coven` not found after install** — your npm global bin directory is not on `PATH`. See [`coven` command not found](/docs/reference/troubleshooting#coven-command-not-found).
+- **Doctor reports the harness missing after `npm install -g`** — open a new terminal and rerun `coven doctor`; see [Harness missing](/docs/reference/troubleshooting#harness-missing).
+- **`coven run` rejects your directory** — you are outside the detected project root; see [`cwd` rejected](/docs/reference/troubleshooting#cwd-rejected).
+- **Install itself fails or the binary will not launch** — see [Install debugging](/docs/cli/install-debugging).
+- **Anything else** — start at [Troubleshooting](/docs/reference/troubleshooting) and follow the `coven doctor` decision flow.
+
+## Related
+
+- [Install reference](/docs/cli/install)
+- [Doctor reference](/docs/cli/doctor)
+- [Run reference](/docs/cli/run)
+- [Getting started tour](/docs/guide/getting-started)

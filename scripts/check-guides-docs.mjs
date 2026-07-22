@@ -5,7 +5,7 @@ const root = process.cwd();
 const docsRoot = join(root, 'content', 'docs');
 const guidesRoot = join(docsRoot, 'guides');
 
-const requiredPages = ['index'];
+const requiredPages = ['index', 'install-and-first-run'];
 
 const requiredMentions = [
   'step-by-step',
@@ -15,6 +15,14 @@ const requiredMentions = [
   'Troubleshooting',
   'copy-pasteable',
   'coven doctor',
+  'npm install -g @opencoven/cli',
+  'npm install -g @openai/codex',
+  'codex login',
+  '@anthropic-ai/claude-code',
+  'claude doctor',
+  'coven run codex',
+  'coven sessions --plain',
+  'Coven session created',
 ];
 
 function fail(message) {
@@ -84,6 +92,10 @@ if (missingMentions.length > 0) {
 
 if (!joined.includes('/docs/guide/getting-started') || !joined.includes('/docs/reference/troubleshooting')) {
   fail('Guides docs must cross-link the getting-started guide and the troubleshooting reference.');
+}
+
+if (!readFileSync(join(guidesRoot, 'install-and-first-run.mdx'), 'utf8').includes('/docs/cli/install-debugging')) {
+  fail('install-and-first-run guide must link to the install debugging reference.');
 }
 
 console.log('Guides docs check passed.');
