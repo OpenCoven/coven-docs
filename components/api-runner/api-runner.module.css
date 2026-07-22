@@ -1,0 +1,330 @@
+/* Violet glass tokens matching the docs site (see docs-data-table.module.css
+ * for the convention). Light-mode overrides at the bottom. */
+
+.block,
+.dock {
+  --ar-border: rgba(180, 170, 235, 0.18);
+  --ar-strip-bg: rgba(154, 142, 205, 0.06);
+  --ar-fg: rgba(245, 243, 255, 0.88);
+  --ar-muted: rgba(245, 243, 255, 0.58);
+  --ar-accent: #b4aaeb;
+  --ar-ok: #4ade80;
+  --ar-err: #f87171;
+  --ar-sim: #60a5fa;
+  --ar-chip-bg: rgba(251, 191, 36, 0.14);
+  --ar-chip-fg: #fbbf24;
+}
+
+.block {
+  margin: 0 0 1rem;
+}
+
+.block > :global(figure),
+.block > :global(pre) {
+  margin-bottom: 0 !important;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.strip {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  padding: 0.375rem 0.75rem;
+  border: 1px solid var(--ar-border);
+  border-top: none;
+  border-radius: 0 0 0.5rem 0.5rem;
+  background: var(--ar-strip-bg);
+  font-family: var(--font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: 0.75rem;
+  color: var(--ar-muted);
+}
+
+.method {
+  font-weight: 700;
+  color: var(--ar-accent);
+}
+
+.spacer {
+  flex: 1;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  border: 1px solid var(--ar-border);
+  border-radius: 0.375rem;
+  padding: 0.125rem 0.5rem;
+  font-size: 0.6875rem;
+  color: var(--ar-fg);
+  background: rgba(154, 142, 205, 0.12);
+  cursor: pointer;
+}
+
+.btn:hover:not(:disabled) {
+  border-color: rgba(154, 142, 205, 0.55);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.runBtn {
+  composes: btn;
+  border-color: rgba(74, 222, 128, 0.4);
+  color: var(--ar-ok);
+  background: rgba(74, 222, 128, 0.08);
+}
+
+.varChip {
+  background: var(--ar-chip-bg);
+  border-radius: 0.25rem;
+  padding: 0 0.375rem;
+  color: var(--ar-chip-fg);
+  font-size: 0.6875rem;
+}
+
+.params {
+  border: 1px solid var(--ar-border);
+  border-top: none;
+  padding: 0.5rem 0.75rem;
+  display: grid;
+  gap: 0.375rem;
+}
+
+.paramRow {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  font-size: 0.75rem;
+  font-family: var(--font-mono, ui-monospace, monospace);
+}
+
+.paramRow label {
+  min-width: 7rem;
+  color: var(--ar-muted);
+}
+
+.paramRow input {
+  flex: 1;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid var(--ar-border);
+  border-radius: 0.25rem;
+  color: var(--ar-fg);
+  font: inherit;
+  padding: 0.125rem 0.375rem;
+}
+
+.output {
+  border: 1px solid var(--ar-border);
+  border-top: 1px dashed var(--ar-border);
+  border-radius: 0 0 0.5rem 0.5rem;
+  background: rgba(0, 0, 0, 0.25);
+  padding: 0.5rem 0.75rem;
+  font-size: 0.75rem;
+}
+
+.block:has(.output) .strip,
+.block:has(.params) .strip {
+  border-radius: 0;
+}
+
+.outputMeta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.375rem;
+  color: var(--ar-muted);
+}
+
+.pill {
+  border-radius: 999px;
+  padding: 0.0625rem 0.5rem;
+  font-size: 0.625rem;
+  font-weight: 600;
+}
+
+.pillOk {
+  composes: pill;
+  background: rgba(74, 222, 128, 0.15);
+  color: var(--ar-ok);
+}
+
+.pillErr {
+  composes: pill;
+  background: rgba(248, 113, 113, 0.15);
+  color: var(--ar-err);
+}
+
+.pillSim {
+  composes: pill;
+  background: rgba(96, 165, 250, 0.15);
+  color: var(--ar-sim);
+}
+
+.pillLive {
+  composes: pill;
+  background: rgba(74, 222, 128, 0.15);
+  color: var(--ar-ok);
+}
+
+.json {
+  margin: 0;
+  max-height: 20rem;
+  overflow: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.71875rem;
+  color: var(--ar-fg);
+}
+
+.hint {
+  color: var(--ar-chip-fg);
+}
+
+.dock {
+  position: sticky;
+  bottom: 0.75rem;
+  z-index: 20;
+  border: 1px solid rgba(154, 142, 205, 0.4);
+  border-radius: 0.625rem;
+  background: color-mix(in srgb, var(--color-fd-background, #0d0a14) 92%, transparent);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 -6px 24px rgba(0, 0, 0, 0.35);
+  font-size: 0.75rem;
+  color: var(--ar-fg, rgba(245, 243, 255, 0.88));
+  margin-top: 1.5rem;
+}
+
+.dockBar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  padding: 0.5rem 0.75rem;
+}
+
+.dockTitle {
+  font-weight: 600;
+}
+
+.toggle {
+  display: inline-flex;
+  border: 1px solid rgba(154, 142, 205, 0.35);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.toggle button {
+  padding: 0.125rem 0.625rem;
+  font-size: 0.6875rem;
+  color: rgba(245, 243, 255, 0.45);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.toggle button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.toggleActive {
+  background: rgba(96, 165, 250, 0.25) !important;
+  color: #8ec4fb !important;
+}
+
+.toggleActiveLive {
+  background: rgba(74, 222, 128, 0.25) !important;
+  color: #4ade80 !important;
+}
+
+.dockReason {
+  color: rgba(245, 243, 255, 0.45);
+  font-size: 0.6875rem;
+}
+
+.confirm {
+  border-top: 1px solid rgba(154, 142, 205, 0.25);
+  padding: 0.5rem 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  font-size: 0.6875rem;
+  color: rgba(245, 243, 255, 0.7);
+}
+
+.historyRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.3125rem 0.75rem;
+  border: none;
+  border-top: 1px dotted rgba(154, 142, 205, 0.15);
+  background: transparent;
+  color: var(--ar-fg, rgba(245, 243, 255, 0.88));
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.6875rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.historyRow:hover {
+  background: rgba(154, 142, 205, 0.08);
+}
+
+.historyTime {
+  margin-left: auto;
+  color: rgba(245, 243, 255, 0.45);
+}
+
+:global(html.light) .block,
+:global(html.light) .dock {
+  --ar-border: rgba(90, 80, 150, 0.25);
+  --ar-strip-bg: rgba(120, 110, 190, 0.07);
+  --ar-fg: rgba(30, 25, 55, 0.9);
+  --ar-muted: rgba(30, 25, 55, 0.6);
+  --ar-accent: #5b4dbe;
+  --ar-ok: #15803d;
+  --ar-err: #b91c1c;
+  --ar-sim: #1d4ed8;
+  --ar-chip-bg: rgba(180, 120, 10, 0.12);
+  --ar-chip-fg: #92600a;
+}
+
+:global(html.light) .dock {
+  box-shadow: 0 -6px 24px rgba(80, 70, 140, 0.15);
+  color: rgba(30, 25, 55, 0.9);
+}
+
+:global(html.light) .paramRow input {
+  background: rgba(255, 255, 255, 0.6);
+}
+
+:global(html.light) .output {
+  background: rgba(120, 110, 190, 0.05);
+}
+
+:global(html.light) .historyRow {
+  color: rgba(30, 25, 55, 0.9);
+}
+
+:global(html.light) .toggle button {
+  color: rgba(30, 25, 55, 0.5);
+}
+
+:global(html.light) .dockReason,
+:global(html.light) .historyTime {
+  color: rgba(30, 25, 55, 0.5);
+}
+
+:global(html.light) .confirm {
+  color: rgba(30, 25, 55, 0.7);
+}
