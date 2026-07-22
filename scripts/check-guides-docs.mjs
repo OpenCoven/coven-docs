@@ -158,4 +158,19 @@ if (!readFileSync(join(guidesRoot, 'script-the-api.mdx'), 'utf8').includes('/doc
   fail('script-the-api guide must link to the API reference.');
 }
 
+const scriptApiSource = readFileSync(join(guidesRoot, 'script-the-api.mdx'), 'utf8');
+const apiRequestCount = (scriptApiSource.match(/<ApiRequest\b/g) ?? []).length;
+if (apiRequestCount < 5) {
+  fail(`script-the-api guide must wrap its five steps in <ApiRequest> blocks (found ${apiRequestCount}).`);
+}
+if (!scriptApiSource.includes('<ApiConsole />')) {
+  fail('script-the-api guide must render the <ApiConsole /> dock.');
+}
+if (!scriptApiSource.includes("capture={{ SESSION_ID: 'id' }}")) {
+  fail('script-the-api launch step must capture SESSION_ID.');
+}
+if (!scriptApiSource.includes("capture={{ AFTER_SEQ: 'nextCursor.afterSeq' }}")) {
+  fail('script-the-api events step must capture AFTER_SEQ from the events cursor.');
+}
+
 console.log('Guides docs check passed.');
