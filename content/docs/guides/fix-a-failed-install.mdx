@@ -21,9 +21,16 @@ which -a coven
 coven --version
 ```
 
+On Windows, in PowerShell:
+
+```powershell
+Get-Command coven -All
+coven --version
+```
+
 **Expected output:** exactly one path and the version you meant to install. Interpret anything else:
 
-- **No output from `which`** — the command is not on `PATH`; go to Step 2.
+- **No output from `which`** (or `Get-Command` errors) — the command is not on `PATH`; go to Step 2.
 - **Multiple paths** — an older install is shadowing the new one; go to Step 3.
 - **Runs, but errors at runtime** — install is fine; leave this guide for [Troubleshooting](/docs/reference/troubleshooting).
 
@@ -34,11 +41,18 @@ If `coven` runs at all, run `coven doctor` before anything else — its report u
 For an npm global install, confirm npm's global bin directory is on `PATH`:
 
 ```bash
-npm bin -g
-echo "$PATH" | tr ':' '\n' | grep -F "$(npm bin -g)"
+npm prefix -g
+echo "$PATH" | tr ':' '\n' | grep -F "$(npm prefix -g)"
 ```
 
-**Expected output:** the grep prints the directory. If it prints nothing, add the directory to `PATH` in your shell profile, open a new terminal, and rerun `coven doctor`. Source builds check `$HOME/.cargo/bin` the same way. Avoid `sudo npm install -g` — use a user-writable npm prefix instead.
+On Windows, in PowerShell:
+
+```powershell
+npm prefix -g
+($env:Path -split ';') | Where-Object { $_ -like "*$(npm prefix -g)*" }
+```
+
+**Expected output:** the last command prints the matching `PATH` entry (on macOS and Linux the bin directory is `<prefix>/bin`; on Windows it is the prefix itself). If it prints nothing, add the directory to `PATH` in your shell profile, open a new terminal, and rerun `coven doctor`. Source builds check `$HOME/.cargo/bin` the same way. Avoid `sudo npm install -g` — use a user-writable npm prefix instead.
 
 While `PATH` is broken you can still exercise the published package directly:
 
