@@ -221,7 +221,13 @@ export function ApiRequest({ method, path, params = [], capture, children }: Api
                   Copy
                 </button>
               )}
-              <button type="button" className={styles.btn} onClick={() => setOutput(null)}>
+              <button
+                type="button"
+                className={styles.btn}
+                aria-label="Close output"
+                title="Close output"
+                onClick={() => setOutput(null)}
+              >
                 ✕
               </button>
             </div>
