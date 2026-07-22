@@ -80,7 +80,7 @@ export function ApiConsole() {
           aria-expanded={expanded}
           onClick={() => setExpanded((open) => !open)}
         >
-          {expanded ? `History ▾ (${state.history.length})` : `History ▴ (${state.history.length})`}
+          {expanded ? `History ▴ (${state.history.length})` : `History ▾ (${state.history.length})`}
         </button>
       </div>
       {confirming && (
