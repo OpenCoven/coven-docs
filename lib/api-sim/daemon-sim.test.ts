@@ -68,3 +68,85 @@ test('health fixture matches the contract handshake', () => {
   assert.ok(HEALTH.capabilities.structuredErrors);
   assert.deepEqual([...SUPPORTED_HARNESSES], ['codex', 'claude']);
 });
+
+import { DaemonSim } from './daemon-sim.ts';
+
+function launchBody(overrides: Record<string, unknown> = {}) {
+  return {
+    projectRoot: '/Users/you/code/your-repo',
+    cwd: '/Users/you/code/your-repo',
+    harness: 'codex',
+    prompt: 'explain this repo in 5 bullets',
+    title: 'API launch smoke test',
+    ...overrides,
+  };
+}
+
+test('GET /health returns the handshake payload', () => {
+  const sim = new DaemonSim();
+  const res = sim.handle('GET', '/api/v1/health');
+  assert.equal(res.status, 200);
+  assert.deepEqual(res.json, HEALTH);
+});
+
+test('GET /sessions starts with the seed session', () => {
+  const sim = new DaemonSim();
+  const res = sim.handle('GET', '/api/v1/sessions');
+  assert.equal(res.status, 200);
+  const list = res.json as { id: string }[];
+  assert.equal(list.length, 1);
+  assert.equal(list[0].id, 'ses_demo_00');
+});
+
+test('POST /sessions launches deterministically and lists the new session', () => {
+  const sim = new DaemonSim();
+  const res = sim.handle('POST', '/api/v1/sessions', launchBody());
+  assert.equal(res.status, 201);
+  const record = res.json as { id: string; status: string; harness: string };
+  assert.equal(record.id, 'ses_demo_01');
+  assert.equal(record.status, 'created');
+  assert.equal(record.harness, 'codex');
+  const again = new DaemonSim().handle('POST', '/api/v1/sessions', launchBody());
+  assert.deepEqual(again.json, res.json, 'same actions must produce same outputs');
+  const list = sim.handle('GET', '/api/v1/sessions').json as { id: string }[];
+  assert.deepEqual(list.map((s) => s.id).sort(), ['ses_demo_00', 'ses_demo_01']);
+});
+
+test('POST /sessions validates like the daemon', () => {
+  const sim = new DaemonSim();
+
+  const missing = sim.handle('POST', '/api/v1/sessions', { harness: 'codex' });
+  assert.equal(missing.status, 400);
+  assert.equal((missing.json as { error: { code: string } }).error.code, 'invalid_request');
+
+  const badHarness = sim.handle('POST', '/api/v1/sessions', launchBody({ harness: 'warp' }));
+  assert.equal(badHarness.status, 400);
+  assert.equal((badHarness.json as { error: { code: string } }).error.code, 'invalid_request');
+
+  const escape = sim.handle('POST', '/api/v1/sessions', launchBody({ cwd: '/tmp/elsewhere' }));
+  assert.equal(escape.status, 400);
+  assert.equal(
+    (escape.json as { error: { code: string } }).error.code,
+    'project_root_violation',
+  );
+});
+
+test('GET /sessions/{id} returns the record or session_not_found', () => {
+  const sim = new DaemonSim();
+  const ok = sim.handle('GET', '/api/v1/sessions/ses_demo_00');
+  assert.equal(ok.status, 200);
+  assert.equal((ok.json as { id: string }).id, 'ses_demo_00');
+
+  const gone = sim.handle('GET', '/api/v1/sessions/does-not-exist');
+  assert.equal(gone.status, 404);
+  const envelope = gone.json as { error: { code: string; details: { sessionId: string } } };
+  assert.equal(envelope.error.code, 'session_not_found');
+  assert.equal(envelope.error.details.sessionId, 'does-not-exist');
+});
+
+test('unknown routes return the not_found envelope', () => {
+  const sim = new DaemonSim();
+  const res = sim.handle('GET', '/api/v1/nope');
+  assert.equal(res.status, 404);
+  assert.equal((res.json as { error: { code: string } }).error.code, 'not_found');
+});
