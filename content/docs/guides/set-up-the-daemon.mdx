@@ -1,0 +1,112 @@
+---
+title: "Set Up the Daemon"
+summary: "Start the Coven daemon, confirm it is healthy over the CLI and the socket API, and know how to restart or stop it cleanly."
+description: "Step-by-step guide to starting the Coven daemon, checking status, calling the health endpoint with curl, and stopping or restarting it."
+read_when:
+  - You want background supervision and the local API instead of ad-hoc runs
+  - A client reports the daemon as unavailable and you need a verified restart path
+---
+
+The daemon is Coven's background runtime: it owns the session ledger, supervises live sessions, and serves the local HTTP API on a Unix socket. `coven run` works without it, but every client beyond the CLI — and background supervision itself — talks to the daemon. This guide starts it and proves it is healthy.
+
+## Prerequisites
+
+- The Coven CLI installed and passing `coven doctor` store checks — see [Install and first run](/docs/guides/install-and-first-run).
+- A Unix-like system (the daemon binds a Unix socket at `$COVEN_HOME/coven.sock`).
+- `curl` for the health check step.
+
+## Step 1 — Start the daemon
+
+```bash
+coven daemon start
+```
+
+**Expected output:**
+
+```text
+Coven daemon: running (pid <pid>, socket /Users/you/.coven/coven.sock)
+```
+
+Start creates `$COVEN_HOME` if needed, opens the SQLite ledger, binds the socket, and begins serving `/api/v1`. It fails closed if another live daemon already owns the socket — that is single-instance discipline, not an error to work around. See [Daemon lifecycle](/docs/daemon/lifecycle).
+
+## Step 2 — Check status
+
+```bash
+coven daemon status
+```
+
+**Expected output:**
+
+```text
+Coven daemon: running (pid <pid>, socket /Users/you/.coven/coven.sock)
+```
+
+If it prints `Coven daemon: not running`, the start step did not persist — jump to the troubleshooting footer. A `stale` line means a previous daemon exited without cleanup; see [Recovery and upgrades](/docs/daemon/recovery-upgrades) before deleting anything by hand.
+
+## Step 3 — Call the health endpoint
+
+Status text is for humans; clients and scripts should use the HTTP handshake:
+
+```bash
+curl --unix-socket "$HOME/.coven/coven.sock" \
+  http://localhost/api/v1/health
+```
+
+**Expected output:** a JSON body with `"ok": true`, the `apiVersion` (`coven.daemon.v1`), the daemon `pid`, and a capability map:
+
+```json
+{
+  "ok": true,
+  "apiVersion": "coven.daemon.v1",
+  "capabilities": { "sessions": true, "events": true },
+  "daemon": { "pid": 12345, "socket": "/Users/you/.coven/coven.sock" }
+}
+```
+
+If you exported a custom `COVEN_HOME`, substitute it for `$HOME/.coven` in the socket path. The full response shape is in the [socket API reference](/docs/daemon/socket-api) and the [health endpoint reference](/docs/openapi/meta/get-health).
+
+## Step 4 — Exercise it with a session
+
+From a project directory:
+
+```bash
+coven run codex "explain this repo in 5 bullets"
+coven sessions --plain
+```
+
+**Expected output:** the session runs exactly as before, and the recorded session appears in the list. With the daemon up, the same session is also visible to every other client (Cave, CastCodes, your own scripts) through the API.
+
+## Step 5 — Restart or stop cleanly
+
+Apply configuration changes (like a new `COVEN_HOME`) with a restart:
+
+```bash
+coven daemon restart
+```
+
+**Expected output:** `Coven daemon: restarted (pid <pid>, socket <path>)`.
+
+Bring it down with:
+
+```bash
+coven daemon stop
+```
+
+**Expected output:** `Coven daemon: stopped` — or `Coven daemon: was not running` if nothing was up. Stopping the daemon does not mean running harness work completed; reattach and check `coven sessions` after the next start.
+
+To keep the daemon up across reboots, put it under launchd or systemd using the shipped recipes — see [Running under a service manager](/docs/daemon/lifecycle#running-under-a-service-manager).
+
+## Troubleshooting
+
+- **`start` fails or the daemon dies immediately** — check `$COVEN_HOME` ownership and that the socket path is writable; see [Daemon unavailable](/docs/reference/troubleshooting#daemon-unavailable).
+- **`status` says stale** — a crashed daemon left its socket behind; follow [Recovery and upgrades](/docs/daemon/recovery-upgrades).
+- **`curl` cannot connect to the socket** — confirm the socket path matches the `status` output and your `COVEN_HOME`; see the [socket API reference](/docs/daemon/socket-api).
+- **Clients report `runtime_unavailable`** — the daemon is down or serving a different home; see the [error code lookup](/docs/reference/troubleshooting#error-code-lookup).
+- **Anything else** — run `coven doctor` and follow its Daemon section, then [Troubleshooting](/docs/reference/troubleshooting).
+
+## Related
+
+- [Daemon overview](/docs/daemon)
+- [Daemon lifecycle](/docs/daemon/lifecycle)
+- [Socket API](/docs/daemon/socket-api)
+- [Daemon security posture](/docs/daemon/security)

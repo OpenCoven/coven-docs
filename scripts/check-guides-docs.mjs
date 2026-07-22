@@ -5,7 +5,7 @@ const root = process.cwd();
 const docsRoot = join(root, 'content', 'docs');
 const guidesRoot = join(docsRoot, 'guides');
 
-const requiredPages = ['index', 'install-and-first-run', 'connect-a-harness'];
+const requiredPages = ['index', 'install-and-first-run', 'connect-a-harness', 'set-up-the-daemon'];
 
 const requiredMentions = [
   'step-by-step',
@@ -27,6 +27,12 @@ const requiredMentions = [
   'coven adapter install',
   '@github/copilot',
   'copilot login',
+  'coven daemon start',
+  'coven daemon status',
+  'coven daemon restart',
+  'coven daemon stop',
+  '/api/v1/health',
+  'coven.daemon.v1',
 ];
 
 function fail(message) {
@@ -104,6 +110,10 @@ if (!readFileSync(join(guidesRoot, 'install-and-first-run.mdx'), 'utf8').include
 
 if (!readFileSync(join(guidesRoot, 'connect-a-harness.mdx'), 'utf8').includes('/docs/harnesses/provider-auth')) {
   fail('connect-a-harness guide must link to the provider auth boundary.');
+}
+
+if (!readFileSync(join(guidesRoot, 'set-up-the-daemon.mdx'), 'utf8').includes('/docs/daemon/lifecycle')) {
+  fail('set-up-the-daemon guide must link to the daemon lifecycle reference.');
 }
 
 console.log('Guides docs check passed.');
