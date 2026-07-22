@@ -33,9 +33,9 @@ function errorEnvelope(
   status: number,
   code: string,
   message: string,
-  details?: Record<string, unknown>,
+  details: Record<string, unknown> = {},
 ): SimResponse {
-  return { status, json: { error: { code, message, ...(details ? { details } : {}) } } };
+  return { status, json: { error: { code, message, details } } };
 }
 
 function isInsideRoot(cwd: string, projectRoot: string): boolean {
@@ -56,7 +56,12 @@ export class DaemonSim {
   }
 
   handle(method: string, pathWithQuery: string, body?: unknown): SimResponse {
-    const url = new URL(pathWithQuery, 'http://localhost');
+    let url: URL;
+    try {
+      url = new URL(pathWithQuery, 'http://localhost');
+    } catch {
+      return errorEnvelope(400, 'invalid_request', 'Malformed request path.', { path: pathWithQuery });
+    }
     const route = `${method.toUpperCase()} ${url.pathname}`;
 
     if (route === 'GET /api/v1/health') return { status: 200, json: HEALTH };
@@ -65,7 +70,15 @@ export class DaemonSim {
     if (route === 'GET /api/v1/events') return this.listEvents(url.searchParams);
 
     const sessionMatch = /^GET \/api\/v1\/sessions\/([^/]+)$/.exec(route);
-    if (sessionMatch) return this.getSession(decodeURIComponent(sessionMatch[1]));
+    if (sessionMatch) {
+      let sessionId: string;
+      try {
+        sessionId = decodeURIComponent(sessionMatch[1]);
+      } catch {
+        return errorEnvelope(400, 'invalid_request', 'Malformed request path.', { path: pathWithQuery });
+      }
+      return this.getSession(sessionId);
+    }
 
     return errorEnvelope(404, 'not_found', 'Route was not found.', {
       method: method.toUpperCase(),
@@ -145,10 +158,10 @@ export class DaemonSim {
 
     const afterSeq = Number(params.get('afterSeq') ?? '0');
     const rawLimit = Number(params.get('limit') ?? '100');
-    if (!Number.isInteger(afterSeq) || afterSeq < 0 || !Number.isInteger(rawLimit) || rawLimit < 1) {
-      return errorEnvelope(400, 'invalid_request', 'afterSeq and limit must be non-negative integers.');
+    if (!Number.isInteger(afterSeq) || afterSeq < 0 || !Number.isInteger(rawLimit)) {
+      return errorEnvelope(400, 'invalid_request', 'afterSeq must be a non-negative integer and limit an integer.');
     }
-    const limit = Math.min(rawLimit, EVENTS_LIMIT_CAP);
+    const limit = Math.min(Math.max(rawLimit, 1), EVENTS_LIMIT_CAP);
 
     // Each poll of a not-yet-finished session "releases" the next batch of
     // scripted events, then status advances: created → running → completed.

@@ -87,7 +87,7 @@ export function makeSessionRecord(id: string, input: CreateSessionInput): Sessio
     id,
     project_root: input.projectRoot,
     harness: input.harness,
-    title: input.title ?? 'Untitled session',
+    title: input.title ?? input.prompt,
     status: 'created',
     exit_code: null,
     archived_at: null,

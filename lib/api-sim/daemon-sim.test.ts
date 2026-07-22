@@ -233,3 +233,56 @@ test('seed session events are fully available without polls', () => {
   assert.equal(page.events.length, 12);
   assert.equal(page.hasMore, false);
 });
+
+// Fix 1: handle() must never throw on malformed input
+test('handle() returns 400 for malformed path without throwing', () => {
+  const sim = new DaemonSim();
+
+  const res1 = sim.handle('GET', '/api/v1/sessions/100%');
+  assert.equal(res1.status, 400);
+  assert.equal((res1.json as { error: { code: string } }).error.code, 'invalid_request');
+
+  const res2 = sim.handle('GET', 'http://[bad');
+  assert.equal(res2.status, 400);
+  assert.equal((res2.json as { error: { code: string } }).error.code, 'invalid_request');
+});
+
+// Fix 2: error envelopes must always include details per spec
+test('error envelopes always carry details per ErrorEnvelope spec required fields', () => {
+  const errorInner = (
+    spec.components.schemas.ErrorEnvelope.properties?.error as { required?: string[] }
+  );
+  const errorRequired = errorInner?.required ?? [];
+  assert.ok(errorRequired.length > 0, 'spec ErrorEnvelope.error should list required fields');
+
+  const sim = new DaemonSim();
+  // POST with null body goes through errorEnvelope() without a details arg — currently omits it
+  const res = sim.handle('POST', '/api/v1/sessions', null);
+  const envelope = res.json as { error: Record<string, unknown> };
+  for (const field of errorRequired) {
+    assert.ok(field in envelope.error, `error envelope missing spec-required field: ${field}`);
+  }
+});
+
+// Fix 3: events limit=0 clamps to 1 rather than rejecting
+test('events limit=0 clamps to 1 event (status 200)', () => {
+  const sim = new DaemonSim();
+  const res = sim.handle('GET', '/api/v1/events?sessionId=ses_demo_00&afterSeq=0&limit=0');
+  assert.equal(res.status, 200);
+  const page = res.json as EventsPage;
+  assert.equal(page.events.length, 1);
+});
+
+// Fix 4: omitted title defaults to the prompt
+test('POST /sessions without title sets title to the prompt', () => {
+  const sim = new DaemonSim();
+  const prompt = 'explain this repo in 5 bullets';
+  const res = sim.handle('POST', '/api/v1/sessions', {
+    projectRoot: '/Users/you/code/your-repo',
+    cwd: '/Users/you/code/your-repo',
+    harness: 'codex',
+    prompt,
+  });
+  assert.equal(res.status, 201);
+  assert.equal((res.json as { title: string }).title, prompt);
+});
