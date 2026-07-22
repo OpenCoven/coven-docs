@@ -150,3 +150,86 @@ test('unknown routes return the not_found envelope', () => {
   assert.equal(res.status, 404);
   assert.equal((res.json as { error: { code: string } }).error.code, 'not_found');
 });
+
+interface EventsPage {
+  events: { seq: number; kind: string }[];
+  nextCursor: { afterSeq: number } | null;
+  hasMore: boolean;
+}
+
+function launchAndGetId(sim: DaemonSim): string {
+  const res = sim.handle('POST', '/api/v1/sessions', launchBody());
+  assert.equal(res.status, 201);
+  return (res.json as { id: string }).id;
+}
+
+test('events release per poll and page with cursors', () => {
+  const sim = new DaemonSim();
+  const id = launchAndGetId(sim);
+
+  const poll1 = sim.handle('GET', `/api/v1/events?sessionId=${id}&afterSeq=0&limit=100`)
+    .json as EventsPage;
+  assert.equal(poll1.events.length, 5);
+  assert.deepEqual(poll1.nextCursor, { afterSeq: 5 });
+  assert.equal(poll1.hasMore, false, 'poll drained everything released so far');
+
+  const running = sim.handle('GET', `/api/v1/sessions/${id}`).json as { status: string };
+  assert.equal(running.status, 'running');
+
+  const poll2 = sim.handle('GET', `/api/v1/events?sessionId=${id}&afterSeq=5&limit=100`)
+    .json as EventsPage;
+  assert.equal(poll2.events.length, 5);
+  assert.deepEqual(poll2.nextCursor, { afterSeq: 10 });
+
+  const poll3 = sim.handle('GET', `/api/v1/events?sessionId=${id}&afterSeq=10&limit=100`)
+    .json as EventsPage;
+  assert.equal(poll3.events.length, 2);
+  assert.deepEqual(poll3.nextCursor, { afterSeq: 12 });
+  assert.equal(poll3.hasMore, false);
+
+  const done = sim.handle('GET', `/api/v1/sessions/${id}`).json as {
+    status: string;
+    exit_code: number | null;
+  };
+  assert.equal(done.status, 'completed');
+  assert.equal(done.exit_code, 0);
+
+  const empty = sim.handle('GET', `/api/v1/events?sessionId=${id}&afterSeq=12&limit=100`)
+    .json as EventsPage;
+  assert.deepEqual(empty.events, []);
+  assert.equal(empty.nextCursor, null, 'empty page must return null cursor');
+  assert.equal(empty.hasMore, false);
+});
+
+test('limit truncates within released events and sets hasMore', () => {
+  const sim = new DaemonSim();
+  const id = launchAndGetId(sim);
+  const page = sim.handle('GET', `/api/v1/events?sessionId=${id}&afterSeq=0&limit=2`)
+    .json as EventsPage;
+  assert.equal(page.events.length, 2);
+  assert.deepEqual(page.nextCursor, { afterSeq: 2 });
+  assert.equal(page.hasMore, true, 'released events remain beyond the returned page');
+});
+
+test('events validate sessionId and cursor params', () => {
+  const sim = new DaemonSim();
+  const missing = sim.handle('GET', '/api/v1/events');
+  assert.equal(missing.status, 400);
+  assert.equal((missing.json as { error: { code: string } }).error.code, 'invalid_request');
+
+  const unknown = sim.handle('GET', '/api/v1/events?sessionId=nope&afterSeq=0');
+  assert.equal(unknown.status, 404);
+  assert.equal((unknown.json as { error: { code: string } }).error.code, 'session_not_found');
+
+  const id = launchAndGetId(sim);
+  const bad = sim.handle('GET', `/api/v1/events?sessionId=${id}&afterSeq=banana`);
+  assert.equal(bad.status, 400);
+});
+
+test('seed session events are fully available without polls', () => {
+  const sim = new DaemonSim();
+  const page = sim.handle('GET', '/api/v1/events?sessionId=ses_demo_00&afterSeq=0&limit=100')
+    .json as EventsPage;
+  assert.equal(page.events.length, 12);
+  assert.equal(page.hasMore, false);
+});
