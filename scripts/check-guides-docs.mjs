@@ -11,6 +11,7 @@ const requiredPages = [
   'connect-a-harness',
   'set-up-the-daemon',
   'set-up-memory',
+  'fix-a-failed-install',
 ];
 
 const requiredMentions = [
@@ -44,6 +45,10 @@ const requiredMentions = [
   'coven-memory -- ingest',
   'coven-memory -- search',
   '--familiar',
+  'which -a coven',
+  '@opencoven/cli@latest',
+  'npx @opencoven/cli doctor',
+  'cargo install --path crates/coven-cli',
 ];
 
 function fail(message) {
@@ -129,6 +134,10 @@ if (!readFileSync(join(guidesRoot, 'set-up-the-daemon.mdx'), 'utf8').includes('/
 
 if (!readFileSync(join(guidesRoot, 'set-up-memory.mdx'), 'utf8').includes('/docs/memory-models/memory')) {
   fail('set-up-memory guide must link to the memory model overview.');
+}
+
+if (!readFileSync(join(guidesRoot, 'fix-a-failed-install.mdx'), 'utf8').includes('/docs/cli/install-debugging')) {
+  fail('fix-a-failed-install guide must link to the install debugging reference.');
 }
 
 console.log('Guides docs check passed.');
