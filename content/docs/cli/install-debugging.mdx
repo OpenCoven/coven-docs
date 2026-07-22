@@ -73,10 +73,10 @@ Confirm npm's global bin directory and that it is on `PATH`:
 ```sh
 npm root -g
 npm prefix -g
-echo "$PATH" | tr ':' '\n' | grep -F "$(npm prefix -g)"
+echo "$PATH" | tr ':' '\n' | grep -Fx "$(npm prefix -g)/bin"
 ```
 
-On macOS and Linux the global bin directory is `<prefix>/bin`; on Windows it is the prefix itself. (`npm bin -g` printed it directly, but the command was removed in npm 9.)
+On macOS and Linux the global bin directory is `<prefix>/bin`, which is exactly what the last command checks for; on Windows the prefix itself is the bin directory, so look for the `npm prefix -g` value in `Path` instead. (`npm bin -g` printed the directory directly, but the command was removed in npm 9.)
 
 If the global bin directory is missing from `PATH`, add it in your shell profile, open a new terminal, and retry:
 

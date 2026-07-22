@@ -42,7 +42,7 @@ For an npm global install, confirm npm's global bin directory is on `PATH`:
 
 ```bash
 npm prefix -g
-echo "$PATH" | tr ':' '\n' | grep -F "$(npm prefix -g)"
+echo "$PATH" | tr ':' '\n' | grep -Fx "$(npm prefix -g)/bin"
 ```
 
 On Windows, in PowerShell:
