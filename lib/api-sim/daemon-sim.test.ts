@@ -247,7 +247,6 @@ test('handle() returns 400 for malformed path without throwing', () => {
   assert.equal((res2.json as { error: { code: string } }).error.code, 'invalid_request');
 });
 
-// Fix 2: error envelopes must always include details per spec
 test('error envelopes always carry details per ErrorEnvelope spec required fields', () => {
   const errorInner = (
     spec.components.schemas.ErrorEnvelope.properties?.error as { required?: string[] }
@@ -257,6 +256,7 @@ test('error envelopes always carry details per ErrorEnvelope spec required field
 
   const sim = new DaemonSim();
   const res = sim.handle('POST', '/api/v1/sessions', null);
+  const envelope = res.json as { error: Record<string, unknown> };
   for (const field of errorRequired) {
     assert.ok(field in envelope.error, `error envelope missing spec-required field: ${field}`);
   }

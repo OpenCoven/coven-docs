@@ -154,11 +154,10 @@ if (!readFileSync(join(guidesRoot, 'upgrade-coven.mdx'), 'utf8').includes('/docs
   fail('upgrade-coven guide must link to the recovery and upgrades reference.');
 }
 
-if (!readFileSync(join(guidesRoot, 'script-the-api.mdx'), 'utf8').includes('/docs/reference/api')) {
+const scriptApiSource = readFileSync(join(guidesRoot, 'script-the-api.mdx'), 'utf8');
+if (!scriptApiSource.includes('/docs/reference/api')) {
   fail('script-the-api guide must link to the API reference.');
 }
-
-const scriptApiSource = readFileSync(join(guidesRoot, 'script-the-api.mdx'), 'utf8');
 const apiRequestCount = (scriptApiSource.match(/<ApiRequest\b/g) ?? []).length;
 if (apiRequestCount < 5) {
   fail(`script-the-api guide must wrap its five steps in <ApiRequest> blocks (found ${apiRequestCount}).`);
