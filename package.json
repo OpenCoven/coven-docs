@@ -12,7 +12,7 @@
   "scripts": {
     "preinstall": "npx -y only-allow pnpm",
     "dev": "next dev",
-    "build": "pnpm run check:english-only && pnpm run check:no-leading-h1 && pnpm run check:daemon-docs && pnpm run check:cli-docs && pnpm run check:coven-code-docs && pnpm run check:harness-docs && pnpm run check:terminology && pnpm run check:memory-models-docs && pnpm run check:guides-docs && pnpm run check:mermaid && pnpm run openapi:samples && next build",
+    "build": "pnpm run check:english-only && pnpm run check:no-leading-h1 && pnpm run check:daemon-docs && pnpm run check:cli-docs && pnpm run check:coven-code-docs && pnpm run check:harness-docs && pnpm run check:terminology && pnpm run check:memory-models-docs && pnpm run check:guides-docs && pnpm run test:api-runner && pnpm run check:mermaid && pnpm run openapi:samples && next build",
     "check:fumadocs": "node scripts/check-fumadocs-platform.mjs",
     "check:english-only": "node scripts/check-english-only.mjs",
     "check:no-leading-h1": "node scripts/check-no-leading-h1.mjs",
@@ -23,6 +23,7 @@
     "check:coven-code-docs": "node scripts/check-coven-code-docs.mjs",
     "check:memory-models-docs": "node scripts/check-memory-models-docs.mjs",
     "check:guides-docs": "node scripts/check-guides-docs.mjs",
+    "test:api-runner": "node --experimental-strip-types --no-warnings --test lib/api-sim/daemon-sim.test.ts components/api-runner/vars.test.ts",
     "check:links": "node scripts/validate-links.mjs",
     "check:mermaid": "node scripts/check-mermaid-transform.mjs && node scripts/check-mermaid-svg-normalize.mjs && node scripts/check-mermaid-parse.mjs",
     "check:mermaid-parse": "node scripts/check-mermaid-parse.mjs",
