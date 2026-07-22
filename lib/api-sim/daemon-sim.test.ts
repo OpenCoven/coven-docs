@@ -256,9 +256,7 @@ test('error envelopes always carry details per ErrorEnvelope spec required field
   assert.ok(errorRequired.length > 0, 'spec ErrorEnvelope.error should list required fields');
 
   const sim = new DaemonSim();
-  // POST with null body goes through errorEnvelope() without a details arg — currently omits it
   const res = sim.handle('POST', '/api/v1/sessions', null);
-  const envelope = res.json as { error: Record<string, unknown> };
   for (const field of errorRequired) {
     assert.ok(field in envelope.error, `error envelope missing spec-required field: ${field}`);
   }
