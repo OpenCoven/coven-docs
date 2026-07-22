@@ -12,6 +12,7 @@ const requiredPages = [
   'set-up-the-daemon',
   'set-up-memory',
   'fix-a-failed-install',
+  'upgrade-coven',
 ];
 
 const requiredMentions = [
@@ -49,6 +50,9 @@ const requiredMentions = [
   '@opencoven/cli@latest',
   'npx @opencoven/cli doctor',
   'cargo install --path crates/coven-cli',
+  'coven --version',
+  '/api/v1/capabilities',
+  'coven sessions --all --plain',
 ];
 
 function fail(message) {
@@ -138,6 +142,10 @@ if (!readFileSync(join(guidesRoot, 'set-up-memory.mdx'), 'utf8').includes('/docs
 
 if (!readFileSync(join(guidesRoot, 'fix-a-failed-install.mdx'), 'utf8').includes('/docs/cli/install-debugging')) {
   fail('fix-a-failed-install guide must link to the install debugging reference.');
+}
+
+if (!readFileSync(join(guidesRoot, 'upgrade-coven.mdx'), 'utf8').includes('/docs/daemon/recovery-upgrades')) {
+  fail('upgrade-coven guide must link to the recovery and upgrades reference.');
 }
 
 console.log('Guides docs check passed.');
