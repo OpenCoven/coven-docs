@@ -70,7 +70,7 @@ curl --unix-socket "$SOCK" \
 
 1. Request with your last `afterSeq` (start at `0`).
 2. Process the returned events.
-3. Persist `nextCursor.afterSeq` — it survives daemon restarts.
+3. If `nextCursor` is non-null, persist `nextCursor.afterSeq` — it survives daemon restarts. `nextCursor` is `null` when the page is empty; keep your previous cursor.
 4. Repeat while `hasMore` is `true`, then poll on your own interval.
 
 The daemon caps `limit` at 1000. `GET /api/v1/sessions/<id>/events` is the same read, path-scoped — see [events](/docs/reference/api#events).
@@ -95,7 +95,7 @@ curl --unix-socket "$SOCK" http://localhost/api/v1/sessions/does-not-exist
 }
 ```
 
-Branch on `error.code`, never on message text. The stable codes (`not_found`, `invalid_request`, `session_not_found`, `session_not_live`, `project_root_violation`, `pty_spawn_failed`, `runtime_unavailable`, `internal_error`) and their HTTP statuses are tabulated in the [error envelope reference](/docs/reference/api#error-envelope). A robust script treats `runtime_unavailable` as retry-after-status, and `session_not_live` as "switch to replay, do not send input."
+Branch on `error.code`, never on message text. The stable codes (`not_found`, `invalid_request`, `session_not_found`, `session_not_live`, `project_root_violation`, `pty_spawn_failed`, `runtime_unavailable`, `internal_error`) and their HTTP statuses are tabulated in the [error envelope reference](/docs/reference/api#error-envelope). A robust script treats `runtime_unavailable` as retryable (a `503`: check `coven daemon status`, then retry), and `session_not_live` as "switch to replay, do not send input."
 
 ## Troubleshooting
 
