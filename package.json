@@ -5,6 +5,7 @@
   "type": "module",
   "packageManager": "pnpm@10.33.2",
   "engines": {
+    "node": ">=22.6",
     "pnpm": ">=10",
     "npm": "please-use-pnpm",
     "yarn": "please-use-pnpm"
