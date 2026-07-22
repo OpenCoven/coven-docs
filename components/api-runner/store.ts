@@ -61,6 +61,8 @@ function subscribe(listener: () => void): () => void {
   return () => listeners.delete(listener);
 }
 
+let generation = 0;
+
 function getSnapshot(): RunnerState {
   return state;
 }
@@ -76,9 +78,19 @@ export function useRunnerState(): RunnerState {
 export const runnerStore = {
   get: getSnapshot,
 
+  /**
+   * Monotonic reset generation. Runs snapshot this before awaiting and drop
+   * their results if a reset/navigation happened mid-flight, so stale captures
+   * from a discarded sim never pollute fresh page state.
+   */
+  generation(): number {
+    return generation;
+  },
+
   /** Fresh demo state when landing on a (different) guide page. */
   resetForPath(pathname: string): void {
     if (state.pathname === pathname) return;
+    generation += 1;
     resetSim();
     state = { ...INITIAL, pathname, live: state.live };
     for (const listener of listeners) listener();
@@ -86,6 +98,7 @@ export const runnerStore = {
 
   /** "Reset demo": clears sim state, captured vars, history; keeps probe. */
   reset(): void {
+    generation += 1;
     resetSim();
     setState({ mode: 'sim', confirmedLive: false, vars: {}, history: [] });
   },

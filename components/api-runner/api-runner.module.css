@@ -1,7 +1,8 @@
 /* Violet glass tokens matching the docs site (see docs-data-table.module.css
  * for the convention). Light-mode overrides at the bottom. */
 
-.block {
+.block,
+.dock {
   --ar-border: rgba(180, 170, 235, 0.18);
   --ar-strip-bg: rgba(154, 142, 205, 0.06);
   --ar-fg: rgba(245, 243, 255, 0.88);
@@ -12,6 +13,9 @@
   --ar-sim: #60a5fa;
   --ar-chip-bg: rgba(251, 191, 36, 0.14);
   --ar-chip-fg: #fbbf24;
+}
+
+.block {
   margin: 0 0 1rem;
 }
 
@@ -287,6 +291,10 @@
   --ar-strip-bg: rgba(120, 110, 190, 0.07);
   --ar-fg: rgba(30, 25, 55, 0.9);
   --ar-muted: rgba(30, 25, 55, 0.6);
+  --ar-accent: #5b4dbe;
+  --ar-ok: #15803d;
+  --ar-err: #b91c1c;
+  --ar-sim: #1d4ed8;
   --ar-chip-bg: rgba(180, 120, 10, 0.12);
   --ar-chip-fg: #92600a;
 }

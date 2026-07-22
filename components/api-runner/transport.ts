@@ -24,7 +24,14 @@ const SIM_LATENCY_MS = 200;
 let simInstance: Promise<DaemonSim> | null = null;
 
 function getSim(): Promise<DaemonSim> {
-  simInstance ??= import('@/lib/api-sim/daemon-sim').then((m) => new m.DaemonSim());
+  if (!simInstance) {
+    simInstance = import('@/lib/api-sim/daemon-sim').then((m) => new m.DaemonSim());
+    // Do not cache a rejection: a transient chunk-load failure (e.g. stale
+    // hashes after a redeploy) should retry on the next Run.
+    simInstance.catch(() => {
+      simInstance = null;
+    });
+  }
   return simInstance;
 }
 

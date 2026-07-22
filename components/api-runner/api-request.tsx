@@ -106,8 +106,10 @@ export function ApiRequest({ method, path, params = [], capture, children }: Api
     }
 
     setRunning(true);
+    const generation = runnerStore.generation();
     try {
       const result = await runRequest(state.mode, method, pathResult.resolved, body);
+      if (runnerStore.generation() !== generation) return;
       let captured: VarMap = {};
       if (capture && result.status < 400) {
         for (const [name, dotPath] of Object.entries(capture)) {
@@ -190,42 +192,45 @@ export function ApiRequest({ method, path, params = [], capture, children }: Api
           ))}
         </div>
       )}
-      {output && (
-        <div className={styles.output} role="status" aria-live="polite">
-          <div className={styles.outputMeta}>
-            {output.kind === 'result' && (
-              <>
-                <span className={(output.status ?? 500) < 400 ? styles.pillOk : styles.pillErr}>
-                  {output.status}
-                </span>
-                <span className={output.mode === 'sim' ? styles.pillSim : styles.pillLive}>
-                  {output.mode === 'sim' ? 'simulated' : 'live'}
-                </span>
-                <span>{output.ms}ms</span>
-                {output.captured &&
-                  Object.entries(output.captured).map(([name, value]) => (
-                    <span key={name} className={styles.varChip}>
-                      captured {name} = {value}
-                    </span>
-                  ))}
-              </>
-            )}
-            {output.kind !== 'result' && <span className={styles.hint}>{output.message}</span>}
-            <span className={styles.spacer} />
-            {output.kind === 'result' && (
-              <button type="button" className={styles.btn} onClick={copyResponse}>
-                Copy
+      {/* Live region pre-exists its content so screen readers announce results. */}
+      <div role="status" aria-live="polite">
+        {output && (
+          <div className={styles.output}>
+            <div className={styles.outputMeta}>
+              {output.kind === 'result' && (
+                <>
+                  <span className={(output.status ?? 500) < 400 ? styles.pillOk : styles.pillErr}>
+                    {output.status}
+                  </span>
+                  <span className={output.mode === 'sim' ? styles.pillSim : styles.pillLive}>
+                    {output.mode === 'sim' ? 'simulated' : 'live'}
+                  </span>
+                  <span>{output.ms}ms</span>
+                  {output.captured &&
+                    Object.entries(output.captured).map(([name, value]) => (
+                      <span key={name} className={styles.varChip}>
+                        captured {name} = {value}
+                      </span>
+                    ))}
+                </>
+              )}
+              {output.kind !== 'result' && <span className={styles.hint}>{output.message}</span>}
+              <span className={styles.spacer} />
+              {output.kind === 'result' && (
+                <button type="button" className={styles.btn} onClick={copyResponse}>
+                  Copy
+                </button>
+              )}
+              <button type="button" className={styles.btn} onClick={() => setOutput(null)}>
+                ✕
               </button>
+            </div>
+            {output.kind === 'result' && (
+              <pre className={styles.json}>{JSON.stringify(output.json, null, 2)}</pre>
             )}
-            <button type="button" className={styles.btn} onClick={() => setOutput(null)}>
-              ✕
-            </button>
           </div>
-          {output.kind === 'result' && (
-            <pre className={styles.json}>{JSON.stringify(output.json, null, 2)}</pre>
-          )}
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }
