@@ -64,7 +64,7 @@ curl --unix-socket "$HOME/.coven/coven.sock" \
   http://localhost/api/v1/health
 ```
 
-**Expected output:** `"ok": true`, the new `covenVersion`, and — critically — `"apiVersion": "coven.daemon.v1"`, the contract your clients support. Scripts that use optional features should also check `GET /api/v1/capabilities` before relying on them. If a future release ever changes the contract, clients should fail closed with an update message rather than guess at response shapes — see [Recovery and upgrades](/docs/daemon/recovery-upgrades).
+**Expected output:** `"ok": true` and — critically — `"apiVersion": "coven.daemon.v1"`, the contract your clients support. Do not verify the upgrade against the health body's `covenVersion` (released builds report the crate version, not the release tag — Step 2's `coven --version` is the version check). Scripts that use optional features should also check `GET /api/v1/capabilities` before relying on them. If a future release ever changes the contract, clients should fail closed with an update message rather than guess at response shapes — see [Recovery and upgrades](/docs/daemon/recovery-upgrades).
 
 ## Step 5 — Confirm your sessions survived
 
