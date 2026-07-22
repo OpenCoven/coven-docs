@@ -5,7 +5,13 @@ const root = process.cwd();
 const docsRoot = join(root, 'content', 'docs');
 const guidesRoot = join(docsRoot, 'guides');
 
-const requiredPages = ['index', 'install-and-first-run', 'connect-a-harness', 'set-up-the-daemon'];
+const requiredPages = [
+  'index',
+  'install-and-first-run',
+  'connect-a-harness',
+  'set-up-the-daemon',
+  'set-up-memory',
+];
 
 const requiredMentions = [
   'step-by-step',
@@ -33,6 +39,11 @@ const requiredMentions = [
   'coven daemon stop',
   '/api/v1/health',
   'coven.daemon.v1',
+  'coven memory',
+  '~/.coven/memory/',
+  'coven-memory -- ingest',
+  'coven-memory -- search',
+  '--familiar',
 ];
 
 function fail(message) {
@@ -114,6 +125,10 @@ if (!readFileSync(join(guidesRoot, 'connect-a-harness.mdx'), 'utf8').includes('/
 
 if (!readFileSync(join(guidesRoot, 'set-up-the-daemon.mdx'), 'utf8').includes('/docs/daemon/lifecycle')) {
   fail('set-up-the-daemon guide must link to the daemon lifecycle reference.');
+}
+
+if (!readFileSync(join(guidesRoot, 'set-up-memory.mdx'), 'utf8').includes('/docs/memory-models/memory')) {
+  fail('set-up-memory guide must link to the memory model overview.');
 }
 
 console.log('Guides docs check passed.');
