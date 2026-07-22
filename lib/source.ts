@@ -18,6 +18,7 @@ const lucideIcons = {
   LuTerminal: icons.Terminal,
   LuCable: icons.Cable,
   LuBrainCircuit: icons.BrainCircuit,
+  LuCompass: icons.Compass,
 };
 
 export const source = loader({

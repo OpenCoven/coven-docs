@@ -1,0 +1,7 @@
+{
+  "title": "Guides",
+  "description": "Step-by-Step How-Tos",
+  "root": true,
+  "icon": "LuCompass",
+  "pages": ["index"]
+}
