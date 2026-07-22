@@ -10,6 +10,8 @@ import { TypeTable } from 'fumadocs-ui/components/type-table';
 import { createAPIPage } from 'fumadocs-openapi/ui';
 import { Mermaid } from '@/components/mermaid';
 import { DocsDataTable } from '@/components/docs-data-table';
+import { ApiConsole } from '@/components/api-runner/api-console';
+import { ApiRequest } from '@/components/api-runner/api-request';
 import { openapi } from '@/lib/openapi';
 
 // Created once at module load; cheap because createOpenAPI lazy-loads schemas.
@@ -22,6 +24,8 @@ export function getMDXComponents(components?: MDXComponents): MDXComponents {
     Accordion,
     Accordions,
     APIPage,
+    ApiConsole,
+    ApiRequest,
     DocsDataTable,
     File,
     Files,
