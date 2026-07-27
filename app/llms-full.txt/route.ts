@@ -29,7 +29,7 @@ export async function GET(): Promise<Response> {
   const chunks: string[] = [
     '# Coven — Full Documentation',
     '',
-    'Persistent AI familiars. Composable. Observable. Publishable.',
+    'A local runtime for durable, auditable coding-agent work.',
     '',
     `Source: ${BASE_URL}`,
     `Index: ${BASE_URL}/llms.txt`,

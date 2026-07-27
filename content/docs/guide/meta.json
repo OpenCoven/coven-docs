@@ -1,16 +1,12 @@
 {
   "title": "Guide",
-  "description": "How Coven Works",
+  "description": "Start with Coven's local runtime",
   "root": true,
   "icon": "LuBookOpen",
   "pages": [
     "getting-started",
     "install",
     "concepts",
-    "surfaces",
-    "cast-codes",
-    "cave",
-    "demo-loop",
     "architecture"
   ]
 }

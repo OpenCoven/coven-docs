@@ -9,7 +9,7 @@ read_when:
 
 import { Mermaid } from '@/components/mermaid';
 
-Memory is what turns a one-off harness session into a persistent [familiar](/docs/familiars/what-is-a-familiar). Models are the provider side of that familiar's reasoning, but Coven does not become a model gateway. The durable runtime boundary is: Coven records sessions and events; clients/familiars derive memory from those events; harnesses own provider auth and model access.
+Memory gives durable context to work that spans sessions. Coven records sessions and events; local clients can derive memory from those records; harnesses keep provider authentication and model access. Coven does not become a model gateway.
 
 <Mermaid chart={`
 flowchart LR
@@ -38,6 +38,6 @@ flowchart LR
 
 ## Related
 
-- [Session lifecycle](/docs/familiars/sessions)
+- [Session management](/docs/cli/sessions)
 - [Harness provider auth](/docs/harnesses/provider-auth)
 - [Authentication and local access](/docs/reference/auth)

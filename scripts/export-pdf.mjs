@@ -6,7 +6,7 @@ const origin = process.env.DOCS_ORIGIN ?? 'http://localhost:3000';
 const outDir = process.env.DOCS_PDF_DIR ?? 'pdfs';
 const routes = (
   process.env.DOCS_PDF_ROUTES ??
-  '/docs,/docs/guide/getting-started,/docs/guide/install,/docs/guide/concepts,/docs/guide/cast-codes,/docs/guide/architecture,/docs/familiars/sessions,/docs/familiars/harnesses,/docs/familiars/clients,/docs/reference/api,/docs/reference/auth,/docs/reference/safety,/docs/reference/docs-platform,/docs/reference/issue-plan'
+  '/docs,/docs/guide/getting-started,/docs/guide/install,/docs/guide/concepts,/docs/guide/architecture,/docs/cli,/docs/harnesses,/docs/daemon,/docs/memory-models,/docs/reference/api,/docs/reference/auth,/docs/reference/safety,/docs/reference/troubleshooting'
 )
   .split(',')
   .map((route) => route.trim())

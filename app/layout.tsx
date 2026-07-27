@@ -7,7 +7,6 @@ import type { ReactNode } from 'react';
 import { Analytics } from '@vercel/analytics/next';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import { CovenSearchDialog } from '@/components/search-dialog';
-import { AskSalem } from '@/components/ask-salem';
 import './globals.css';
 
 const inter = Inter({ subsets: ['latin'] });
@@ -20,8 +19,8 @@ export const metadata: Metadata = {
     default: 'Coven Docs',
     template: '%s | Coven Docs',
   },
-  description: 'Persistent AI familiars. Composable. Observable. Publishable.',
-  keywords: 'Coven, AI agents, familiars, OpenClaw, open source, documentation',
+  description: 'A local runtime for durable, auditable coding-agent work.',
+  keywords: 'Coven, coding agents, harnesses, local runtime, session records, documentation',
   icons: {
     icon: '/favicon.svg',
     apple: '/apple-touch-icon.png',
@@ -29,7 +28,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     title: 'Coven Documentation',
-    description: 'Persistent AI familiars. Composable. Observable. Publishable.',
+    description: 'A local runtime for durable, auditable coding-agent work.',
     url: BASE_URL,
     siteName: 'Coven Docs',
     images: [
@@ -44,7 +43,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'Coven Docs',
-    description: 'Persistent AI familiars. Composable. Observable. Publishable.',
+    description: 'A local runtime for durable, auditable coding-agent work.',
     creator: '@OpenCvn',
     images: [`${BASE_URL}/api/og`],
   },
@@ -71,9 +70,6 @@ export default function Layout({ children }: { children: ReactNode }) {
           }}
         >
           {children}
-          {/* Shared launcher: Ask Salem chat + OpenCoven Feedback panel.
-              The feedback SDK is lazy-loaded on first use (lib/feedback-widget). */}
-          <AskSalem />
         </RootProvider>
         <Analytics />
         <SpeedInsights />

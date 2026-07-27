@@ -110,8 +110,8 @@ if (missingMentions.length > 0) {
   fail(`Memory + Models docs are missing required mentions: ${missingMentions.join(', ')}.`);
 }
 
-if (!joined.includes('/docs/familiars/sessions') || !joined.includes('/docs/harnesses/provider-auth')) {
-  fail('Memory + Models docs must cross-link session lifecycle and harness provider-auth docs.');
+if (!joined.includes('/docs/cli/sessions') || !joined.includes('/docs/harnesses/provider-auth')) {
+  fail('Memory + Models docs must cross-link session management and harness provider-auth docs.');
 }
 
 if (!readFileSync(join(sectionRoot, 'models.mdx'), 'utf8').includes('/docs/harnesses/codex')) {

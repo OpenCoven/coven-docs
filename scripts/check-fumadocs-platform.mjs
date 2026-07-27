@@ -29,12 +29,6 @@ function assertFile(file) {
 
 assertIncludes('app/layout.config.tsx', "text: 'Home'", 'Home header link');
 assertIncludes('app/layout.config.tsx', "url: '/'", 'Home header route');
-assertIncludes('app/layout.config.tsx', "text: 'Archives'", 'Archives header link');
-assertIncludes('app/layout.config.tsx', "url: '/archives'", 'Archives header route');
-assertIncludes('app/layout.config.tsx', "text: 'Covenant'", 'Covenant header link');
-assertIncludes('app/layout.config.tsx', "url: '/covenant'", 'Covenant header route');
-assertFile('app/(home)/archives/page.tsx');
-assertFile('app/(home)/covenant/page.tsx');
 assertNotIncludes('content/docs/meta.json', '"familiars"', 'Familiars root navigation option');
 
 assertFile('components/mdx-components.tsx');
@@ -65,9 +59,6 @@ if (read('components/search-dialog.tsx').includes('SearchDialogFooter')) {
   throw new Error('components/search-dialog.tsx still uses SearchDialogFooter for filters');
 }
 
-assertFile('components/graph-view.tsx');
-assertFile('lib/build-graph.ts');
-assertIncludes('source.config.ts', 'extractLinkReferences', 'graph link extraction');
 assertIncludes('source.config.ts', 'includeProcessedMarkdown', 'export processed markdown');
 assertIncludes('lib/source.ts', "@/.source/server", 'Fumadocs v15 server source entry');
 

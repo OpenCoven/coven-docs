@@ -13,7 +13,7 @@ Coven records project-scoped harness work as sessions. Use `coven sessions` to b
 coven sessions
 ```
 
-For status meanings and archive semantics, see [Session Lifecycle](/docs/familiars/sessions).
+The daemon owns session state; see [Daemon lifecycle](/docs/daemon/lifecycle) for recovery and restart behavior.
 
 ## Rituals Cheat Sheet
 
@@ -43,7 +43,7 @@ The rituals in detail:
 | `coven sessions --all` | Includes archived sessions. |
 | `coven sessions --manage` | Forces the interactive session browser. |
 | `coven sessions --plain` | Forces a plain table for scripts and copying. |
-| `coven sessions --json` | Prints a JSON `sessions` array for clients such as CastCodes. |
+| `coven sessions --json` | Prints a JSON `sessions` array for local clients and scripts. |
 
 Use `--json` for integrations and `--plain` for shell scripts or support snippets.
 

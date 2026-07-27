@@ -21,16 +21,6 @@ export const baseOptions: BaseLayoutProps = {
       active: 'url',
     },
     {
-      text: 'Archives',
-      url: '/archives',
-      active: 'nested-url',
-    },
-    {
-      text: 'Covenant',
-      url: '/covenant',
-      active: 'nested-url',
-    },
-    {
       type: 'icon',
       text: 'GitHub',
       label: 'GitHub',

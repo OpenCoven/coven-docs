@@ -143,7 +143,7 @@ export async function GET(req: NextRequest) {
                 letterSpacing: '-0.2px',
               }}
             >
-              Persistent AI familiars. Composable. Observable. Publishable.
+              Local runtime. Durable session record. Your harness.
             </div>
           </div>
 

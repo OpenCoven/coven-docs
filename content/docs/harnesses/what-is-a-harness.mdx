@@ -1,7 +1,7 @@
 ---
 title: "What Is a Harness?"
 summary: "A harness is a PTY-driven adapter for one external coding-agent CLI."
-description: "Definition of a Coven harness and the boundary between harnesses, familiars, clients, and the daemon."
+description: "Definition of a Coven harness and its boundary with the daemon."
 read_when:
   - You are new to Coven terminology
   - You need to explain why a harness is not the same thing as Coven itself
@@ -19,8 +19,8 @@ A harness is a coding-agent CLI that Coven can run as a supervised process. The 
 | Harness | External coding-agent CLI such as Codex or Claude Code. |
 | Adapter | Coven's mapping from harness id to executable and fixed launch arguments — built in or loaded from an adapter manifest. |
 | Daemon | Rust authority layer that validates requests, spawns PTYs, and records events. |
-| Familiar | Product concept for a named agent with identity, memory, tools, and role. See [What is a familiar?](/docs/familiars/what-is-a-familiar) |
-| Client | CLI, TUI, Cast Agent, OpenClaw plugin, or script that asks the daemon to act. |
+| Session | Coven-owned record of one harness run: its project, events, and lifecycle. |
+| Client | CLI, TUI, or script that asks the daemon to act. |
 
 ## What Coven controls
 
@@ -62,4 +62,4 @@ This is distinct from "harness engineering" in the broader AI literature — whe
 
 When Coven docs say "harness," they mean the PTY adapter. When AI research literature says "harness," it often means the engineered scaffolding. Both usages are legitimate in their contexts.
 
-The same discipline applies to "runtime": Coven is the **local runtime substrate**, while a harness or the engine is an **agent runtime**. The full usage rule, with the audit that enforces it, lives in [Harness vs. runtime](/docs/reference/harness-vs-runtime).
+The same discipline applies to "runtime": Coven is the local runtime around the harness; the harness is the agent process that performs the work.

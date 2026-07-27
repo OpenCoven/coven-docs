@@ -1,57 +1,26 @@
 ---
-title: Introduction
-description: Persistent AI familiars. Composable. Observable. Publishable.
+title: Coven
+description: A local runtime for durable, auditable coding-agent work.
 ---
 
-import { Cards, Card } from 'fumadocs-ui/components/card';
-import { DocsDataTable } from '@/components/docs-data-table';
-import { GraphView } from '@/components/graph-view';
-import { buildGraph } from '@/lib/build-graph';
+import { Card, Cards } from 'fumadocs-ui/components/card';
 
-**Coven** is not a harness. It is the local runtime substrate that harnesses run on.
+Coven runs coding agents inside a local, project-scoped boundary. It keeps the parts a harness does not: session lifecycle, an append-only record, replay, and a stable local API.
 
-Whether you are using OpenClaw, Codex, Claude Code, a custom tool loop, or something else entirely — Coven provides the persistent layer underneath: named familiars with memory, identity, and tooling that survive across sessions. Harnesses bring their own credentials, models, and provider accounts. Coven brings the boundary, the record, and the continuity.
+## Why Coven
 
-_Familiars_ are the agents that live inside Coven — persistent, named, and yours.
+- **Use the harness you trust.** Run Codex, Claude Code, Copilot CLI, Coven Code, or a registered adapter without moving provider credentials into Coven.
+- **Keep work inside the project.** The daemon canonicalizes project roots and working directories before a session starts.
+- **Keep the record.** Sessions, events, and logs remain available after a harness exits, so work can be inspected, replayed, archived, or removed deliberately.
+- **Keep control local.** One same-user daemon owns PTYs and exposes a versioned HTTP-over-Unix-socket API for the CLI and your own local clients.
+
+## Start here
 
 <Cards>
-  <Card title="Getting Started" href="/docs/guide/getting-started" description="Set up your first familiar in minutes." />
-  <Card title="Concepts" href="/docs/guide/concepts" description="Understand how Coven works at its core." />
-  <Card title="Cast Codes" href="/docs/guide/cast-codes" description="Learn the portable intent grammar for routing familiar work." />
-  <Card title="Cave" href="/docs/guide/cave" description="The desktop home for your Coven." />
-  <Card title="Cast Agent" href="/docs/familiars/cast-agent" description="Understand the CastCodes substrate and session backend." />
-  <Card title="Architecture" href="/docs/guide/architecture" description="How Coven is structured under the hood." />
-  <Card title="API Reference" href="/docs/reference/api" description="Full API docs and type signatures." />
+  <Card title="First session" href="/docs/guide/getting-started" description="Install Coven, verify it, and run a harness in a project." />
+  <Card title="CLI reference" href="/docs/cli" description="Use the command surface for sessions, diagnostics, and operations." />
+  <Card title="Harnesses" href="/docs/harnesses" description="Connect an agent CLI without changing its provider authentication." />
+  <Card title="Daemon" href="/docs/daemon" description="Understand the local authority boundary and runtime state." />
+  <Card title="Memory + models" href="/docs/memory-models" description="Choose durable memory and model-access patterns." />
+  <Card title="Local API" href="/docs/reference/api" description="Integrate a local client against the supported contract." />
 </Cards>
-
-## What Makes Coven Different?
-
-<DocsDataTable
-  caption="Coven differentiators"
-  searchPlaceholder="Filter differentiators..."
-  columns={[
-    { key: 'pillar', label: 'Pillar' },
-    { key: 'group', label: 'Group', filter: true },
-    { key: 'meaning', label: 'Meaning' },
-  ]}
-  rows={[
-    { pillar: '**Persistent familiars**', group: 'Identity', meaning: 'Agents carry memory, personality, and continuity across sessions.' },
-    { pillar: '**Tool access**', group: 'Capabilities', meaning: 'Familiars can use web, exec, files, messaging, calendar, and more.' },
-    { pillar: '**Multi-channel**', group: 'Presence', meaning: 'The same work can surface through Telegram, Discord, iMessage, WhatsApp, and custom channels.' },
-    { pillar: '**Observable**', group: 'Trust', meaning: 'Actions are traced, inspectable, and auditable.' },
-    { pillar: '**Open**', group: 'Ownership', meaning: 'The system is self-hosted, extensible, and yours.' },
-  ]}
-/>
-
-```sh
-# Your familiar's work, recorded and replayable
-coven run codex "remind me what changed since the last release" --title "Release recap"
-coven sessions        # browse, rejoin, or replay the run
-coven attach <id>     # watch it live, or replay it later
-```
-
-Familiars build on that substrate: every session a familiar runs is recorded, replayable, and feeds the [memory layers](/docs/memory-models/memory) that make the familiar persistent. See [What is a familiar?](/docs/familiars/what-is-a-familiar) for the full picture.
-
-## Docs Map
-
-<GraphView graph={buildGraph()} />

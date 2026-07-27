@@ -70,9 +70,6 @@ for (const page of requiredPages) {
     fail('socket-api page must cross-link the existing local API reference.');
   }
 
-  if (!source.includes('/docs/reference/api-architecture') && page === 'index') {
-    fail('daemon overview must cross-link the existing API architecture diagrams.');
-  }
 }
 
 console.log('Daemon docs check passed.');

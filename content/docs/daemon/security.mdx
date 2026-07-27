@@ -77,10 +77,10 @@ Destructive operations must remain explicit even when wrapped by another client:
 | Process/cache relief commands | Require explicit confirmation flags. |
 | OpenClaw patch flows | May generate patches, but v0 should not silently commit or push. |
 
-Wrappers such as Cast Agent, dashboards, and OpenClaw bridges must surface the same confirmations instead of hiding them behind a prettier button.
+Every local client must surface the same confirmations instead of hiding them behind a prettier button.
 
 ## Related
 
 - [Socket API](/docs/daemon/socket-api)
 - [Configuration and COVEN_HOME](/docs/daemon/configuration)
-- [Client Integration](/docs/familiars/clients)
+- [Local API](/docs/reference/api)

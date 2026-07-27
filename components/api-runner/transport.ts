@@ -77,7 +77,7 @@ export async function runRequest(
 
 /**
  * One health probe decides whether the Live toggle is enabled. Mirrors the
- * states DaemonStatusBanner distinguishes: reachable, hosted, unreachable.
+ * transport states: reachable, hosted, and unreachable.
  */
 export async function probeDaemon(): Promise<ProbeResult> {
   try {

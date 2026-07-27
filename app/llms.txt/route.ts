@@ -13,7 +13,7 @@ export function GET(): Response {
   const header = [
     '# Coven',
     '',
-    'Persistent AI familiars. Composable. Observable. Publishable.',
+    'A local runtime for durable, auditable coding-agent work.',
     '',
     `> Full docs with page content: ${BASE_URL}/llms-full.txt`,
     `> Append .md to any docs URL for clean Markdown, e.g. ${BASE_URL}/docs/guide/getting-started.md`,

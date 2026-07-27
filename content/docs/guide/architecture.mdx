@@ -1,207 +1,24 @@
 ---
-title: "Architecture"
-description: "How Coven is structured under the hood."
+title: Architecture
+description: The local path from a command to a durable session record.
 ---
 
-import { DocsDataTable } from '@/components/docs-data-table';
-import { Mermaid } from '@/components/mermaid';
-
-## System Overview
-
-<Mermaid chart={`
-flowchart LR
-    U[User / Developer] --> SURF[Channels and surfaces\nTelegram / Discord / CLI / CastCodes / Cave / OpenClaw]
-    SURF --> CODE[Cast Codes\nportable intent grammar]
-    CODE --> AGENT[Cast Agent\nsubstrate + session backend]
-    AGENT --> DAEMON[Coven daemon\nRust authority boundary]
-    DAEMON --> SESS[(SQLite sessions\nappend-only events)]
-    DAEMON --> HAR[Harness adapter router]
-    HAR --> CODEX[Codex]
-    HAR --> CLAUDE[Claude Code]
-    HAR -. future .-> OTHER[Hermes / Aider / OpenCode]
-    AGENT --> MEM[(Familiar memory\nfiles + vectors)]
-    AGENT --> GATEWAY[Coven Gateway\nHTTP + WebSocket]
-`} />
-
-# Coven Architecture
-
-Coven is a local-first harness substrate. The Rust CLI/daemon is the authority layer; clients such as the CLI/TUI, CastCodes, Cave, Cast Agent, and the optional OpenClaw plugin are presentation/integration layers.
-
-The versioned local socket API contract lives in [Coven Local API](/docs/reference/api). Clients should use `GET /api/v1/health` and negotiate against `apiVersion: "coven.daemon.v1"` and the `capabilities` object before depending on session or event response shapes. All error responses use the structured `{ error: { code, message, details } }` envelope documented there.
-
-## Runtime Topology
-
 ```mermaid
 flowchart LR
-  User[Developer] --> CLI[CovenCLI / TUI]
-  User --> CastCodes[CastCodes app]
-  User --> Cave[Cave desktop app]
-  CLI -->|direct commands| Rust[Coven Rust CLI]
-  Rust --> Daemon[Coven daemon]
-
-  CastCodes --> CastAgent[Cast Agent]
-  CastAgent -->|sessions + stream + substrate| Gateway[Coven Gateway]
-  CastAgent -->|local session operations| Daemon
-  Cave -->|HTTP over Unix socket| Daemon
-  OpenClaw[OpenClaw] --> Plugin[external @opencoven/coven plugin]
-  Plugin -->|HTTP over Unix socket| Daemon
-  Daemon --> Control[Control plane: capability discovery + action routing]
-  Control --> Policy[Policy + permission hints]
-  Control --> AdapterBus[Adapter/event bus]
-  AdapterBus -. desktop automation .-> DesktopUse[desktop-use adapters]
-
-  Daemon --> Boundary[Project-root + cwd guard]
-  Boundary --> Adapter[Harness adapter router]
-  Adapter --> Codex[Codex PTY]
-  Adapter --> Claude[Claude Code PTY]
-  Adapter -. future .-> Future[Hermes / Aider / Gemini / custom adapters]
-
-  Daemon --> Store[(SQLite session ledger)]
-  Daemon --> Events[(append-only event log)]
-  Codex --> Events
-  Claude --> Events
+  User[You or a local client] --> CLI[coven CLI]
+  CLI --> Daemon[Coven daemon]
+  Daemon --> Guard[Project and session validation]
+  Guard --> PTY[Harness PTY]
+  PTY --> Harness[Codex, Claude Code, or another adapter]
+  Daemon --> Ledger[(SQLite session ledger + events)]
+  Daemon --> API[/api/v1 over Unix socket/]
 ```
 
-## Session Lifecycle
+1. A CLI command or local client asks the daemon to create or inspect a session.
+2. The daemon validates the project root, working directory, harness id, and session state.
+3. It starts and supervises the harness in a PTY, recording lifecycle and output events.
+4. The ledger preserves the record for attach, replay, archive, and diagnostics after the process exits.
 
-```mermaid
-sequenceDiagram
-  participant U as User
-  participant C as CovenCLI/TUI
-  participant D as Rust daemon
-  participant S as SQLite store
-  participant H as Harness PTY
+The design is intentionally narrow: Coven is the durable local control plane for coding-agent work, while harnesses remain responsible for provider authentication and model behavior.
 
-  U->>C: coven run codex "fix tests"
-  C->>D: POST /api/v1/sessions(projectRoot, cwd, harness, prompt)
-  D->>D: canonicalize projectRoot + cwd
-  D->>D: reject outside-root or unsupported harness
-  D->>S: create session metadata
-  D->>H: spawn validated argv in PTY
-  H-->>S: output / exit events
-  D-->>C: session id + running status
-
-  U->>C: coven sessions
-  C->>S: list active sessions, or all with --all
-  C-->>U: interactive session browser
-
-  U->>C: Rejoin / View Log / Summon / Archive / Sacrifice
-  C->>D: attach/input/kill when live
-  C->>S: archive/summon/sacrifice non-live session rituals
-```
-
-## Authority Boundary
-
-```mermaid
-flowchart LR
-  Client[CLI/TUI, CastCodes/Cast Agent, Cave, OpenClaw plugin, scripts] --> Request[Launch / input / kill / list request]
-  Request --> Rust[Rank 0 authority: Rust daemon]
-  Rust --> RootCheck{projectRoot explicit?}
-  RootCheck -- no --> RejectRoot[Reject]
-  RootCheck -- yes --> CwdCheck{cwd canonicalized inside root?}
-  CwdCheck -- no --> RejectCwd[Reject]
-  CwdCheck -- yes --> HarnessCheck{harness allowlisted?}
-  HarnessCheck -- no --> RejectHarness[Reject with install hint]
-  HarnessCheck -- yes --> Spawn[Spawn harness with argv APIs]
-  Spawn --> Ledger[Persist session + events]
-```
-
-Cast Codes are parsed intent. Every sensitive request they produce is still revalidated by the Rust daemon.
-
-## Cast Agent Request Flow
-
-```mermaid
-sequenceDiagram
-  participant UI as CastCodes UI
-  participant A as Cast Agent
-  participant G as Coven Gateway
-  participant D as Coven daemon
-
-  UI->>A: user prompt or Cast Code
-  A->>A: collect substrate
-  A->>G: POST or WS /v1/messages
-  A->>D: list/open local Coven sessions
-  D-->>A: session records/events
-  A-->>UI: stream response + session affordances
-```
-
-## Automation Boundary
-
-Coven is the canonical shared local runtime for reusable automation because it centralizes the authority surfaces below.
-
-<DocsDataTable
-  caption="Automation authority surfaces"
-  searchPlaceholder="Filter automation surfaces..."
-  columns={[
-    { key: 'surface', label: 'Surface' },
-    { key: 'group', label: 'Group', filter: true },
-    { key: 'reason', label: 'Reason' },
-  ]}
-  rows={[
-    { surface: 'Daemon/process ownership', group: 'Runtime', reason: 'One process owns launch, liveness, input, and kill decisions.' },
-    { surface: 'Policy and permission decisions', group: 'Policy', reason: 'Sensitive choices fail closed at the daemon boundary.' },
-    { surface: 'Config/profile storage', group: 'State', reason: 'Clients read state instead of inventing drift-prone local copies.' },
-    { surface: 'Capability discovery', group: 'Control plane', reason: 'Clients can show only supported actions.' },
-    { surface: 'Action routing and event emission', group: 'Control plane', reason: 'Adapter actions stay inspectable and replayable.' },
-    { surface: 'Adapter ownership', group: 'Adapters', reason: 'Accessibility, AppleScript, keyboard/mouse, window, filesystem, clipboard, and app-specific bridges stay behind Coven.' },
-  ]}
-/>
-
-The intended flow is:
-
-```text
-user -> client -> Coven -> adapters -> desktop/apps
-desktop/apps -> Coven -> client UI updates
-```
-
-`GET /api/v1/capabilities` lets clients discover what Coven can route. `POST /api/v1/actions` gives clients a stable intent envelope without coupling them directly to brittle OS automation APIs.
-
-## Future Adapter Boundary
-
-Coven's current public runtime is single-harness per session. The daemon already keeps the right lower-level boundary for future coordination work: clients can discover capabilities, launch known harnesses, read events, and preserve project-root enforcement in Rust.
-
-Do not document future orchestration commands as user-facing until they exist in the CLI and socket API. Future coordination layers should build above the current session/event contract without bypassing daemon validation.
-
-
-## Current User-facing Surface
-
-<DocsDataTable
-  caption="Current user-facing commands"
-  searchPlaceholder="Filter command surfaces..."
-  columns={[
-    { key: 'surface', label: 'Surface' },
-    { key: 'category', label: 'Category', filter: true },
-    { key: 'behavior', label: 'Behavior' },
-  ]}
-  rows={[
-    { surface: 'CovenCLI (`coven` and `coven tui`)', category: 'Entry point', behavior: 'Open the beginner-friendly slash-command palette.' },
-    { surface: '`coven doctor`', category: 'Diagnostics', behavior: 'Checks store/project/harness readiness and prints next steps.' },
-    { surface: '`coven daemon start/status/restart/stop`', category: 'Daemon', behavior: 'Manages the local daemon.' },
-    { surface: '`coven run codex|claude <prompt>`', category: 'Launch', behavior: 'Launches a project-scoped PTY session.' },
-    { surface: '`coven sessions`', category: 'Sessions', behavior: 'Opens the human session browser; `--plain` keeps scriptable output.' },
-    { surface: 'Session browser actions', category: 'Sessions', behavior: 'Surfaces **Rejoin**, **View Log**, **Summon**, **Archive**, and **Sacrifice**.' },
-    { surface: '`coven attach|summon|archive|sacrifice <session-id>`', category: 'Sessions', behavior: 'Keeps explicit lower-level verbs available for scripts and copy/paste workflows.' },
-  ]}
-/>
-
-## Distribution Snapshot
-
-The npm wrapper packages are published for early adopters.
-
-<DocsDataTable
-  caption="Published npm packages"
-  searchPlaceholder="Filter packages..."
-  columns={[
-    { key: 'package', label: 'Package' },
-    { key: 'target', label: 'Target', filter: true },
-    { key: 'role', label: 'Role' },
-  ]}
-  rows={[
-    { package: '`@opencoven/cli`', target: 'Universal wrapper', role: 'User-facing install entrypoint.' },
-    { package: '`@opencoven/cli-macos`', target: 'macOS', role: 'Platform binary package.' },
-    { package: '`@opencoven/cli-linux-x64`', target: 'Linux x64', role: 'Platform binary package.' },
-    { package: '`@opencoven/cli-windows`', target: 'Windows x64', role: 'Platform binary package.' },
-  ]}
-/>
-
-The source package versions stay template-like in the repo; release workflow dispatch supplies the published version and builds platform packages. Check the npm registry and GitHub releases before making version-specific release claims.
+For the operating model, read [Daemon](/docs/daemon). For integration details, read the [local API](/docs/reference/api).

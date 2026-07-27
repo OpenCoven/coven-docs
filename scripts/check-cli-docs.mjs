@@ -133,16 +133,16 @@ if (missingCommands.length > 0) {
   fail(`CLI docs are missing command mentions: ${missingCommands.join(', ')}.`);
 }
 
-if (!joined.includes('/docs/daemon') || !joined.includes('/docs/familiars/sessions')) {
-  fail('CLI docs must cross-link daemon and session lifecycle docs.');
+if (!joined.includes('/docs/daemon') || !joined.includes('/docs/cli/sessions')) {
+  fail('CLI docs must cross-link daemon and session management docs.');
 }
 
 if (!readFileSync(join(cliRoot, 'daemon.mdx'), 'utf8').includes('/docs/daemon/lifecycle')) {
   fail('CLI daemon page must link to daemon lifecycle docs.');
 }
 
-if (!readFileSync(join(cliRoot, 'sessions.mdx'), 'utf8').includes('/docs/familiars/sessions')) {
-  fail('CLI sessions page must link to session lifecycle docs.');
+if (!readFileSync(join(cliRoot, 'sessions.mdx'), 'utf8').includes('/docs/daemon/lifecycle')) {
+  fail('CLI sessions page must link to daemon lifecycle docs.');
 }
 
 console.log('CLI docs check passed.');

@@ -1,27 +1,12 @@
 {
   "title": "Reference",
-  "description": "API, authentication, safety, and operational reference",
+  "description": "API, security, and troubleshooting",
   "root": true,
   "icon": "LuCode",
   "pages": [
     "api",
-    "api-architecture",
-    "dispatch-contract",
     "auth",
     "safety",
-    "glossolalia",
-    "harness-vs-runtime",
-    "docs-platform",
-    "coven-github-agent",
-    "familiar-contract",
-    "coven-relay",
-    "channels",
-    "issue-plan",
-    "migration-map",
-    "roadmap",
-    "changelog",
-    "troubleshooting",
-    "feedback-widget",
-    "ask-salem"
+    "troubleshooting"
   ]
 }

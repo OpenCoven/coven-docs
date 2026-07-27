@@ -5,7 +5,6 @@ description: Interactive reference for the Coven daemon HTTP-over-Unix-socket AP
 
 import { Callout } from 'fumadocs-ui/components/callout';
 import { Cards, Card } from 'fumadocs-ui/components/card';
-import { DaemonStatusBanner } from '@/components/daemon-status-banner';
 
 The Coven daemon serves a small HTTP/1.1 API over a Unix domain socket. This section is the per-endpoint interactive reference, generated from `openapi/coven.daemon.v1.yaml`. For the narrative reference (concepts, error model, versioning rules), see [Coven local socket API](/docs/reference/api).
 
@@ -17,8 +16,6 @@ The Try It panels on each endpoint page target `http://localhost:{port}/api/v1` 
 coven daemon start
 coven daemon status   # verify pid + socket
 ```
-
-<DaemonStatusBanner />
 
 <Callout type="info" title="Sanity-check from the terminal">
   Without leaving the shell:

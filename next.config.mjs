@@ -16,7 +16,32 @@ const nextConfig = {
     return [
       {
         source: '/docs/reference/vocabulary',
-        destination: '/docs/reference/glossolalia',
+        destination: '/docs/guide/concepts',
+        permanent: true,
+      },
+      {
+        source: '/docs/guides/:path*',
+        destination: '/docs/guide/getting-started',
+        permanent: true,
+      },
+      {
+        source: '/docs/familiars/:path*',
+        destination: '/docs/cli/sessions',
+        permanent: true,
+      },
+      {
+        source: '/docs/guide/:path(cast-codes|cave|surfaces|demo-loop)',
+        destination: '/docs/guide/concepts',
+        permanent: true,
+      },
+      {
+        source: '/docs/guide/demo-loop/:path*',
+        destination: '/docs/guide/getting-started',
+        permanent: true,
+      },
+      {
+        source: '/docs/reference/:path(roadmap|migration-map|issue-plan|docs-platform|feedback-widget|ask-salem|coven-relay|coven-github-agent|channels|glossolalia|harness-vs-runtime|dispatch-contract|familiar-contract|api-architecture|changelog)',
+        destination: '/docs',
         permanent: true,
       },
       {
