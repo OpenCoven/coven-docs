@@ -23,6 +23,7 @@ Every row below is a real top-level `coven` verb. Grouped reference pages cover 
 | `coven chat` | Open the interactive Coven UI explicitly (requires the coven-code engine). |
 | `coven tui` | Same as `coven chat`. See [Interactive shell](/docs/cli/interactive). |
 | `coven doctor` | Check local setup and print next steps; exits 1 when a blocking problem is found. |
+| `coven config paths --json` | Report resolved state, settings, engine, and local IPC paths without creating profile state. |
 | `coven completions <shell>` | Generate shell completions (bash, zsh, fish, elvish, powershell). |
 | `coven daemon start` | Start the local daemon process. |
 | `coven daemon status` | Inspect daemon pid, socket, and health state. |
@@ -54,6 +55,7 @@ Every row below is a real top-level `coven` verb. Grouped reference pages cover 
 | `coven calls` | Show the Coven Calls delegation ledger. |
 | `coven logs prune` | Manage local log retention. |
 | `coven vacuum` | Repair and compact the local Coven session store. |
+| `coven reset` | Preview or recoverably reset selected local state categories; `--apply` moves them into a backup. |
 | `coven pc` | Diagnose and relieve macOS system pressure. See [PC Diagnostics](/docs/cli/pc). |
 
 All of these except `coven pc` are covered on [Observability commands](/docs/cli/observe).
@@ -87,11 +89,30 @@ Covered on [Engine and auth](/docs/cli/engine-auth).
 | --- | --- |
 | `coven wt` | Create, list, diagnose, and prune Coven worktrees. |
 | `coven claim` | Manage TTL-bounded agent branch claims. |
+| `coven maintenance` | Fence new Coven writers while maintenance drains existing writers. |
 | `coven hooks install` | Install Coven Parallel Work Protocol git hooks. |
 | `coven ward` | Inspect and migrate Ward configuration. |
 | `coven adapter` | List and diagnose harness adapters. |
 
 Covered on [Repo workflow](/docs/cli/repo-workflow).
+
+## Configuration paths, reset, and color
+
+Inspect path resolution without starting the daemon or creating state:
+
+```bash
+coven config paths --json
+```
+
+`coven reset` is preview-only unless `--apply` is passed. Select one or more
+registered categories with `--feature`, inspect them with `--list-features`,
+or use `--all --apply`. Applied resets move selected state to
+`$COVEN_HOME/reset-backups/`; they do not delete project directories, contact
+GitHub, or revoke provider credentials. Windows currently supports preview,
+not `--apply`.
+
+Every command accepts the global `--color auto|always|never` option. `auto`
+honors `NO_COLOR` and `CLICOLOR_FORCE`.
 
 ## What owns what
 

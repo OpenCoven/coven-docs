@@ -11,7 +11,7 @@ flowchart LR
   Guard --> PTY[Harness PTY]
   PTY --> Harness[Codex, Claude Code, or another adapter]
   Daemon --> Ledger[(SQLite session ledger + events)]
-  Daemon --> API[/api/v1 over Unix socket/]
+  Daemon --> API[/api/v1 over same-user local IPC/]
 ```
 
 1. A CLI command or local client asks the daemon to create or inspect a session.

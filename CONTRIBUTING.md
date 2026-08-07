@@ -57,4 +57,4 @@ OpenCoven is not a contribution vehicle for proprietary forks. If you are buildi
 
 ## Questions?
 
-Join the Discord: https://discord.gg/OpenCoven
+Join the Discord: https://discord.gg/opencoven

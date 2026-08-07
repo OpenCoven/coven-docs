@@ -12,7 +12,9 @@ Coven runs coding agents inside a local, project-scoped boundary. It keeps the p
 - **Use the harness you trust.** Run Codex, Claude Code, Copilot CLI, Coven Code, or a registered adapter without moving provider credentials into Coven.
 - **Keep work inside the project.** The daemon canonicalizes project roots and working directories before a session starts.
 - **Keep the record.** Sessions, events, and logs remain available after a harness exits, so work can be inspected, replayed, archived, or removed deliberately.
-- **Keep control local.** One same-user daemon owns PTYs and exposes a versioned HTTP-over-Unix-socket API for the CLI and your own local clients.
+- **Keep control local.** One same-user daemon per `COVEN_HOME` owns PTYs and
+  exposes a versioned HTTP API over same-user local IPC for the CLI and your
+  own local clients.
 
 ## Start here
 

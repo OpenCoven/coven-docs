@@ -88,7 +88,8 @@ echo "$PATH" | tr ':' '\n' | grep "$HOME/.cargo/bin"
 - Published npm support targets Apple Silicon (`darwin-arm64`).
 - Install Node.js 18+ if you use the npm wrapper.
 - Install Rust stable if you build from source or need an unsupported macOS architecture.
-- Keep `~/.coven` owned by your user. The daemon socket lives at `~/.coven/coven.sock` by default.
+- Keep `~/.coven` owned by your user. On macOS, the daemon socket lives at
+  `~/.coven/coven.sock` by default.
 - `coven pc` diagnostics are macOS-first; write operations require `--confirm`.
 
 ```sh

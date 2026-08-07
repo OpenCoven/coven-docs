@@ -1,7 +1,7 @@
 ---
 title: "Configuration and COVEN_HOME"
 summary: "How the daemon chooses its state directory, socket, ledger, metadata file, and supported configuration surface."
-description: "Daemon configuration reference for COVEN_HOME, coven.sock, coven.sqlite3, daemon.json, and the current supported knobs."
+description: "Daemon configuration reference for COVEN_HOME, local IPC, coven.sqlite3, daemon.json, privacy, and retention."
 read_when:
   - Relocating Coven state
   - Auditing what daemon configuration is supported today
@@ -17,16 +17,19 @@ If `COVEN_HOME` is not set, Coven uses:
 $HOME/.coven
 ```
 
-The daemon expects this layout:
+The daemon uses this layout:
 
 | Path | Purpose |
 | --- | --- |
-| `$COVEN_HOME/coven.sock` | Unix socket for same-user local API access. |
+| `$COVEN_HOME/coven.sock` | Unix socket for same-user local API access on Unix-like hosts. |
+| Daemon-reported named pipe | Owner-only local IPC endpoint on Windows. |
 | `$COVEN_HOME/coven.sqlite3` | SQLite ledger for sessions and append-only events. |
 | `$COVEN_HOME/daemon.json` | Daemon metadata such as pid, start time, and socket path. |
 | `$COVEN_HOME/daemon.lock` | Lifecycle lock (advisory `flock`) that serializes `daemon start`/`stop`/`restart` orchestration so concurrent lifecycle commands cannot race. |
 | `$COVEN_HOME/daemon-serve.lock` | Serve lock held for the whole life of a `daemon serve` process, guaranteeing at most one daemon writes a given SQLite store. |
 | `$COVEN_HOME/daemon-recovery.log` | Append-only, timestamped log of lifecycle and recovery events: startups, terminated duplicate daemons, accept-loop errors, API handler errors, and panics. |
+| `$COVEN_HOME/privacy.toml` | Optional log-redaction, raw-artifact, and retention settings. |
+| `$COVEN_HOME/keys/session-artifacts.key` | Local encryption key created only when raw artifact persistence is enabled. |
 
 Do not commit this directory. It can contain prompts, model output, local paths, and operational metadata.
 
@@ -45,11 +48,48 @@ After restart, confirm the selected socket and API contract:
 coven daemon status
 ```
 
-Scripts that call the socket should derive the socket path from the same environment:
+On Unix-like hosts, scripts that call the socket should derive the socket path
+from the same environment:
 
 ```bash
 curl --unix-socket "$COVEN_HOME/coven.sock" \
   http://localhost/api/v1/health
+```
+
+## Privacy and retention
+
+Session event payloads are redacted before broad API and log responses. Raw
+artifact persistence is disabled by default.
+
+Optional `$COVEN_HOME/privacy.toml`:
+
+```toml
+persist_raw_artifacts = false
+raw_artifact_retention_days = 7
+log_retention_days = 30
+extra_patterns = ["custom-sensitive-[0-9]+"]
+```
+
+Environment variables override the matching file values:
+
+| Name | Scope |
+| --- | --- |
+| `COVEN_PERSIST_RAW_ARTIFACTS` | Enables encrypted raw artifact persistence when truthy. |
+| `COVEN_RAW_ARTIFACT_RETENTION_DAYS` | Sets raw artifact retention; positive whole days only. |
+| `COVEN_LOG_RETENTION_DAYS` | Sets redacted event-log retention; positive whole days only. |
+
+The CLI also parses `covenCli.privacy` from
+`~/.config/coven/settings.json`. Those values currently participate in
+maintenance, storage-health, and manual prune calculations. Event redaction,
+raw artifact creation, and raw artifact retrieval still use `privacy.toml`
+plus the environment overrides above, so use those surfaces for
+security-sensitive behavior.
+
+Prune retained data with:
+
+```bash
+coven logs prune --dry-run
+coven logs prune
 ```
 
 ## Current supported knobs
@@ -58,7 +98,11 @@ Supported today:
 
 | Name | Scope |
 | --- | --- |
-| `COVEN_HOME` | Moves daemon state, socket, ledger, and metadata. |
+| `COVEN_HOME` | Moves daemon state, local IPC, ledger, and metadata. |
+| `$COVEN_HOME/privacy.toml` | Controls redaction patterns, raw artifact persistence, and retention. |
+| `COVEN_PERSIST_RAW_ARTIFACTS` | Overrides the raw artifact persistence setting. |
+| `COVEN_RAW_ARTIFACT_RETENTION_DAYS` | Overrides raw artifact retention. |
+| `COVEN_LOG_RETENTION_DAYS` | Overrides redacted event retention. |
 
 Not supported as daemon configuration yet:
 
@@ -73,7 +117,10 @@ Those names may appear in future design discussions, but clients and operators s
 
 ## File permissions
 
-The local trust boundary depends on filesystem permissions around `$COVEN_HOME` and `coven.sock`. The daemon should keep state private to the owning user. If another user can read or write the socket, that user can act as a local Coven client.
+The local trust boundary depends on permissions around `$COVEN_HOME` and the
+active local IPC endpoint. The daemon should keep state private to the owning
+user. Anyone who can connect to the Unix socket or Windows named pipe can act
+as a local Coven client.
 
 ## Related
 

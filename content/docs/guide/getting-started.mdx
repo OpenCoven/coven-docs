@@ -38,6 +38,11 @@ npm install -g @anthropic-ai/claude-code
 claude doctor
 ```
 
+```sh
+npm install -g @github/copilot
+copilot login
+```
+
 See [Harnesses](/docs/harnesses) for supported harnesses, adapter setup, and credential boundaries.
 
 ## 3. Run a session
@@ -58,11 +63,30 @@ coven sessions
 coven attach <session-id>
 ```
 
+Inspect a record without attaching:
+
+```sh
+coven sessions show <session-id>
+coven sessions events <session-id> --limit 100
+coven sessions log <session-id>
+```
+
+Unique session-id prefixes are accepted when they identify exactly one
+session. Use `coven sessions search "query"` for full-text search over recorded
+event payloads.
+
 Archive a completed record when it is no longer active; sacrifice it only when you intend to delete its events permanently.
 
 ```sh
 coven archive <session-id>
 coven sacrifice <session-id> --yes
+```
+
+For a cross-surface summary of the daemon, open sessions, familiars, skills,
+research, and hub state:
+
+```sh
+coven status
 ```
 
 ## Continue

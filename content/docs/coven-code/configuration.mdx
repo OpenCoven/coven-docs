@@ -123,7 +123,8 @@ Edit them through the TUI where possible. If you edit the file manually, restart
 
 ## Daemon Integration
 
-The `/coven` command and welcome daemon status block use the typed daemon client over:
+On Unix-like hosts, the `/coven` command and welcome daemon status block use
+the typed daemon client over:
 
 ```txt
 ~/.coven/coven.sock
@@ -138,3 +139,7 @@ coven-code
 ```
 
 Make sure both the daemon command and the Coven Code process see the same `COVEN_HOME`. If they do not, the TUI may show no daemon sessions even though the CLI can see a different daemon.
+
+On Windows, the daemon uses an owner-only named pipe selected by `COVEN_HOME`.
+Use `coven daemon status` to confirm the active endpoint and current Coven Code
+support before relying on daemon-aware commands.

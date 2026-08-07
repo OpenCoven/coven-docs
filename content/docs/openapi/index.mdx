@@ -1,16 +1,28 @@
 ---
 title: API Reference
-description: Interactive reference for the Coven daemon HTTP-over-Unix-socket API. Per-endpoint schemas, code samples in four languages, and Try It panels that target your local daemon.
+description: Interactive reference for the Coven daemon HTTP API over same-user local IPC. Per-endpoint schemas, code samples, and Try It panels that target your local daemon.
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
 import { Cards, Card } from 'fumadocs-ui/components/card';
 
-The Coven daemon serves a small HTTP/1.1 API over a Unix domain socket. This section is the per-endpoint interactive reference, generated from `openapi/coven.daemon.v1.yaml`. For the narrative reference (concepts, error model, versioning rules), see [Coven local socket API](/docs/reference/api).
+The Coven daemon serves a small HTTP/1.1 API over same-user local IPC: a Unix
+domain socket on Unix-like hosts or an owner-only named pipe on Windows. This
+section is the per-endpoint interactive reference, generated from
+`openapi/coven.daemon.v1.yaml`. For the narrative reference (concepts, error
+model, versioning rules), see [Coven local API](/docs/reference/api).
 
 ## Start a daemon
 
-The Try It panels on each endpoint page target `http://localhost:{port}/api/v1` — click the server URL above any panel to change the `port` variable (default `3000`). Requests are bridged through a Next.js route handler that dials your local `$COVEN_HOME/coven.sock` first and falls back to a loopback TCP listener on the chosen port (`coven daemon serve --tcp 127.0.0.1:3000`). JSON responses are pretty-printed by the bridge. The panels only work when this docs site is running on the same machine as a live daemon (or a daemon tunneled to a local port).
+The Try It panels on each endpoint page target
+`http://localhost:{port}/api/v1` — click the server URL above any panel to
+change the `port` variable (default `3000`). On Unix-like hosts, requests are
+bridged through a Next.js route handler that dials
+`$COVEN_HOME/coven.sock` first and falls back to a loopback TCP listener on the
+chosen port (`coven daemon serve --tcp 127.0.0.1:3000`). The bridge does not
+dial Windows named pipes, and native Windows does not currently implement the
+optional TCP listener, so Try It is unavailable on native Windows. JSON
+responses are pretty-printed by the bridge.
 
 ```bash
 coven daemon start
@@ -30,13 +42,19 @@ coven daemon status   # verify pid + socket
 
 | Property | Value |
 | --- | --- |
-| Protocol | HTTP/1.1 over Unix domain socket |
-| Default socket | `~/.coven/coven.sock` (override via `$COVEN_HOME`) |
-| Optional TCP | Loopback-only listener via `coven daemon serve --tcp 127.0.0.1:3000` (standard port `3000`) |
-| Auth | File-system permissions on the socket — no Bearer / JWT / API-key / cookie |
+| Protocol | HTTP/1.1 over same-user local IPC |
+| Default local endpoint | `~/.coven/coven.sock` on Unix-like hosts; daemon-reported owner-only named pipe on Windows |
+| Optional TCP | Unix-like hosts only: loopback listener via `coven daemon serve --tcp 127.0.0.1:3000` (standard port `3000`) |
+| Auth | Operating-system permissions on local IPC — no Bearer / JWT / API-key / cookie |
 | Contract | `coven.daemon.v1` served under `/api/v1` |
 
-Anyone with read/write permission on the socket can act as a client. Keep `$COVEN_HOME` private to the owning user. See [Authentication and local access](/docs/reference/auth) for the full hardening posture.
+On Windows, the named pipe's owner ACL provides the equivalent operating-system
+permission boundary described as socket permissions in generated examples.
+
+Anyone who can connect to the local endpoint can act as a client. Keep
+`$COVEN_HOME` and the endpoint private to the owning user. See
+[Authentication and local access](/docs/reference/auth) for the full hardening
+posture.
 
 ## Client handshake
 
@@ -74,4 +92,8 @@ Additive fields are allowed inside `v1`; breaking changes require a new route-pr
 
 ## Code samples
 
-Every endpoint includes runnable samples in **curl** (with `--unix-socket`, piped through `jq` for formatted output), **TypeScript** (undici `Agent({ connect: { socketPath } })`), **Python** (`httpx.HTTPTransport(uds=...)`), and **Rust** (`hyperlocal::UnixConnector`). Each sample reads `$COVEN_HOME` with a `~/.coven` fallback and pretty-prints the JSON response, so they work as-is once a daemon is running.
+Every endpoint includes Unix-domain-socket samples in **curl**,
+**TypeScript**, **Python**, and **Rust**. Each sample reads `$COVEN_HOME` with
+a `~/.coven` fallback and pretty-prints the JSON response. These generated
+samples are Unix-specific; native Windows clients must use a named-pipe-capable
+HTTP transport.

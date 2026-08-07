@@ -44,7 +44,11 @@ Two npm packages cooperate here:
 
 ## Local State
 
-Coven Code owns `~/.coven-code` for its settings, provider account records, sessions, prompts, plugins, keybindings, and TUI-specific state. The Coven daemon owns `~/.coven` by default, including `~/.coven/coven.sock` and the session ledger used by daemon clients.
+Coven Code owns `~/.coven-code` for its settings, provider account records,
+sessions, prompts, plugins, keybindings, and TUI-specific state. The Coven
+daemon owns `~/.coven` by default, including the session ledger and the local
+IPC endpoint (`~/.coven/coven.sock` on Unix-like hosts or an owner-only named
+pipe on Windows).
 
 Those directories are related but not interchangeable:
 

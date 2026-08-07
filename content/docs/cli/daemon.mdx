@@ -4,10 +4,11 @@ summary: "Start, inspect, restart, and stop the local Coven daemon from the CLI.
 description: "CLI reference for coven daemon start, status, restart, and stop."
 read_when:
   - You need to manage the local daemon process
-  - You are debugging stale sockets or stopped daemon state
+  - You are debugging stale local IPC or stopped daemon state
 ---
 
-The `coven daemon` commands manage the local background process that serves the `/api/v1` socket API and owns live session state.
+The `coven daemon` commands manage the local background process that serves
+the `/api/v1` API over same-user local IPC and owns live session state.
 
 ```bash
 coven daemon start
@@ -20,13 +21,14 @@ For the process model and recovery behavior, see [Daemon lifecycle](/docs/daemon
 
 ## `coven daemon start`
 
-Starts the daemon, creates `COVEN_HOME` if needed, opens the SQLite store, binds the local socket, and writes daemon metadata.
+Starts the daemon, creates `COVEN_HOME` if needed, opens the SQLite store, binds
+the platform local IPC endpoint, and writes daemon metadata.
 
 ```bash
 coven daemon start
 ```
 
-Use this before daemon-backed clients or local socket integrations.
+Use this before daemon-backed clients or local IPC integrations.
 
 ## `coven daemon status`
 
@@ -36,11 +38,13 @@ Prints whether the daemon is running, stale, or stopped.
 coven daemon status
 ```
 
-Use `status` in support flows before deleting socket files or restarting manually.
+Use `status` in support flows before deleting Unix socket files or restarting
+manually. Windows uses an owner-only named pipe rather than a socket file.
 
 ## `coven daemon restart`
 
-Stops the current daemon when present, then starts a fresh process and rebinds the socket.
+Stops the current daemon when present, then starts a fresh process and rebinds
+the platform local IPC endpoint.
 
 ```bash
 coven daemon restart
@@ -58,6 +62,6 @@ coven daemon stop
 
 Stopping the daemon does not delete the session ledger. Completed session records and event logs remain in `COVEN_HOME`.
 
-## Socket API relationship
+## Local API relationship
 
 The CLI commands are convenience wrappers around the same local authority boundary described in [Daemon lifecycle](/docs/daemon/lifecycle) and [Socket API](/docs/daemon/socket-api). Clients can improve UX, but the daemon validates sensitive decisions.
