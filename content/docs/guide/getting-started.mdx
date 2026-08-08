@@ -22,7 +22,7 @@ Use the package without installing `coven` on `PATH` when you want a one-off rea
 npx @opencoven/cli doctor
 ```
 
-This is only a preflight. It does not replace a normal install for the daemon and session steps below because those commands expect `coven` on `PATH`. Complete one of the install routes in [Install Coven](/docs/guide/install), then come back here and run `coven doctor`.
+This is only a preflight. It does not replace a normal install for the daemon and session steps below because those commands expect `coven` on `PATH`. Before you run `coven doctor`, install Coven with either `npm install -g @opencoven/cli` or `cargo install --path crates/coven-cli`; `cargo build --workspace` is only an active-development build and does not install `coven` on `PATH`. Then come back here and run `coven doctor`.
 
 `doctor` reports the next setup action when the local store, project detection, daemon, or a harness is not ready.
 
