@@ -1,0 +1,87 @@
+---
+title: "Platforms"
+description: "Platform-specific install and runtime behavior for macOS, Linux, Windows, WSL2, and Raspberry Pi."
+read_when:
+  - You need to know whether the published install applies to your OS
+  - You need platform-specific rules for COVEN_HOME, shells, and daemon transport
+---
+
+Use this page after choosing an install method. Platform behavior is not fully portable: command examples are labeled for `sh` or `PowerShell`, and the daemon transport differs between Unix systems and native Windows.
+
+## Platform Limitations
+
+| Platform | Current guidance | Important limitation |
+| --- | --- | --- |
+| macOS Apple Silicon | The published npm wrapper is the normal route. | Treat `launchd` as optional until the manual shell path already works. |
+| Linux x64 on `glibc` | The published npm wrapper is the normal route. | Alpine and other musl systems should use a source build instead of assuming a published package. |
+| Windows x64 in `PowerShell` | The published npm wrapper is the normal route. | Native Windows uses an owner-only named pipe, not a Unix socket. |
+| WSL2 | Install inside the distro as Linux software. | Keep projects and `COVEN_HOME` on the Linux filesystem, not `/mnt/c`, for daemon-heavy work. |
+| Raspberry Pi | Use a 64-bit OS and a source build. | Do not assume a published npm binary for Raspberry Pi. |
+
+## macOS Apple Silicon
+
+On macOS Apple Silicon, the published npm wrapper is the normal install route. Keep `COVEN_HOME` under your user account and add `launchd` only after the same shell can already verify Coven manually.
+
+```sh
+npm install -g @opencoven/cli
+coven --version
+coven doctor
+coven daemon status
+```
+
+If you are on a macOS architecture that this docs set does not explicitly verify, use a source checkout instead of assuming the published wrapper applies.
+
+## Linux On glibc
+
+On Linux, this docs set only treats x64 distributions with `glibc` as the published npm path. Keep `COVEN_HOME` on the local Linux filesystem, then add a `systemd` user service only after the manual commands are healthy.
+
+```sh
+npm install -g @opencoven/cli
+coven --version
+coven doctor
+coven daemon status
+```
+
+For Alpine or another musl-based distro, build from source instead of assuming the published wrapper applies.
+
+## Windows In PowerShell
+
+Use PowerShell or Windows Terminal for the native Windows path. Set `COVEN_HOME` in PowerShell when you need a custom state root, keep that path local to the owning user, and install harness CLIs in the same native Windows environment.
+
+```powershell
+npm install -g @opencoven/cli
+$env:COVEN_HOME="$env:USERPROFILE\.coven"
+coven --version
+coven doctor
+coven daemon status
+```
+
+Native Windows daemon IPC uses an owner-only named pipe. It is separate from WSL2, and native Windows plus WSL2 must not share one `COVEN_HOME`.
+
+## WSL2
+
+Treat WSL2 as a Linux install inside one distro. Keep the project, harness CLIs, and `COVEN_HOME` on the Linux filesystem. Avoid `/mnt/c` for daemon-heavy work because Windows file semantics can interfere with sockets, permissions, and file watching.
+
+```sh
+npm install -g @opencoven/cli
+export COVEN_HOME="$HOME/.coven"
+coven --version
+coven doctor
+coven daemon status
+```
+
+Native Windows PowerShell and WSL2 are separate installs; do not point them at the same `COVEN_HOME`.
+
+## Raspberry Pi
+
+Use Raspberry Pi with a 64-bit OS and a source build. Keep `COVEN_HOME` on persistent local storage and expect slower Rust builds on smaller models.
+
+```sh
+git clone https://github.com/OpenCoven/coven.git
+cd coven
+cargo build --workspace
+cargo run -p coven-cli -- doctor
+cargo run -p coven-cli -- daemon status
+```
+
+If you need service supervision, add it after the manual source-build flow works; see [Deployments](/docs/guide/deployments).

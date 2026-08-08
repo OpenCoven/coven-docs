@@ -1,0 +1,54 @@
+---
+title: "Deployments"
+description: "Deploy Coven on headless hosts, service managers, containers, or Nix-managed environments without changing its local daemon contract."
+read_when:
+  - You are running Coven over SSH, in a container, or under a service manager
+  - You need deployment rules for COVEN_HOME, PATH, and daemon exposure
+---
+
+Use this page after install when the main question is where the daemon lives. Deployments do not change the runtime contract: Coven still runs as a same-user local daemon with local-only daemon IPC.
+
+## Deployment Routes
+
+| Route | Use when | Key rule |
+| --- | --- | --- |
+| Headless or cloud host over SSH | You will run Coven without a desktop. | Sign in as the same OS user that owns `COVEN_HOME`, then keep remote access behind SSH. |
+| `launchd` | You want Coven to start automatically for a macOS user. | Preserve the same `PATH` and `COVEN_HOME` that passed `coven doctor` manually. |
+| `systemd --user` | You want a Linux user service. | Preserve the same `PATH` and `COVEN_HOME` that passed `coven doctor` manually. |
+| Docker or Podman | You want container isolation inside one shared trust boundary. | Mount a persistent `COVEN_HOME` and keep the daemon local to that boundary. |
+| Nix | You want pinned toolchains or reproducible builds. | Treat Nix as an environment or build route, not a different runtime contract. |
+
+## Headless And Cloud Hosts
+
+Operate headless or cloud machines over SSH as the same OS user that owns `COVEN_HOME`. Use `coven doctor` to confirm the environment from that login shell, then inspect the live endpoint with `coven daemon status`.
+
+```sh
+coven doctor
+coven daemon status
+```
+
+The daemon IPC is local-only. Do not expose it directly on the public internet or treat it as a public service. For remote-access patterns and trust boundaries, read [Daemon Security](/docs/daemon/security).
+
+## Service Managers
+
+`launchd` on macOS and `systemd --user` on Linux are wrappers around the same local daemon. Only add them after a manual shell session already works, and make sure the service preserves the same `PATH` and `COVEN_HOME` values that passed `coven doctor`.
+
+If the supervised service cannot see `coven` or a harness CLI that works in your shell, fix the service environment instead of sharing one `COVEN_HOME` across multiple users.
+
+## Docker And Podman
+
+Docker and Podman do not create a different Coven networking model. They still run one local daemon inside a shared trust boundary, so mount a persistent `COVEN_HOME`, mount the project root you want to supervise, and avoid direct public exposure of the daemon IPC.
+
+Containers are most appropriate when you already control the image, the harness CLIs inside it, and the users who can reach that boundary.
+
+## Nix
+
+Nix is useful for building or pinning the environment around Coven, especially Node.js, Rust, and harness tooling. It is not a separate runtime contract: once inside the Nix environment, Coven still uses the same `COVEN_HOME`, the same local-only daemon IPC, and the same-user verification flow.
+
+## Before You Call The Deployment Healthy
+
+- Log in as the OS user that owns `COVEN_HOME`.
+- Run `coven doctor`.
+- Check `coven daemon status`.
+- Confirm the service or container preserves `PATH` and `COVEN_HOME`.
+- Keep remote access behind SSH or another private control plane; never allow direct public exposure.
