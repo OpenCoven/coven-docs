@@ -67,7 +67,13 @@ This keeps the readiness check, daemon startup, first recorded run, and session 
 
 ## 4. Inspect the result
 
-Pick a session id from `coven sessions`, then attach or inspect it without attaching:
+Use the interactive `coven sessions` browser to open the recorded run directly, or list plain session IDs when you need one for a later command:
+
+```sh
+coven sessions --plain
+```
+
+Then attach or inspect the recorded session without attaching:
 
 ```sh
 coven attach <session-id>

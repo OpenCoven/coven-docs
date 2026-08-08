@@ -68,10 +68,10 @@ which -a coven
 ### PowerShell
 
 ```powershell
-Get-Command -All coven
+Get-Command -All coven -ErrorAction SilentlyContinue
 ```
 
-No output means the command is gone. If a path or command record still prints, another install is still present — remove it with the matching method above.
+No output means PowerShell can no longer resolve the command. If a path or command record still prints, another install is still present — remove it with the matching method above.
 
 ## Local State Is Preserved By Default
 

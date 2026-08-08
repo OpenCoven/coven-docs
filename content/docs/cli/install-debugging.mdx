@@ -226,11 +226,22 @@ npm view @opencoven/cli versions --json
 npm install -g @opencoven/cli@<verified-version>
 ```
 
-If the failing install was from source, check out the matching tag or commit in that checkout and rebuild there:
+If the failing install was from source, choose the rollback that matches how you run Coven from that checkout.
+
+If you installed the CLI from a source checkout onto your Cargo bin path, check out a verified prior tag there and replace the installed binary:
+
+```sh
+git checkout <verified-tag>
+cargo install --path crates/coven-cli --force
+coven doctor
+```
+
+If you run Coven directly from an active-development checkout, check out the verified prior tag in that repository and rebuild there:
 
 ```sh
 git checkout <verified-tag>
 cargo build --workspace
+cargo run -p coven-cli -- doctor
 ```
 
 Never copy macOS, Linux, Windows, or WSL-built binaries between platforms to "roll back" faster. Reinstall or rebuild inside the target environment so the correct native package and ABI are selected.
