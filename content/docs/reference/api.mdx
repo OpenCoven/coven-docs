@@ -19,7 +19,7 @@ capabilities, and treat structured errors as product behavior.
 3. `POST /api/v1/sessions` — launch a validated harness session.
 4. `GET /api/v1/sessions` and `GET /api/v1/sessions/{id}` — inspect records.
 5. `GET /api/v1/events` — read ordered session events with a cursor.
-6. `POST /api/v1/actions` — request a validated control action with the action id in the JSON body.
+6. `POST /api/v1/actions` — request a validated control action with the action id in the JSON `action` field.
 
 The daemon rejects malformed requests, unknown sessions, non-live input, unsupported harnesses, and project-root violations with a structured error envelope:
 

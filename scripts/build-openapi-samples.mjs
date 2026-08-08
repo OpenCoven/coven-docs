@@ -115,7 +115,10 @@ function pyLiteral(v, indent = 0) {
 }
 
 function sampleCurl({ method, fullPath, body }) {
-  const lines = [`curl --unix-socket "$HOME/.coven/coven.sock" \\`];
+  const lines = [
+    `# Unix-like hosts only. Native Windows requires a named-pipe-capable HTTP client.`,
+    `curl --unix-socket "$HOME/.coven/coven.sock" \\`,
+  ];
   if (method !== 'GET') lines.push(`  -X ${method} \\`);
   if (body !== undefined) {
     lines.push(`  -H 'content-type: application/json' \\`);
@@ -127,6 +130,7 @@ function sampleCurl({ method, fullPath, body }) {
 
 function sampleTypeScript({ method, fullPath, body }) {
   const lines = [
+    `// Unix-like hosts only. Native Windows requires a named-pipe-capable HTTP client.`,
     `// npm i undici`,
     `import { Agent, fetch } from 'undici';`,
     `import { homedir } from 'node:os';`,
@@ -161,6 +165,7 @@ function sampleTypeScript({ method, fullPath, body }) {
 
 function samplePython({ method, fullPath, body }) {
   const lines = [
+    `# Unix-like hosts only. Native Windows requires a named-pipe-capable HTTP client.`,
     `# pip install httpx`,
     `import json`,
     `import os`,
@@ -185,6 +190,7 @@ function samplePython({ method, fullPath, body }) {
 
 function sampleRust({ method, fullPath, body }) {
   const lines = [
+    `// Unix-like hosts only. Native Windows requires a named-pipe-capable HTTP client.`,
     `// Cargo.toml:`,
     `//   hyper      = { version = "0.14", features = ["client", "http1"] }`,
     `//   hyperlocal = "0.8"`,
@@ -246,10 +252,10 @@ for (const [pathTemplate, item] of Object.entries(doc.paths ?? {})) {
     const body = requestBodyExample(op);
     const ctx = { method, fullPath, body };
     op['x-codeSamples'] = [
-      { lang: 'shell', label: 'curl', source: sampleCurl(ctx) },
-      { lang: 'typescript', label: 'TypeScript', source: sampleTypeScript(ctx) },
-      { lang: 'python', label: 'Python', source: samplePython(ctx) },
-      { lang: 'rust', label: 'Rust', source: sampleRust(ctx) },
+      { lang: 'shell', label: 'curl (Unix)', source: sampleCurl(ctx) },
+      { lang: 'typescript', label: 'TypeScript (Unix)', source: sampleTypeScript(ctx) },
+      { lang: 'python', label: 'Python (Unix)', source: samplePython(ctx) },
+      { lang: 'rust', label: 'Rust (Unix)', source: sampleRust(ctx) },
     ];
     injected += 1;
   }

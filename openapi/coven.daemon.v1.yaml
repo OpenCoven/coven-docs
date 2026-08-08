@@ -2,15 +2,21 @@ openapi: 3.1.0
 info:
   title: Coven Daemon API
   version: coven.daemon.v1
-  summary: Local HTTP-over-Unix-socket control plane for the Coven daemon.
+  summary: Local HTTP control plane over same-user operating-system IPC.
   description: |
-    The Coven daemon exposes an HTTP/1.1 API over a Unix domain socket at
-    `$COVEN_HOME/coven.sock` (default `~/.coven/coven.sock`). Clients connect
-    to the socket file directly. The daemon can additionally bind a TCP
-    listener with `coven daemon serve --tcp <addr>`, guarded to loopback bind
-    addresses and loopback (or explicitly `--allow-host`-listed) `Host` /
-    `Origin` headers. There is no TLS and no token-based auth (no Bearer /
-    JWT / API-key / cookie schemes) on either transport.
+    The Coven daemon exposes an HTTP/1.1 API over same-user local IPC:
+    `$COVEN_HOME/coven.sock` (default `~/.coven/coven.sock`) on Unix-like
+    hosts, or an owner-only named pipe selected by `COVEN_HOME` on Windows.
+    Clients use the endpoint reported by `GET /api/v1/health`,
+    `coven daemon status`, or `coven config paths --json`; they must not
+    construct a Windows pipe name from the Unix convention.
+
+    On Unix-like hosts only, the daemon can additionally bind a TCP listener
+    with `coven daemon serve --tcp <addr>`, guarded to loopback bind addresses
+    and loopback (or explicitly `--allow-host`-listed) `Host` / `Origin`
+    headers. Native Windows currently ignores `--tcp`. There is no TLS and no
+    token-based auth (no Bearer / JWT / API-key / cookie schemes) on the local
+    transports.
 
     ### Spec scope
 
@@ -27,10 +33,11 @@ info:
 
     ### Trust model
 
-    Authentication is **file-system based**: anyone with read/write permission
-    on the socket can act as a client. Keep `$COVEN_HOME` private to the owning
-    user. See [Authentication and local access](/docs/reference/auth) for the
-    full posture.
+    Authentication is **operating-system based**: anyone who can connect to the
+    Unix socket or Windows named pipe can act as a client. Keep `$COVEN_HOME`
+    and the active endpoint private to the owning user. See
+    [Authentication and local access](/docs/reference/auth) for the full
+    posture.
 
     ### Required handshake
 
@@ -47,16 +54,19 @@ info:
 
     ### Try It panels
 
-    The interactive Try It buttons on this site target
+    The interactive Try It buttons on this site are Unix-like-host tooling.
+    They target
     `http://localhost:{port}/api/v1` (default port `3000`, editable via the
     server-URL selector on any endpoint page). Requests are bridged through a
     Next.js route handler on the docs site, which dials your local
     `$COVEN_HOME/coven.sock` first and falls back to a loopback TCP listener
     on the chosen port (`coven daemon serve --tcp 127.0.0.1:3000`). JSON
-    responses are pretty-printed by the bridge. The panels only work when you
-    are running this docs site on the same machine as a live daemon (or a
-    daemon tunneled to a local port). Start one with `coven daemon start` and
-    verify with `coven daemon status`.
+    responses are pretty-printed by the bridge. The bridge cannot dial native
+    Windows named pipes, and native Windows does not implement the TCP
+    fallback, so Try It is unavailable there. The panels work on Unix-like
+    hosts only when this docs site runs on the same machine as a live daemon
+    (or a daemon tunneled to a local port). Start one with
+    `coven daemon start` and verify with `coven daemon status`.
   contact:
     name: OpenCoven
     url: https://github.com/OpenCoven
@@ -66,11 +76,11 @@ info:
 
 servers:
   - url: http://localhost:{port}/api/v1
-    description: Local daemon. The docs-site bridge dials $COVEN_HOME/coven.sock first, then falls back to a loopback TCP listener on the chosen port.
+    description: Unix-like docs bridge only. Dials $COVEN_HOME/coven.sock first, then an optional loopback TCP listener; unavailable for native Windows named pipes.
     variables:
       port:
         default: "3000"
-        description: Loopback TCP port of the daemon (standard is 3000, from `coven daemon serve --tcp 127.0.0.1:3000`). Change it here if your daemon or tunnel listens elsewhere. Ignored when the Unix socket answers first.
+        description: Unix-like-host loopback TCP port (standard 3000 from `coven daemon serve --tcp 127.0.0.1:3000`). Change it if a daemon or tunnel listens elsewhere. Ignored when the Unix socket answers first; unsupported by the native Windows daemon.
 
 security: []
 
@@ -840,7 +850,7 @@ components:
           daemon:
             pid: 12345
             startedAt: 2026-05-09T12:00:00Z
-            socket: /Users/example/.coven/coven.sock
+            socket: /home/example/.coven/coven.sock
 
     HealthCapabilities:
       type: object
@@ -895,7 +905,7 @@ components:
 
     DaemonMetadata:
       type: object
-      description: Process metadata for the daemon currently serving this socket.
+      description: Process metadata for the daemon currently serving the active local IPC endpoint.
       required: [pid, startedAt, socket]
       properties:
         pid:
@@ -908,7 +918,10 @@ components:
           description: ISO-8601 timestamp of when the daemon began serving.
         socket:
           type: string
-          description: Absolute path to the Unix socket that served the request.
+          description: Legacy field name for the active local IPC identifier. Contains an absolute Unix socket path on Unix-like hosts or the daemon's named-pipe name on Windows.
+          examples:
+            - /home/example/.coven/coven.sock
+            - coven-daemon-0123456789abcdef.sock
 
     Capabilities:
       type: object
