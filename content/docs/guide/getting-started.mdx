@@ -14,20 +14,15 @@ Coven supervises a coding-agent CLI in a project boundary, then keeps its sessio
 
 Run `coven` when you want Coven's guided interactive front door. The default interactive path is the managed `coven-code` engine: on first run Coven can install the pinned engine for you, and later interactive launches reuse that managed binary. `COVEN_LEGACY_TUI=1` is only a deprecated compatibility escape hatch for the older in-process shell.
 
-## 1. Verify Coven
+## 1. Optional Coven preflight
 
-Use the package without a global install:
+Use the package without installing `coven` on `PATH` when you want a one-off readiness check:
 
 ```sh
 npx @opencoven/cli doctor
 ```
 
-Or install it globally:
-
-```sh
-npm install -g @opencoven/cli
-coven doctor
-```
+This is only a preflight. It does not replace a normal install for the daemon and session steps below because those commands expect `coven` on `PATH`. Complete one of the install routes in [Install Coven](/docs/guide/install), then come back here and run `coven doctor`.
 
 `doctor` reports the next setup action when the local store, project detection, daemon, or a harness is not ready.
 
@@ -50,11 +45,13 @@ npm install -g @github/copilot
 copilot login
 ```
 
-See [Harnesses](/docs/harnesses) for supported harnesses, adapter setup, and credential boundaries.
+See [Install harness CLIs](/docs/harnesses/installing) for the setup matrix and [Harnesses](/docs/harnesses) for supported harnesses, adapter behavior, and credential boundaries.
 
 ## 3. Run a first session
 
-From the repository you want to work in, use this exact first-session loop:
+Before you start the daemon or recorded-session flow, complete a normal Coven install from [Install Coven](/docs/guide/install) so `coven` is available on `PATH`.
+
+From the repository you want to work in, use this exact first-session loop as the checked Codex example. It assumes you already installed and authenticated Codex. If you chose Claude Code or Copilot CLI instead, keep the same loop and substitute `claude` or `copilot` in the `coven run` command.
 
 ```sh
 coven doctor
