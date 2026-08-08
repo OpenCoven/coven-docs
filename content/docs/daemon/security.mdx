@@ -72,6 +72,17 @@ Reasonable owner-operated patterns:
 Avoid exposing the daemon's local IPC endpoint directly to browsers, public
 networks, shared machines, or unauthenticated TCP bridges.
 
+## Experimental agent filesystem boundary
+
+The experimental [Agent filesystem](/docs/guide/agent-filesystem) crate is
+storage infrastructure only. It does not currently mount a filesystem, start a
+listener, sandbox a harness, or create a new access path to the daemon.
+
+If a future mount backend is enabled, it must be treated as a separate security
+boundary: a mounted view does not by itself stop a process from writing outside
+that view. Mounting, loopback exposure, access control, and platform sandboxing
+must be validated before they become supported defaults.
+
 ## Destructive confirmations
 
 Destructive operations must remain explicit even when wrapped by another client:
