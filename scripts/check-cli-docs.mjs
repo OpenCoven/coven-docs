@@ -99,6 +99,24 @@ const requiredCommandMentions = [
   'coven adapter',
 ];
 
+const requiredCanonicalPlatformMentions = [
+  {
+    file: join(cliRoot, 'install.mdx'),
+    label: 'content/docs/cli/install.mdx',
+    mentions: ['macOS Apple Silicon / arm64', 'macOS Intel / x64', 'darwin-x64'],
+  },
+  {
+    file: join(guideRoot, 'platforms.mdx'),
+    label: 'content/docs/guide/platforms.mdx',
+    mentions: ['macOS Intel', 'darwin-x64'],
+  },
+  {
+    file: join(cliRoot, 'install-debugging.mdx'),
+    label: 'content/docs/cli/install-debugging.mdx',
+    mentions: ['@opencoven/cli-macos-x64', 'darwin-x64'],
+  },
+];
+
 function fail(message) {
   console.error(`CLI docs check failed: ${message}`);
   process.exit(1);
@@ -290,6 +308,14 @@ const joinedGuideSource = guideSource.join('\n');
 const missingInstallMentions = requiredInstallMentions.filter((mention) => !joinedGuideSource.includes(mention));
 if (missingInstallMentions.length > 0) {
   fail(`Guide install docs are missing required mentions: ${missingInstallMentions.join(', ')}.`);
+}
+
+for (const requirement of requiredCanonicalPlatformMentions) {
+  const source = readFileSync(requirement.file, 'utf8');
+  const missing = requirement.mentions.filter((mention) => !source.includes(mention));
+  if (missing.length > 0) {
+    fail(`${requirement.label} is missing required canonical platform mentions: ${missing.join(', ')}.`);
+  }
 }
 
 console.log('CLI docs check passed.');

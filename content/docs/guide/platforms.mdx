@@ -13,14 +13,20 @@ Use this page after choosing an install method. Platform behavior is not fully p
 | Platform | Current guidance | Important limitation |
 | --- | --- | --- |
 | macOS Apple Silicon | The published npm wrapper is the normal route. | Treat `launchd` as optional until the manual shell path already works. |
+| macOS Intel | The published npm wrapper is the normal route. | Treat `launchd` as optional until the manual shell path already works. |
 | Linux x64 on `glibc` | The published npm wrapper is the normal route. | Alpine and other musl systems should use a source build instead of assuming a published package. |
 | Windows x64 in `PowerShell` | The published npm wrapper is the normal route. | Native Windows uses an owner-only named pipe, not a Unix socket. |
 | WSL2 | Use the published Linux wrapper inside the distro only when it matches a published Linux target; otherwise use a source checkout. | Keep projects and `COVEN_HOME` on the Linux filesystem, not `/mnt/c`, for daemon-heavy work. |
 | Raspberry Pi | Use a 64-bit OS and a source build. | Do not assume a published npm binary for Raspberry Pi. |
 
-## macOS Apple Silicon
+## macOS
 
-On macOS Apple Silicon, the published npm wrapper is the normal install route. Keep `COVEN_HOME` under your user account and add `launchd` only after the same shell can already verify Coven manually.
+On macOS, the published npm wrapper is the normal install route for both supported targets:
+
+- Apple Silicon / arm64: `darwin-arm64`
+- Intel / x64: `darwin-x64`
+
+Keep `COVEN_HOME` under your user account and add `launchd` only after the same shell can already verify Coven manually.
 
 ```sh
 npm install -g @opencoven/cli
@@ -29,7 +35,7 @@ coven doctor
 coven daemon status
 ```
 
-If you are on a macOS architecture that this docs set does not explicitly verify, use a source checkout instead of assuming the published wrapper applies.
+If your macOS environment does not match one of those published targets, use a source checkout instead of assuming the published wrapper applies.
 
 ## Linux On glibc
 

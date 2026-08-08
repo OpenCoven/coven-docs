@@ -13,11 +13,12 @@ Coven is published as `@opencoven/cli`. The package namespace is OpenCoven, but 
 
 The published npm wrapper is the current reference path for:
 
-- macOS Apple Silicon
+- macOS Apple Silicon / arm64
+- macOS Intel / x64
 - Linux x64 on `glibc`, including WSL2 distros that match that published Linux target
 - Windows x64 from PowerShell or Windows Terminal
 
-Do not assume other architectures are published. In WSL2, use the Linux wrapper path only when the distro and architecture match the published Linux target; otherwise use the source-checkout path inside the distro. Keep repositories and `COVEN_HOME` on the Linux filesystem and avoid `/mnt/c` for daemon-heavy work. For Raspberry Pi, Alpine/musl, or any other unverified platform package, use the source-checkout path and then verify with `coven --version` plus `coven doctor`.
+The currently published wrapper targets are `darwin-arm64`, `darwin-x64`, `linux-x64`, and `win32-x64`. Do not assume other architectures are published. In WSL2, use the Linux wrapper path only when the distro and architecture match the published Linux target; otherwise use the source-checkout path inside the distro. Keep repositories and `COVEN_HOME` on the Linux filesystem and avoid `/mnt/c` for daemon-heavy work. For Raspberry Pi, Alpine/musl, or any other unverified platform package, use the source-checkout path and then verify with `coven --version` plus `coven doctor`.
 
 ## Install From npm
 
