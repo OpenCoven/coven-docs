@@ -164,10 +164,28 @@ function hasReadWhenFrontmatter(source) {
   return false;
 }
 
+const stubMarkerSamples = [
+  ['Stub', true],
+  ['Stub -- fill in', true],
+  ['Stub — fill in later.', true],
+  ['fill in', true],
+  ['fill in later.', true],
+  ['This line mentions fill in as ordinary prose.', false],
+  ['The author asked us to fill in the blanks here.', false],
+];
+
+const stubMarkerRe = /^\s*(?:stub(?:\s*(?:--|—)\s*fill in(?:[\s:;,.!?-].*)?)?|fill in(?:[\s:;,.!?-].*)?)\s*$/i;
+
+for (const [sample, expected] of stubMarkerSamples) {
+  if (stubMarkerRe.test(sample) !== expected) {
+    fail(`internal stub marker self-check failed for: ${sample}`);
+  }
+}
+
 function hasStubMarker(source) {
   return source
     .split(/\r?\n/)
-    .some((line) => /^\s*stub\s+(?:--|—)\s*fill in\s*$/i.test(line));
+    .some((line) => stubMarkerRe.test(line));
 }
 
 const topLevelMeta = readJson(join(docsRoot, 'meta.json'));
