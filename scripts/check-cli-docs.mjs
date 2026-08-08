@@ -112,6 +112,64 @@ function readJson(path) {
   }
 }
 
+function getOpeningFrontmatter(source) {
+  const lines = source.split(/\r?\n/);
+  if (lines[0] !== '---') {
+    return null;
+  }
+
+  for (let index = 1; index < lines.length; index += 1) {
+    if (lines[index] === '---') {
+      return lines.slice(1, index).join('\n');
+    }
+  }
+
+  return null;
+}
+
+function hasReadWhenFrontmatter(source) {
+  const frontmatter = getOpeningFrontmatter(source);
+  if (frontmatter === null) {
+    return false;
+  }
+
+  const lines = frontmatter.split(/\r?\n/);
+  for (let index = 0; index < lines.length; index += 1) {
+    const line = lines[index];
+    const match = line.match(/^read_when:\s*(.*)$/);
+    if (!match) {
+      continue;
+    }
+
+    if (match[1].trim().length > 0) {
+      return true;
+    }
+
+    for (let next = index + 1; next < lines.length; next += 1) {
+      const nextLine = lines[next];
+      if (nextLine.trim() === '') {
+        continue;
+      }
+
+      if (/^[^\s]/.test(nextLine)) {
+        return false;
+      }
+
+      return /^\s*-\s+/.test(nextLine);
+    }
+
+    return false;
+  }
+
+  return false;
+}
+
+function hasStubMarker(source) {
+  return source
+    .split(/\r?\n/)
+    .some((line) => /^\s*stub\s+(?:--|—)\s*fill in\s*$/i.test(line));
+}
+
 const topLevelMeta = readJson(join(docsRoot, 'meta.json'));
 
 if (!Array.isArray(topLevelMeta.pages) || !topLevelMeta.pages.includes('cli')) {
@@ -163,11 +221,11 @@ for (const page of requiredGuidePages) {
   const source = readFileSync(file, 'utf8');
   guideSource.push(source);
 
-  if (source.includes('Stub') || source.includes('fill in')) {
+  if (hasStubMarker(source)) {
     fail(`content/docs/guide/${page}.mdx still contains stub text.`);
   }
 
-  if (!source.includes('read_when:')) {
+  if (!hasReadWhenFrontmatter(source)) {
     fail(`content/docs/guide/${page}.mdx is missing read_when frontmatter.`);
   }
 }
@@ -183,11 +241,11 @@ for (const page of requiredPages) {
   const source = readFileSync(file, 'utf8');
   allSource.push(source);
 
-  if (source.includes('Stub') || source.includes('fill in')) {
+  if (hasStubMarker(source)) {
     fail(`content/docs/cli/${page}.mdx still contains stub text.`);
   }
 
-  if (!source.includes('read_when:')) {
+  if (!hasReadWhenFrontmatter(source)) {
     fail(`content/docs/cli/${page}.mdx is missing read_when frontmatter.`);
   }
 }
