@@ -246,7 +246,9 @@ You can extend the registry yourself: user-defined command templates in `~/.cove
 
 ## Daemon-Aware Commands
 
-The `/coven` command talks to the local daemon over `~/.coven/coven.sock` by default. Before relying on it, verify:
+The `/coven` command talks to the daemon over its same-user local IPC endpoint
+(`~/.coven/coven.sock` on Unix-like hosts or an owner-only named pipe on
+Windows). Before relying on it, verify:
 
 ```sh
 coven doctor

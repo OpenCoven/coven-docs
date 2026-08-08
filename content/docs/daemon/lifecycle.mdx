@@ -1,7 +1,7 @@
 ---
 title: "Daemon lifecycle"
 summary: "How the daemon starts, reports status, restarts, stops, and treats live sessions."
-description: "Lifecycle reference for the Coven daemon: start, status, restart, stop, socket binding, ledger recovery, and live-session behavior."
+description: "Lifecycle reference for the Coven daemon: start, status, restart, stop, local IPC binding, ledger recovery, and live-session behavior."
 read_when:
   - Managing the daemon process
   - Debugging a daemon that will not start or will not stop
@@ -16,20 +16,27 @@ coven daemon restart
 coven daemon stop
 ```
 
-`status` is the safest first command in scripts and support flows. It tells you whether the background process exists, which socket it owns, and which API contract it is serving.
+`status` is the safest first command in scripts and support flows. It tells you
+whether the background process exists, which local IPC endpoint it owns, and
+which API contract it is serving.
 
 ## Start
 
-`coven daemon start` creates `$COVEN_HOME` if needed, opens the SQLite store, binds `$COVEN_HOME/coven.sock`, writes `$COVEN_HOME/daemon.json`, and begins serving `/api/v1`.
+`coven daemon start` creates `$COVEN_HOME` if needed, opens the SQLite store,
+binds the platform local IPC endpoint (`$COVEN_HOME/coven.sock` on Unix-like
+hosts or an owner-only named pipe on Windows), writes
+`$COVEN_HOME/daemon.json`, and begins serving `/api/v1`.
 
 Startup should fail closed when:
 
 - `$COVEN_HOME` cannot be created or opened.
-- The socket path is not writable by the current user.
+- The local IPC endpoint cannot be created for the current user.
 - The SQLite ledger cannot be opened.
-- Another live daemon already owns the socket.
+- Another live daemon already owns the local IPC endpoint.
 
-If a stale socket is present after a crash, use [Recovery and upgrades](/docs/daemon/recovery-upgrades) before deleting anything by hand.
+If local IPC metadata is stale after a crash, use
+[Recovery and upgrades](/docs/daemon/recovery-upgrades) before deleting
+anything by hand.
 
 ## Status
 
@@ -44,7 +51,7 @@ The useful fields are:
 | Field | Why it matters |
 | --- | --- |
 | `pid` | Confirms the process that owns this daemon instance. |
-| `socket` | Confirms which `$COVEN_HOME` is active. |
+| `socket` | Legacy field name containing the active Unix socket or Windows named-pipe endpoint. |
 | `apiVersion` | Confirms client compatibility with `coven.daemon.v1`. |
 | `uptime` / `startedAt` | Helps distinguish a fresh restart from a stale process. |
 
@@ -59,7 +66,9 @@ export COVEN_HOME="$HOME/.local/share/coven"
 coven daemon restart
 ```
 
-Restart should drain the old listener, release the previous socket, reopen the store under the selected state directory, and serve the same `/api/v1` contract again.
+Restart should drain the old listener, release the previous local IPC endpoint,
+reopen the store under the selected state directory, and serve the same
+`/api/v1` contract again.
 
 ## Stop
 
@@ -76,13 +85,16 @@ Coven ships supervision recipes in the main repo, and their names are the conven
 
 macOS convention note: launchd labels are conventionally reverse-DNS (which for this project would look like `com.opencoven.coven-daemon`), but the shipped guide deliberately uses the short label `coven` — use that label in `launchctl` commands (`launchctl kickstart -k gui/UID/coven`, `launchctl bootout gui/UID/coven`) unless you have renamed the plist yourself.
 
-Whichever supervisor you use, keep single-instance discipline: the daemon refuses to take over a healthy socket and holds a serve lock, so let one supervisor own the process rather than mixing `coven daemon start` with a service unit.
+Whichever supervisor you use, keep single-instance discipline: the daemon
+refuses to take over a healthy local IPC endpoint and holds a serve lock, so
+let one supervisor own the process rather than mixing `coven daemon start`
+with a service unit.
 
 ## Client behavior during lifecycle changes
 
 Clients should handle these states explicitly:
 
-- Socket connection refused: show a `coven daemon start` hint.
+- Local IPC connection refused: show a `coven daemon start` hint.
 - Health route responds with another `apiVersion`: ask the user to update Coven or the client.
 - Live input returns `session_not_live`: switch to replay or attach guidance.
 - Runtime unavailable: retry after a short delay or ask the user to inspect daemon status.

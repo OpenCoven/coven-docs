@@ -17,7 +17,7 @@ Run:
 coven daemon status
 ```
 
-Then confirm the socket route:
+On Unix-like hosts, confirm the socket route:
 
 ```bash
 curl --unix-socket "$HOME/.coven/coven.sock" \
@@ -25,6 +25,8 @@ curl --unix-socket "$HOME/.coven/coven.sock" \
 ```
 
 If you use a custom state directory, replace `$HOME/.coven` with `$COVEN_HOME`.
+On Windows, use the owner-only named pipe reported by `coven daemon status`;
+the curl example above is Unix-specific.
 
 ## What to capture
 

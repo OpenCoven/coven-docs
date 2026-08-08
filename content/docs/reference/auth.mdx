@@ -6,7 +6,10 @@ description: Where credentials belong in a local Coven installation.
 Coven separates two kinds of authority:
 
 - **Provider authentication belongs to the harness.** Sign in with Codex, Claude Code, Copilot CLI, Coven Code, or the adapter that runs the model. Coven does not collect or forward those credentials.
-- **Local session authority belongs to the daemon.** The daemon accepts same-user requests over its Unix socket and validates session, project, and control actions before it touches a PTY or ledger.
+- **Local session authority belongs to the daemon.** The daemon accepts
+  same-user requests over local IPC (a Unix socket on Unix-like hosts or an
+  owner-only named pipe on Windows) and validates session, project, and control
+  actions before it touches a PTY or ledger.
 
 This is a local-first design, not a remote multi-user API. Do not expose the socket directly to an untrusted network. If you build a local client, use the supported `/api/v1` contract and run it as the same operating-system user.
 

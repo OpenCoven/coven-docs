@@ -4,9 +4,9 @@ import { createOpenAPI } from 'fumadocs-openapi/server';
 // the same operations as openapi/coven.daemon.v1.yaml plus x-codeSamples
 // injected by scripts/build-openapi-samples.mjs.
 //
-// proxyUrl points at the Phase 5 Unix-socket bridge at
-// app/api/coven-proxy/[...path]/route.ts, which forwards browser fetches
-// to $COVEN_HOME/coven.sock.
+// proxyUrl points at the Unix-only docs bridge at
+// app/api/coven-proxy/[...path]/route.ts. Native Windows named pipes are not
+// supported by this browser-facing bridge.
 export const openapi = createOpenAPI({
   input: ['./openapi/coven.daemon.v1.built.yaml'],
   proxyUrl: '/api/coven-proxy',

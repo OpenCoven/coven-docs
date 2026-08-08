@@ -1,7 +1,7 @@
 ---
 title: "Security posture"
-summary: "Same-user socket trust, daemon authority, provider credential boundaries, remote access, and destructive confirmations."
-description: "Security posture for the Coven daemon: local Unix-socket trust, daemon-owned enforcement, no stored provider credentials, remote access guidance, and explicit destructive confirmations."
+summary: "Same-user local IPC trust, daemon authority, provider credential boundaries, remote access, and destructive confirmations."
+description: "Security posture for the Coven daemon: same-user local IPC trust, daemon-owned enforcement, no stored provider credentials, remote access guidance, and explicit destructive confirmations."
 read_when:
   - Auditing a new client or bridge
   - Exposing Coven across machines you own
@@ -10,7 +10,7 @@ read_when:
 Coven's daemon security model is local-first and deliberately narrow.
 
 1. The Rust daemon is the authority.
-2. The Unix socket is same-user local trust.
+2. The platform local IPC endpoint is same-user trust.
 3. Coven does not store provider credentials.
 4. Destructive operations require explicit confirmation.
 
@@ -32,15 +32,17 @@ The daemon validates:
 
 Client-side validation is useful for better forms and friendlier errors, but it is not the trust boundary.
 
-## Same-user socket trust
+## Same-user local IPC trust
 
-The daemon does not use OAuth, JWTs, bearer tokens, API keys, or browser cookies. Access is local filesystem access to:
+The daemon does not use OAuth, JWTs, bearer tokens, API keys, or browser
+cookies. Access uses:
 
-```text
-$COVEN_HOME/coven.sock
-```
+- `$COVEN_HOME/coven.sock` on Unix-like hosts; or
+- an owner-only named pipe reported by health and `coven daemon status` on
+  Windows.
 
-Anyone who can read and write that socket can act as a local Coven client. Keep `$COVEN_HOME` private to the user who owns the daemon.
+Anyone who can connect to that endpoint can act as a local Coven client. Keep
+`$COVEN_HOME` and the endpoint private to the user who owns the daemon.
 
 ## Provider credentials
 
@@ -57,7 +59,9 @@ Coven records session metadata and output for replay and audit, so `$COVEN_HOME`
 
 ## Remote access
 
-Coven does not bind TCP by default. If you need a remote daemon, put an explicit transport in front of the Unix socket and treat that transport as the auth layer.
+Coven does not bind TCP by default. If you need a remote daemon, put an
+explicit authenticated transport in front of the platform local IPC endpoint
+and treat that transport as the auth layer.
 
 Reasonable owner-operated patterns:
 
@@ -65,7 +69,8 @@ Reasonable owner-operated patterns:
 - Tailscale between your own devices.
 - A private gateway that adds authentication before touching the socket.
 
-Avoid exposing `coven.sock` directly to browsers, public networks, shared machines, or unauthenticated TCP bridges.
+Avoid exposing the daemon's local IPC endpoint directly to browsers, public
+networks, shared machines, or unauthenticated TCP bridges.
 
 ## Destructive confirmations
 

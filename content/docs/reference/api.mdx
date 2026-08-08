@@ -1,9 +1,16 @@
 ---
 title: Coven local API
-description: The supported HTTP-over-Unix-socket contract for local clients.
+description: The supported HTTP contract over same-user local IPC.
 ---
 
-The daemon serves `/api/v1` over `$COVEN_HOME/coven.sock`. Use it from a same-user local client when the CLI does not fit your workflow. Start with the health response, branch on its advertised capabilities, and treat structured errors as product behavior.
+The daemon serves `/api/v1` over same-user local IPC: `$COVEN_HOME/coven.sock`
+on Unix-like hosts or an owner-only named pipe selected by `COVEN_HOME` on
+Windows. Use the endpoint reported by health or `coven daemon status`; do not
+construct a Windows pipe name from the Unix convention.
+
+Use the API from a same-user local client when the CLI does not fit your
+workflow. Start with the health response, branch on its advertised
+capabilities, and treat structured errors as product behavior.
 
 ## Supported flow
 
@@ -12,7 +19,7 @@ The daemon serves `/api/v1` over `$COVEN_HOME/coven.sock`. Use it from a same-us
 3. `POST /api/v1/sessions` — launch a validated harness session.
 4. `GET /api/v1/sessions` and `GET /api/v1/sessions/{id}` — inspect records.
 5. `GET /api/v1/events` — read ordered session events with a cursor.
-6. `POST /api/v1/actions/{id}` — request a validated control action.
+6. `POST /api/v1/actions` — request a validated control action with the action id in the JSON `action` field.
 
 The daemon rejects malformed requests, unknown sessions, non-live input, unsupported harnesses, and project-root violations with a structured error envelope:
 
@@ -27,11 +34,26 @@ The daemon rejects malformed requests, unknown sessions, non-live input, unsuppo
 
 Use `error.code` for control flow; display `message` to people. The complete endpoint schemas and local examples are in the [interactive API reference](/docs/openapi).
 
+## Version and privacy rules
+
+`GET /api/v1/health` advertises the named `coven.daemon.v1` contract.
+`GET /api/v1/api-version` is a legacy route-family diagnostic; its literal
+`v1` value is not sufficient proof that every named-contract capability exists.
+
+Broad event and log responses are redacted by default. Raw sensitive artifacts
+are available only through the narrow
+`GET /api/v1/sessions/{sessionId}/artifacts/{artifactId}?raw=1` route when raw
+artifact persistence is explicitly enabled. Otherwise the daemon returns a
+structured `raw_artifact_requires_raw_flag` or `raw_artifacts_disabled` error.
+
 ## Client rules
 
-- Send requests only to the local Unix socket.
+- Send requests only to the daemon-reported same-user local IPC endpoint.
 - Check health and capabilities before assuming a route exists.
 - Never treat a client-side check as a substitute for daemon validation.
 - Keep provider credentials in the harness, not in API requests.
 
-See [Daemon](/docs/daemon) for operating behavior and [Safety](/docs/reference/safety) for the enforcement model.
+See [Daemon](/docs/daemon) for operating behavior, [Safety](/docs/reference/safety)
+for the enforcement model, and the
+[versioned source contract](https://github.com/OpenCoven/coven/blob/main/docs/API-CONTRACT.md)
+for normative request and response shapes.

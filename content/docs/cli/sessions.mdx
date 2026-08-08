@@ -47,6 +47,29 @@ The rituals in detail:
 
 Use `--json` for integrations and `--plain` for shell scripts or support snippets.
 
+## Search and inspect
+
+Search recorded event payloads with FTS5 query syntax:
+
+```bash
+coven sessions search "auth OR jwt"
+```
+
+Inspect one session without attaching:
+
+```bash
+coven sessions show <session-id>
+coven sessions events <session-id> --limit 100
+coven sessions log <session-id>
+```
+
+`show` prints the session record and ritual state. `events` prints redacted
+event payloads and accepts `--after-seq` plus `--limit`. `log` renders the
+recorded log lines. Each command also supports `--json`.
+
+Session references may be full ids or unique prefixes. Ambiguous prefixes fail
+instead of selecting an arbitrary session.
+
 ## Attach
 
 Replay and follow a session:
@@ -91,4 +114,4 @@ Sacrifice is destructive. It requires `--yes` and refuses running sessions.
 
 - [Run](/docs/cli/run) for creating sessions.
 - [Daemon lifecycle](/docs/daemon/lifecycle) for live-session daemon behavior.
-- [Recovery and upgrades](/docs/daemon/recovery-upgrades) for stale sockets and orphaned sessions.
+- [Recovery and upgrades](/docs/daemon/recovery-upgrades) for stale local IPC and orphaned sessions.

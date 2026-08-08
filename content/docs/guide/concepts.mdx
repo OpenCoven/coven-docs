@@ -17,7 +17,11 @@ A session is the durable record of one harness run: its identity, project, harne
 
 ## Local authority
 
-The daemon is one same-user process per host. It owns live PTYs and the SQLite-backed session ledger, then serves the supported `/api/v1` contract over a Unix socket. The CLI and other local clients ask it to act; they do not become the enforcement boundary.
+The daemon is one same-user process per `COVEN_HOME` profile. It owns live PTYs
+and the SQLite-backed session ledger, then serves the supported `/api/v1`
+contract over a Unix socket on Unix-like hosts or an owner-only named pipe on
+Windows. The CLI and other local clients ask it to act; they do not become the
+enforcement boundary.
 
 ## Provider boundary
 

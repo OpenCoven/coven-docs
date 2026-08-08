@@ -1,7 +1,7 @@
 ---
 title: "Recovery and upgrades"
-summary: "How to handle stale sockets, orphaned sessions, restart recovery, and safe daemon upgrades."
-description: "Daemon recovery and upgrade guide for Coven operators: stale sockets, orphaned PTYs, session ledger recovery, live-session checks, and safe upgrade flow."
+summary: "How to handle stale local IPC, orphaned sessions, restart recovery, and safe daemon upgrades."
+description: "Daemon recovery and upgrade guide for Coven operators: stale local endpoints, orphaned PTYs, session ledger recovery, live-session checks, and safe upgrade flow."
 read_when:
   - Cleaning up after a daemon crash
   - Upgrading Coven without losing session context
@@ -9,9 +9,11 @@ read_when:
 
 The daemon is responsible for recovering local state without pretending every session is still live. Treat crash recovery and upgrades as state transitions: inspect first, then restart, then reattach or replay.
 
-## Stale socket
+## Stale local endpoint
 
-If clients cannot connect but `$COVEN_HOME/coven.sock` exists, the socket may be stale.
+On Unix-like hosts, if clients cannot connect but `$COVEN_HOME/coven.sock`
+exists, the socket may be stale. On Windows, use `coven daemon status` to
+inspect the daemon-reported named pipe instead of looking for a socket file.
 
 First inspect status:
 

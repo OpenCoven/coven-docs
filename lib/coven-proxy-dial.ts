@@ -4,12 +4,13 @@
 //   - app/api/coven-proxy/route.ts            (?url= style; used by the
 //     fumadocs-openapi Try It playground)
 //
-// Transport order: the Unix socket at $COVEN_HOME/coven.sock is dialed first;
-// if it does not answer, we fall back to the daemon's loopback TCP listener
+// Unix-like transport order: $COVEN_HOME/coven.sock is dialed first; if it
+// does not answer, we fall back to the daemon's loopback TCP listener
 // (`coven daemon serve --tcp 127.0.0.1:<port>`, standard port 3000). The
-// fallback only ever dials 127.0.0.1 — never a caller-supplied host.
+// fallback only ever dials 127.0.0.1 — never a caller-supplied host. Native
+// Windows named pipes are intentionally unsupported by this docs-site bridge.
 //
-// Trust model: the daemon's only access control is file-system permissions on
+// Trust model: the Unix daemon's access control is file-system permissions on
 // the socket (and the loopback/Host guard on TCP). This module must NOT
 // forward auth headers, cookies, or anything that could let a cross-origin
 // payload smuggle credentials in — it forwards only content-type and accept.

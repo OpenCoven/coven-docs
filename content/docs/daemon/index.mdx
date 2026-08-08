@@ -7,7 +7,9 @@ read_when:
   - Auditing what clients can ask for and what the daemon enforces
 ---
 
-The Coven daemon is one Rust process per host. It owns live session state, harness PTYs, the SQLite session ledger, the append-only event log, and the HTTP-over-Unix-socket API under `/api/v1`.
+The Coven daemon is one Rust process per `COVEN_HOME` profile. It owns live
+session state, harness PTYs, the SQLite session ledger, the append-only event
+log, and the HTTP API over same-user local IPC under `/api/v1`.
 
 The `coven` CLI and other same-user local clients can validate requests for a better UX, but they do not become the enforcement boundary. They ask the daemon to launch sessions, forward input, kill live sessions, and inspect events.
 
@@ -20,7 +22,7 @@ For the supported route topology, compatibility handshake, event cursor flow, an
 | PTY lifecycle | Spawns supported harnesses with argv APIs, tracks live processes, forwards input, records exits. |
 | Session ledger | Stores session records in SQLite so clients can list, attach, replay, archive, and diagnose work. |
 | Event log | Appends output, input, status, exit, and action events with stable sequence cursors. |
-| Socket API | Serves the local `/api/v1` contract over `<COVEN_HOME>/coven.sock`. |
+| Socket API | Serves `/api/v1` over `<COVEN_HOME>/coven.sock` on Unix-like hosts or an owner-only named pipe on Windows. |
 | Policy boundary | Canonicalizes project roots and cwd, validates harness ids, session ids, liveness, and action ids. |
 
 ## Operational map
@@ -32,7 +34,7 @@ Start with these pages depending on what you are doing:
 - [Socket API](/docs/daemon/socket-api) for health, capabilities, versioning, endpoints, and structured errors.
 - [Security posture](/docs/daemon/security) for same-user socket trust, provider credential boundaries, and remote access.
 - [Observability](/docs/daemon/observability) for logs, diagnostics, and bug-report evidence.
-- [Recovery and upgrades](/docs/daemon/recovery-upgrades) for stale sockets, orphaned sessions, and safe upgrade flow.
+- [Recovery and upgrades](/docs/daemon/recovery-upgrades) for stale local IPC, orphaned sessions, and safe upgrade flow.
 
 ## Where daemon state lives
 
@@ -41,7 +43,8 @@ By default, Coven stores daemon state under `~/.coven`.
 | Path | Purpose |
 | --- | --- |
 | `$COVEN_HOME` | Root state directory. Defaults to `~/.coven` unless overridden. |
-| `$COVEN_HOME/coven.sock` | Unix socket the daemon binds for local clients. |
+| `$COVEN_HOME/coven.sock` | Unix socket the daemon binds on Unix-like hosts. |
+| Daemon-reported named pipe | Owner-only local IPC endpoint on Windows. |
 | `$COVEN_HOME/coven.sqlite3` | SQLite session ledger and append-only event log. |
 | `$COVEN_HOME/daemon.json` | Background daemon metadata such as pid, socket path, and start time. |
 
@@ -55,7 +58,9 @@ Every client should begin with the daemon health route:
 GET /api/v1/health
 ```
 
-The response advertises `apiVersion`, Coven binary metadata, daemon metadata, and the capability shape clients should branch on before using sessions, events, actions, or live input.
+The response advertises `apiVersion`, Coven binary metadata, daemon metadata
+(`pid`, `startedAt`, and the active endpoint), and the capability shape clients
+should branch on before using sessions, events, actions, or live input.
 
 ## Related
 

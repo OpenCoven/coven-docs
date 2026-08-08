@@ -3,13 +3,21 @@ title: Socket API
 description: Operating the versioned local API boundary.
 ---
 
-The daemon serves `/api/v1` over `$COVEN_HOME/coven.sock`, not a TCP port. This keeps the default boundary local to the operating-system user that owns the daemon state.
+The daemon serves `/api/v1` over same-user local IPC, not a TCP port by
+default. Unix-like hosts use `$COVEN_HOME/coven.sock`; Windows uses an
+owner-only named pipe reported by health and `coven daemon status`. This keeps
+the default boundary local to the operating-system user that owns the daemon
+state.
 
 Every client should call `GET /api/v1/health` before using another route. The response identifies the API version and available capabilities. A newer client must not assume that an older daemon supports a route simply because its own code knows about it.
 
 The public session flow is health → capabilities → sessions → events → validated actions. For schemas, error codes, and local examples, use the [local API reference](/docs/reference/api).
 
-When the socket is missing or stale, use:
+`GET /api/v1/api-version` remains a legacy route-family diagnostic. Use the
+named `apiVersion` from health plus the advertised capabilities for
+compatibility decisions.
+
+When the local IPC endpoint is missing or stale, use:
 
 ```sh
 coven daemon status

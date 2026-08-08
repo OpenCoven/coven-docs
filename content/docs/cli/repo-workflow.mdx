@@ -52,6 +52,22 @@ coven hooks install
 
 It refuses to modify a tracked `core.hooksPath` hook directory and prints integration options instead.
 
+## Maintenance fence
+
+`coven maintenance` coordinates exclusive repository maintenance with normal
+Coven writers:
+
+```bash
+coven maintenance status --json
+coven maintenance acquire <owner> --wait-ms 30000 --json
+coven maintenance heartbeat <owner> <generation> --json
+coven maintenance release <owner> <generation>
+```
+
+`acquire` fences new writers and can wait for existing writer intents to
+drain. The returned generation token is required for heartbeat and release so
+one owner cannot accidentally release another owner's fence.
+
 ## Ward
 
 `coven ward` covers the principal-facing Ward lifecycle: proposals staged for the principal's decision and config migration.
