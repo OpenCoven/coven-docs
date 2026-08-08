@@ -4,10 +4,20 @@ import { join } from 'node:path';
 const root = process.cwd();
 const docsRoot = join(root, 'content', 'docs');
 const cliRoot = join(docsRoot, 'cli');
+const guideRoot = join(docsRoot, 'guide');
+const requiredGuideMetaPages = [
+  'getting-started',
+  'install',
+  'platforms',
+  'deployments',
+  'concepts',
+  'architecture',
+];
 
 const requiredPages = [
   'index',
   'install',
+  'install-debugging',
   'interactive',
   'doctor',
   'daemon',
@@ -19,6 +29,28 @@ const requiredPages = [
   'repo-workflow',
   'patch-openclaw',
   'pc',
+  'uninstall',
+];
+
+const requiredGuidePages = ['install', 'platforms', 'deployments'];
+
+const requiredInstallMentions = [
+  'npm install -g @opencoven/cli',
+  'cargo install --path crates/coven-cli',
+  'Apple Silicon',
+  'glibc',
+  'PowerShell',
+  'WSL2',
+  'Linux filesystem',
+  'launchd',
+  'systemd',
+  'Docker',
+  'Podman',
+  'Nix',
+  'Raspberry Pi',
+  'COVEN_HOME',
+  'coven doctor',
+  'coven daemon status',
 ];
 
 const requiredCommandMentions = [
@@ -107,6 +139,39 @@ if (missingPages.length > 0) {
   fail(`content/docs/cli/meta.json is missing pages: ${missingPages.join(', ')}.`);
 }
 
+const guideMetaPath = join(guideRoot, 'meta.json');
+if (!existsSync(guideMetaPath)) {
+  fail('content/docs/guide/meta.json is missing.');
+}
+
+const guideMeta = readJson(guideMetaPath);
+const actualGuidePages = Array.isArray(guideMeta.pages) ? guideMeta.pages : [];
+if (JSON.stringify(actualGuidePages) !== JSON.stringify(requiredGuideMetaPages)) {
+  fail(`content/docs/guide/meta.json pages must be exactly: ${requiredGuideMetaPages.join(', ')}.`);
+}
+
+const missingGuidePages = requiredGuidePages
+  .map((page) => join(guideRoot, `${page}.mdx`))
+  .filter((file) => !existsSync(file));
+if (missingGuidePages.length > 0) {
+  fail(`missing guide doc pages: ${missingGuidePages.map((file) => file.replace(`${root}/`, '')).join(', ')}.`);
+}
+
+const guideSource = [];
+for (const page of requiredGuidePages) {
+  const file = join(guideRoot, `${page}.mdx`);
+  const source = readFileSync(file, 'utf8');
+  guideSource.push(source);
+
+  if (source.includes('Stub') || source.includes('fill in')) {
+    fail(`content/docs/guide/${page}.mdx still contains stub text.`);
+  }
+
+  if (!source.includes('read_when:')) {
+    fail(`content/docs/guide/${page}.mdx is missing read_when frontmatter.`);
+  }
+}
+
 const allSource = [];
 
 for (const page of requiredPages) {
@@ -143,6 +208,12 @@ if (!readFileSync(join(cliRoot, 'daemon.mdx'), 'utf8').includes('/docs/daemon/li
 
 if (!readFileSync(join(cliRoot, 'sessions.mdx'), 'utf8').includes('/docs/daemon/lifecycle')) {
   fail('CLI sessions page must link to daemon lifecycle docs.');
+}
+
+const joinedGuideSource = guideSource.join('\n');
+const missingInstallMentions = requiredInstallMentions.filter((mention) => !joinedGuideSource.includes(mention));
+if (missingInstallMentions.length > 0) {
+  fail(`Guide install docs are missing required mentions: ${missingInstallMentions.join(', ')}.`);
 }
 
 console.log('CLI docs check passed.');

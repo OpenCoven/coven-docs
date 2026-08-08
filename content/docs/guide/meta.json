@@ -6,6 +6,8 @@
   "pages": [
     "getting-started",
     "install",
+    "platforms",
+    "deployments",
     "concepts",
     "architecture"
   ]
