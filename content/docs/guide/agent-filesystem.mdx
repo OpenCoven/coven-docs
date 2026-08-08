@@ -1,0 +1,88 @@
+---
+title: Agent filesystem
+description: The experimental Coven Agent File System foundation, its present boundary, and its public roadmap.
+---
+
+Coven is exploring an **Agent File System (AFS)**: a local SQLite-backed
+filesystem foundation for agent work that stores file state without making the
+project directory itself the working store. The future design adds session-linked
+change history and provenance; that integration is not implemented today.
+
+This is experimental engineering infrastructure, not a supported user-facing
+workflow yet. There is no `coven afs` command, AFS daemon API, mount point, or
+sandboxed execution mode to configure today.
+
+## What is shipped
+
+The `coven-afs` Rust crate is merged in the public Coven repository. It
+implements an [AgentFS SPEC v0.4](https://github.com/tursodatabase/agentfs/blob/main/SPEC.md)-compatible
+SQLite storage layer with:
+
+- POSIX-like files, directories, hard links, and symbolic links;
+- chunked file data and filesystem consistency checks;
+- a writable copy-on-write delta over a read-only base;
+- whiteouts for deletions and full-file copy-up for modified base files;
+- a JSON key-value store and insert-only tool-call audit records.
+
+The storage engine is tested as a crate. It is not yet connected to the Coven
+daemon, its session lifecycle, or the public local API. It does not replace the
+project-root guard, existing worktree workflow, or the safety guidance in
+[Security posture](/docs/daemon/security).
+
+## What it is for
+
+The intended direction is a private delta per agent session over an immutable
+project snapshot. That would make a session's changes inspectable and
+discardable without mutating the base snapshot. A future explicit
+materialization step would apply reviewed changes to an ordinary Git branch,
+preserving Coven's existing PR workflow.
+
+The storage implementation follows the upstream specification. The future
+design reserves separate additive tables for Coven-specific provenance, but no
+such tables are implemented yet. This keeps the filesystem interoperable at the
+storage layer without treating any upstream tool or format as a runtime
+dependency.
+
+## Important boundaries
+
+Do not rely on AFS for security isolation today:
+
+- **No mount is shipped.** The merged crate is a storage engine only.
+- **No sandbox is shipped.** A mount alone would not prevent a process from
+  writing to an absolute path outside that mount.
+- **No network listener is shipped.** Coven's existing daemon remains
+  same-user local IPC; AFS does not add a TCP endpoint.
+- **No session API is shipped.** Session creation, diff, timeline, commit, and
+  discard operations are design work, not public routes or commands.
+
+Use the current [project-root guidance](/docs/harnesses/project-roots) and
+explicit Git/worktree review flow for production work.
+
+## Roadmap
+
+The roadmap is capability-based rather than date-based. Each workstream has
+explicit safety and operational gates before it becomes a supported feature.
+
+| Phase | Status | Scope and gate |
+| --- | --- | --- |
+| Storage foundation | Shipped experimental | `coven-afs` provides the SPEC-compatible schema, filesystem operations, and copy-on-write overlay. |
+| Mount and performance spike | Planned experimental work | Evaluate localhost NFS on macOS and FUSE on Linux; measure a repository checkout and `pnpm install`-scale writes against the bare filesystem. This determines whether mounts are viable. |
+| Mount safety decision | Planned after benchmark | Resolve loopback access control, default-off behavior, copy-up limits, base-ingest filters, and platform-specific recovery before enabling any mount by default. |
+| Daemon session integration | Planned | Add an additive local API for creating, inspecting, diffing, committing, and discarding AFS sessions. SDK-only operation remains viable if no mount backend is available. |
+| Provenance and review | Planned | Connect file operations to Coven sessions and tool calls, then expose explicit diff, timeline, and materialization views to local clients. |
+| Broader platform support | Later | Evaluate a Windows-native path separately; no Windows mount backend is promised. |
+
+The mount and benchmark work is planned experimental work, not a release
+commitment. Mount viability gates mount availability and defaults; it does not
+block future SDK or daemon integration. The daemon API, provenance views, and
+Git materialization are technical designs only until they are implemented,
+tested, and documented as supported features.
+
+## Follow progress
+
+- [Coven architecture](/docs/guide/architecture) explains the current daemon
+  authority boundary.
+- [Security posture](/docs/daemon/security) describes the current local-access
+  model.
+- The [Coven repository](https://github.com/OpenCoven/coven) contains the
+  experimental storage crate and its engineering design.
