@@ -15,7 +15,7 @@ Use this page after choosing an install method. Platform behavior is not fully p
 | macOS Apple Silicon | The published npm wrapper is the normal route. | Treat `launchd` as optional until the manual shell path already works. |
 | Linux x64 on `glibc` | The published npm wrapper is the normal route. | Alpine and other musl systems should use a source build instead of assuming a published package. |
 | Windows x64 in `PowerShell` | The published npm wrapper is the normal route. | Native Windows uses an owner-only named pipe, not a Unix socket. |
-| WSL2 | Install inside the distro as Linux software. | Keep projects and `COVEN_HOME` on the Linux filesystem, not `/mnt/c`, for daemon-heavy work. |
+| WSL2 | Use the published Linux wrapper inside the distro only when it matches a published Linux target; otherwise use a source checkout. | Keep projects and `COVEN_HOME` on the Linux filesystem, not `/mnt/c`, for daemon-heavy work. |
 | Raspberry Pi | Use a 64-bit OS and a source build. | Do not assume a published npm binary for Raspberry Pi. |
 
 ## macOS Apple Silicon
@@ -60,10 +60,24 @@ Native Windows daemon IPC uses an owner-only named pipe. It is separate from WSL
 
 ## WSL2
 
-Treat WSL2 as a Linux install inside one distro. Keep the project, harness CLIs, and `COVEN_HOME` on the Linux filesystem. Avoid `/mnt/c` for daemon-heavy work because Windows file semantics can interfere with sockets, permissions, and file watching.
+Treat WSL2 as a Linux install inside one distro. If that distro matches the published Linux target (`linux-x64` on `glibc`), use the Linux wrapper path inside WSL2. Otherwise use the source-checkout route inside the distro instead of assuming a published package. Keep the project, harness CLIs, and `COVEN_HOME` on the Linux filesystem. Avoid `/mnt/c` for daemon-heavy work because Windows file semantics can interfere with sockets, permissions, and file watching.
+
+When the WSL2 distro matches the published Linux target:
 
 ```sh
 npm install -g @opencoven/cli
+export COVEN_HOME="$HOME/.coven"
+coven --version
+coven doctor
+coven daemon status
+```
+
+When it does not, use a source checkout inside the distro:
+
+```sh
+git clone https://github.com/OpenCoven/coven.git
+cd coven
+cargo install --path crates/coven-cli
 export COVEN_HOME="$HOME/.coven"
 coven --version
 coven doctor

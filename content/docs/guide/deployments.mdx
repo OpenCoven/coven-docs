@@ -8,6 +8,8 @@ read_when:
 
 Use this page after install when the main question is where the daemon lives. Deployments do not change the runtime contract: Coven still runs as a same-user local daemon with local-only daemon IPC.
 
+Docker, Podman, and Nix coverage on this page describes manual or experimental integration patterns. They are not tested first-class packaged Coven install targets, and this docs set does not ship official Dockerfiles, Containerfiles, images, or Nix artifacts for them.
+
 ## Deployment Routes
 
 | Route | Use when | Key rule |
@@ -15,8 +17,8 @@ Use this page after install when the main question is where the daemon lives. De
 | Headless or cloud host over SSH | You will run Coven without a desktop. | Sign in as the same OS user that owns `COVEN_HOME`, then keep remote access behind SSH. |
 | `launchd` | You want Coven to start automatically for a macOS user. | Preserve the same `PATH` and `COVEN_HOME` that passed `coven doctor` manually. |
 | `systemd --user` | You want a Linux user service. | Preserve the same `PATH` and `COVEN_HOME` that passed `coven doctor` manually. |
-| Docker or Podman | You want container isolation inside one shared trust boundary. | Mount a persistent `COVEN_HOME` and keep the daemon local to that boundary. |
-| Nix | You want pinned toolchains or reproducible builds. | Treat Nix as an environment or build route, not a different runtime contract. |
+| Docker or Podman | You are composing a manual or experimental container integration inside one shared trust boundary. | Bring your own image definition, mount a persistent `COVEN_HOME`, and keep the daemon local to that boundary. |
+| Nix | You are composing a manual or experimental Nix-managed environment or build route. | Bring your own Nix expression and treat Nix as an environment or build route, not a different runtime contract. |
 
 ## Headless And Cloud Hosts
 
@@ -37,13 +39,13 @@ If the supervised service cannot see `coven` or a harness CLI that works in your
 
 ## Docker And Podman
 
-Docker and Podman do not create a different Coven networking model. They still run one local daemon inside a shared trust boundary, so mount a persistent `COVEN_HOME`, mount the project root you want to supervise, and avoid direct public exposure of the daemon IPC.
+Docker and Podman do not create a different Coven networking model. These are manual or experimental integration patterns, not tested first-class packaged install targets, and Coven does not publish an official Dockerfile, Containerfile, or container image for them. If you package Coven into your own container, keep it within one same-user shared trust boundary, mount a persistent `COVEN_HOME`, mount the project root you want to supervise, and avoid direct public exposure of the daemon IPC.
 
 Containers are most appropriate when you already control the image, the harness CLIs inside it, and the users who can reach that boundary.
 
 ## Nix
 
-Nix is useful for building or pinning the environment around Coven, especially Node.js, Rust, and harness tooling. It is not a separate runtime contract: once inside the Nix environment, Coven still uses the same `COVEN_HOME`, the same local-only daemon IPC, and the same-user verification flow.
+Nix is useful for building or pinning the environment around Coven, especially Node.js, Rust, and harness tooling. Treat it as a manual or experimental integration pattern, not a tested first-class packaged install target, and do not assume an official Coven flake, derivation, or module exists. Once inside your Nix environment, Coven still uses the same `COVEN_HOME`, the same local-only daemon IPC, and the same-user verification flow.
 
 ## Before You Call The Deployment Healthy
 
