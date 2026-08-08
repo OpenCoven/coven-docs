@@ -1,11 +1,18 @@
 ---
 title: Getting started
 description: Install Coven, run one session, and keep its record.
+read_when:
+  - You want the concrete first-session loop for a new Coven install
+  - You want the default interactive path plus the explicit recorded-session commands
 ---
 
 ## What you get
 
 Coven supervises a coding-agent CLI in a project boundary, then keeps its session record and event log locally. Your harness keeps its own provider login; Coven keeps the lifecycle, replay, and local API consistent.
+
+## Interactive default
+
+Run `coven` when you want Coven's guided interactive front door. The default interactive path is the managed `coven-code` engine: on first run Coven can install the pinned engine for you, and later interactive launches reuse that managed binary. `COVEN_LEGACY_TUI=1` is only a deprecated compatibility escape hatch for the older in-process shell.
 
 ## 1. Verify Coven
 
@@ -45,21 +52,24 @@ copilot login
 
 See [Harnesses](/docs/harnesses) for supported harnesses, adapter setup, and credential boundaries.
 
-## 3. Run a session
+## 3. Run a first session
 
-From the repository you want to work in:
+From the repository you want to work in, use this exact first-session loop:
 
 ```sh
+coven doctor
 coven daemon start
-coven run codex "fix the failing tests" --title "Fix tests"
+coven run codex "explain this repo in 5 bullets"
+coven sessions
 ```
 
-The daemon rejects a missing project root or a working directory outside that root. This is the core distinction: a harness runs the task; Coven enforces and records the session around it.
+This keeps the readiness check, daemon startup, first recorded run, and session browser in one concrete flow. The daemon rejects a missing project root or a working directory outside that root. This is the core distinction: a harness runs the task; Coven enforces and records the session around it.
 
 ## 4. Inspect the result
 
+Pick a session id from `coven sessions`, then attach or inspect it without attaching:
+
 ```sh
-coven sessions
 coven attach <session-id>
 ```
 

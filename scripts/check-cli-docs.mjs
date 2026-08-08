@@ -32,7 +32,7 @@ const requiredPages = [
   'uninstall',
 ];
 
-const requiredGuidePages = ['install', 'platforms', 'deployments'];
+const requiredGuidePages = ['getting-started', 'install', 'platforms', 'deployments'];
 
 const requiredInstallMentions = [
   'npm install -g @opencoven/cli',
@@ -52,6 +52,24 @@ const requiredInstallMentions = [
   'coven doctor',
   'coven daemon status',
 ];
+
+const requiredGettingStartedMentions = [
+  'coven doctor',
+  'coven daemon start',
+  'coven run codex "explain this repo in 5 bullets"',
+  'coven sessions',
+];
+
+const requiredInteractiveMentions = ['coven-code', 'COVEN_LEGACY_TUI=1'];
+
+const requiredInstallDebuggingMentions = [
+  'npm view @opencoven/cli version',
+  'which -a coven',
+  'Get-Command -All coven',
+  'rustup update stable',
+];
+
+const requiredUninstallMentions = ['coven daemon stop', 'cargo uninstall coven-cli'];
 
 const requiredCommandMentions = [
   'coven',
@@ -266,7 +284,47 @@ for (const page of requiredGuidePages) {
   }
 }
 
+const gettingStartedSource = readFileSync(join(guideRoot, 'getting-started.mdx'), 'utf8');
+const missingGettingStartedMentions = requiredGettingStartedMentions.filter(
+  (mention) => !gettingStartedSource.includes(mention),
+);
+if (missingGettingStartedMentions.length > 0) {
+  fail(
+    `content/docs/guide/getting-started.mdx is missing required onboarding mentions: ${missingGettingStartedMentions.join(', ')}.`,
+  );
+}
+
 const allSource = [];
+
+const interactiveSource = readFileSync(join(cliRoot, 'interactive.mdx'), 'utf8');
+const missingInteractiveMentions = requiredInteractiveMentions.filter(
+  (mention) => !interactiveSource.includes(mention),
+);
+if (missingInteractiveMentions.length > 0) {
+  fail(
+    `content/docs/cli/interactive.mdx is missing required interactive mentions: ${missingInteractiveMentions.join(', ')}.`,
+  );
+}
+
+const installDebuggingSource = readFileSync(join(cliRoot, 'install-debugging.mdx'), 'utf8');
+const missingInstallDebuggingMentions = requiredInstallDebuggingMentions.filter(
+  (mention) => !installDebuggingSource.includes(mention),
+);
+if (missingInstallDebuggingMentions.length > 0) {
+  fail(
+    `content/docs/cli/install-debugging.mdx is missing required install-debugging mentions: ${missingInstallDebuggingMentions.join(', ')}.`,
+  );
+}
+
+const uninstallSource = readFileSync(join(cliRoot, 'uninstall.mdx'), 'utf8');
+const missingUninstallMentions = requiredUninstallMentions.filter(
+  (mention) => !uninstallSource.includes(mention),
+);
+if (missingUninstallMentions.length > 0) {
+  fail(
+    `content/docs/cli/uninstall.mdx is missing required uninstall mentions: ${missingUninstallMentions.join(', ')}.`,
+  );
+}
 
 for (const page of requiredPages) {
   const file = join(cliRoot, `${page}.mdx`);

@@ -57,10 +57,28 @@ flowchart LR
 | Symptom | Likely cause | Fix |
 | --- | --- | --- |
 | `coven: command not found` | Install dir not on `PATH`, or global install failed | Confirm install method, then add its bin dir to `PATH`. |
-| `coven` runs an old version | Stale `npx` cache or an old global install shadows the new one | Clear the cache / reinstall `@latest`; check `which -a coven`. |
+| `coven` runs an old version | Stale `npx` cache, a `PATH` shadow, or a wrapper/native package mismatch | Compare `coven --version` with `npm view @opencoven/cli version`; check `which -a coven` or `Get-Command -All coven`. |
 | npm warns about a missing optional dependency | The native platform package did not resolve for your OS/CPU | Reinstall `@opencoven/cli` from the environment where you run it. |
 | `Unsupported platform` on install | OS/CPU is not covered by a published native package | Build from source, or use a supported platform / WSL2. |
 | Source build fails to compile | Toolchain or dependency mismatch | Update Rust stable and retry a clean `cargo build`. |
+
+## Identify The Binary You Are Actually Running
+
+### Unix-like shells
+
+```sh
+which -a coven
+coven --version
+```
+
+### PowerShell
+
+```powershell
+Get-Command -All coven
+coven --version
+```
+
+Multiple entries mean more than one install is on your search path. Remove the stale copy or move the intended install earlier on `PATH` before debugging anything else.
 
 ## `coven` Command Not Found
 
@@ -84,15 +102,26 @@ If the global bin directory is missing from `PATH`, add it in your shell profile
 coven doctor
 ```
 
+If the global bin directory was missing from `PATH`, refresh the shell after you update it. The current process keeps the old `PATH` until you open a new terminal session or reload your profile. On PowerShell, open a new window before rerunning `Get-Command -All coven`.
+
 If the global install itself failed (for example, permission errors writing to the global prefix), prefer a user-writable npm prefix or a version manager over `sudo npm install -g`.
 
 ### Native binary
 
-If you downloaded a native binary directly, make sure its directory is on `PATH`:
+If you downloaded a native binary directly, make sure its directory is on `PATH`.
+
+#### Unix-like shells
 
 ```sh
 which -a coven
 echo "$PATH" | tr ':' '\n'
+```
+
+#### PowerShell
+
+```powershell
+Get-Command -All coven
+$env:Path -split ';'
 ```
 
 ### Source build
@@ -105,11 +134,21 @@ echo "$PATH" | tr ':' '\n' | grep "$HOME/.cargo/bin"
 
 ## Wrong Or Stale Version
 
-`npx` caches packages, so a one-off invocation can run an older CLI than you expect. Confirm what is actually running:
+`npx` caches packages, so a one-off invocation can run an older CLI than you expect. Compare the running binary with the published wrapper version:
+
+```sh
+npm view @opencoven/cli version
+coven --version
+```
+
+Then check the actual command resolution in the shell where you launched it:
 
 ```sh
 which -a coven
-coven --version
+```
+
+```powershell
+Get-Command -All coven
 ```
 
 Reinstall the latest global build, or clear the `npx` cache and rerun:
@@ -119,9 +158,9 @@ npm install -g @opencoven/cli@latest
 coven doctor
 ```
 
-If more than one `coven` appears in `which -a coven`, an earlier install is shadowing the new one on `PATH`. Remove the stale copy or reorder `PATH` so the intended install wins.
+If more than one `coven` appears in `which -a coven` or `Get-Command -All coven`, an earlier install is shadowing the new one on `PATH`. Remove the stale copy or reorder `PATH` so the intended install wins.
 
-## Missing Native Platform Package
+## Missing Or Mismatched Native Platform Package
 
 The npm wrapper `@opencoven/cli` resolves a matching native package as an optional dependency. The published target matrix currently covers macOS Apple Silicon (`darwin-arm64`), macOS Intel (`darwin-x64`, package `@opencoven/cli-macos-x64`), Linux x64 (`linux-x64`), and Windows x64 (`win32-x64`). If npm cannot resolve the package for your OS/CPU pair, `coven` will not run even though the wrapper installed.
 
@@ -129,18 +168,28 @@ The npm wrapper `@opencoven/cli` resolves a matching native package as an option
 Installing on one platform and copying `node_modules` to another skips the native package for the target. Reinstall `@opencoven/cli` from the same OS/CPU where you plan to run `coven`.
 </Callout>
 
-Check what npm published and what resolved:
+Check that the wrapper and the native package you expect are both published:
 
 ```sh
-npm view @opencoven/cli version dist-tags
-npm view @opencoven/cli-macos-x64 version dist-tags
-npm view @opencoven/cli-linux-x64 version dist-tags
-npm view @opencoven/cli-windows version dist-tags
+npm view @opencoven/cli version
+npm view @opencoven/cli-macos-x64 version
+npm view @opencoven/cli-linux-x64 version
+npm view @opencoven/cli-windows version
 ```
 
 On an Intel Mac, confirm `node -p "process.platform + '-' + process.arch"` prints `darwin-x64`. If it does not, reinstall Node for a native Intel shell first, then reinstall `@opencoven/cli` so npm can resolve `@opencoven/cli-macos-x64`.
 
 The published wrapper currently targets `darwin-arm64`, `darwin-x64`, `linux-x64`, and `win32-x64`. Alpine/musl is not covered by the published wrapper today. On an unsupported platform, build from source or use a compatible WSL2 Linux distro — see [Platforms](/docs/guide/platforms).
+
+### Windows And WSL2 Are Separate Installs
+
+Native Windows PowerShell and WSL2 are separate environments. Run `npm install`, `coven doctor`, and `Get-Command -All coven` in PowerShell when you plan to use native Windows. Run `npm install`, `coven doctor`, and `which -a coven` inside WSL2 when you plan to use the Linux install there.
+
+A Windows install does not satisfy WSL2, and a WSL2 install does not satisfy PowerShell. Keep the binaries, package-manager cache, and `COVEN_HOME` separate across that boundary.
+
+### Wrapper / native package mismatch
+
+If `@opencoven/cli` installed but the resolved binary is missing, stale, or built for the wrong platform, remove the stale copy and reinstall `@opencoven/cli` in the target environment so the matching optional dependency is selected again. Do not copy `node_modules`, extracted archives, or `coven` binaries across macOS, Linux, Windows, or WSL2 to paper over the mismatch.
 
 ## Source Build Failures
 
@@ -168,14 +217,32 @@ cargo install --path crates/coven-cli
 coven doctor
 ```
 
+## Roll Back To A Verified Release
+
+If the newest package is broken for your environment, roll back by reinstalling a published version you have already verified for that same OS/CPU:
+
+```sh
+npm view @opencoven/cli versions --json
+npm install -g @opencoven/cli@<verified-version>
+```
+
+If the failing install was from source, check out the matching tag or commit in that checkout and rebuild there:
+
+```sh
+git checkout <verified-tag>
+cargo build --workspace
+```
+
+Never copy macOS, Linux, Windows, or WSL-built binaries between platforms to "roll back" faster. Reinstall or rebuild inside the target environment so the correct native package and ABI are selected.
+
 ## Evidence To Collect
 
 When an install problem needs a support report, include:
 
 - The install method (`npx`, global npm, native binary, or source build).
-- The output of `coven --version` and `which -a coven`.
+- The output of `coven --version`, plus `which -a coven` on Unix-like shells or `Get-Command -All coven` in PowerShell.
 - Your OS and CPU architecture.
-- For npm installs, the output of the `npm view` commands above and any missing-optional-dependency warning.
+- For npm installs, the output of `npm view @opencoven/cli version`, the matching platform-package `npm view` command above, and any missing-optional-dependency warning.
 - For source builds, the failing `cargo build` output.
 
 Do not paste secrets or private paths into a report. Once `coven` runs, continue with [Doctor](/docs/cli/doctor).

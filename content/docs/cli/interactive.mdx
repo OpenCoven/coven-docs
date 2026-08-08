@@ -1,13 +1,13 @@
 ---
 title: "Interactive Shell and TUI"
-summary: "Use coven, coven chat, or coven tui for the beginner-friendly interactive Coven shell."
-description: "Reference for the default interactive Coven shell, explicit TUI entrypoint, and bare prompt shortcut."
+summary: "Use coven, coven chat, or coven tui for the default managed Coven interactive UI."
+description: "Reference for the managed coven-code interactive runtime, explicit entrypoints, and the deprecated legacy-shell escape hatch."
 read_when:
   - You are new to Coven and want the guided entrypoint
   - You want to know when coven without arguments opens an interactive surface
 ---
 
-Run `coven` with no arguments when you want Coven to choose the interactive shell for a terminal session.
+Run `coven` with no arguments when you want Coven to open its interactive front door in a real terminal.
 
 ```bash
 coven
@@ -22,15 +22,19 @@ coven tui
 
 The interactive surface is designed for humans who do not want to memorize subcommands. It starts with setup checks and safe first actions before launching a harness.
 
-## When Coven Code is installed
+## Default interactive runtime
 
-If the `coven-code` binary is on `PATH`, interactive `coven`, `coven chat`, and `coven tui` invocations exec into [Coven Code](/docs/coven-code), the full coding TUI, instead of the legacy shell. Set `COVEN_LEGACY_TUI=1` to opt out and keep the shell described on this page.
+The default interactive path is the managed `coven-code` engine. `coven`, `coven chat`, and `coven tui` all resolve the same hand-off: Coven looks for `coven-code` on `PATH`, under `~/.coven/engine`, or under `~/.coven-code/bin`, and then execs into [Coven Code](/docs/coven-code).
+
+On the first interactive run, if that managed engine is missing, Coven offers to install the pinned, checksum-verified engine automatically. You can also provision it ahead of time with `coven engine install`.
+
+Set `COVEN_LEGACY_TUI=1` only when you temporarily need the older in-process slash shell. It is a deprecated compatibility escape hatch, not the recommended default, and it will be removed in a future release.
 
 Explicit subcommands such as `coven run`, `coven daemon`, and `coven sessions` are never redirected — only the interactive entry point hands off. See [Core concepts](/docs/guide/concepts) for the ownership boundary.
 
 ## Terminal routing
 
-When stdin and stdout are both terminals, `coven` opens the interactive chat/shell. When you pass a bare prompt, Coven routes the text as a Cast prompt:
+When stdin and stdout are both terminals, `coven` opens the managed interactive UI. When you pass a bare prompt, Coven routes the text as a Cast prompt instead of opening the interactive surface:
 
 ```bash
 coven "summarize the current project"
@@ -51,4 +55,4 @@ Use explicit subcommands for automation, support, or docs:
 - `coven sessions --plain` for copyable tables.
 - `coven sessions --json` for client integration.
 
-The interactive shell is the front door. The daemon and session commands are the operational reference paths.
+The interactive UI is the front door. The daemon and session commands are the operational reference paths.

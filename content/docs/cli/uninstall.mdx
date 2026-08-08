@@ -9,7 +9,7 @@ read_when:
 
 import { Callout } from 'fumadocs-ui/components/callout';
 
-Use this page to remove the Coven CLI. Removing the CLI and deleting local state are separate steps — do the first for a routine uninstall, and the second only when you intentionally want to erase session history.
+Use this page to remove the Coven CLI. A routine uninstall ends after you stop the daemon and remove the installed command. Local state under `~/.coven` stays in place by default; deleting it is a separate, destructive final step.
 
 ## Stop The Daemon First
 
@@ -43,7 +43,7 @@ If you installed the Rust binary with `cargo install`:
 cargo uninstall coven-cli
 ```
 
-If you only ran `cargo build`/`cargo run` from a cloned checkout, deleting the checkout removes the build:
+If you only ran `cargo build`/`cargo run` from a cloned checkout, nothing was installed globally; deleting the checkout removes the build tree:
 
 ```sh
 rm -rf coven   # the cloned OpenCoven/coven directory
@@ -51,7 +51,7 @@ rm -rf coven   # the cloned OpenCoven/coven directory
 
 ### Native binary
 
-If you placed a native binary on `PATH` yourself, delete that file. Confirm nothing remains:
+If you placed a native binary on `PATH` yourself, delete that file from the directory you added to `PATH`. Then confirm nothing remains:
 
 ```sh
 which -a coven
@@ -59,21 +59,31 @@ which -a coven
 
 ## Verify Removal
 
+### Unix-like shells
+
 ```sh
 which -a coven
 ```
 
-No output means the command is gone. If a path still prints, another install is still present — remove it with the matching method above.
+### PowerShell
 
-## Local State
+```powershell
+Get-Command -All coven
+```
 
-Coven keeps local state under `COVEN_HOME` (default `~/.coven`), including session history, events, and the daemon socket. Uninstalling the CLI does **not** delete this directory.
+No output means the command is gone. If a path or command record still prints, another install is still present — remove it with the matching method above.
+
+## Local State Is Preserved By Default
+
+Coven keeps local state under `COVEN_HOME` (default `~/.coven`), including session history, events, and the daemon socket. Uninstalling the CLI does **not** delete this directory. Routine uninstall stops here.
 
 <Callout type="warn" title="Deleting local state is irreversible">
 `rm -rf ~/.coven` permanently deletes your local session history and events. Do this only when you intend to erase all local Coven data, not as a routine uninstall or update step.
 </Callout>
 
-Remove local state only when you deliberately want it gone:
+## Delete Local State Only If You Intend To Erase It
+
+Remove local state only as an explicit final action after the CLI is already gone:
 
 ```sh
 rm -rf ~/.coven
