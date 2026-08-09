@@ -74,14 +74,17 @@ networks, shared machines, or unauthenticated TCP bridges.
 
 ## Experimental agent filesystem boundary
 
-The experimental [Agent filesystem](/docs/guide/agent-filesystem) crate is
-storage infrastructure only. It does not currently mount a filesystem, start a
-listener, sandbox a harness, or create a new access path to the daemon.
+The experimental [Agent filesystem](/docs/guide/agent-filesystem) crate has an
+opt-in NFSv3 export for engineering validation. It is not a Coven daemon route
+or a supported CLI workflow. Its example binds `127.0.0.1` only and uses an
+ephemeral port by default, but loopback NFS has no authentication: any local
+process that can reach the port can read and write the export.
 
-If a future mount backend is enabled, it must be treated as a separate security
-boundary: a mounted view does not by itself stop a process from writing outside
-that view. Mounting, loopback exposure, access control, and platform sandboxing
-must be validated before they become supported defaults.
+Do not treat the NFS spike as a sandbox or an access-control boundary. A mounted
+view does not stop a process from writing outside that view, and the macOS
+agent-process read/write confirmation is still outstanding. Loopback exposure,
+access control, platform sandboxing, and recovery must be validated before a
+mount becomes a supported default.
 
 ## Destructive confirmations
 
