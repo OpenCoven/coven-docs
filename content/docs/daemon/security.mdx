@@ -83,8 +83,10 @@ export. Operating-system policy can still restrict a particular client's
 mounted-volume operations.
 
 Do not treat the NFS spike as a sandbox or an access-control boundary. A mounted
-view does not stop a process from writing outside that view, and the macOS
-agent-process read/write confirmation is still outstanding. Loopback exposure,
+view does not stop a process from writing outside that view. A human-operated
+macOS Terminal pass confirmed loopback read/write behavior for one consented
+client, but the macOS privacy policy remains process-specific and other client
+processes may still be denied without explicit consent. Loopback exposure,
 access control, platform sandboxing, and recovery must be validated before a
 mount becomes a supported default.
 

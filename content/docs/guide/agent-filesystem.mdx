@@ -41,12 +41,14 @@ or elevated privileges. In its measured write workloads, WAL brought the
 storage engine to 0.81–1.29x the host filesystem's elapsed time (lower is
 better); the package-tree write shape was faster than the host baseline.
 
-It is not ready for agent workflows. The benchmark environment could mount and
-inspect the export, but an agent-process shell received a macOS privacy/TCC
-denial when opening files. A Terminal with Full Disk Access must confirm
-read/write behavior before mount-dependent work can proceed. Linux/FUSE has not
-been evaluated, the NFS export serializes requests through one SQLite
-connection, and loopback NFS access control is unresolved.
+It is not ready for agent workflows. On 2026-08-09, a human-operated,
+consent-enabled macOS Terminal confirmed the loopback NFS path by mounting the
+export, creating a directory, writing a file, and reading back `written`. That
+pass validates the experimental path for that consent-enabled client only; an
+automated agent or other client process may still need explicit macOS
+network-volume or privacy consent before opening files. Linux/FUSE has not been
+evaluated, the NFS export serializes requests through one SQLite connection,
+and loopback NFS access control is unresolved.
 
 ## What it is for
 
@@ -87,8 +89,8 @@ explicit safety and operational gates before it becomes a supported feature.
 | Phase | Status | Scope and gate |
 | --- | --- | --- |
 | Storage foundation | Shipped experimental | `coven-afs` provides the SPEC-compatible schema, filesystem operations, and copy-on-write overlay. |
-| macOS NFS and performance spike | Shipped experimental | A feature-gated NFSv3 export and benchmark show a conditional storage-engine GO with WAL. Agent-process confirmation, concurrent-client evaluation, and Linux/FUSE remain open. |
-| Mount safety decision | Planned after spike | Resolve loopback access control, default-off behavior, copy-up limits, base-ingest filters, platform-specific recovery, and the macOS privacy confirmation before enabling any mount by default. |
+| macOS NFS and performance spike | Shipped experimental | A feature-gated NFSv3 export and benchmark show a conditional storage-engine GO with WAL. Human Terminal validation passed; the result requires a client-/harness-specific macOS privacy or network-volume access assessment, while concurrent-client evaluation and Linux/FUSE remain open. |
+| Mount safety decision | Planned after spike | Resolve loopback access control, default-off behavior, copy-up limits, base-ingest filters, platform-specific recovery, and the remaining per-process privacy consent requirement before enabling any mount by default. |
 | Daemon session integration | Planned | Add an additive local API for creating, inspecting, diffing, committing, and discarding AFS sessions. SDK-only operation remains viable if no mount backend is available. |
 | Provenance and review | Planned | Connect file operations to Coven sessions and tool calls, then expose explicit diff, timeline, and materialization views to local clients. |
 | Broader platform support | Later | Evaluate a Windows-native path separately; no Windows mount backend is promised. |
