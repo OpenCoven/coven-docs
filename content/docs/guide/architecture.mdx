@@ -24,13 +24,14 @@ The design is intentionally narrow: Coven is the durable local control plane for
 ## Experimental agent filesystem foundation
 
 Coven has an experimental SQLite-backed Agent File System storage crate. It can
-model a copy-on-write filesystem delta over a read-only base, but it is not yet
-part of the daemon's public session or API surface. It does not add a mount,
-sandbox, network listener, or replacement for the current project-root and
-Git/worktree safeguards.
+model a copy-on-write filesystem delta over a read-only base, and its opt-in
+feature-gated NFSv3 export has completed a macOS mount and throughput spike.
+Neither capability is part of the daemon's public session or API surface. There
+is no supported Coven mount workflow, sandbox, or replacement for the current
+project-root and Git/worktree safeguards.
 
 Read [Agent filesystem](/docs/guide/agent-filesystem) for the implemented
-storage boundary and the phased roadmap for mount, safety, daemon, and review
-work.
+storage and mount boundary, the outstanding macOS privacy confirmation, and
+the phased roadmap for safety, daemon, and review work.
 
 For the operating model, read [Daemon](/docs/daemon). For integration details, read the [local API](/docs/reference/api).

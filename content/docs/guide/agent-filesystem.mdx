@@ -9,8 +9,8 @@ project directory itself the working store. The future design adds session-linke
 change history and provenance; that integration is not implemented today.
 
 This is experimental engineering infrastructure, not a supported user-facing
-workflow yet. There is no `coven afs` command, AFS daemon API, mount point, or
-sandboxed execution mode to configure today.
+workflow yet. There is no `coven afs` command, AFS daemon API, daemon-managed
+mount point, or sandboxed execution mode to configure today.
 
 ## What is shipped
 
@@ -24,10 +24,29 @@ SQLite storage layer with:
 - whiteouts for deletions and full-file copy-up for modified base files;
 - a JSON key-value store and insert-only tool-call audit records.
 
+An opt-in `mount` feature also provides an experimental NFSv3 export for
+engineering validation. Its loopback-only example uses the platform NFS client
+on macOS and enables SQLite write-ahead logging (WAL) for the session database.
+This is crate-level experimental support, not a CLI or daemon feature.
+
 The storage engine is tested as a crate. It is not yet connected to the Coven
 daemon, its session lifecycle, or the public local API. It does not replace the
 project-root guard, existing worktree workflow, or the safety guidance in
 [Security posture](/docs/daemon/security).
+
+## Experimental mount result
+
+The macOS NFSv3 spike is protocol-correct and mounts without a kernel extension
+or elevated privileges. In its measured write workloads, WAL brought the
+storage engine to 0.81–1.29x the host filesystem's elapsed time (lower is
+better); the package-tree write shape was faster than the host baseline.
+
+It is not ready for agent workflows. The benchmark environment could mount and
+inspect the export, but an agent-process shell received a macOS privacy/TCC
+denial when opening files. A Terminal with Full Disk Access must confirm
+read/write behavior before mount-dependent work can proceed. Linux/FUSE has not
+been evaluated, the NFS export serializes requests through one SQLite
+connection, and loopback NFS access control is unresolved.
 
 ## What it is for
 
@@ -47,11 +66,13 @@ dependency.
 
 Do not rely on AFS for security isolation today:
 
-- **No mount is shipped.** The merged crate is a storage engine only.
+- **No supported mount workflow is shipped.** The experimental NFS export is
+  feature-gated, is not started by Coven, and has no CLI or daemon interface.
 - **No sandbox is shipped.** A mount alone would not prevent a process from
   writing to an absolute path outside that mount.
-- **No network listener is shipped.** Coven's existing daemon remains
-  same-user local IPC; AFS does not add a TCP endpoint.
+- **No daemon network listener is added.** Coven's daemon remains same-user
+  local IPC. The experimental NFS example starts a loopback listener only when
+  an engineer explicitly compiles and runs it.
 - **No session API is shipped.** Session creation, diff, timeline, commit, and
   discard operations are design work, not public routes or commands.
 
@@ -66,17 +87,17 @@ explicit safety and operational gates before it becomes a supported feature.
 | Phase | Status | Scope and gate |
 | --- | --- | --- |
 | Storage foundation | Shipped experimental | `coven-afs` provides the SPEC-compatible schema, filesystem operations, and copy-on-write overlay. |
-| Mount and performance spike | Planned experimental work | Evaluate localhost NFS on macOS and FUSE on Linux; measure a repository checkout and `pnpm install`-scale writes against the bare filesystem. This determines whether mounts are viable. |
-| Mount safety decision | Planned after benchmark | Resolve loopback access control, default-off behavior, copy-up limits, base-ingest filters, and platform-specific recovery before enabling any mount by default. |
+| macOS NFS and performance spike | Shipped experimental | A feature-gated NFSv3 export and benchmark show a conditional storage-engine GO with WAL. Agent-process confirmation, concurrent-client evaluation, and Linux/FUSE remain open. |
+| Mount safety decision | Planned after spike | Resolve loopback access control, default-off behavior, copy-up limits, base-ingest filters, platform-specific recovery, and the macOS privacy confirmation before enabling any mount by default. |
 | Daemon session integration | Planned | Add an additive local API for creating, inspecting, diffing, committing, and discarding AFS sessions. SDK-only operation remains viable if no mount backend is available. |
 | Provenance and review | Planned | Connect file operations to Coven sessions and tool calls, then expose explicit diff, timeline, and materialization views to local clients. |
 | Broader platform support | Later | Evaluate a Windows-native path separately; no Windows mount backend is promised. |
 
-The mount and benchmark work is planned experimental work, not a release
-commitment. Mount viability gates mount availability and defaults; it does not
-block future SDK or daemon integration. The daemon API, provenance views, and
-Git materialization are technical designs only until they are implemented,
-tested, and documented as supported features.
+The NFS spike is shipped experimental work, not a release commitment for a
+mount workflow. Its remaining safety gates control mount availability and
+defaults; they do not block future SDK or daemon integration. The daemon API,
+provenance views, and Git materialization are technical designs only until they
+are implemented, tested, and documented as supported features.
 
 ## Follow progress
 
@@ -85,4 +106,5 @@ tested, and documented as supported features.
 - [Security posture](/docs/daemon/security) describes the current local-access
   model.
 - The [Coven repository](https://github.com/OpenCoven/coven) contains the
-  experimental storage crate and its engineering design.
+  experimental storage crate, [mount-spike results](https://github.com/OpenCoven/coven/blob/main/specs/coven-agent-fs/MOUNT-SPIKE.md),
+  and engineering design.
