@@ -38,8 +38,8 @@ project-root guard, existing worktree workflow, or the safety guidance in
 
 The macOS NFSv3 spike is protocol-correct and mounts without a kernel extension
 or elevated privileges. In its measured write workloads, WAL brought the
-storage engine to 0.81–1.29x the host filesystem; the package-tree write shape
-was faster than the host baseline.
+storage engine to 0.81–1.29x the host filesystem's elapsed time (lower is
+better); the package-tree write shape was faster than the host baseline.
 
 It is not ready for agent workflows. The benchmark environment could mount and
 inspect the export, but an agent-process shell received a macOS privacy/TCC
