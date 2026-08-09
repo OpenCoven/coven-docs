@@ -89,7 +89,7 @@ explicit safety and operational gates before it becomes a supported feature.
 | Phase | Status | Scope and gate |
 | --- | --- | --- |
 | Storage foundation | Shipped experimental | `coven-afs` provides the SPEC-compatible schema, filesystem operations, and copy-on-write overlay. |
-| macOS NFS and performance spike | Shipped experimental | A feature-gated NFSv3 export and benchmark show a conditional storage-engine GO with WAL. Human Terminal validation passed; per-process macOS consent remains required, while concurrent-client evaluation and Linux/FUSE remain open. |
+| macOS NFS and performance spike | Shipped experimental | A feature-gated NFSv3 export and benchmark show a conditional storage-engine GO with WAL. Human Terminal validation passed; the result requires a client-/harness-specific macOS privacy or network-volume access assessment, while concurrent-client evaluation and Linux/FUSE remain open. |
 | Mount safety decision | Planned after spike | Resolve loopback access control, default-off behavior, copy-up limits, base-ingest filters, platform-specific recovery, and the remaining per-process privacy consent requirement before enabling any mount by default. |
 | Daemon session integration | Planned | Add an additive local API for creating, inspecting, diffing, committing, and discarding AFS sessions. SDK-only operation remains viable if no mount backend is available. |
 | Provenance and review | Planned | Connect file operations to Coven sessions and tool calls, then expose explicit diff, timeline, and materialization views to local clients. |
