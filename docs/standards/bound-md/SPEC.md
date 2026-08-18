@@ -231,12 +231,12 @@ roots:
     max_bytes: 2097152 # MAX_EVENT_BYTES
   - path: ~/.coven/research/synthesis
     access: read-only
-    note: generated synthesis documents and INDEX.md; recursively bounded
-    max_bytes: 4194304 # MAX_AUTORESEARCH_DOCUMENT_BYTES
+    note: generated synthesis documents (4 MiB cap) and INDEX.md (2 MiB cap, read separately); recursively bounded
+    max_bytes: 4194304 # MAX_AUTORESEARCH_DOCUMENT_BYTES for documents; MAX_INDEX_BYTES (2097152) for INDEX.md specifically
   - path: ~/.coven/research/skills
     access: read-only
     note: staged skill drafts produced by completed research; recursively bounded
-    max_bytes: 2097152 # MAX_INDEX_BYTES
+    max_bytes: 4194304 # MAX_AUTORESEARCH_DOCUMENT_BYTES
 default: deny
 conflict_resolution: most-specific-path-wins
 ```
