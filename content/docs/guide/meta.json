@@ -9,6 +9,7 @@
     "platforms",
     "deployments",
     "concepts",
-    "architecture"
+    "architecture",
+    "agent-filesystem"
   ]
 }

@@ -72,6 +72,24 @@ Reasonable owner-operated patterns:
 Avoid exposing the daemon's local IPC endpoint directly to browsers, public
 networks, shared machines, or unauthenticated TCP bridges.
 
+## Experimental agent filesystem boundary
+
+The experimental [Agent filesystem](/docs/guide/agent-filesystem) crate has an
+opt-in NFSv3 export for engineering validation. It is not a Coven daemon route
+or a supported CLI workflow. Its example binds `127.0.0.1` only and uses an
+ephemeral port by default, but loopback NFS has no authentication: any local
+process that can reach the port can make unauthenticated requests to the
+export. Operating-system policy can still restrict a particular client's
+mounted-volume operations.
+
+Do not treat the NFS spike as a sandbox or an access-control boundary. A mounted
+view does not stop a process from writing outside that view. A human-operated
+macOS Terminal pass confirmed loopback read/write behavior for one consented
+client, but the macOS privacy policy remains process-specific and other client
+processes may still be denied without explicit consent. Loopback exposure,
+access control, platform sandboxing, and recovery must be validated before a
+mount becomes a supported default.
+
 ## Destructive confirmations
 
 Destructive operations must remain explicit even when wrapped by another client:
