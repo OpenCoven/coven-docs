@@ -7,6 +7,7 @@ and deployed site agree.
 
 `pnpm verify` certifies:
 
+- automation syntax and freshness-lock integrity;
 - manifest and information-architecture integrity;
 - CLI and section coverage currently represented in this repository;
 - generated OpenAPI freshness;
@@ -15,7 +16,25 @@ and deployed site agree.
 - Mermaid parsing;
 - API simulator behavior;
 - primary desktop and mobile browser routes;
+- one-H1 and one-main landmark structure;
+- stability and contract-source page chrome;
+- baseline deployment security headers;
 - canonical metadata, exports, sitemap, robots, and redirects.
+
+The browser job uploads machine-readable results and desktop/mobile screenshots
+for the homepage, docs portal, and first-session journey. Those artifacts are
+release evidence, not a replacement for review of intentional visual changes.
+
+## Live and source freshness
+
+Repository correctness does not prove the public deployment is current.
+
+- `.github/workflows/docs-live.yml` verifies the production commit and primary
+  routes after every merge and every hour.
+- `.github/workflows/docs-source-drift.yml` checks path-scoped upstream contract
+  sources daily against `docs/source-lock.json`.
+- Failed checks open one durable incident issue and attach JSON evidence; a
+  recovered check closes the incident automatically.
 
 ## Cross-repository evidence still required
 
@@ -33,4 +52,5 @@ canonical documentation route.
 ## Certification rule
 
 A preview deployment is not release evidence by itself. Certification requires
-repository CI, deployment attribution, and the target production route smoke.
+repository CI, browser and visual artifacts, deployment attribution, a passing
+production smoke, and no unresolved upstream source-drift incident.
