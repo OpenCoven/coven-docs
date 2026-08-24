@@ -22,8 +22,10 @@ It checks the local state directory, project detection, daemon/socket status, an
 | Store | The path Coven will use for local state. Defaults to `~/.coven` unless `COVEN_HOME` is set. |
 | Project | Whether the current directory resolves to a git/project root. |
 | Daemon | Whether the daemon is running, stale, or stopped, and which local IPC endpoint it owns. |
-| Harnesses | Whether Codex or Claude Code is available on `PATH`. |
-| Next steps | A suggested `coven run <harness> "..."` command when a harness is available. |
+| Harnesses | Whether Codex, Claude Code, GitHub Copilot CLI, or the managed Coven Code engine is available. |
+| Next steps | A provider-specific install, `coven setup <provider>`, or `coven run <harness> "..."` command. |
+
+`doctor` does not inspect provider credential stores and does not silently run a network verification turn. Provider verification can consume network access or paid usage, so it remains a separately consented `coven setup` action.
 
 ## Common next steps
 
@@ -39,7 +41,15 @@ If the daemon is stale:
 coven daemon restart
 ```
 
-If no harness is ready, install or authenticate one of the supported harness CLIs, then run `coven doctor` again.
+If a provider CLI is missing, install it with the provider's official package. If the executable exists but login is incomplete, hand the terminal to the provider-owned flow explicitly:
+
+```bash
+coven setup codex
+coven setup claude
+coven setup copilot
+```
+
+Use `coven setup <provider> --verify` only when you also want a separate bounded provider turn after login. See [Provider setup](/docs/cli/setup).
 
 ## Support evidence
 
@@ -49,5 +59,6 @@ For support reports, include:
 - The command you expected to work.
 - The current working directory, if it is not private.
 - Whether you use custom `COVEN_HOME`.
+- A redacted `coven setup <provider> --verify-only --report-json <new-path>` report when stronger provider evidence is necessary and you explicitly accept possible provider usage or cost.
 
 For daemon-specific failures, continue with [Daemon commands](/docs/cli/daemon) and [Daemon observability](/docs/daemon/observability).

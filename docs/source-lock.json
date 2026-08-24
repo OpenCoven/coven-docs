@@ -5,8 +5,8 @@
       "id": "coven-runtime-contract",
       "repo": "OpenCoven/coven",
       "ref": "main",
-      "verifiedAt": "2026-08-24T12:30:00Z",
-      "verifiedCommit": "05e1a79ec999a2f17ece00506a84e0407cc29937",
+      "verifiedAt": "2026-08-24T15:14:06Z",
+      "verifiedCommit": "941e2aa04c2a005ee892825e383f3cd00a74dea8",
       "sections": [
         "guide",
         "cli",
@@ -22,6 +22,12 @@
         "crates/coven-cli/src/main.rs",
         "crates/coven-cli/src/api.rs",
         "crates/coven-cli/src/harness.rs",
+        "crates/coven-cli/src/setup/mod.rs",
+        "crates/coven-cli/src/setup/process.rs",
+        "crates/coven-cli/src/setup/verify.rs",
+        "crates/coven-cli/src/setup/codex.rs",
+        "crates/coven-cli/src/setup/claude.rs",
+        "crates/coven-cli/src/setup/copilot.rs",
         "docs/API-CONTRACT.md",
         "docs/SAFETY-MODEL.md",
         "npm/coven/package.json"
