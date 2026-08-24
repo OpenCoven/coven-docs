@@ -21,6 +21,9 @@ export const metadata: Metadata = {
   },
   description: 'A local runtime for durable, auditable coding-agent work.',
   keywords: 'Coven, coding agents, harnesses, local runtime, session records, documentation',
+  alternates: {
+    canonical: BASE_URL,
+  },
   icons: {
     icon: '/favicon.svg',
     apple: '/apple-touch-icon.png',

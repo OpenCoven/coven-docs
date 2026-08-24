@@ -1,11 +1,7 @@
 #!/usr/bin/env bash
-# Coven pre-push: validate Mermaid diagrams before docs land on the remote.
-# Runs `pnpm run check:mermaid` (transform + svg-normalize + parse) when the
-# push touches .mdx or Mermaid tooling. A backtick in a node label once passed
-# the build and only broke at client render — this catches that class locally.
-#
-# Tracked + shared: activated via `core.hooksPath=.githooks` (set by the
-# package.json "prepare" script on install).
+# Coven docs pre-push: run the smallest release-integrity checks implied by
+# the files being pushed. Repository CI remains authoritative and runs the full
+# `pnpm verify` contract.
 
 set -euo pipefail
 
@@ -17,13 +13,10 @@ NC='\033[0m'
 REPO_ROOT="$(git rev-parse --show-toplevel)"
 ZERO="0000000000000000000000000000000000000000"
 
-# Collect files changed across the commits being pushed. stdin lines are:
-#   <local ref> <local oid> <remote ref> <remote oid>
 changed=""
 while read -r _local_ref local_oid _remote_ref remote_oid; do
-  [ "$local_oid" = "$ZERO" ] && continue  # branch deletion, nothing to check
+  [ "$local_oid" = "$ZERO" ] && continue
   if [ "$remote_oid" = "$ZERO" ]; then
-    # New remote branch: diff from its merge-base with origin/main when we can.
     base="$(git merge-base "$local_oid" origin/main 2>/dev/null || true)"
     if [ -n "$base" ]; then
       files="$(git diff --name-only "$base" "$local_oid" 2>/dev/null || true)"
@@ -37,39 +30,42 @@ while read -r _local_ref local_oid _remote_ref remote_oid; do
 $files"
 done
 
-# Decide relevance. If we can't tell what changed, run the check (safe default).
-relevant=1
-if [ -n "$(printf '%s' "$changed" | tr -d '[:space:]')" ]; then
-  if printf '%s\n' "$changed" | grep -qE '\.mdx$|scripts/.*mermaid|components/mermaid|lib/(remark-mermaid|mermaid-svg)'; then
-    relevant=1
-  else
-    relevant=0
-  fi
+if [ -z "$(printf '%s' "$changed" | tr -d '[:space:]')" ]; then
+  changed="unknown"
 fi
 
-if [ "$relevant" -ne 1 ]; then
-  exit 0
-fi
-
-PNPM=$(command -v pnpm 2>/dev/null || true)
+PNPM="$(command -v pnpm 2>/dev/null || true)"
 if [ -z "$PNPM" ]; then
-  echo -e "${YELLOW}[coven-hook] pnpm not found — skipping Mermaid check. Install pnpm to enable it.${NC}"
+  echo -e "${YELLOW}[coven-hook] pnpm not found — skipping docs checks. Repository CI will still enforce them.${NC}"
   exit 0
 fi
 
-echo -e "${YELLOW}[coven-hook] Validating Mermaid diagrams (check:mermaid)…${NC}"
+run_check() {
+  local label="$1"
+  shift
+  echo -e "${YELLOW}[coven-hook] ${label}…${NC}"
+  if (cd "$REPO_ROOT" && "$@"); then
+    echo -e "${GREEN}[coven-hook] ✓ ${label}.${NC}"
+  else
+    echo ""
+    echo -e "${RED}[coven-hook] ✗ ${label} failed. Push blocked.${NC}"
+    echo "  Emergency bypass (avoid): git push --no-verify"
+    exit 1
+  fi
+}
 
-if (cd "$REPO_ROOT" && "$PNPM" run check:mermaid); then
-  echo -e "${GREEN}[coven-hook] ✓ Mermaid diagrams valid.${NC}"
-  exit 0
-else
-  echo ""
-  echo -e "${RED}[coven-hook] ✗ Invalid Mermaid diagram(s). Push blocked.${NC}"
-  echo ""
-  echo "  Re-run:  pnpm run check:mermaid"
-  echo "  Fix the reported file:line — keep node labels free of backticks; use \\n for line breaks."
-  echo ""
-  echo "  Emergency bypass (avoid):  git push --no-verify"
-  echo ""
-  exit 1
+if printf '%s\n' "$changed" | grep -qE '^content/docs/|^docs/site-manifest\.json$|^scripts/check-|^scripts/validate-links\.mjs$|^components/(mdx-components|hub-cards|search-dialog|docs-status)|^lib/docs-manifest\.ts$'; then
+  run_check "Validating content, routes, and anchors" "$PNPM" run check:content
+  run_check "Validating internal links" "$PNPM" run check:links
+  run_check "Validating heading fragments" "$PNPM" run check:anchors
+fi
+
+if printf '%s\n' "$changed" | grep -qE '^openapi/|^scripts/(build-openapi-samples|generate-openapi-docs|check-generated)\.mjs$|^content/docs/openapi/'; then
+  run_check "Validating generated OpenAPI docs" "$PNPM" run check:generated
+fi
+
+if printf '%s\n' "$changed" | grep -qE '\.(ts|tsx|mjs)$|^package\.json$|^tsconfig\.json$'; then
+  # Ensure the ignored built OpenAPI input exists before TypeScript resolves it.
+  run_check "Preparing OpenAPI samples" "$PNPM" run openapi:samples
+  run_check "Type-checking" "$PNPM" run typecheck
 fi

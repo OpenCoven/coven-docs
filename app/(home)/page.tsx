@@ -56,6 +56,8 @@ function FeatureGrid({ features }: { features: Feature[] }) {
 }
 
 export default function HomePage() {
+  const installCommand = 'npm install -g @opencoven/cli && coven doctor';
+
   return (
     <main className={s.homeMain}>
       <section className={s.heroPanel}>
@@ -89,8 +91,8 @@ export default function HomePage() {
           </p>
           <div className={s.installBar}>
             <div className={s.installBadge}><Icon icon="ph:terminal-window-duotone" width={14} /> npm</div>
-            <div className={s.installCommand}>npx @opencoven/cli doctor</div>
-            <CopyButton text="npx @opencoven/cli doctor" />
+            <div className={s.installCommand}>{installCommand}</div>
+            <CopyButton text={installCommand} />
           </div>
         </div>
       </section>
@@ -108,7 +110,7 @@ export default function HomePage() {
         <p className={s.ctaLead}>Install Coven, verify a harness, and launch from the project you want to protect.</p>
         <div className={s.ctaActions}>
           <Link href="/docs/guide/getting-started" className={s.ctaPrimary}>Read the guide <Icon icon="ph:arrow-right-bold" width={14} /></Link>
-          <Link href="/docs/cli" className={s.ctaSecondary}>CLI reference <Icon icon="ph:arrow-right-bold" width={14} /></Link>
+          <Link href="/docs/guide/ecosystem" className={s.ctaSecondary}>See the ecosystem <Icon icon="ph:arrow-right-bold" width={14} /></Link>
         </div>
       </section>
     </main>

@@ -1,3 +1,13 @@
 {
-  "pages": ["guide", "cli", "harnesses", "daemon", "memory-models", "coven-code", "openapi", "reference"]
+  "pages": [
+    "guide",
+    "cli",
+    "harnesses",
+    "daemon",
+    "memory-models",
+    "coven-code",
+    "openapi",
+    "reference",
+    "experimental"
+  ]
 }

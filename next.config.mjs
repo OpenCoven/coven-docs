@@ -1,9 +1,21 @@
 import { createMDX } from 'fumadocs-mdx/next';
+import { readFileSync } from 'node:fs';
 import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const withMDX = createMDX();
 const root = dirname(fileURLToPath(import.meta.url));
+const siteManifest = JSON.parse(
+  readFileSync(fileURLToPath(new URL('./docs/site-manifest.json', import.meta.url)), 'utf8'),
+);
+const buildCommit =
+  process.env.VERCEL_GIT_COMMIT_SHA ??
+  process.env.GITHUB_SHA ??
+  'local';
+
+if (!/^[A-Za-z0-9._-]+$/.test(buildCommit)) {
+  throw new Error('Deployment commit identifier contains unsupported characters.');
+}
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -13,52 +25,18 @@ const nextConfig = {
     root,
   },
   async redirects() {
+    return siteManifest.redirects;
+  },
+  async headers() {
     return [
       {
-        source: '/docs/reference/vocabulary',
-        destination: '/docs/guide/concepts',
-        permanent: true,
-      },
-      {
-        source: '/docs/guides/:path*',
-        destination: '/docs/guide/getting-started',
-        permanent: true,
-      },
-      {
-        source: '/docs/familiars/:path*',
-        destination: '/docs/cli/sessions',
-        permanent: true,
-      },
-      {
-        source: '/docs/guide/:path(cast-codes|cave|surfaces|demo-loop)',
-        destination: '/docs/guide/concepts',
-        permanent: true,
-      },
-      {
-        source: '/docs/guide/demo-loop/:path*',
-        destination: '/docs/guide/getting-started',
-        permanent: true,
-      },
-      {
-        source: '/docs/reference/:path(roadmap|migration-map|issue-plan|docs-platform|feedback-widget|ask-salem|coven-relay|coven-github-agent|channels|glossolalia|harness-vs-runtime|dispatch-contract|familiar-contract|api-architecture|changelog)',
-        destination: '/docs',
-        permanent: true,
-      },
-      {
-        source: '/docs/coven-codes',
-        destination: '/docs/coven-code',
-        permanent: true,
-      },
-      {
-        // The old section's install-debugging page split into install + troubleshooting.
-        source: '/docs/coven-codes/install-debugging',
-        destination: '/docs/coven-code/troubleshooting',
-        permanent: true,
-      },
-      {
-        source: '/docs/coven-codes/:path*',
-        destination: '/docs/coven-code/:path*',
-        permanent: true,
+        source: '/:path*',
+        headers: [
+          {
+            key: 'x-coven-docs-commit',
+            value: buildCommit,
+          },
+        ],
       },
     ];
   },

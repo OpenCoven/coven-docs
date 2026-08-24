@@ -5,14 +5,6 @@ const root = process.cwd();
 const docsRoot = join(root, 'content', 'docs');
 const cliRoot = join(docsRoot, 'cli');
 const guideRoot = join(docsRoot, 'guide');
-const requiredGuideMetaPages = [
-  'getting-started',
-  'install',
-  'platforms',
-  'deployments',
-  'concepts',
-  'architecture',
-];
 
 const requiredPages = [
   'index',
@@ -258,8 +250,13 @@ if (!existsSync(guideMetaPath)) {
 
 const guideMeta = readJson(guideMetaPath);
 const actualGuidePages = Array.isArray(guideMeta.pages) ? guideMeta.pages : [];
-if (JSON.stringify(actualGuidePages) !== JSON.stringify(requiredGuideMetaPages)) {
-  fail(`content/docs/guide/meta.json pages must be exactly: ${requiredGuideMetaPages.join(', ')}.`);
+const missingGuideNavPages = requiredGuidePages.filter(
+  (page) => !actualGuidePages.includes(page),
+);
+if (missingGuideNavPages.length > 0) {
+  fail(
+    `content/docs/guide/meta.json is missing CLI onboarding dependencies: ${missingGuideNavPages.join(', ')}.`,
+  );
 }
 
 const missingGuidePages = requiredGuidePages

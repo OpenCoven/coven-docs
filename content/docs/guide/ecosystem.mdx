@@ -1,0 +1,44 @@
+---
+title: OpenCoven ecosystem
+description: Where Coven ends, what the neighboring OpenCoven projects own, and which documentation is canonical.
+read_when:
+  - You need to decide which OpenCoven repository owns a feature or contract
+  - You are integrating Coven with a cockpit, protocol, memory surface, or familiar specification
+---
+
+## Where Coven ends
+
+**Coven** is the local runtime and durable session substrate. These docs are
+canonical for its CLI, daemon, harness boundary, supported local API, and
+operational security model.
+
+OpenCoven's neighboring projects build on or integrate with that substrate.
+They do not become part of the stable Coven contract merely because they share
+an organization or product vocabulary.
+
+| Project | Owns | Go there when |
+| --- | --- | --- |
+| [Psyche](https://github.com/OpenCoven/psyche) | Canonical orchestration contracts, authority, execution bindings, durable transitions, and bounded surface ports | You need the protocol and authority model above runtime execution |
+| [Psyche Build](https://github.com/OpenCoven/psyche-build) | The multi-lane coding cockpit, worktree and pane orchestration, review and integration workflows, and optional Coven session surfaces | You need a human-facing cockpit for parallel agent or terminal work |
+| [Coven Cave](https://github.com/OpenCoven/coven-cave) | First-party application surfaces, mobile pairing, research and communication experiences, and product-level interaction design | You need Cave-specific UI, pairing, or application behavior |
+| [Coven Threads](https://github.com/OpenCoven/coven-threads) | Fail-closed authority gates for protected familiar surfaces and approval semantics | You need identity-surface mutation enforcement |
+| [Familiar Contract](https://github.com/OpenCoven/familiar-contract) | The normative identity, purpose, authority, memory, and human-binding requirements for a familiar | You are implementing or evaluating familiar conformance |
+| [OpenCoven SDK](https://github.com/OpenCoven/sdk) | Experimental TypeScript clients and coordination packages | You need package-level client contracts rather than raw local API calls |
+| [Coven Memory](https://github.com/OpenCoven/coven-memory) | Read-only local and mobile memory browsing surfaces | You need the memory dashboard or its privacy boundary |
+| [Coven Runtimes](https://github.com/OpenCoven/coven-runtimes) | Runtime manifests, conformance tooling, and the accepted runtime registry | You are authoring or adopting a runtime adapter |
+
+## Documentation ownership rule
+
+When two repositories describe the same boundary:
+
+1. The repository that implements or normatively specifies the contract owns
+   the facts.
+2. `coven-docs` explains how the stable portion affects Coven users.
+3. Generated inventories may be imported, but explanatory prose remains
+   intentionally authored.
+4. Preview or experimental integration must stay visibly classified until its
+   owner publishes release evidence.
+
+For the runtime path, continue with [Architecture](/docs/guide/architecture).
+For unsupported foundations with explicit remaining gates, use
+[Experimental](/docs/experimental).

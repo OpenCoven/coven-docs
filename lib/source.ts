@@ -19,6 +19,7 @@ const lucideIcons = {
   LuCable: icons.Cable,
   LuBrainCircuit: icons.BrainCircuit,
   LuCompass: icons.Compass,
+  LuFlaskConical: icons.FlaskConical,
 };
 
 export const source = loader({

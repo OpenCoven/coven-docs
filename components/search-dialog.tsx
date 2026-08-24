@@ -1,7 +1,8 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useDocsSearch } from 'fumadocs-core/search/client';
+import { track } from '@vercel/analytics';
 import type { SearchLink, SharedProps } from 'fumadocs-ui/contexts/search';
 import {
   SearchDialog,
@@ -13,13 +14,18 @@ import {
   SearchDialogList,
   SearchDialogOverlay,
 } from 'fumadocs-ui/components/dialog/search';
+import { docsSections } from '@/lib/docs-manifest';
 
 const filters = [
   { name: 'All', value: undefined, description: 'Search every Coven doc' },
-  { name: 'Guide', value: 'guide', description: 'Only framework and setup guides' },
-  { name: 'Reference', value: 'reference', description: 'Only API and safety reference' },
-  { name: 'API Reference', value: 'openapi', description: 'Only the interactive daemon API reference' },
-] as const;
+  ...docsSections
+    .filter((section) => section.searchable)
+    .map((section) => ({
+      name: section.title,
+      value: section.slug,
+      description: section.searchDescription,
+    })),
+];
 
 export function CovenSearchDialog({
   links = [],
@@ -27,6 +33,7 @@ export function CovenSearchDialog({
 }: SharedProps & { links?: SearchLink[] }) {
   const [tag, setTag] = useState<string | undefined>();
   const [filterOpen, setFilterOpen] = useState(false);
+  const lastTrackedEmptySearch = useRef<string | null>(null);
   const { search, setSearch, query } = useDocsSearch({
     type: 'fetch',
     tag,
@@ -43,6 +50,20 @@ export function CovenSearchDialog({
     }));
   }, [links]);
   const activeFilter = filters.find((filter) => filter.value === tag) ?? filters[0];
+
+  useEffect(() => {
+    const normalized = search.trim();
+    if (normalized.length < 3 || query.data !== 'empty') return;
+
+    const key = `${tag ?? 'all'}:${normalized}`;
+    if (lastTrackedEmptySearch.current === key) return;
+    lastTrackedEmptySearch.current = key;
+
+    track('docs_search_zero_results', {
+      filter: tag ?? 'all',
+      queryLength: normalized.length,
+    });
+  }, [query.data, search, tag]);
 
   return (
     <SearchDialog

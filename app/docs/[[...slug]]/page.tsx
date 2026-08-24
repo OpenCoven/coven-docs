@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import {
   DocsPage,
   DocsBody,
@@ -16,6 +17,7 @@ import { getGithubLastEdit } from 'fumadocs-core/content/github';
 import { getMDXComponents } from '@/components/mdx-components';
 import { PageFeedback } from '@/components/page-feedback';
 import { PageNavFooter } from '@/components/page-nav-footer';
+import { DocsStatus } from '@/components/docs-status';
 
 const REPO = 'OpenCoven/coven-docs';
 const SITE = 'https://docs.opencoven.ai';
@@ -121,6 +123,7 @@ export default async function Page({ params }: { params: Promise<{ slug?: string
         </a>
         <ViewOptionsPopover githubUrl={githubUrl} />
       </div>
+      <DocsStatus sectionSlug={page.slugs[0]} />
       <DocsTitle>{page.data.title}</DocsTitle>
       <DocsDescription>{page.data.description}</DocsDescription>
       {readingMinutes !== null && (
@@ -132,7 +135,7 @@ export default async function Page({ params }: { params: Promise<{ slug?: string
       <DocsBody>
         <MDX components={getMDXComponents()} />
       </DocsBody>
-      <PageFeedback feedbackIssueUrl={feedbackUrl} />
+      <PageFeedback feedbackIssueUrl={feedbackUrl} pagePath={page.url} />
       {lastModifiedTime && <PageLastUpdate date={lastModifiedTime} />}
     </DocsPage>
   );
@@ -142,13 +145,45 @@ export async function generateStaticParams() {
   return source.generateParams();
 }
 
-export async function generateMetadata({ params }: { params: Promise<{ slug?: string[] }> }) {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug?: string[] }>;
+}): Promise<Metadata> {
   const { slug } = await params;
   const page = source.getPage(slug);
   if (!page) notFound();
 
+  const canonical = `${SITE}${page.url}`;
+  const description = page.data.description;
+
   return {
     title: page.data.title,
-    description: page.data.description,
+    description,
+    alternates: {
+      canonical,
+    },
+    openGraph: {
+      type: 'article',
+      title: page.data.title,
+      description,
+      url: canonical,
+      siteName: 'Coven Docs',
+      images: [
+        {
+          url: `${SITE}/api/og`,
+          width: 1200,
+          height: 630,
+          alt: `${page.data.title} — Coven Docs`,
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: page.data.title,
+      description,
+      creator: '@OpenCvn',
+      images: [`${SITE}/api/og`],
+    },
   };
 }
