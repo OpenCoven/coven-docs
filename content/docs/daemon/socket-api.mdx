@@ -9,6 +9,8 @@ owner-only named pipe reported by health and `coven daemon status`. This keeps
 the default boundary local to the operating-system user that owns the daemon
 state.
 
+## Health handshake
+
 Every client should call `GET /api/v1/health` before using another route. The response identifies the API version and available capabilities. A newer client must not assume that an older daemon supports a route simply because its own code knows about it.
 
 The public session flow is health → capabilities → sessions → events → validated actions. For schemas, error codes, and local examples, use the [local API reference](/docs/reference/api).

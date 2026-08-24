@@ -1,0 +1,85 @@
+name: Docs source drift
+
+on:
+  schedule:
+    - cron: '37 13 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: docs-source-drift
+  cancel-in-progress: true
+
+jobs:
+  drift:
+    name: Detect upstream contract drift
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Validate source lock
+        run: node scripts/check-source-lock.mjs
+
+      - name: Check upstream sources
+        id: drift
+        continue-on-error: true
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          DOCS_DRIFT_REPORT_PATH: output/docs-source-drift.json
+        run: node scripts/check-source-drift.mjs
+
+      - name: Open or update source-drift issue
+        if: steps.drift.outcome == 'failure'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          DOCS_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        shell: bash
+        run: |
+          mkdir -p output
+          cat > output/source-drift-incident.md <<EOF
+          One or more upstream files that own Coven documentation facts changed after the recorded verification boundary.
+
+          - Workflow run: ${DOCS_RUN_URL}
+          - Lock: \`docs/source-lock.json\`
+          - Evidence: \`docs-source-drift.json\` workflow artifact
+
+          Review the changed implementation or contract, update affected public pages, run \`pnpm verify\`, and advance the relevant \`verifiedAt\` and \`verifiedCommit\` only after that review is complete.
+          EOF
+          node scripts/sync-automation-issue.mjs \
+            --key source-drift \
+            --state open \
+            --title "docs-stale: upstream contract sources changed" \
+            --body-file output/source-drift-incident.md
+
+      - name: Resolve reviewed source-drift issue
+        if: steps.drift.outcome == 'success'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          node scripts/sync-automation-issue.mjs \
+            --key source-drift \
+            --state resolved \
+            --title "docs-stale: upstream contract sources changed"
+
+      - name: Upload source-drift evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: docs-source-drift-${{ github.run_id }}
+          path: output/docs-source-drift.json
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: Fail when upstream review is required
+        if: steps.drift.outcome == 'failure'
+        run: exit 1

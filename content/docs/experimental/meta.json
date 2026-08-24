@@ -1,0 +1,10 @@
+{
+  "title": "Experimental",
+  "description": "Preview infrastructure with explicit safety gates",
+  "root": true,
+  "icon": "LuFlaskConical",
+  "pages": [
+    "index",
+    "agent-filesystem"
+  ]
+}

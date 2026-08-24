@@ -1,14 +1,16 @@
 'use client';
 
 import { useState } from 'react';
+import { track } from '@vercel/analytics';
 import { Icon } from '@iconify/react';
 import { buttonVariants } from 'fumadocs-ui/components/ui/button';
 
 interface Props {
   feedbackIssueUrl: string;
+  pagePath: string;
 }
 
-export function PageFeedback({ feedbackIssueUrl }: Props) {
+export function PageFeedback({ feedbackIssueUrl, pagePath }: Props) {
   const [submitted, setSubmitted] = useState<null | 'yes' | 'no'>(null);
 
   if (submitted === 'yes') {
@@ -25,7 +27,10 @@ export function PageFeedback({ feedbackIssueUrl }: Props) {
       <span className="text-sm text-fd-muted-foreground">Was this page helpful?</span>
       <button
         type="button"
-        onClick={() => setSubmitted('yes')}
+        onClick={() => {
+          track('docs_page_feedback', { page: pagePath, helpful: true });
+          setSubmitted('yes');
+        }}
         className={`${buttonVariants({ color: 'secondary', size: 'sm' })} gap-1.5`}
         aria-label="Yes, this page was helpful"
       >
@@ -36,7 +41,10 @@ export function PageFeedback({ feedbackIssueUrl }: Props) {
         href={feedbackIssueUrl}
         target="_blank"
         rel="noreferrer noopener"
-        onClick={() => setSubmitted('no')}
+        onClick={() => {
+          track('docs_page_feedback', { page: pagePath, helpful: false });
+          setSubmitted('no');
+        }}
         className={`${buttonVariants({ color: 'secondary', size: 'sm' })} gap-1.5`}
         aria-label="No, this page needs improvement"
       >

@@ -74,10 +74,10 @@ networks, shared machines, or unauthenticated TCP bridges.
 
 ## Experimental agent filesystem boundary
 
-The experimental [Agent filesystem](/docs/guide/agent-filesystem) crate has an
-opt-in NFSv3 export for engineering validation. It is not a Coven daemon route
-or a supported CLI workflow. Its example binds `127.0.0.1` only and uses an
-ephemeral port by default, but loopback NFS has no authentication: any local
+The experimental [Agent filesystem](/docs/experimental/agent-filesystem) crate
+has an opt-in NFSv3 export for engineering validation. It is not a Coven daemon
+route or a supported CLI workflow. Its example binds `127.0.0.1` only and uses
+an ephemeral port by default, but loopback NFS has no authentication: any local
 process that can reach the port can make unauthenticated requests to the
 export. Operating-system policy can still restrict a particular client's
 mounted-volume operations.

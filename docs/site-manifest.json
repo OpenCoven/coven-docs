@@ -1,0 +1,196 @@
+{
+  "schemaVersion": 1,
+  "canonicalProduct": "Coven",
+  "canonicalScope": "Canonical public documentation for the Coven runtime, CLI, daemon, harness integrations, supported local API, and their operational and security contracts.",
+  "baseUrl": "https://docs.opencoven.ai",
+  "sections": [
+    {
+      "slug": "guide",
+      "title": "Guide",
+      "description": "Start with Coven's local runtime",
+      "searchDescription": "Onboarding, installation, concepts, architecture, and ecosystem boundaries",
+      "stability": "stable",
+      "owner": "OpenCoven/coven-docs",
+      "sourceRepo": "OpenCoven/coven-docs",
+      "searchable": true
+    },
+    {
+      "slug": "cli",
+      "title": "CLI Reference",
+      "description": "Command-Line Reference",
+      "searchDescription": "Commands, options, diagnostics, sessions, and maintenance",
+      "stability": "stable",
+      "owner": "OpenCoven/coven",
+      "sourceRepo": "OpenCoven/coven",
+      "searchable": true
+    },
+    {
+      "slug": "harnesses",
+      "title": "Harnesses",
+      "description": "Codex, Claude Code, Coven Code, and Copilot Adapters",
+      "searchDescription": "Harness installation, authentication, project roots, and adapter behavior",
+      "stability": "stable",
+      "owner": "OpenCoven/coven",
+      "sourceRepo": "OpenCoven/coven",
+      "searchable": true
+    },
+    {
+      "slug": "daemon",
+      "title": "Daemon",
+      "description": "Process and Socket API",
+      "searchDescription": "Lifecycle, configuration, local IPC, security, observability, and recovery",
+      "stability": "stable",
+      "owner": "OpenCoven/coven",
+      "sourceRepo": "OpenCoven/coven",
+      "searchable": true
+    },
+    {
+      "slug": "memory-models",
+      "title": "Memory + Models",
+      "description": "Memory Layers and Providers",
+      "searchDescription": "Memory layers, search, provider boundaries, and local model behavior",
+      "stability": "preview",
+      "owner": "OpenCoven/coven",
+      "sourceRepo": "OpenCoven/coven",
+      "searchable": true
+    },
+    {
+      "slug": "coven-code",
+      "title": "Coven Code",
+      "description": "Agentic Coding TUI",
+      "searchDescription": "Coven Code installation, providers, commands, configuration, and recovery",
+      "stability": "preview",
+      "owner": "OpenCoven/coven",
+      "sourceRepo": "OpenCoven/coven",
+      "searchable": true
+    },
+    {
+      "slug": "openapi",
+      "title": "API Reference",
+      "description": "Interactive Daemon API",
+      "searchDescription": "Generated stable daemon API operations, schemas, and local examples",
+      "stability": "stable",
+      "owner": "OpenCoven/coven",
+      "sourceRepo": "OpenCoven/coven",
+      "searchable": true
+    },
+    {
+      "slug": "reference",
+      "title": "Reference",
+      "description": "API, security, and troubleshooting",
+      "searchDescription": "Authentication, safety, API behavior, and operational troubleshooting",
+      "stability": "stable",
+      "owner": "OpenCoven/coven-docs",
+      "sourceRepo": "OpenCoven/coven-docs",
+      "searchable": true
+    },
+    {
+      "slug": "experimental",
+      "title": "Experimental",
+      "description": "Preview infrastructure with explicit safety gates",
+      "searchDescription": "Shipped foundations that are not supported production workflows",
+      "stability": "experimental",
+      "owner": "OpenCoven/coven",
+      "sourceRepo": "OpenCoven/coven",
+      "searchable": true
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/docs/guide/agent-filesystem",
+      "destination": "/docs/experimental/agent-filesystem",
+      "permanent": true
+    },
+    {
+      "source": "/docs/reference/vocabulary",
+      "destination": "/docs/guide/concepts",
+      "permanent": true
+    },
+    {
+      "source": "/docs/guides/:path*",
+      "destination": "/docs/guide/getting-started",
+      "permanent": true
+    },
+    {
+      "source": "/docs/familiars/:path*",
+      "destination": "/docs/cli/sessions",
+      "permanent": true
+    },
+    {
+      "source": "/docs/guide/:path(cast-codes|cave|surfaces|demo-loop)",
+      "destination": "/docs/guide/concepts",
+      "permanent": true
+    },
+    {
+      "source": "/docs/guide/demo-loop/:path*",
+      "destination": "/docs/guide/getting-started",
+      "permanent": true
+    },
+    {
+      "source": "/docs/reference/:path(roadmap|migration-map|issue-plan|docs-platform|feedback-widget|ask-salem|coven-relay|coven-github-agent|channels|glossolalia|harness-vs-runtime|dispatch-contract|familiar-contract|api-architecture|changelog)",
+      "destination": "/docs",
+      "permanent": true
+    },
+    {
+      "source": "/docs/coven-codes",
+      "destination": "/docs/coven-code",
+      "permanent": true
+    },
+    {
+      "source": "/docs/coven-codes/install-debugging",
+      "destination": "/docs/coven-code/troubleshooting",
+      "permanent": true
+    },
+    {
+      "source": "/docs/coven-codes/:path*",
+      "destination": "/docs/coven-code/:path*",
+      "permanent": true
+    }
+  ],
+  "retiredReferencePrefixes": [
+    "/docs/guides",
+    "/docs/familiars",
+    "/docs/guide/cast-codes",
+    "/docs/guide/cave",
+    "/docs/guide/surfaces",
+    "/docs/guide/demo-loop",
+    "/docs/reference/roadmap",
+    "/docs/reference/migration-map",
+    "/docs/reference/issue-plan",
+    "/docs/reference/docs-platform",
+    "/docs/reference/feedback-widget",
+    "/docs/reference/ask-salem",
+    "/docs/reference/coven-relay",
+    "/docs/reference/coven-github-agent",
+    "/docs/reference/channels",
+    "/docs/reference/glossolalia",
+    "/docs/reference/harness-vs-runtime",
+    "/docs/reference/dispatch-contract",
+    "/docs/reference/familiar-contract",
+    "/docs/reference/api-architecture",
+    "/docs/reference/changelog"
+  ],
+  "retiredFilePaths": [
+    "content/docs/reference/roadmap.mdx",
+    "content/docs/reference/migration-map.mdx",
+    "content/docs/reference/issue-plan.mdx",
+    "content/docs/reference/docs-platform.mdx",
+    "content/docs/reference/feedback-widget.mdx",
+    "content/docs/reference/ask-salem.mdx",
+    "content/docs/reference/coven-relay.mdx",
+    "content/docs/reference/coven-github-agent.mdx",
+    "content/docs/reference/channels.mdx",
+    "content/docs/reference/glossolalia.mdx",
+    "content/docs/reference/harness-vs-runtime.mdx",
+    "content/docs/reference/dispatch-contract.mdx",
+    "content/docs/reference/familiar-contract.mdx",
+    "content/docs/reference/api-architecture.mdx",
+    "content/docs/reference/changelog.mdx",
+    "content/docs/guide/cast-codes.mdx",
+    "content/docs/guide/cave.mdx",
+    "content/docs/guide/surfaces.mdx",
+    "content/docs/guide/demo-loop",
+    "content/docs/guides",
+    "content/docs/familiars"
+  ]
+}

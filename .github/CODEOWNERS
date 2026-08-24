@@ -1,0 +1,8 @@
+* @BunsDev
+
+/content/docs/ @BunsDev
+/docs/ @BunsDev
+/openapi/ @BunsDev
+/scripts/ @BunsDev
+/app/api/coven-proxy/ @BunsDev
+/lib/coven-proxy-dial.ts @BunsDev

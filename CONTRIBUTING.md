@@ -1,60 +1,116 @@
-# Contributing to OpenCoven
+# Contributing to Coven documentation
 
-Thank you for your interest in contributing. OpenCoven is MIT licensed and community-driven. We want contributing to be easy, open, and safe for everyone.
+Thank you for helping make Coven understandable, accurate, and safe to operate.
+OpenCoven is MIT licensed and community-driven.
 
-## Developer Certificate of Origin (DCO)
+## Canonical facts and ownership
 
-OpenCoven uses the **Developer Certificate of Origin (DCO) v1.1** for all contributions. This is a lightweight mechanism — not a CLA — that asks you to certify that you have the right to submit what you're submitting.
+`coven-docs` is canonical for the public Coven runtime journey, but it does not
+invent runtime facts.
 
-By making a contribution to this project, you certify that:
+Before changing behavior claims:
 
-> (a) The contribution was created in whole or in part by you and you have the right to submit it under the open source license indicated in the file; or
+1. Identify the repository that owns the contract.
+2. Verify the claim against implementation, tests, a versioned specification,
+   or a released machine-readable contract.
+3. Link the source in the pull request.
+4. Preserve the page's stability classification. Do not present preview or
+   experimental work as a supported production workflow.
+
+The section ownership and stability map lives in
+[`docs/site-manifest.json`](docs/site-manifest.json).
+
+## Development workflow
+
+```bash
+pnpm install --frozen-lockfile
+pnpm dev
+```
+
+Before opening or updating a pull request:
+
+```bash
+pnpm verify
+git diff --check
+```
+
+When the OpenAPI source changes, run:
+
+```bash
+pnpm openapi:build
+```
+
+Commit the regenerated `content/docs/openapi/` output.
+
+## Documentation definition of done
+
+A documentation change is complete when:
+
+- commands, options, response fields, and failure behavior match their owning
+  source;
+- the intended reader and stability level are unambiguous;
+- the primary path uses progressive disclosure instead of mixing contributor
+  or experimental material into onboarding;
+- internal links and heading fragments resolve;
+- redirects preserve retired public URLs;
+- keyboard, mobile, and semantic heading behavior remain sound;
+- generated artifacts are current;
+- `pnpm verify` passes from a clean checkout;
+- the pull request explains how the claim was verified.
+
+Avoid unsupported dates, release promises, security guarantees, benchmark
+generalizations, and copied implementation details that are not part of a
+stable contract.
+
+## Developer Certificate of Origin
+
+OpenCoven uses the **Developer Certificate of Origin (DCO) v1.1** for all
+contributions. This is a lightweight mechanism—not a CLA—that asks you to
+certify that you have the right to submit your work.
+
+By making a contribution, you certify that:
+
+> (a) The contribution was created in whole or in part by you and you have the
+> right to submit it under the open source license indicated in the file; or
 >
-> (b) The contribution is based upon previous work that, to the best of your knowledge, is covered under an appropriate open source license and you have the right under that license to submit that work with modifications, whether created in whole or in part by you, under the same open source license (unless you are permitted to submit under a different license), as indicated in the file; or
+> (b) The contribution is based upon previous work that, to the best of your
+> knowledge, is covered under an appropriate open source license and you have
+> the right under that license to submit that work with modifications, whether
+> created wholly or partly by you, under the same open source license unless
+> permitted otherwise; or
 >
-> (c) The contribution was provided directly to you by some other person who certified (a), (b) or (c) and you have not modified it.
+> (c) The contribution was provided directly to you by another person who
+> certified (a), (b), or (c), and you have not modified it.
 >
-> (d) You understand and agree that this project and the contribution are public and that a record of the contribution (including all personal information you submit with it, including your sign-off) is maintained indefinitely and may be redistributed consistent with this project or the open source license(s) involved.
+> (d) You understand that the project and contribution are public and that a
+> record of the contribution, including your sign-off, is maintained
+> indefinitely.
 
-### How to Sign Off
+Sign commits with:
 
-Add a `Signed-off-by` line to your commit message:
-
-```
-git commit -s -m "Your commit message"
-```
-
-This produces:
-
-```
-Your commit message
-
-Signed-off-by: Your Name <your.email@example.com>
+```bash
+git commit -s -m "docs: describe the change"
 ```
 
-### Patent Non-Assertion
+## Patent non-assertion
 
-By contributing, you additionally agree not to assert any patent claims — now held or later acquired — against this project or its users that arise from your contribution. See [PATENTS](./PATENTS) for the full non-assertion pledge.
+By contributing, you additionally agree not to assert patent claims—now held or
+later acquired—against this project or its users when those claims arise from
+your contribution. See [PATENTS](PATENTS).
 
-## What We're Looking For
+## Pull-request shape
 
-- Bug fixes and reliability improvements
-- Documentation and example improvements
-- New skills, tools, and integrations
-- Performance improvements
-- Community-requested features
+Keep pull requests reviewable and contract-focused. Separate unrelated
+information-architecture, generated-contract, and visual changes when doing so
+improves verification. Every pull request should include:
 
-## What We're Not
+- source-of-truth references;
+- stability impact;
+- affected public routes and redirects;
+- commands run;
+- screenshots only when visual behavior changed.
 
-OpenCoven is not a contribution vehicle for proprietary forks. If you are building a closed-source derivative of OpenCoven's architecture, please do not use contribution as a means to learn implementation details that are not yet public. We welcome genuine collaborators.
+## Security reports
 
-## Getting Started
-
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature/your-feature`
-3. Make your changes with signed-off commits: `git commit -s`
-4. Open a pull request with a clear description
-
-## Questions?
-
-Join the Discord: https://discord.gg/opencoven
+Do not open a public issue for an exploitable site or documentation-pipeline
+vulnerability. Follow [SECURITY.md](SECURITY.md).

@@ -13,13 +13,13 @@ const eczar = Eczar({
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <main
+    <div
       className={`flex-1 flex flex-col ${eczar.variable}`}
       style={{ background: 'var(--color-fd-background)' }}
     >
       <HomeLayout {...baseOptions}>
         {children}
       </HomeLayout>
-    </main>
+    </div>
   );
 }

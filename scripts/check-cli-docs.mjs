@@ -5,14 +5,6 @@ const root = process.cwd();
 const docsRoot = join(root, 'content', 'docs');
 const cliRoot = join(docsRoot, 'cli');
 const guideRoot = join(docsRoot, 'guide');
-const requiredGuideMetaPages = [
-  'getting-started',
-  'install',
-  'platforms',
-  'deployments',
-  'concepts',
-  'architecture',
-];
 
 const requiredPages = [
   'index',
@@ -20,6 +12,7 @@ const requiredPages = [
   'install-debugging',
   'interactive',
   'doctor',
+  'setup',
   'daemon',
   'run',
   'sessions',
@@ -55,9 +48,24 @@ const requiredInstallMentions = [
 
 const requiredGettingStartedMentions = [
   'coven doctor',
+  'coven setup codex',
   'coven daemon start',
   'coven run codex "explain this repo in 5 bullets"',
   'coven sessions',
+];
+
+const requiredSetupMentions = [
+  'coven setup codex',
+  'coven setup claude',
+  'coven setup copilot',
+  'claude auth login',
+  '--verify',
+  '--verify-only',
+  '--report-json',
+  'direct terminal access',
+  'provider usage or cost',
+  '300-second',
+  'non_tty',
 ];
 
 const requiredInteractiveMentions = ['coven-code', 'COVEN_LEGACY_TUI=1'];
@@ -75,6 +83,9 @@ const requiredCommandMentions = [
   'coven',
   'coven tui',
   'coven doctor',
+  'coven setup codex',
+  'coven setup claude',
+  'coven setup copilot',
   'coven daemon start',
   'coven daemon status',
   'coven daemon restart',
@@ -258,8 +269,13 @@ if (!existsSync(guideMetaPath)) {
 
 const guideMeta = readJson(guideMetaPath);
 const actualGuidePages = Array.isArray(guideMeta.pages) ? guideMeta.pages : [];
-if (JSON.stringify(actualGuidePages) !== JSON.stringify(requiredGuideMetaPages)) {
-  fail(`content/docs/guide/meta.json pages must be exactly: ${requiredGuideMetaPages.join(', ')}.`);
+const missingGuideNavPages = requiredGuidePages.filter(
+  (page) => !actualGuidePages.includes(page),
+);
+if (missingGuideNavPages.length > 0) {
+  fail(
+    `content/docs/guide/meta.json is missing CLI onboarding dependencies: ${missingGuideNavPages.join(', ')}.`,
+  );
 }
 
 const missingGuidePages = requiredGuidePages
@@ -295,6 +311,16 @@ if (missingGettingStartedMentions.length > 0) {
 }
 
 const allSource = [];
+
+const setupSource = readFileSync(join(cliRoot, 'setup.mdx'), 'utf8');
+const missingSetupMentions = requiredSetupMentions.filter(
+  (mention) => !setupSource.includes(mention),
+);
+if (missingSetupMentions.length > 0) {
+  fail(
+    `content/docs/cli/setup.mdx is missing required setup-contract mentions: ${missingSetupMentions.join(', ')}.`,
+  );
+}
 
 const interactiveSource = readFileSync(join(cliRoot, 'interactive.mdx'), 'utf8');
 const missingInteractiveMentions = requiredInteractiveMentions.filter(

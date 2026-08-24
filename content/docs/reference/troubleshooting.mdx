@@ -1,6 +1,6 @@
 ---
 title: "Troubleshooting"
-description: "Common issues and how to fix them."
+description: "Recover a Coven install, daemon, harness, or recorded session through one ordered decision path."
 ---
 
 Start with:
@@ -9,96 +9,89 @@ Start with:
 coven doctor
 ```
 
-`doctor` is the fastest way to check store, project, daemon, and harness readiness.
+`doctor` is the fastest readiness check for the store, current project, daemon,
+and installed harnesses. Follow the first failing branch instead of changing
+multiple parts of the system at once.
 
 ```mermaid
 flowchart LR
   Start([Something broken?]) --> Doctor["coven doctor"]
   Doctor --> Store{store ok?}
-  Store -- no --> CovenHome["Check $COVEN_HOME ownership + perms"]
+  Store -- no --> CovenHome["Check $COVEN_HOME ownership + permissions"]
   Store -- yes --> Project{project ok?}
-  Project -- no --> ProjectFix["Run from inside a project tree"]
+  Project -- no --> ProjectFix["Run inside the intended project tree"]
   Project -- yes --> DaemonChk{daemon running?}
-  DaemonChk -- no --> StartDaemon["coven daemon start / restart"]
+  DaemonChk -- no --> StartDaemon["coven daemon start or restart"]
   DaemonChk -- yes --> Harness{harness detected?}
-  Harness -- no --> InstallHarness["Install harness CLI\n(see install hint)"]
+  Harness -- no --> InstallHarness["Install and authenticate the harness"]
   Harness -- yes --> RunChk{coven run works?}
-  RunChk -- no --> RunFix["Check provider auth\n(codex login / claude doctor)"]
-  RunChk -- yes --> AttachChk{attach behavior expected?}
-  AttachChk -- no --> AttachFix["Session may be archived/orphaned\nUse coven sessions --all"]
-  AttachChk -- yes --> Done([Working])
+  RunChk -- no --> RunFix["Check provider auth and project boundary"]
+  RunChk -- yes --> SessionChk{session behavior expected?}
+  SessionChk -- no --> SessionFix["Inspect all records and lifecycle state"]
+  SessionChk -- yes --> Done([Working])
 
   CovenHome --> Doctor
   ProjectFix --> Doctor
   StartDaemon --> Doctor
   InstallHarness --> Doctor
   RunFix --> Doctor
-  AttachFix --> Doctor
+  SessionFix --> Doctor
 ```
 
-Follow the failing branch. Almost every issue in the rest of this page is one of these branches in detail.
+## Error code lookup
 
-## Error Code Lookup
-
-When a client or `curl` call fails, the daemon returns a structured envelope. Match on `error.code` and jump to the fix:
+Daemon and API failures use a structured error envelope. Branch on
+`error.code`, not message wording.
 
 | You see | Start here |
 | --- | --- |
-| `not_found` | Check the route path and [API version](/docs/reference/troubleshooting#api-version-rejected). |
-| `invalid_request` | Compare the request body against the [endpoint reference](/docs/reference/api); check the harness id spelling. |
-| `session_not_found` | Run `coven sessions --all`; the id may be stale, sacrificed, or in a different `COVEN_HOME`. |
-| `session_not_live` | The run already ended. See [Session does not accept input](/docs/reference/troubleshooting#session-does-not-accept-input). |
-| `project_root_violation` | See [`cwd` rejected](/docs/reference/troubleshooting#cwd-rejected). |
-| `pty_spawn_failed` | See [Harness missing](/docs/reference/troubleshooting#harness-missing). |
-| `runtime_unavailable` | See [Daemon unavailable](/docs/reference/troubleshooting#daemon-unavailable). |
-| `internal_error` | Restart the daemon; report reproducible cases. |
+| `not_found` | Verify the route and [API version](#api-version-rejected). |
+| `invalid_request` | Compare the body with the [local API contract](/docs/reference/api) and check ids and field casing. |
+| `session_not_found` | Run `coven sessions --all`; the id may be stale, deleted, or stored under another `COVEN_HOME`. |
+| `session_not_live` | See [Session does not accept input](#session-does-not-accept-input). |
+| `project_root_violation` | See [`cwd` rejected](#cwd-rejected). |
+| `pty_spawn_failed` | See [Harness missing](#harness-missing). |
+| `runtime_unavailable` | See [Daemon unavailable](#daemon-unavailable). |
+| `internal_error` | Restart the daemon, preserve relevant logs, and report a reproducible case. |
 
-The full code table with HTTP statuses, causes, and fixes lives in the [error envelope reference](/docs/reference/api#error-envelope).
+The envelope shape and privacy rules are in
+[Error envelope](/docs/reference/api#error-envelope).
 
 ## `coven` command not found
 
-If using npm:
+Use the dedicated
+[install-debugging decision tree](/docs/cli/install-debugging). For a one-off
+readiness check before repairing `PATH`:
 
 ```sh
 npx @opencoven/cli doctor
-pnpm dlx @opencoven/cli doctor
 ```
 
-If building from source:
+A source checkout can run:
 
 ```sh
 cargo run -p coven-cli -- doctor
 ```
 
-If you installed a native binary, make sure its directory is on `PATH`.
+## Harness missing
 
-## Harness Missing
-
-`coven doctor` prints install hints for each built-in harness.
-
-Codex:
+`coven doctor` prints an install hint for every built-in harness. Install and
+authenticate the one you selected, then rerun `doctor`.
 
 ```sh
 npm install -g @openai/codex
 codex login
 ```
 
-Claude Code:
-
 ```sh
 npm install -g @anthropic-ai/claude-code
 claude doctor
 ```
 
-Then retry:
+Use [Harness troubleshooting](/docs/harnesses/troubleshooting) for adapter,
+binary, and provider-authentication failures.
 
-```sh
-coven doctor
-```
-
-## Daemon Unavailable
-
-Start or restart it:
+## Daemon unavailable
 
 ```sh
 coven daemon start
@@ -106,51 +99,40 @@ coven daemon status
 coven daemon restart
 ```
 
-If a client cannot connect, verify it is using the same `COVEN_HOME` as the CLI.
+If a client still cannot connect, verify it resolves the same `COVEN_HOME` and
+platform IPC endpoint as the CLI. Continue with
+[Daemon recovery and upgrades](/docs/daemon/recovery-upgrades) when the socket,
+lock, or service manager is stale.
 
-## System Health and Pressure
+## Stale running sessions
 
-If sessions feel slow, the daemon is sluggish to start, or `coven doctor` succeeds but harness work stalls, the underlying machine may be under CPU, memory, or disk pressure.
-
-`coven pc` surfaces a local system report without launching a harness. All read operations are side-effect free:
-
-```sh
-coven pc                  # full report: CPU, memory, disk, top processes
-coven pc status           # one-line health summary
-coven pc top --n 10       # top-N processes by CPU usage
-coven pc disk             # disk usage breakdown
-```
-
-Relief operations mutate system state and require an explicit `--confirm` gate:
-
-```sh
-coven pc kill <pid> --confirm     # SIGTERM with PID identity re-check
-coven pc cache clear --confirm    # clear ~/Library/Caches + /Library/Caches
-```
-
-`coven pc` is currently macOS-first. See [Getting Started](/docs/guide/getting-started) for the full command reference.
-
-## Stale Running Sessions
-
-If a daemon stopped while sessions were running, those records may become `orphaned` on the next daemon start.
-
-Use:
+If a daemon stopped while sessions were running, those records may become
+`orphaned` on the next start.
 
 ```sh
 coven sessions --all
 ```
 
-Then view logs, archive the record, or sacrifice it if it is no longer useful.
+Inspect the record and log. Archive it when the evidence should remain, or
+sacrifice it only when permanent deletion is intended.
 
-## Session Does Not Accept Input
+## Session does not accept input
 
-Input only works for live daemon-owned sessions.
+Input works only for a live daemon-owned session. Completed, failed, killed,
+archived, external, or orphaned sessions remain inspection and replay surfaces;
+they do not become live again merely because a client attaches.
 
-If the session is completed, failed, archived, or orphaned, attach works as replay/log viewing rather than live input.
+Use:
+
+```sh
+coven sessions show <session-id>
+coven sessions events <session-id> --limit 100
+coven sessions log <session-id>
+```
 
 ## `cwd` rejected
 
-Coven rejects working directories that resolve outside the project root.
+Coven rejects a working directory that canonicalizes outside the project root.
 
 Use a path inside the project:
 
@@ -158,23 +140,24 @@ Use a path inside the project:
 coven run codex "inspect package" --cwd packages/cli
 ```
 
-Do not use symlink tricks or parent paths to escape the project boundary.
+Do not use parent traversal or a symlink escape. Read
+[Project roots](/docs/harnesses/project-roots) for the complete boundary.
 
-## API Version Rejected
+## API version rejected
 
-New clients should use `/api/v1`.
-
-Check daemon compatibility:
+Check the named contract first:
 
 ```text
 GET /api/v1/health
 ```
 
-If the client expects a newer API than the daemon exposes, update Coven or the client so their supported versions overlap.
+A route-prefix value alone does not prove every capability exists. Update Coven
+or the client until their named contracts overlap, then branch on advertised
+capabilities.
 
-## `coven sessions` printed a table instead of opening the browser
+## `coven sessions` printed a table
 
-Coven opens the browser only in an interactive terminal.
+The browser opens only in an interactive terminal.
 
 Force browser mode:
 
@@ -188,46 +171,34 @@ Force table mode:
 coven sessions --plain
 ```
 
-## Archive, Summon, and Sacrifice Confusion
+## Archive, summon, and sacrifice
 
-- Archive hides a non-running session but keeps events.
-- Summon restores an archived session to the active list.
-- Sacrifice permanently deletes a non-running session and its events.
+- **Archive** hides a non-running session and keeps its events.
+- **Summon** restores an archived record to the active list.
+- **Sacrifice** permanently deletes a non-running session and its events.
 
-The [rituals cheat sheet](/docs/cli/sessions#rituals-cheat-sheet) maps every ritual to its command, allowed states, reversibility, and event effects.
+The [rituals cheat sheet](/docs/cli/sessions#rituals-cheat-sheet) records
+allowed states and reversibility.
 
-Use the interactive browser when possible:
+## Machine pressure
 
-```sh
-coven sessions --all --manage
-```
-
-## Secret Scan Failure
-
-Run:
+When `doctor` is healthy but local work remains slow, inspect the host without
+launching a harness:
 
 ```sh
-python scripts/check-secrets.py
+coven pc status
+coven pc top --n 10
+coven pc disk
 ```
 
-If it fails, remove the secret from the working tree. If a secret entered git history, rotate the credential before rewriting history or publishing.
+Mutating relief commands require explicit confirmation. Read the
+[`coven pc` reference](/docs/cli/pc) before using them.
 
-Do not paste matched secret values into issues, logs, docs, or chat.
+## Contributor failures
 
-## Contributor Checks Fail After Docs-only Edits
-
-At minimum run:
-
-```sh
-python scripts/check-secrets.py
-git diff --check
-```
-
-For code changes, run the full gate:
-
-```sh
-cargo fmt --check
-cargo clippy --workspace --all-targets -- -D warnings
-cargo test --workspace --locked
-python scripts/check-secrets.py
-```
+Repository secret scanning, formatting, generated-output, and test failures are
+maintainer workflow rather than end-user runtime recovery. Follow the
+[`coven` repository contribution guide](https://github.com/OpenCoven/coven/blob/main/CONTRIBUTING.md)
+for runtime work and this repository's
+[CONTRIBUTING.md](https://github.com/OpenCoven/coven-docs/blob/main/CONTRIBUTING.md)
+for documentation work.

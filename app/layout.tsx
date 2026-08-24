@@ -8,6 +8,7 @@ import { Analytics } from '@vercel/analytics/next';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import { CovenSearchDialog } from '@/components/search-dialog';
 import './globals.css';
+import './docs-facelift.css';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -21,6 +22,9 @@ export const metadata: Metadata = {
   },
   description: 'A local runtime for durable, auditable coding-agent work.',
   keywords: 'Coven, coding agents, harnesses, local runtime, session records, documentation',
+  alternates: {
+    canonical: BASE_URL,
+  },
   icons: {
     icon: '/favicon.svg',
     apple: '/apple-touch-icon.png',

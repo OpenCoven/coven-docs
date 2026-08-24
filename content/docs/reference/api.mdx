@@ -21,7 +21,11 @@ capabilities, and treat structured errors as product behavior.
 5. `GET /api/v1/events` — read ordered session events with a cursor.
 6. `POST /api/v1/actions` — request a validated control action with the action id in the JSON `action` field.
 
-The daemon rejects malformed requests, unknown sessions, non-live input, unsupported harnesses, and project-root violations with a structured error envelope:
+## Error envelope
+
+The daemon rejects malformed requests, unknown sessions, non-live input,
+unsupported harnesses, and project-root violations with a structured error
+envelope:
 
 ```json
 {
@@ -33,6 +37,19 @@ The daemon rejects malformed requests, unknown sessions, non-live input, unsuppo
 ```
 
 Use `error.code` for control flow; display `message` to people. The complete endpoint schemas and local examples are in the [interactive API reference](/docs/openapi).
+
+## Control-plane surface map
+
+The generated OpenAPI reference covers the stable public
+`coven.daemon.v1` subset: handshake, capabilities, sessions, events, and
+actions. The daemon also exposes first-party route families used by OpenCoven
+applications. Those broader routes can evolve without a named-contract version
+bump and are intentionally not presented as public stable API.
+
+Treat a route as stable only when it appears in the versioned source contract
+and the generated [API Reference](/docs/openapi). For every other route, use
+capability discovery and the owning first-party client's contract instead of
+copying an implementation detail into an external integration.
 
 ## Version and privacy rules
 

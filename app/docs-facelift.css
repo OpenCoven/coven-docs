@@ -1,0 +1,285 @@
+:root {
+  --coven-docs-panel: rgba(255, 255, 255, 0.88);
+  --coven-docs-panel-soft: rgba(108, 90, 200, 0.045);
+  --coven-docs-rule: rgba(108, 90, 200, 0.18);
+  --coven-docs-rule-strong: rgba(108, 90, 200, 0.42);
+  --coven-docs-ink: #171329;
+  --coven-docs-muted: #665e79;
+  --coven-docs-violet: #6558ac;
+  --coven-docs-ember: #946b20;
+}
+
+.dark {
+  --coven-docs-panel: rgba(13, 13, 18, 0.94);
+  --coven-docs-panel-soft: rgba(154, 142, 205, 0.055);
+  --coven-docs-rule: rgba(154, 142, 205, 0.16);
+  --coven-docs-rule-strong: rgba(180, 170, 235, 0.42);
+  --coven-docs-ink: #f2f0fa;
+  --coven-docs-muted: #a8a2b8;
+  --coven-docs-violet: #b4aaeb;
+  --coven-docs-ember: #d0aa67;
+}
+
+.coven-docs-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  transform: translateY(2px);
+  color: var(--coven-docs-ink);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.coven-docs-brand-symbol {
+  position: relative;
+  display: inline-flex;
+  width: 1.35rem;
+  height: 1.35rem;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--coven-docs-rule-strong);
+  border-radius: 5px;
+  transform: rotate(45deg);
+}
+
+.coven-docs-brand-symbol::before {
+  width: 0.36rem;
+  height: 0.36rem;
+  border-radius: 50%;
+  background: var(--coven-docs-violet);
+  content: '';
+}
+
+.coven-docs-brand-product {
+  line-height: 1;
+}
+
+.coven-docs-brand-label {
+  border-left: 1px solid var(--coven-docs-rule);
+  padding-left: 0.55rem;
+  color: var(--coven-docs-violet);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.64rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+#nd-sidebar {
+  border-right-color: var(--coven-docs-rule) !important;
+  background: var(--coven-docs-panel) !important;
+}
+
+#nd-sidebar a[data-active] {
+  border-radius: 6px;
+  background: var(--coven-docs-panel-soft) !important;
+  box-shadow: inset 2px 0 0 var(--coven-docs-violet);
+}
+
+.coven-docs-page-header {
+  position: relative;
+  overflow: hidden;
+  margin: 0 0 2.25rem;
+  border: 1px solid var(--coven-docs-rule);
+  border-radius: 12px;
+  background: var(--coven-docs-panel);
+  padding: clamp(1.35rem, 3vw, 2.25rem);
+}
+
+.coven-docs-page-header::before {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 3px;
+  background: var(--coven-docs-violet);
+  content: '';
+}
+
+.coven-docs-page-toolbar {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.coven-docs-page-header h1 {
+  max-width: 22ch;
+  margin-top: 0.9rem !important;
+  color: var(--coven-docs-ink);
+  font-family: 'Iowan Old Style', 'Palatino Linotype', Georgia, serif;
+  font-size: clamp(2.3rem, 5vw, 4.15rem) !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.025em !important;
+  line-height: 1.02 !important;
+}
+
+.coven-docs-page-header h1 + p {
+  max-width: 72ch;
+  color: var(--coven-docs-muted) !important;
+  font-size: clamp(1rem, 1.6vw, 1.1rem) !important;
+  line-height: 1.7 !important;
+}
+
+.coven-docs-reading-time {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin: 0.2rem 0 0;
+  color: var(--coven-docs-muted);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.04em;
+}
+
+.coven-docs-status {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.55rem;
+  color: var(--coven-docs-muted);
+  font-size: 0.72rem;
+}
+
+.coven-docs-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border: 1px solid var(--coven-docs-rule-strong);
+  border-radius: 999px;
+  padding: 0.28rem 0.55rem;
+  color: var(--coven-docs-violet);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.coven-docs-status[data-docs-stability='preview'] .coven-docs-status-badge {
+  border-style: dashed;
+}
+
+.coven-docs-status[data-docs-stability='experimental'] .coven-docs-status-badge {
+  border-color: color-mix(in srgb, var(--coven-docs-ember) 60%, transparent);
+  color: var(--coven-docs-ember);
+}
+
+.coven-docs-status-section {
+  color: var(--coven-docs-ink);
+  font-weight: 700;
+}
+
+.coven-docs-status-separator {
+  color: var(--coven-docs-rule-strong);
+}
+
+.coven-docs-status-source {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: var(--coven-docs-muted);
+  text-decoration-color: var(--coven-docs-rule-strong);
+  text-underline-offset: 4px;
+}
+
+.coven-docs-status-source:hover {
+  color: var(--coven-docs-violet);
+}
+
+[data-docs-body] {
+  color: var(--coven-docs-ink);
+  font-size: 1rem;
+  line-height: 1.8;
+}
+
+[data-docs-body] > h2 {
+  margin-top: 3.5rem;
+  border-top: 1px solid var(--coven-docs-rule);
+  padding-top: 2.15rem;
+  color: var(--coven-docs-ink);
+  font-family: 'Iowan Old Style', 'Palatino Linotype', Georgia, serif;
+  font-size: clamp(1.65rem, 3vw, 2.15rem);
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+
+[data-docs-body] > h3 {
+  margin-top: 2.5rem;
+  color: var(--coven-docs-ink);
+  letter-spacing: -0.01em;
+}
+
+[data-docs-body] :is(h2, h3, h4) {
+  scroll-margin-top: 6rem;
+}
+
+[data-docs-body] > blockquote {
+  border-left-color: var(--coven-docs-violet);
+  background: var(--coven-docs-panel-soft);
+  color: var(--coven-docs-muted);
+  padding: 0.9rem 1.1rem;
+}
+
+[data-docs-body] table {
+  overflow: hidden;
+  border: 1px solid var(--coven-docs-rule);
+  border-radius: 8px;
+}
+
+[data-docs-body] th {
+  background: var(--coven-docs-panel-soft);
+  color: var(--coven-docs-ink);
+}
+
+[data-docs-body] :is(th, td) {
+  border-color: var(--coven-docs-rule) !important;
+}
+
+.coven-docs-page-header a:focus-visible,
+.coven-docs-status a:focus-visible {
+  outline: 2px solid var(--coven-docs-violet);
+  outline-offset: 3px;
+}
+
+@media (max-width: 640px) {
+  .coven-docs-brand-label {
+    display: none;
+  }
+
+  .coven-docs-page-header {
+    border-right: 0;
+    border-left: 0;
+    border-radius: 0;
+    margin-right: -1.25rem;
+    margin-left: -1.25rem;
+    padding-right: 1.25rem;
+    padding-left: 1.25rem;
+  }
+
+  .coven-docs-page-toolbar {
+    justify-content: flex-start;
+    overflow-x: auto;
+  }
+
+  .coven-docs-status-separator {
+    display: none;
+  }
+
+  .coven-docs-status-source {
+    flex-basis: 100%;
+  }
+}
+
+@media print {
+  .coven-docs-page-toolbar,
+  .coven-docs-status-source {
+    display: none !important;
+  }
+
+  .coven-docs-page-header {
+    border: 0;
+    padding: 0;
+  }
+}

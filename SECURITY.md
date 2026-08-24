@@ -1,48 +1,59 @@
-# SECURITY.md
+# Security policy
 
-## Security Policy
+## Reporting a vulnerability
 
-### Reporting a Vulnerability
+Do not open a public GitHub issue for a security vulnerability.
 
-If you discover a security vulnerability in OpenCoven, please report it responsibly.
+Use a private GitHub Security Advisory for this repository, or contact the
+OpenCoven maintainers through the official Discord and request a private
+security channel. Include reproduction steps, affected routes or commits, and
+the impact you believe is possible.
 
-**Do not open a public GitHub issue for security vulnerabilities.**
+We aim to acknowledge reports within 48 hours and to address confirmed
+vulnerabilities according to severity. These targets are goals, not contractual
+service-level guarantees.
 
-Contact the maintainers directly:
-- Discord: https://discord.gg/OpenCoven (DM @BunsDev)
-- Or open a GitHub Security Advisory on the repository
-
-We will acknowledge receipt within 48 hours and aim to address confirmed vulnerabilities within 14 days.
-
-### Scope
+## In scope
 
 Security reports are welcome for:
-- OpenCoven core harness and routing logic
-- OpenTrust memory and session substrate
-- Authentication and identity handling
-- Agent sandbox and execution boundaries
-- Any mechanism that could allow one agent or user to access another's context
 
-### Out of Scope
+- cross-site scripting or unsafe MDX rendering;
+- credential, cookie, authorization-header, or local-daemon data leakage;
+- bypasses in the loopback-only Coven proxy validation;
+- server-side request forgery through API playground routes;
+- abuse paths in documentation assistants, feedback, or search bridges;
+- exposure of private source, environment variables, build artifacts, or
+  generated content;
+- redirect or canonical-URL behavior that enables a practical security issue;
+- dependency or build-pipeline compromise specific to this repository.
 
-- Issues in third-party dependencies (report to the dependency maintainer)
-- Issues in model provider APIs (report to the provider)
+The docs site's local daemon bridge is intentionally narrow: it must accept only
+loopback HTTP targets under `/api/`, strip credential-bearing request headers,
+and fail closed on hosted deployments that cannot reach a reader's local
+socket.
 
-### Our Commitment
+## Product-security documentation
 
-We take security seriously because OpenCoven handles personal context and agent execution on behalf of users. We will credit researchers who responsibly disclose vulnerabilities (with their permission).
+Incorrect security documentation is urgent and should be reported, but it is
+not automatically a software vulnerability. Use a normal documentation issue
+for an inaccurate claim unless the inaccuracy itself creates an exploitable
+condition or causes sensitive data exposure.
 
----
+Runtime, identity, memory, and agent-execution vulnerabilities belong in the
+repository that implements the affected contract. When ownership is unclear,
+report privately here and maintainers will route it.
 
-## Architectural Security Properties
+## Out of scope
 
-The following properties are design goals of OpenCoven. If you find a way to violate them, that's a security report:
+- vulnerabilities that exist only in an upstream dependency and do not have a
+  repository-specific exploit path;
+- model-provider API issues;
+- denial of service requiring control of the same local user account without
+  crossing an additional trust boundary;
+- synthetic demo content that cannot access genuine local data.
 
-1. **Session isolation** — one user's agent context must not be accessible to another user or agent without explicit permission
-2. **Memory ownership** — a user's stored memory and context must remain under their control
-3. **Agent identity integrity** — a familiar's identity must not be forgeable by another agent or external caller
-4. **Execution boundaries** — agent tool calls must not escape their intended scope
+## Disclosure
 
----
-
-*Last updated: 2026-07-04*
+OpenCoven will credit researchers who responsibly disclose confirmed
+vulnerabilities when they request credit and doing so does not interfere with
+remediation.

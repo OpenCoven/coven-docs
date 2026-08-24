@@ -4,26 +4,6 @@ description: A local runtime for durable, auditable coding-agent work.
 full: true
 ---
 
-import { Card, Cards } from 'fumadocs-ui/components/card';
+import { DocsPortal } from '@/components/docs-portal';
 
-Coven runs coding agents inside a local, project-scoped boundary. It keeps the parts a harness does not: session lifecycle, an append-only record, replay, and a stable local API.
-
-## Why Coven
-
-- **Use the harness you trust.** Run Codex, Claude Code, Copilot CLI, Coven Code, or a registered adapter without moving provider credentials into Coven.
-- **Keep work inside the project.** The daemon canonicalizes project roots and working directories before a session starts.
-- **Keep the record.** Sessions, events, and logs remain available after a harness exits, so work can be inspected, replayed, archived, or removed deliberately.
-- **Keep control local.** One same-user daemon per `COVEN_HOME` owns PTYs and
-  exposes a versioned HTTP API over same-user local IPC for the CLI and your
-  own local clients.
-
-## Start here
-
-<Cards>
-  <Card title="First session" href="/docs/guide/getting-started" description="Install Coven, verify it, and run a harness in a project." />
-  <Card title="CLI reference" href="/docs/cli" description="Use the command surface for sessions, diagnostics, and operations." />
-  <Card title="Harnesses" href="/docs/harnesses" description="Connect an agent CLI without changing its provider authentication." />
-  <Card title="Daemon" href="/docs/daemon" description="Understand the local authority boundary and runtime state." />
-  <Card title="Memory + models" href="/docs/memory-models" description="Choose durable memory and model-access patterns." />
-  <Card title="Local API" href="/docs/reference/api" description="Integrate a local client against the supported contract." />
-</Cards>
+<DocsPortal />

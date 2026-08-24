@@ -1,0 +1,93 @@
+---
+title: "Provider setup"
+summary: "Run provider-owned login and optional bounded verification with explicit consent."
+description: "Reference for coven setup: consent-gated Codex, Claude Code, and Copilot login, ephemeral provider verification, and redacted certification reports."
+read_when:
+  - You installed a supported provider CLI and need to authenticate it
+  - You want to verify provider readiness without giving Coven provider credentials
+  - You need a redacted setup-verification report
+---
+
+`coven setup` launches the provider's own login command with direct terminal access. Coven does not collect, proxy, or persist the provider credential.
+
+Choose one provider explicitly for the clearest flow:
+
+```sh
+coven setup codex
+coven setup claude
+coven setup copilot
+```
+
+Running `coven setup` with no provider selects `all` and processes Codex, Claude Code, and GitHub Copilot CLI in order. Missing executables are reported with their official installation guidance.
+
+## Commands Coven launches
+
+| Provider | Provider-owned login command |
+| --- | --- |
+| `codex` | `codex login` |
+| `claude` | `claude auth login` |
+| `copilot` | `copilot login` |
+
+Before each launch, Coven prints the exact command and asks for explicit consent. The command receives the terminal directly so the provider can own its interactive authentication flow. Declining, cancelling, or losing the terminal does not count as successful setup.
+
+`coven setup` requires an interactive TTY. It fails closed with a `non_tty` outcome when stdin, stdout, or stderr is not a terminal.
+
+## Optional verification
+
+Login success does not prove that a provider can complete a real turn. Add `--verify` to request a separate bounded verification after login:
+
+```sh
+coven setup codex --verify
+```
+
+Coven asks for consent twice: once for provider login and again for verification. The second notice states that verification requires network access and may incur provider usage or cost.
+
+Use `--verify-only` when login is already complete:
+
+```sh
+coven setup claude --verify-only
+```
+
+`--verify` and `--verify-only` are mutually exclusive. Each provider action has a 300-second bound, and the verification runner supervises the process tree rather than leaving an unbounded child behind.
+
+Verification uses ephemeral Coven state for the bounded turn. It does not replace the provider's own credential store, and it does not migrate provider tokens into `$COVEN_HOME`.
+
+## Redacted JSON reports
+
+A verification mode can atomically publish a minimal redacted report:
+
+```sh
+coven setup copilot --verify-only --report-json ./copilot-verification.json
+```
+
+Report constraints are deliberate:
+
+- select exactly one provider;
+- use `--verify` or `--verify-only`;
+- choose a destination that does not already exist;
+- treat publication failure or privacy-validation failure as an error.
+
+The report records bounded certification facts such as provider, candidate commit, version, duration, terminal outcome, and completion state. It does not serialize provider output, prompts, credentials, or the ephemeral verification workspace.
+
+## Outcomes
+
+Human output reports one outcome per selected provider. Machine reports use the corresponding snake-case values.
+
+| Outcome | Meaning |
+| --- | --- |
+| `completed` | The requested login or verification flow completed. |
+| `not_installed` | The provider executable was not found on `PATH`. |
+| `declined` | The user explicitly rejected the consent prompt. |
+| `cancelled` | The prompt or provider process was cancelled. |
+| `provider_failed` | The provider-owned command failed. |
+| `timed_out` | The bounded provider action exceeded its deadline. |
+| `non_tty` | Direct terminal access was unavailable. |
+| `verification_failed` | Login may exist, but the bounded provider verification did not succeed. |
+
+The command exits unsuccessfully unless every selected provider reports `completed`.
+
+## Relationship to doctor
+
+`coven doctor` checks executable and local-runtime readiness. It does not read provider credentials or silently run a paid/network verification turn. Use `doctor` to identify the missing provider, `coven setup <provider>` to hand off to provider-owned authentication, and an explicitly consented verification mode only when you need stronger evidence.
+
+Continue with [Doctor](/docs/cli/doctor), [Install harness CLIs](/docs/harnesses/installing), and [Provider auth boundary](/docs/harnesses/provider-auth).

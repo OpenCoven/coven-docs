@@ -31,6 +31,11 @@ assertIncludes('app/layout.config.tsx', "text: 'Home'", 'Home header link');
 assertIncludes('app/layout.config.tsx', "url: '/'", 'Home header route');
 assertNotIncludes('content/docs/meta.json', '"familiars"', 'Familiars root navigation option');
 
+assertFile('docs/site-manifest.json');
+assertFile('lib/docs-manifest.ts');
+assertFile('scripts/check-site-manifest.mjs');
+assertIncludes('next.config.mjs', 'docs/site-manifest.json', 'manifest-driven redirects');
+
 assertFile('components/mdx-components.tsx');
 assertIncludes('components/mdx-components.tsx', 'fumadocs-ui/components/codeblock', 'CodeBlock MDX wiring');
 assertIncludes('components/mdx-components.tsx', 'fumadocs-ui/components/files', 'Files MDX wiring');
@@ -42,6 +47,8 @@ assertIncludes('components/mdx-components.tsx', 'fumadocs-ui/components/type-tab
 
 assertIncludes('app/docs/[[...slug]]/page.tsx', 'ViewOptionsPopover', 'page actions');
 assertIncludes('app/docs/[[...slug]]/page.tsx', 'getGithubLastEdit', 'GitHub last edit lookup');
+assertIncludes('app/docs/[[...slug]]/page.tsx', 'DocsStatus', 'page stability and ownership status');
+assertIncludes('app/docs/[[...slug]]/page.tsx', 'alternates:', 'canonical page metadata');
 assertIncludes('app/docs/[[...slug]]/page.tsx', 'OpenCoven', 'OpenCoven GitHub owner');
 assertIncludes('app/docs/[[...slug]]/page.tsx', 'coven-docs', 'coven-docs GitHub repo');
 
@@ -52,12 +59,16 @@ assertIncludes('app/api/search/route.ts', 'tag:', 'search tag filter');
 assertFile('components/search-dialog.tsx');
 assertIncludes('components/search-dialog.tsx', 'Filter', 'search filter UI');
 assertIncludes('components/search-dialog.tsx', 'aria-haspopup="listbox"', 'compact search filter dropdown');
-assertIncludes('components/search-dialog.tsx', 'Guide', 'Guide search filter');
+assertIncludes('components/search-dialog.tsx', 'docsSections', 'manifest-driven search filters');
 assertNotIncludes('components/search-dialog.tsx', 'Familiars', 'Familiars search filter');
-assertIncludes('components/search-dialog.tsx', 'Reference', 'Reference search filter');
 if (read('components/search-dialog.tsx').includes('SearchDialogFooter')) {
   throw new Error('components/search-dialog.tsx still uses SearchDialogFooter for filters');
 }
+
+assertFile('app/robots.ts');
+assertFile('app/sitemap.ts');
+assertFile('app/build.txt/route.ts');
+assertIncludes('next.config.mjs', 'x-coven-docs-commit', 'deployment commit header');
 
 assertIncludes('source.config.ts', 'includeProcessedMarkdown', 'export processed markdown');
 assertIncludes('lib/source.ts', "@/.source/server", 'Fumadocs v15 server source entry');
@@ -70,6 +81,10 @@ assertIncludes('scripts/export-pdf.mjs', 'puppeteer', 'PDF export script');
 
 assertFile('scripts/validate-links.mjs');
 assertIncludes('scripts/validate-links.mjs', 'next-validate-link', 'link validation script');
+
+assertFile('scripts/check-anchor-links.mjs');
+assertFile('scripts/check-generated.mjs');
+assertFile('scripts/smoke-docs.mjs');
 
 assertFile('scripts/generate-obsidian.mjs');
 assertIncludes('scripts/generate-obsidian.mjs', 'fumadocs-obsidian', 'Obsidian generation script');

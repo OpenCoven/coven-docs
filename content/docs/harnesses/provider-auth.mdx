@@ -3,7 +3,7 @@ title: "Provider Auth Boundary"
 summary: "Provider credentials stay with each harness CLI. Coven never stores, proxies, or mints provider tokens."
 description: "Security boundary for OpenAI, Anthropic, GitHub, xAI, and other provider credentials when running harnesses through Coven."
 read_when:
-  - Auditing where OpenAI or Anthropic credentials live
+  - Auditing where OpenAI, Anthropic, or GitHub credentials live
   - Deciding whether a client should send provider tokens to Coven
 ---
 
@@ -18,7 +18,7 @@ Coven never stores, proxies, persists, or mints provider credentials.
 | Harness id | Login command | Credential owner |
 | --- | --- | --- |
 | `codex` | `codex login` | Codex CLI and OpenAI's local auth flow |
-| `claude` | `claude doctor` | Claude Code and Anthropic's local auth flow |
+| `claude` | `claude auth login` | Claude Code and Anthropic's local auth flow |
 | `copilot` | `copilot login` | Copilot CLI and GitHub's local auth flow |
 | `coven-code` | `/connect` inside Coven Code | The engine's own local auth store; see [Coven Code providers](/docs/coven-code/providers) |
 | `grok` (adapter recipe) | `grok login`, or `XAI_API_KEY` for headless auth | Grok Build CLI and xAI's local auth flow |
@@ -26,11 +26,20 @@ Coven never stores, proxies, persists, or mints provider credentials.
 
 The `XAI_API_KEY` environment variable is read by the Grok Build CLI itself, in its own process environment. It is not a Coven setting, and Coven never asks for it.
 
+## Consent-gated handoff
+
+For Codex, Claude Code, and Copilot, `coven setup <provider>` is a launcher for the provider-owned command—not a replacement credential system. It shows the exact command, warns that the provider receives direct terminal access, and continues only after explicit consent.
+
+An optional verification turn receives a separate consent prompt because it requires network access and may incur provider usage or cost. The bounded turn uses ephemeral Coven state. It does not copy provider credentials into Coven or persist the verification workspace.
+
 ## Credential path
 
 <Mermaid chart={`
 flowchart LR
-  User[Developer] --> Login["codex login / claude doctor"]
+  User[Developer] --> Setup["coven setup codex"]
+  Setup --> Consent{Explicit consent?}
+  Consent -- no --> Stop[No provider process]
+  Consent -- yes --> Login["codex login"]
   Login --> Store[(Provider credential store)]
   User --> Run["coven run codex prompt"]
   Run --> Daemon[Coven daemon]
@@ -46,8 +55,10 @@ The missing arrow is the important part: the daemon does not read the provider c
 
 The daemon sees PTY output and process exits. If the harness prints an auth error, Coven records that output like any other session output. If a user asks a harness to print a secret, that output can land in the event log. This is a user-side safety rule, not provider-token support in Coven.
 
+`coven setup` login uses direct terminal access rather than the session ledger. Its optional JSON verification report is deliberately redacted and excludes provider output, prompts, credentials, and ephemeral workspace contents.
+
 ## What clients must not do
 
 Clients should not add provider-token fields to Coven requests. The socket API does not need API keys, OAuth refresh tokens, bearer tokens, or account ids to launch a session.
 
-Use [Authentication and local access](/docs/reference/auth) for the daemon access model and [Daemon security posture](/docs/daemon/security) for the local trust boundary.
+Use [Provider setup](/docs/cli/setup) for consent and verification semantics, [Authentication and local access](/docs/reference/auth) for the daemon access model, and [Daemon security posture](/docs/daemon/security) for the local trust boundary.

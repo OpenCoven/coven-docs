@@ -10,6 +10,7 @@
     "uninstall",
     "interactive",
     "doctor",
+    "setup",
     "daemon",
     "run",
     "sessions",

@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import {
   DocsPage,
   DocsBody,
@@ -16,6 +17,7 @@ import { getGithubLastEdit } from 'fumadocs-core/content/github';
 import { getMDXComponents } from '@/components/mdx-components';
 import { PageFeedback } from '@/components/page-feedback';
 import { PageNavFooter } from '@/components/page-nav-footer';
+import { DocsStatus } from '@/components/docs-status';
 
 const REPO = 'OpenCoven/coven-docs';
 const SITE = 'https://docs.opencoven.ai';
@@ -101,40 +103,45 @@ export default async function Page({ params }: { params: Promise<{ slug?: string
   ]);
 
   return (
-    <DocsPage
-      toc={page.data.toc}
-      full={page.data.full}
-      tableOfContent={{ style: 'clerk' }}
-      breadcrumb={{ includePage: true, includeRoot: true }}
-      slots={{ footer: PageNavFooter }}
-    >
-      <div className="flex justify-end items-center gap-2">
-        <a
-          href={issueUrl}
-          target="_blank"
-          rel="noreferrer noopener"
-          aria-label="Report an issue with this page on GitHub"
-          className={`${buttonVariants({ color: 'secondary', size: 'sm' })} gap-1.5 not-prose`}
-        >
-          <Icon icon="ph:bug-duotone" width={14} aria-hidden="true" />
-          Report issue
-        </a>
-        <ViewOptionsPopover githubUrl={githubUrl} />
-      </div>
-      <DocsTitle>{page.data.title}</DocsTitle>
-      <DocsDescription>{page.data.description}</DocsDescription>
-      {readingMinutes !== null && (
-        <p className="text-xs text-fd-muted-foreground not-prose -mt-2 mb-4 inline-flex items-center gap-1.5">
-          <Icon icon="ph:clock-duotone" width={13} aria-hidden="true" />
-          {readingMinutes} min read
-        </p>
-      )}
-      <DocsBody>
-        <MDX components={getMDXComponents()} />
-      </DocsBody>
-      <PageFeedback feedbackIssueUrl={feedbackUrl} />
-      {lastModifiedTime && <PageLastUpdate date={lastModifiedTime} />}
-    </DocsPage>
+    <main className="contents">
+      <DocsPage
+        toc={page.data.toc}
+        full={page.data.full}
+        tableOfContent={{ style: 'clerk' }}
+        breadcrumb={{ includePage: true, includeRoot: true }}
+        slots={{ footer: PageNavFooter }}
+      >
+        <header className="coven-docs-page-header">
+          <div className="coven-docs-page-toolbar not-prose">
+            <a
+              href={issueUrl}
+              target="_blank"
+              rel="noreferrer noopener"
+              aria-label="Report an issue with this page on GitHub"
+              className={`${buttonVariants({ color: 'secondary', size: 'sm' })} gap-1.5`}
+            >
+              <Icon icon="ph:bug-duotone" width={14} aria-hidden="true" />
+              Report issue
+            </a>
+            <ViewOptionsPopover githubUrl={githubUrl} />
+          </div>
+          <DocsStatus sectionSlug={page.slugs[0]} />
+          <DocsTitle>{page.data.title}</DocsTitle>
+          <DocsDescription>{page.data.description}</DocsDescription>
+          {readingMinutes !== null && (
+            <p className="coven-docs-reading-time not-prose">
+              <Icon icon="ph:clock-duotone" width={13} aria-hidden="true" />
+              {readingMinutes} min read
+            </p>
+          )}
+        </header>
+        <DocsBody>
+          <MDX components={getMDXComponents()} />
+        </DocsBody>
+        <PageFeedback feedbackIssueUrl={feedbackUrl} pagePath={page.url} />
+        {lastModifiedTime && <PageLastUpdate date={lastModifiedTime} />}
+      </DocsPage>
+    </main>
   );
 }
 
@@ -142,13 +149,45 @@ export async function generateStaticParams() {
   return source.generateParams();
 }
 
-export async function generateMetadata({ params }: { params: Promise<{ slug?: string[] }> }) {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug?: string[] }>;
+}): Promise<Metadata> {
   const { slug } = await params;
   const page = source.getPage(slug);
   if (!page) notFound();
 
+  const canonical = `${SITE}${page.url}`;
+  const description = page.data.description;
+
   return {
     title: page.data.title,
-    description: page.data.description,
+    description,
+    alternates: {
+      canonical,
+    },
+    openGraph: {
+      type: 'article',
+      title: page.data.title,
+      description,
+      url: canonical,
+      siteName: 'Coven Docs',
+      images: [
+        {
+          url: `${SITE}/api/og`,
+          width: 1200,
+          height: 630,
+          alt: `${page.data.title} — Coven Docs`,
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: page.data.title,
+      description,
+      creator: '@OpenCvn',
+      images: [`${SITE}/api/og`],
+    },
   };
 }

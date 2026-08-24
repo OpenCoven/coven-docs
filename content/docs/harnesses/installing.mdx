@@ -9,26 +9,42 @@ read_when:
 
 import { Mermaid } from '@/components/mermaid';
 
-Coven manages one harness itself — the bundled Coven Code engine — and detects every other harness CLI on `PATH`. External harnesses are installed and authenticated through their own provider's tooling.
+Coven manages one harness itself—the bundled Coven Code engine—and detects every other harness CLI on `PATH`. External harnesses are installed and authenticated through their own provider's tooling.
 
 ## Built-in harnesses
 
 | Harness id | Executable | Install command | Provider login |
 | --- | --- | --- | --- |
 | `codex` | `codex` | `npm install -g @openai/codex` | `codex login` |
-| `claude` | `claude` | `npm install -g @anthropic-ai/claude-code` | `claude doctor` |
+| `claude` | `claude` | `npm install -g @anthropic-ai/claude-code` | `claude auth login` |
 | `copilot` | `copilot` | `npm install -g @github/copilot` | `copilot login` |
 | `coven-code` | `coven-code` | `coven engine install` | Inside Coven Code (`/connect`) |
 
-Beyond these, trusted adapter recipes (`grok`, `hermes`) and your own manifests can register external harnesses — see [Custom adapters](/docs/harnesses/custom-adapters).
+Beyond these, trusted adapter recipes (`grok`, `hermes`) and your own manifests can register external harnesses—see [Custom adapters](/docs/harnesses/custom-adapters).
 
-After installing, run:
+After installing an external provider CLI, use Coven's consent-gated handoff instead of asking Coven to own the credential:
 
 ```bash
+coven setup codex
+coven setup claude
+coven setup copilot
 coven doctor
 ```
 
-`coven doctor` reports whether the executable is available. It does not read provider credentials; the login command remains provider-owned.
+`coven setup` prints the exact provider-owned login command and requests consent before giving it direct terminal access. `coven doctor` reports whether the executable and local runtime are ready; it does not read provider credentials.
+
+## Optional provider verification
+
+Request a bounded provider turn only when stronger evidence is worth network access and possible provider usage or cost:
+
+```bash
+coven setup codex --verify
+coven setup claude --verify-only
+```
+
+Login and verification receive separate consent prompts. Verification uses ephemeral Coven state and a 300-second process bound. A single-provider verification can publish a minimal redacted report with `--report-json <new-path>`.
+
+See [Provider setup](/docs/cli/setup) for outcomes and report constraints.
 
 ## Detection flow
 
@@ -60,7 +76,7 @@ which -a claude
 which -a copilot
 ```
 
-The bundled engine is not a `PATH` install: use `coven engine status` and `coven engine which` instead — see [Coven Code harness](/docs/harnesses/coven-code).
+The bundled engine is not a `PATH` install: use `coven engine status` and `coven engine which` instead—see [Coven Code harness](/docs/harnesses/coven-code).
 
 ## First launch
 

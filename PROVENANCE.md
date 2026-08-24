@@ -1,83 +1,99 @@
 # PROVENANCE.md — OpenCoven Origin Record
 
-> This document exists to establish the clear, timestamped origin of the architectural ideas that define OpenCoven. It is a public record, not a legal claim. It is maintained so that future readers — contributors, users, researchers, patent examiners — can verify where these ideas came from and when.
-
----
+> This document establishes the timestamped origin of architectural ideas that
+> define OpenCoven. It is a public record, not a legal claim, and exists so
+> contributors, users, researchers, and examiners can verify provenance.
 
 ## Origin
 
-**OpenCoven** was created by **Valentina Alexander** (`@BunsDev`) and first published publicly on **April 27, 2026** under the MIT License.
+**OpenCoven** was created by **Valentina Alexander** (`@BunsDev`) and first
+published publicly on **April 27, 2026** under the MIT License.
 
 - GitHub organization: https://github.com/OpenCoven
 - Website: https://OpenCoven.ai
 - Discord: https://discord.gg/OpenCoven
-- X / Twitter: https://x.com/OpenCvn
+- X: https://x.com/OpenCvn
 - License: MIT (https://opensource.org/licenses/MIT)
-- Repository creation date: **2026-04-27** (verifiable via GitHub API: `https://api.github.com/repos/OpenCoven/coven`)
+- Repository creation date: **2026-04-27**, verifiable through the GitHub API
 
-This repository has no fork parent. It is an original work with no upstream source repository.
+The original Coven repository has no fork parent. It is an original work with
+no upstream source repository.
 
----
+## Architectural concepts and origins
 
-## Architectural Concepts and Their Origins
+### 1. Familiar identity model
 
-### 1. The Familiar Identity Model
-**First appeared:** `coven-cli/src/familiar_identity.rs`, commit history from 2026-04-27
+**First appeared:** `coven-cli/src/familiar_identity.rs`, commit history from
+2026-04-27.
 
-A named, role-scoped agent persona — a "familiar" — resolved from a configuration manifest (`familiars.toml`) and attached to a session via a CLI flag or runtime config. Each familiar has an `id`, `display_name`, and `role`. The familiar model is the foundational identity primitive for multi-agent systems in OpenCoven.
+A named, role-scoped agent persona—a familiar—resolved from a configuration
+manifest and attached to a session through runtime configuration. The familiar
+has a stable identity and role rather than existing only as an interchangeable
+prompt.
 
-This concept was original to this repository. It has been independently acknowledged as prior art by third parties in their own published documentation.
+### 2. Agent spawn harness
 
-### 2. The Agent Spawn Harness
-**First appeared:** `pty_runner.rs:307` (`spawn_piped_with_observer`), commit history from 2026-04-27
+**First appeared:** `pty_runner.rs:307`
+(`spawn_piped_with_observer`), commit history from 2026-04-27.
 
-A structured dispatch pattern for launching configured agent/harness processes. The pattern validates a harness allowlist, canonicalizes working directory, checks session state, then dispatches to one of a defined set of low-level spawn primitives. This is the root pattern from which single-chokepoint process execution architectures in agent systems derive.
+A structured dispatch pattern for configured agent and harness processes. It
+validates a harness allowlist, canonicalizes the working directory, checks
+session state, and routes execution through defined low-level spawn primitives.
 
-### 3. The Multi-Agent Familiar Substrate
-**First appeared:** 2026-04-27, OpenCoven core architecture
+### 3. Multi-agent familiar substrate
 
-Composable, purpose-scoped agents ("familiars") that cooperate through structured routing, share session context, and are individually manageable. Each familiar has a defined lane; routing between familiars is explicit and traceable. This is not monolithic prompt-chaining — it is a hub-and-spoke orchestration model where each agent is a named, scoped participant.
+**First appeared:** OpenCoven core architecture, 2026-04-27.
 
-### 4. The Graded Approval Tier Model
-**First appeared:** The Familiar Contract RFC-0001 v0.2.0, authored by Valentina Alexander and Sage, **dated 2026-06-19**
+Composable, purpose-scoped familiars cooperate through structured routing,
+share bounded session context, and remain individually manageable. Routing is
+explicit and traceable rather than an unowned chain of prompt handoffs.
 
-Defines a `ward.toml`-like structure with a `[protected]` partition (files/invariants an agent may not modify autonomously) and `[editable]` partition, gated by approval tiers: `auto → familiar_review → human_review → human_required`. Enforced by an authority layer separate from the familiar itself.
+### 4. Graded approval tier model
 
-### 5. Session Memory and Continuity Substrate (OpenTrust)
-**First published:** 2026 (active development)
+**First appeared:** Familiar Contract RFC-0001 v0.2.0, authored by Valentina
+Alexander and Sage, dated 2026-06-19.
 
-Durable, portable agent memory that persists across sessions, remains under user control, and maintains provenance of agent actions. Designed to be model-agnostic and provider-agnostic — memory is not stored on vendor servers unless the user chooses that. This is the trust layer that makes long-running agent systems auditable and recoverable.
+A protected/editable partition gated by approval tiers:
+`auto → familiar_review → human_review → human_required`, enforced by an
+authority layer separate from the familiar.
 
----
+### 5. Session memory and continuity substrate
 
-## Third-Party Acknowledgments
+**First published:** 2026, active development.
 
-The following third-party projects have independently documented OpenCoven as a source or ancestor of their architectural concepts. These acknowledgments are recorded here as additional evidence of the originality and priority of OpenCoven's contributions:
+Durable, portable agent memory and session state that remain under user control
+and preserve provenance. The design is model- and provider-agnostic.
+
+## Third-party acknowledgments
+
+Third-party repositories have independently documented OpenCoven as a source or
+ancestor of architectural elements. Those records are supporting provenance,
+not endorsement.
 
 | Project | Documentation | Concepts acknowledged |
-|---|---|---|
-| `YogiSotho/warden` | `lineage/LINEAGE.md`, `docs/ops/patent/prior-art-search.md` | Spawn chokepoint (pty_runner.rs:307), familiar identity model (coven-cli/src/familiar_identity.rs:23-35), harness adapter contract, ledger shape, CLI skeleton. Warden's own prior-art search gives OpenCoven a "real, dated, public prior art" verdict for these elements. |
-
-The presence of these acknowledgments in third-party repositories is noted for the record and does not constitute an endorsement of those projects by OpenCoven maintainers.
-
----
+| --- | --- | --- |
+| `YogiSotho/warden` | `lineage/LINEAGE.md`, `docs/ops/patent/prior-art-search.md` | Spawn chokepoint, familiar identity model, harness adapter contract, ledger shape, and CLI skeleton |
 
 ## Maintainer
 
 **Valentina Alexander**
+
 - GitHub: [@BunsDev](https://github.com/BunsDev)
 - Role: Creator and Core Maintainer, OpenCoven
-- Also: Core Maintainer, OpenClaw; Developer Relations Engineer, Ritual Foundation
+- Also: Lead Developer Relations Engineer, Ritual Foundation
+
+## Corrections
+
+If you know of prior art that predates a concept listed here, open an issue.
+OpenCoven maintains this record honestly and will correct unsupported
+originality claims.
+
+If you know of a patent application or trademark filing that cites or conflicts
+with documented OpenCoven work, notify maintainers privately or through an
+issue that does not disclose confidential material.
 
 ---
 
-## Contributing to the Record
+*Last updated: 2026-08-24*
 
-If you are aware of prior art that predates any of the concepts listed here, please open an issue. We maintain this document honestly — if something was not original to us, we want to know and update the record accordingly.
-
-If you are aware of a patent application or trademark filing that cites or conflicts with the concepts documented here, please notify the maintainers immediately via the Discord or by opening a GitHub issue.
-
----
-
-*Last updated: 2026-07-04*
-*This document does not constitute legal advice.*
+*This document is not legal advice.*

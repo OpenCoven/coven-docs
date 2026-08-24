@@ -1,0 +1,46 @@
+name: Documentation problem
+description: Report inaccurate, unclear, missing, or difficult-to-find Coven documentation.
+title: "docs: "
+labels:
+  - docs
+body:
+  - type: input
+    id: page
+    attributes:
+      label: Page or route
+      placeholder: https://docs.opencoven.ai/docs/...
+    validations:
+      required: true
+  - type: dropdown
+    id: kind
+    attributes:
+      label: Problem type
+      options:
+        - Incorrect product behavior
+        - Missing information
+        - Unclear explanation
+        - Broken link or redirect
+        - Search or navigation
+        - Accessibility or responsive behavior
+        - Generated API mismatch
+    validations:
+      required: true
+  - type: textarea
+    id: observed
+    attributes:
+      label: What happened?
+      description: Include the text, command, route, or behavior that is wrong.
+    validations:
+      required: true
+  - type: textarea
+    id: source
+    attributes:
+      label: Source of truth or expected behavior
+      description: Link implementation, tests, a specification, or another reproducible source when available.
+  - type: checkboxes
+    id: security
+    attributes:
+      label: Security
+      options:
+        - label: This report does not disclose an exploitable vulnerability or secret.
+          required: true

@@ -28,24 +28,33 @@ This is only a preflight. It does not replace a normal install for the daemon an
 
 ## 2. Connect a harness
 
-Install and authenticate the harness you want Coven to launch. For example:
+Install the provider CLI you want Coven to launch:
 
 ```sh
 npm install -g @openai/codex
-codex login
-```
-
-```sh
 npm install -g @anthropic-ai/claude-code
-claude doctor
+npm install -g @github/copilot
 ```
+
+Then choose the provider you actually intend to use and hand the terminal to its provider-owned login flow:
 
 ```sh
-npm install -g @github/copilot
-copilot login
+coven setup codex
+# or: coven setup claude
+# or: coven setup copilot
 ```
 
-See [Install harness CLIs](/docs/harnesses/installing) for the setup matrix and [Harnesses](/docs/harnesses) for supported harnesses, adapter behavior, and credential boundaries.
+Coven shows the exact login command and asks for explicit consent before launching it. Credentials remain in the provider CLI's own store.
+
+A stronger setup check is optional:
+
+```sh
+coven setup codex --verify
+```
+
+Verification asks for separate consent, requires network access, and may incur provider usage or cost. It is not required for the normal first-session loop.
+
+See [Provider setup](/docs/cli/setup) for verification and report semantics, [Install harness CLIs](/docs/harnesses/installing) for the setup matrix, and [Harnesses](/docs/harnesses) for adapter behavior and credential boundaries.
 
 ## 3. Run a first session
 
@@ -84,9 +93,7 @@ coven sessions events <session-id> --limit 100
 coven sessions log <session-id>
 ```
 
-Unique session-id prefixes are accepted when they identify exactly one
-session. Use `coven sessions search "query"` for full-text search over recorded
-event payloads.
+Unique session-id prefixes are accepted when they identify exactly one session. Use `coven sessions search "query"` for full-text search over recorded event payloads.
 
 Archive a completed record when it is no longer active; sacrifice it only when you intend to delete its events permanently.
 
@@ -95,8 +102,7 @@ coven archive <session-id>
 coven sacrifice <session-id> --yes
 ```
 
-For a cross-surface summary of the daemon, open sessions, familiars, skills,
-research, and hub state:
+For a cross-surface summary of the daemon, open sessions, familiars, skills, research, and hub state:
 
 ```sh
 coven status
@@ -104,6 +110,7 @@ coven status
 
 ## Continue
 
+- [Provider setup](/docs/cli/setup)
 - [Install options](/docs/guide/install)
 - [Core concepts](/docs/guide/concepts)
 - [CLI session commands](/docs/cli/sessions)
