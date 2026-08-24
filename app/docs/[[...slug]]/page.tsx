@@ -103,43 +103,45 @@ export default async function Page({ params }: { params: Promise<{ slug?: string
   ]);
 
   return (
-    <DocsPage
-      toc={page.data.toc}
-      full={page.data.full}
-      tableOfContent={{ style: 'clerk' }}
-      breadcrumb={{ includePage: true, includeRoot: true }}
-      slots={{ footer: PageNavFooter }}
-    >
-      <header className="coven-docs-page-header">
-        <div className="coven-docs-page-toolbar not-prose">
-          <a
-            href={issueUrl}
-            target="_blank"
-            rel="noreferrer noopener"
-            aria-label="Report an issue with this page on GitHub"
-            className={`${buttonVariants({ color: 'secondary', size: 'sm' })} gap-1.5`}
-          >
-            <Icon icon="ph:bug-duotone" width={14} aria-hidden="true" />
-            Report issue
-          </a>
-          <ViewOptionsPopover githubUrl={githubUrl} />
-        </div>
-        <DocsStatus sectionSlug={page.slugs[0]} />
-        <DocsTitle>{page.data.title}</DocsTitle>
-        <DocsDescription>{page.data.description}</DocsDescription>
-        {readingMinutes !== null && (
-          <p className="coven-docs-reading-time not-prose">
-            <Icon icon="ph:clock-duotone" width={13} aria-hidden="true" />
-            {readingMinutes} min read
-          </p>
-        )}
-      </header>
-      <DocsBody>
-        <MDX components={getMDXComponents()} />
-      </DocsBody>
-      <PageFeedback feedbackIssueUrl={feedbackUrl} pagePath={page.url} />
-      {lastModifiedTime && <PageLastUpdate date={lastModifiedTime} />}
-    </DocsPage>
+    <main className="contents">
+      <DocsPage
+        toc={page.data.toc}
+        full={page.data.full}
+        tableOfContent={{ style: 'clerk' }}
+        breadcrumb={{ includePage: true, includeRoot: true }}
+        slots={{ footer: PageNavFooter }}
+      >
+        <header className="coven-docs-page-header">
+          <div className="coven-docs-page-toolbar not-prose">
+            <a
+              href={issueUrl}
+              target="_blank"
+              rel="noreferrer noopener"
+              aria-label="Report an issue with this page on GitHub"
+              className={`${buttonVariants({ color: 'secondary', size: 'sm' })} gap-1.5`}
+            >
+              <Icon icon="ph:bug-duotone" width={14} aria-hidden="true" />
+              Report issue
+            </a>
+            <ViewOptionsPopover githubUrl={githubUrl} />
+          </div>
+          <DocsStatus sectionSlug={page.slugs[0]} />
+          <DocsTitle>{page.data.title}</DocsTitle>
+          <DocsDescription>{page.data.description}</DocsDescription>
+          {readingMinutes !== null && (
+            <p className="coven-docs-reading-time not-prose">
+              <Icon icon="ph:clock-duotone" width={13} aria-hidden="true" />
+              {readingMinutes} min read
+            </p>
+          )}
+        </header>
+        <DocsBody>
+          <MDX components={getMDXComponents()} />
+        </DocsBody>
+        <PageFeedback feedbackIssueUrl={feedbackUrl} pagePath={page.url} />
+        {lastModifiedTime && <PageLastUpdate date={lastModifiedTime} />}
+      </DocsPage>
+    </main>
   );
 }
 
