@@ -59,7 +59,7 @@ export default function HomePage() {
   const installCommand = 'npm install -g @opencoven/cli && coven doctor';
 
   return (
-    <main className={s.homeMain}>
+    <div className={s.homeMain}>
       <section className={s.heroPanel}>
         <div className={s.heroText}>
           <p className={s.heroEyebrow}>Local infrastructure for coding agents</p>
@@ -113,6 +113,6 @@ export default function HomePage() {
           <Link href="/docs/guide/ecosystem" className={s.ctaSecondary}>See the ecosystem <Icon icon="ph:arrow-right-bold" width={14} /></Link>
         </div>
       </section>
-    </main>
+    </div>
   );
 }
