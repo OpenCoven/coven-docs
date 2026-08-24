@@ -129,6 +129,31 @@ try {
   const pageErrors = [];
   page.on('pageerror', (error) => pageErrors.push(error.message));
 
+  async function gotoAndReady(path, expectedText) {
+    const response = await page.goto(`${baseUrl}${path}`, {
+      waitUntil: 'domcontentloaded',
+      timeout: 30_000,
+    });
+    if (!response?.ok()) {
+      throw new Error(`${path} failed in Chromium with ${response?.status()}`);
+    }
+
+    await page.waitForFunction(
+      (text) => document.body?.innerText.includes(text),
+      { timeout: 15_000, polling: 100 },
+      expectedText,
+    );
+    await page.waitForFunction(
+      () => document.readyState === 'complete',
+      { timeout: 15_000, polling: 100 },
+    );
+    await page.evaluate(async () => {
+      if (document.fonts?.ready) await document.fonts.ready;
+    });
+
+    return response;
+  }
+
   const routes = [
     { path: '/', expectedText: 'Start a session', screenshot: 'home-desktop.png' },
     {
@@ -168,13 +193,7 @@ try {
   ];
 
   for (const route of routes) {
-    const response = await page.goto(`${baseUrl}${route.path}`, {
-      waitUntil: 'networkidle0',
-      timeout: 30_000,
-    });
-    if (!response?.ok()) {
-      throw new Error(`${route.path} failed in Chromium with ${response?.status()}`);
-    }
+    const response = await gotoAndReady(route.path, route.expectedText);
 
     const headers = response.headers();
     if (headers['x-coven-docs-commit'] !== report.buildCommit) {
@@ -254,26 +273,33 @@ try {
   }
 
   await page.setViewport({ width: 390, height: 844 });
-  for (const [path, screenshot] of [
-    ['/', 'home-mobile.png'],
-    ['/docs', 'docs-mobile.png'],
-    ['/docs/guide/getting-started', 'getting-started-mobile.png'],
-  ]) {
-    await page.goto(`${baseUrl}${path}`, {
-      waitUntil: 'networkidle0',
-      timeout: 30_000,
-    });
+  const mobileRoutes = [
+    { path: '/', expectedText: 'Start a session', screenshot: 'home-mobile.png' },
+    {
+      path: '/docs',
+      expectedText: 'From install to evidence.',
+      screenshot: 'docs-mobile.png',
+    },
+    {
+      path: '/docs/guide/getting-started',
+      expectedText: 'Run a first session',
+      screenshot: 'getting-started-mobile.png',
+    },
+  ];
+
+  for (const route of mobileRoutes) {
+    await gotoAndReady(route.path, route.expectedText);
     const overflow = await page.evaluate(
       () => document.documentElement.scrollWidth > document.documentElement.clientWidth,
     );
     if (overflow) {
-      throw new Error(`${path} has horizontal overflow at 390px`);
+      throw new Error(`${route.path} has horizontal overflow at 390px`);
     }
     await page.screenshot({
-      path: resolve(evidenceDir, screenshot),
+      path: resolve(evidenceDir, route.screenshot),
       fullPage: true,
     });
-    report.mobile.push({ path, width: 390, overflow });
+    report.mobile.push({ path: route.path, width: 390, overflow });
   }
 
   if (pageErrors.length > 0) {
