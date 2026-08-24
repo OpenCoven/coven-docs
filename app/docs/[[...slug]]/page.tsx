@@ -110,28 +110,30 @@ export default async function Page({ params }: { params: Promise<{ slug?: string
       breadcrumb={{ includePage: true, includeRoot: true }}
       slots={{ footer: PageNavFooter }}
     >
-      <div className="flex justify-end items-center gap-2">
-        <a
-          href={issueUrl}
-          target="_blank"
-          rel="noreferrer noopener"
-          aria-label="Report an issue with this page on GitHub"
-          className={`${buttonVariants({ color: 'secondary', size: 'sm' })} gap-1.5 not-prose`}
-        >
-          <Icon icon="ph:bug-duotone" width={14} aria-hidden="true" />
-          Report issue
-        </a>
-        <ViewOptionsPopover githubUrl={githubUrl} />
-      </div>
-      <DocsStatus sectionSlug={page.slugs[0]} />
-      <DocsTitle>{page.data.title}</DocsTitle>
-      <DocsDescription>{page.data.description}</DocsDescription>
-      {readingMinutes !== null && (
-        <p className="text-xs text-fd-muted-foreground not-prose -mt-2 mb-4 inline-flex items-center gap-1.5">
-          <Icon icon="ph:clock-duotone" width={13} aria-hidden="true" />
-          {readingMinutes} min read
-        </p>
-      )}
+      <header className="coven-docs-page-header">
+        <div className="coven-docs-page-toolbar not-prose">
+          <a
+            href={issueUrl}
+            target="_blank"
+            rel="noreferrer noopener"
+            aria-label="Report an issue with this page on GitHub"
+            className={`${buttonVariants({ color: 'secondary', size: 'sm' })} gap-1.5`}
+          >
+            <Icon icon="ph:bug-duotone" width={14} aria-hidden="true" />
+            Report issue
+          </a>
+          <ViewOptionsPopover githubUrl={githubUrl} />
+        </div>
+        <DocsStatus sectionSlug={page.slugs[0]} />
+        <DocsTitle>{page.data.title}</DocsTitle>
+        <DocsDescription>{page.data.description}</DocsDescription>
+        {readingMinutes !== null && (
+          <p className="coven-docs-reading-time not-prose">
+            <Icon icon="ph:clock-duotone" width={13} aria-hidden="true" />
+            {readingMinutes} min read
+          </p>
+        )}
+      </header>
       <DocsBody>
         <MDX components={getMDXComponents()} />
       </DocsBody>

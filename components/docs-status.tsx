@@ -1,8 +1,20 @@
-import { getDocsSection, getStabilityLabel } from '@/lib/docs-manifest';
+import { Icon } from '@iconify/react';
+import {
+  getDocsSection,
+  getStabilityLabel,
+  type DocsStability,
+} from '@/lib/docs-manifest';
 
 interface DocsStatusProps {
   sectionSlug?: string;
 }
+
+const stabilityIcons: Record<DocsStability, string> = {
+  stable: 'ph:seal-check-duotone',
+  preview: 'ph:clock-countdown-duotone',
+  experimental: 'ph:flask-duotone',
+  historical: 'ph:archive-duotone',
+};
 
 export function DocsStatus({ sectionSlug }: DocsStatusProps) {
   const section = getDocsSection(sectionSlug);
@@ -10,21 +22,27 @@ export function DocsStatus({ sectionSlug }: DocsStatusProps) {
 
   return (
     <div
-      className="not-prose mb-4 flex flex-wrap items-center gap-2 text-xs text-fd-muted-foreground"
+      className="coven-docs-status not-prose"
       data-docs-stability={section.stability}
     >
-      <span className="rounded-full border border-fd-border bg-fd-secondary px-2 py-0.5 font-semibold uppercase tracking-wide text-fd-foreground">
+      <span className="coven-docs-status-badge">
+        <Icon
+          icon={stabilityIcons[section.stability]}
+          width={14}
+          aria-hidden="true"
+        />
         {getStabilityLabel(section.stability)}
       </span>
-      <span>{section.title}</span>
-      <span aria-hidden="true">·</span>
+      <span className="coven-docs-status-section">{section.title}</span>
+      <span className="coven-docs-status-separator" aria-hidden="true">/</span>
       <a
         href={`https://github.com/${section.sourceRepo}`}
         target="_blank"
         rel="noreferrer noopener"
-        className="underline decoration-fd-border underline-offset-4 hover:text-fd-foreground"
+        className="coven-docs-status-source"
       >
-        Contract source: {section.sourceRepo}
+        Contract · {section.sourceRepo}
+        <Icon icon="ph:arrow-up-right" width={12} aria-hidden="true" />
       </a>
     </div>
   );
