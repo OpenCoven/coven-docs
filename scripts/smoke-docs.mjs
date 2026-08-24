@@ -142,6 +142,11 @@ try {
       expectedText: 'Run a first session',
       stability: 'stable',
     },
+    {
+      path: '/docs/cli/setup',
+      expectedText: 'Optional verification',
+      stability: 'stable',
+    },
     { path: '/docs/guide/ecosystem', expectedText: 'Where Coven ends', stability: 'stable' },
     { path: '/docs/reference/api', expectedText: 'Supported flow', stability: 'stable' },
     {

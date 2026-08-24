@@ -20,6 +20,11 @@ const routes = [
     html: true,
   },
   {
+    path: '/docs/cli/setup',
+    expected: 'Optional verification',
+    html: true,
+  },
+  {
     path: '/docs/reference/troubleshooting',
     expected: 'Troubleshooting',
     html: true,

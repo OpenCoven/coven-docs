@@ -11,6 +11,7 @@ const token = process.env.GITHUB_TOKEN?.trim();
 const reportPath = resolve(
   process.env.DOCS_DRIFT_REPORT_PATH ?? 'output/docs-source-drift.json',
 );
+const maxClockSkewMs = 5 * 60 * 1_000;
 
 const headers = {
   Accept: 'application/vnd.github+json',
@@ -36,11 +37,48 @@ async function writeReport(report) {
   await writeFile(reportPath, `${JSON.stringify(report, null, 2)}\n`, 'utf8');
 }
 
+function commitDate(commit) {
+  return commit.commit?.committer?.date ?? commit.commit?.author?.date ?? null;
+}
+
 const sourceResults = [];
 let changedPathCount = 0;
 
 try {
   for (const source of lock.sources) {
+    const verifiedAtMs = Date.parse(source.verifiedAt);
+    if (verifiedAtMs > Date.now() + maxClockSkewMs) {
+      throw new Error(
+        `${source.id} verifiedAt ${source.verifiedAt} is in the future; refusing a freshness window that can hide changes`,
+      );
+    }
+
+    const verifiedCommitUrl = new URL(
+      `/repos/${source.repo}/commits/${source.verifiedCommit}`,
+      apiBase,
+    );
+    const verifiedCommit = await apiJson(verifiedCommitUrl);
+    const verifiedCommitDate = commitDate(verifiedCommit);
+    if (!verifiedCommitDate) {
+      throw new Error(`${source.id} verified commit has no GitHub commit timestamp`);
+    }
+    if (Date.parse(verifiedCommitDate) > verifiedAtMs) {
+      throw new Error(
+        `${source.id} verifiedAt ${source.verifiedAt} predates verified commit ${source.verifiedCommit} at ${verifiedCommitDate}`,
+      );
+    }
+
+    const compareUrl = new URL(
+      `/repos/${source.repo}/compare/${source.verifiedCommit}...${encodeURIComponent(source.ref)}`,
+      apiBase,
+    );
+    const comparison = await apiJson(compareUrl);
+    if (!['ahead', 'identical'].includes(comparison.status)) {
+      throw new Error(
+        `${source.id} verified commit is not an ancestor of ${source.ref}; compare status is ${comparison.status}`,
+      );
+    }
+
     const pathResults = [];
     for (const path of source.paths) {
       const url = new URL(`/repos/${source.repo}/commits`, apiBase);
@@ -53,7 +91,7 @@ try {
         .filter((commit) => commit.sha !== source.verifiedCommit)
         .map((commit) => ({
           sha: commit.sha,
-          date: commit.commit?.committer?.date ?? commit.commit?.author?.date ?? null,
+          date: commitDate(commit),
           summary: commit.commit?.message?.split('\n')[0] ?? '',
           url: commit.html_url,
         }));
@@ -64,8 +102,10 @@ try {
       id: source.id,
       repo: source.repo,
       ref: source.ref,
+      refCommit: comparison.head_commit?.sha ?? null,
       verifiedAt: source.verifiedAt,
       verifiedCommit: source.verifiedCommit,
+      verifiedCommitDate,
       sections: source.sections,
       paths: pathResults,
     });
