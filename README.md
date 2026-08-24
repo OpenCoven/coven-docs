@@ -34,15 +34,16 @@ pnpm verify
 
 `verify` performs:
 
-1. deterministic OpenAPI generation and drift detection;
-2. TypeScript checking;
-3. the declarative site-manifest, product-scope, section, MDX, and Mermaid
-   checks;
-4. internal route and heading-fragment validation;
-5. API simulator tests;
-6. a production Next.js build;
-7. Chromium smoke coverage for primary pages, mobile overflow, exports,
-   canonical metadata, and redirects.
+1. JavaScript automation syntax validation;
+2. deterministic OpenAPI generation and drift detection;
+3. TypeScript checking;
+4. the declarative site-manifest, source-lock, product-scope, section, MDX, and
+   Mermaid checks;
+5. internal route and heading-fragment validation;
+6. API simulator tests;
+7. a production Next.js build;
+8. Chromium smoke coverage for primary pages, mobile overflow, exports,
+   canonical metadata, deployment headers, and redirects.
 
 Use narrower commands while iterating:
 
@@ -62,11 +63,15 @@ pnpm test:smoke
 - `components/` — Fumadocs and interactive documentation components
 - `docs/site-manifest.json` — canonical section order, ownership, stability,
   search classification, redirects, and retired surfaces
+- `docs/source-lock.json` — path-scoped upstream verification boundaries
 - `docs/adr/` — documentation architecture decisions
+- `docs/freshness.md` — production and upstream freshness contract
 - `docs/release-runbook.md` — deployment and rollback procedure
 - `openapi/` — source daemon OpenAPI contract
-- `scripts/` — content, generation, link, and browser certification checks
-- `.github/workflows/docs.yml` — repository-owned CI independent of Vercel
+- `scripts/` — content, generation, link, freshness, and browser certification checks
+- `.github/workflows/docs.yml` — repository-owned release verification
+- `.github/workflows/docs-live.yml` — hourly production health and deployment freshness
+- `.github/workflows/docs-source-drift.yml` — daily upstream contract-drift detection
 
 ## Generated contracts
 
@@ -78,14 +83,16 @@ the source and committed pages drift.
 Narrative explanations remain authored. Machine generation owns operation
 inventory, signatures, schemas, and examples—not product interpretation.
 
-## Stability and ownership
+## Stability, ownership, and freshness
 
 Every top-level section is classified as `stable`, `preview`, or
 `experimental` in `docs/site-manifest.json`. The page header renders that
 classification and links to the repository that owns the underlying facts.
 
 Changes to runtime behavior must be verified against the owning source
-repository before merging. See [CONTRIBUTING.md](CONTRIBUTING.md).
+repository before merging. Path-scoped source watches open a review issue when
+those contracts move after the timestamp in `docs/source-lock.json`. See
+[the freshness contract](docs/freshness.md) and [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Git hooks
 
@@ -101,6 +108,7 @@ replace CI.
 ## Deployment
 
 Vercel runs `pnpm build`. GitHub Actions runs the stronger `pnpm verify`
-contract. A release is considered complete only when repository CI is green,
-the production deployment points at the intended commit, and the primary-route
-smoke in [the release runbook](docs/release-runbook.md) passes.
+contract. The hourly live workflow then proves production serves the intended
+commit and primary routes. A release is complete only when repository CI is
+green, production points at the intended commit, and no unresolved source-drift
+incident exists. See [the release runbook](docs/release-runbook.md).

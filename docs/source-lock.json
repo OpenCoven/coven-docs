@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "sources": [
+    {
+      "id": "coven-runtime-contract",
+      "repo": "OpenCoven/coven",
+      "ref": "main",
+      "verifiedAt": "2026-08-24T12:30:00Z",
+      "verifiedCommit": "05e1a79ec999a2f17ece00506a84e0407cc29937",
+      "sections": [
+        "guide",
+        "cli",
+        "harnesses",
+        "daemon",
+        "memory-models",
+        "coven-code",
+        "openapi",
+        "reference",
+        "experimental"
+      ],
+      "paths": [
+        "crates/coven-cli/src/main.rs",
+        "crates/coven-cli/src/api.rs",
+        "crates/coven-cli/src/harness.rs",
+        "docs/API-CONTRACT.md",
+        "docs/SAFETY-MODEL.md",
+        "npm/coven/package.json"
+      ]
+    }
+  ]
+}
