@@ -124,6 +124,7 @@ try {
     args: process.env.CI ? ['--no-sandbox', '--disable-setuid-sandbox'] : [],
   });
   const page = await browser.newPage();
+  await page.setCacheEnabled(false);
   await page.setViewport({ width: 1440, height: 1000 });
 
   const pageErrors = [];
@@ -134,8 +135,9 @@ try {
       waitUntil: 'domcontentloaded',
       timeout: 30_000,
     });
-    if (!response?.ok()) {
-      throw new Error(`${path} failed in Chromium with ${response?.status()}`);
+    const status = response?.status();
+    if (!response || (status !== 304 && !response.ok())) {
+      throw new Error(`${path} failed in Chromium with ${status ?? '<no response>'}`);
     }
 
     await page.waitForFunction(
