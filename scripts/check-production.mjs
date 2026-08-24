@@ -13,7 +13,7 @@ const commitPattern = /^[0-9a-f]{7,64}$/i;
 
 const routes = [
   { path: '/', expected: 'Start a session', html: true },
-  { path: '/docs', expected: 'First session', html: true },
+  { path: '/docs', expected: 'From install to evidence.', html: true },
   {
     path: '/docs/guide/getting-started',
     expected: 'Run a first session',
