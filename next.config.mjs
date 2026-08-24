@@ -13,7 +13,7 @@ const buildCommit =
   process.env.GITHUB_SHA ??
   'local';
 
-if (!/^[A-Za-z0-9._-]+$/.test(buildCommit)) {
+if (!/^(?:local|[0-9a-f]{7,64})$/i.test(buildCommit)) {
   throw new Error('Deployment commit identifier contains unsupported characters.');
 }
 
@@ -35,6 +35,18 @@ const nextConfig = {
           {
             key: 'x-coven-docs-commit',
             value: buildCommit,
+          },
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff',
+          },
+          {
+            key: 'Referrer-Policy',
+            value: 'strict-origin-when-cross-origin',
+          },
+          {
+            key: 'Permissions-Policy',
+            value: 'camera=(), microphone=(), geolocation=()',
           },
         ],
       },

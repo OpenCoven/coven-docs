@@ -19,16 +19,40 @@ function collectFiles(directory) {
   });
 }
 
+function requireStringArray(value, label) {
+  if (!Array.isArray(value) || value.some((item) => typeof item !== 'string')) {
+    fail(`${label} must be an array of strings in docs/site-manifest.json`);
+    return [];
+  }
+  return value;
+}
+
 const manifest = JSON.parse(read('docs/site-manifest.json'));
 const rootMeta = JSON.parse(read('content/docs/meta.json'));
-const expectedSections = manifest.sections.map((section) => section.slug);
+const sections = Array.isArray(manifest.sections) ? manifest.sections : [];
+if (sections.length === 0) {
+  fail('sections must be a non-empty array in docs/site-manifest.json');
+}
+const expectedSections = sections
+  .filter((section) => section && typeof section.slug === 'string')
+  .map((section) => section.slug);
+const retiredReferencePrefixes = requireStringArray(
+  manifest.retiredReferencePrefixes,
+  'retiredReferencePrefixes',
+);
+const retiredFilePaths = requireStringArray(
+  manifest.retiredFilePaths,
+  'retiredFilePaths',
+);
 
-if (JSON.stringify(rootMeta.pages) !== JSON.stringify(expectedSections)) {
+if (!Array.isArray(rootMeta.pages)) {
+  fail('content/docs/meta.json pages must be an array');
+} else if (JSON.stringify(rootMeta.pages) !== JSON.stringify(expectedSections)) {
   fail(`root navigation must match docs/site-manifest.json: ${expectedSections.join(', ')}`);
 }
 
 for (const retiredSection of ['guides', 'familiars']) {
-  if (rootMeta.pages.includes(retiredSection)) {
+  if (Array.isArray(rootMeta.pages) && rootMeta.pages.includes(retiredSection)) {
     fail(`root navigation still exposes retired ${retiredSection} section`);
   }
 }
@@ -39,7 +63,7 @@ for (const directory of ['app', 'components', 'content/docs']) {
     if (!/\.(?:ts|tsx|mdx|json)$/.test(path)) continue;
 
     const source = readFileSync(path, 'utf8');
-    for (const retiredPrefix of manifest.retiredReferencePrefixes) {
+    for (const retiredPrefix of retiredReferencePrefixes) {
       if (source.includes(retiredPrefix)) {
         fail(
           `retired documentation route ${retiredPrefix} remains referenced: ${path.slice(root.length + 1)}`,
@@ -49,7 +73,7 @@ for (const directory of ['app', 'components', 'content/docs']) {
   }
 }
 
-for (const retiredPage of manifest.retiredFilePaths) {
+for (const retiredPage of retiredFilePaths) {
   if (existsSync(resolve(root, retiredPage))) {
     fail(`retired documentation surface still exists: ${retiredPage}`);
   }

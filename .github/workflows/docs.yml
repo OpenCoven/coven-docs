@@ -47,4 +47,11 @@ jobs:
         run: pnpm verify
 
       - name: Confirm clean generated tree
-        run: git status --short
+        shell: bash
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "Verification changed the working tree:"
+            git status --short
+            git diff --stat
+            exit 1
+          fi
