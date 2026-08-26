@@ -1,15 +1,31 @@
 ---
 title: "CLI Reference"
-summary: "The command map for Coven's local CLI: setup, sessions, observability, hub and scheduling, engine and auth, and repo workflow."
+summary: "The command map for Coven's local CLI: help, setup, sessions, observability, hub and scheduling, engine and auth, and repo workflow."
 description: "First-class reference for the coven command and the current Coven CLI command surface."
 read_when:
   - You want copy-paste Coven commands
+  - You need to discover a command or produce a machine-readable command catalog
   - You are deciding whether to use setup, the TUI, daemon, run, sessions, or repair flows
 ---
 
 The user-facing command is `coven`. OpenCoven is the ecosystem and package namespace; Coven is the local runtime and command-line product.
 
 Run `coven` with no arguments when you want the guided interactive shell. Use explicit subcommands when you want a scriptable or copy-paste path.
+
+## Find the right command
+
+Coven's public help is progressive: the default view stays concise, command help goes deep on one path, and the complete catalog is opt-in.
+
+```bash
+coven help                    # concise core-command guide
+coven help run                # help for one command
+coven help sessions show      # help for a nested command
+coven run --help              # equivalent command-specific form
+coven help --all              # every public command, grouped by task
+coven help --all --json       # machine-readable grouped catalog
+```
+
+The JSON catalog has an explicit schema version and is the preferred discovery surface for tools that need the current public command tree. Hidden implementation commands are not exported. Every help route accepts `--color auto|always|never`; `auto` honors `NO_COLOR` and `CLICOLOR_FORCE`.
 
 ## Command map
 
@@ -20,6 +36,7 @@ Every row below is a real top-level `coven` verb. Grouped reference pages cover 
 | Command | Use it for |
 | --- | --- |
 | `coven` | Open the interactive chat/shell when stdin/stdout are a terminal. |
+| `coven help` | Show concise help; add `<command>`, `--all`, or `--all --json` for deeper discovery. |
 | `coven chat` | Open the interactive Coven UI explicitly (requires the coven-code engine). |
 | `coven tui` | Same as `coven chat`. See [Interactive shell](/docs/cli/interactive). |
 | `coven doctor` | Check local setup and print next steps; exits 1 when a blocking problem is found. |
