@@ -68,6 +68,14 @@ coven maintenance release <owner> <generation>
 drain. The returned generation token is required for heartbeat and release so
 one owner cannot accidentally release another owner's fence.
 
+A maintenance command launched inside a Coven-managed harness automatically
+participates as that session's exact writer generation. This lets the caller
+reach `held` without waiting on itself while every unrelated live writer still
+blocks acquisition. The participant capability is internal runtime state: do
+not copy it into scripts or session metadata, and no extra CLI flag is needed.
+Malformed, stale, or mismatched participants are rejected rather than widening
+the drain exception.
+
 ## Ward
 
 `coven ward` covers the principal-facing Ward lifecycle: proposals staged for the principal's decision and config migration.
