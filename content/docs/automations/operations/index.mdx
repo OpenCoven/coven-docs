@@ -1,0 +1,71 @@
+---
+title: "Operations runbooks"
+description: "Symptoms, authoritative evidence, safe diagnostics, and permitted recovery for every supported unhealthy automation state."
+read_when:
+  - An automation did something unexpected — or failed to
+  - You are deciding what is safe to touch and what is not
+---
+
+These runbooks cover missed, duplicated, stuck, unauthorized, stale-identity,
+repeatedly failing, delivery-failed, and receipt-problem cases. Every runbook
+follows the same shape: symptoms, authoritative evidence, safe diagnostics, a
+decision tree, permitted recovery, forbidden shortcuts, and escalation.
+
+Two rules bind all of them:
+
+1. **No raw database repair.** There is no supported command that mutates
+   lifecycle rows directly, and none should be improvised with a SQLite client.
+   Every safe mutation goes through a daemon action with recorded provenance.
+2. **No blind replay of ambiguous work.** An outcome that cannot be proven is
+   `recovery_required`, not "run it again". Evidence first, then an explicit
+   reconcile decision.
+
+## Diagnostics available today
+
+| Diagnostic | Surface | Read-only |
+| --- | --- | --- |
+| Routine health (next due, last start/success, consecutive failures, lease, stale reason) | `coven.automations.health` | Yes |
+| Run history per routine | `coven.automations.runs` | Yes |
+| Stored definition | `coven.automations.get` | Yes |
+| Tick report (planned, alreadyFenced, pausedSkipped, recovered, claimed, failed) | `coven.automations.tick` | Triggers a tick; records provenance |
+| Daemon/scheduler liveness | `coven daemon status` | Yes |
+| Local API health and events | [Local API](/docs/reference/api) | Yes |
+
+The richer operator CLI (`coven automations doctor`, `explain`, `occurrence`,
+`attempts`, `leases`, `events --after`, `reconcile --dry-run`, `retry
+--expected-state`, `cancel --reason`, quarantine controls) is the ratified
+[#858](https://github.com/OpenCoven/coven/issues/858) diagnostics surface. Do
+not script against it until it ships.
+
+## Scenario index
+
+- [Missed or late occurrence](/docs/automations/operations/missed) — including daemon downtime and unhealthy scheduler.
+- [Suspected duplicate](/docs/automations/operations/duplicate) — duplicate execution, duplicate observation, subscriber lag and cursor expiry.
+- [Stuck claimed or running attempt](/docs/automations/operations/stuck) — expired and stale leases.
+- [Unauthorized or approval-blocked run](/docs/automations/operations/unauthorized) — including runtime capability mismatch.
+- [Stale or revoked familiar identity](/docs/automations/operations/stale-identity).
+- [Repeated failure and quarantine](/docs/automations/operations/failing).
+- [Delivery commit failure](/docs/automations/operations/delivery) — including ambiguous external side effects.
+- [Invalid or unverifiable receipt](/docs/automations/operations/receipts) — tamper and degraded history.
+
+## Storage pressure and contention
+
+SQLite contention, integrity problems, and disk pressure under `$COVEN_HOME`
+are daemon-level concerns before they are automation concerns:
+
+1. Stop writing to the state directory; check disk space first.
+2. Use the daemon's own diagnostics ([Observability](/docs/daemon/observability))
+   and recovery guidance ([Recovery and upgrades](/docs/daemon/recovery-upgrades)).
+3. Never open the automation tables with a SQLite client to "clean up" rows —
+   a busy database plus manual writes is how bounded ledgers get corrupted.
+
+Escalate storage problems with the daemon evidence packet, not with row-level
+edits.
+
+## Escalation packet
+
+Whatever the scenario, an escalation should carry: the routine `id`, relevant
+occurrence/run identifiers, `coven.automations.health` and `runs` output, the
+`coven daemon status` output, the daemon logs for the window, and the exact
+commands you ran (including any `intentId` you supplied). Bound the evidence to
+the incident window; logs and events are privacy-classified state.

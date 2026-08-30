@@ -1,0 +1,53 @@
+---
+title: "Psyche orchestration"
+description: "How an automation occurrence invokes Psyche for multi-step orchestration without moving schedule or occurrence ownership."
+read_when:
+  - You are designing an automation action that needs orchestrated multi-step work
+  - You need the Psyche correlation contract
+---
+
+Psyche is OpenCoven's orchestration layer. For automations it is an invoked
+adapter: an occurrence that needs multi-step orchestration delegates the
+execution to Psyche, and Psyche executes it under the same authority binding as
+a direct run.
+
+## The ownership line
+
+- **Psyche owns** multi-step orchestration of the work it is invoked for.
+- **Psyche never owns** canonical schedules, an occurrence ledger, a second
+  automation ledger, or authority semantics. An occurrence invokes Psyche —
+  never the reverse.
+- Schedule authority stays with Coven for the whole life of the occurrence,
+  including while Psyche is executing it.
+
+This boundary is the program invariant from
+[#854](https://github.com/OpenCoven/coven/issues/854) and the Psyche integration
+target in [psyche#18](https://github.com/OpenCoven/psyche/issues/18). The
+adapter is not landed yet; nothing in the current automation surface invokes
+Psyche.
+
+## Invocation and correlation contract
+
+Ratified behavior for the adapter:
+
+- The occurrence claims, binds, and dispatches exactly as for a direct run. The
+  invocation carries the automation, occurrence, run, and attempt correlation so
+  every observation Psyche reports can be traced back to the owning occurrence.
+- The authority binding (principal, familiar revision, capabilities, approval
+  evidence) travels with the invocation. Psyche cannot re-resolve or widen it —
+  it orchestrates under the granted authority or refuses.
+- Direct Coven runs and Psyche-orchestrated runs use one binding and receipt
+  contract. There is no second class of "orchestrated" execution with weaker
+  evidence.
+
+## Failure and recovery
+
+If Psyche is unavailable, the dispatch fails visibly with a typed reason — the
+scheduler does not fall back to an unbound direct launch to "get something
+running". If a Psyche-orchestrated run is lost mid-flight, the run enters the
+same recovery semantics as any other ambiguous outcome:
+[recovery-required](/docs/automations/lifecycle#recovery-required-and-ambiguous-outcomes),
+explicit reconciliation, never automatic replay.
+
+For the certification obligations that bind these semantics at pinned artifact
+revisions, see [Conformance](/docs/automations/conformance).

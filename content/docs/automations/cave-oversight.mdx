@@ -1,0 +1,60 @@
+---
+title: "Cave oversight"
+description: "Cave's role in automations: proposal, creation, approval, diagnostics, and truthful degraded display — without scheduler authority."
+read_when:
+  - You are reviewing how Cave presents or drives automations
+  - You need the compatibility-facade deprecation story
+---
+
+Cave is OpenCoven's first-party application surface. For automations it is the
+oversight plane: propose, create, approve, inspect, and recover — while Coven
+remains the only lifecycle authority.
+
+## What Cave does
+
+- **Proposes and creates** definitions through the Coven control plane.
+  Definitions land paused, whether written by hand or imported.
+- **Approves** operation-specific actions through the authority profile
+  ([Approvals](/docs/automations/approvals)).
+- **Inspects** occurrences, runs, leases, and health through read-only
+  projections.
+- **Surfaces recovery controls** — pause, cancel, reconcile — as client flows
+  over the daemon's supported actions, never as local state surgery.
+
+Cave already reads the Coven control plane instead of direct Codex ownership
+([coven-cave#4990](https://github.com/OpenCoven/coven-cave/pull/4990)).
+
+## What Cave must not do
+
+- Author scheduler policy or edit run state.
+- Synthesize `successful`, `running`, `authorized`, or `healthy` state that the
+  daemon did not report.
+- Keep a parallel automation ledger or history that could disagree with Coven's.
+- Treat its local approval UI as authority: approvals are daemon-consumed
+  evidence with adoption keys, not client-side booleans.
+
+## Truthful degraded states
+
+When Coven reports stale, ambiguous, or degraded state — an expired lease, an
+unverifiable receipt, a stale familiar identity — Cave renders that truth. A
+polished UI that hides incomplete certification behind a healthy badge is worse
+than an honest warning; the program's non-goals forbid it
+([#854](https://github.com/OpenCoven/coven/issues/854)).
+
+## Compatibility facade retirement
+
+Cave previously ran automation definitions from harness-owned homes (Codex's
+`~/.codex/automations/`) and spawned runtimes directly. The ownership migration
+moved that onto the Coven control plane. A compatibility facade remains for
+older definitions and surfaces; its deprecation and retirement are tracked in
+[coven-cave#5217](https://github.com/OpenCoven/coven-cave/issues/5217):
+
+1. New definitions, imported or authored, go through Coven and stay paused until
+   reviewed.
+2. The facade keeps reading legacy sources without deleting them during the
+   migration window.
+3. Retirement removes the facade reading and writing paths once oversight is
+   complete — it never deletes user source files.
+
+For the migration mechanics and the review checklist, see
+[Migration from Codex](/docs/automations/migration-codex).

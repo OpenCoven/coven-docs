@@ -4,6 +4,7 @@
     "cli",
     "harnesses",
     "daemon",
+    "automations",
     "memory-models",
     "coven-code",
     "openapi",

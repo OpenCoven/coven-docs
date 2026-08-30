@@ -1,0 +1,42 @@
+---
+title: "ADR index"
+description: "The ratified automation decisions, where each is normative, and how to propose a change to one."
+read_when:
+  - You need the rationale behind an automation default
+  - You are about to contradict a documented decision
+---
+
+The automation program's decisions are ratified in the OpenCoven issue graph;
+this index links each decision to its normative source and to the page that
+documents it. This repository does not restate the decisions as a second
+specification — the linked sources are canonical.
+
+| Decision | Normative source | Documented in |
+| --- | --- | --- |
+| Coven is the schedule/lifecycle authority; runtimes are replaceable workers | [#854](https://github.com/OpenCoven/coven/issues/854), [#816](https://github.com/OpenCoven/coven/issues/816) | [Architecture](/docs/automations/architecture) |
+| Protocol object and state ownership (definition, occurrence, run, attempt, lease, receipt) | [#855](https://github.com/OpenCoven/coven/issues/855) | [Protocol reference](/docs/automations/definitions), [Lifecycle](/docs/automations/lifecycle) |
+| At-least-once observation, never duplicate fenced execution | [#854](https://github.com/OpenCoven/coven/issues/854) | [Architecture](/docs/automations/architecture#non-negotiable-invariants), [Suspected duplicate](/docs/automations/operations/duplicate) |
+| Command adoption/idempotency before consequential side effects | [#855](https://github.com/OpenCoven/coven/issues/855) | [Protocol reference](/docs/automations/definitions#commands-adoption-and-idempotency) |
+| Timezone defaults: `local` as compatibility input, IANA binding and DST gap-skip / deterministic fold | [#856](https://github.com/OpenCoven/coven/issues/856) | [Schedules and timezones](/docs/automations/schedules-timezones) |
+| Misfire default: latest-only; overlap refusal | [#816](https://github.com/OpenCoven/coven/issues/816) | [Schedules and timezones](/docs/automations/schedules-timezones#downtime-sleep-and-clock-jumps) |
+| Retry is failure-class-aware; ambiguous work is never auto-retried; delivery-only retry | [#856](https://github.com/OpenCoven/coven/issues/856) | [Lifecycle](/docs/automations/lifecycle#retry-and-delivery-only-retry) |
+| Cancellation is a request until acknowledged or reconciled | [#856](https://github.com/OpenCoven/coven/issues/856) | [Lifecycle](/docs/automations/lifecycle#cancellation) |
+| Familiar embodiment binding: exact root/revision per run, aliases must resolve or refuse | [familiar-contract#17](https://github.com/OpenCoven/familiar-contract/issues/17) | [Identity and authority](/docs/automations/identity-authority) |
+| Automation authority/approval profile: per-operation approvals, degrade-to-proposal, fail closed | [coven-threads#29](https://github.com/OpenCoven/coven-threads/issues/29), [#857](https://github.com/OpenCoven/coven/issues/857) | [Identity and authority](/docs/automations/identity-authority), [Approvals](/docs/automations/approvals) |
+| Risk classes R0–R4 with v1 default policy (paused by default; external effects gated) | [#857](https://github.com/OpenCoven/coven/issues/857) | [Identity and authority](/docs/automations/identity-authority#capability-and-risk-classification) |
+| Direct runtime default; Psyche as an invoked adapter without schedule ownership | [#854](https://github.com/OpenCoven/coven/issues/854), [psyche#18](https://github.com/OpenCoven/psyche/issues/18) | [Runtimes](/docs/automations/runtimes), [Psyche](/docs/automations/psyche) |
+| SDK: read/verify/subscribe first, authority-aware commands last; no client-side persistence | [sdk#80](https://github.com/OpenCoven/sdk/issues/80) | [SDK and integrations](/docs/automations/sdk) |
+| Cave renders daemon state; never synthesizes lifecycle truth | [#854](https://github.com/OpenCoven/coven/issues/854) | [Cave oversight](/docs/automations/cave-oversight) |
+| Legacy migration is source-preserving and paused-by-default | [#816](https://github.com/OpenCoven/coven/issues/816) | [Migration from Codex](/docs/automations/migration-codex) |
+| Event/changefeed: durable versioned envelope with replay, cursors, and duplicate-safe consumption | [#855](https://github.com/OpenCoven/coven/issues/855) | [Protocol reference](/docs/automations/definitions#events-and-changefeed), [SDK and integrations](/docs/automations/sdk) |
+| Beads/GitHub tracker roles: dependency graph and public outcomes, never runtime truth | [#854](https://github.com/OpenCoven/coven/issues/854), [#859](https://github.com/OpenCoven/coven/issues/859) | [Architecture](/docs/automations/architecture#non-ownership-rules) |
+| Certification: separate conformance profiles at immutable revisions, evidence packets | [#858](https://github.com/OpenCoven/coven/issues/858) | [Conformance](/docs/automations/conformance), [Compatibility](/docs/automations/compatibility) |
+| v1/P2 boundary: local recurring routines are v1; multi-host, webhook/dependency triggers, and declarative action adapters are P2 | [#854](https://github.com/OpenCoven/coven/issues/854) | [Architecture](/docs/automations/architecture) |
+
+## Proposing a change
+
+A decision change is a change to its normative source, not an edit to this
+documentation. Open the discussion in the owning repository, land the decision
+there, and then update the documentation pages in the same change that updates
+the artifacts — with the evidence packet the
+[conformance](/docs/automations/conformance) rules require.

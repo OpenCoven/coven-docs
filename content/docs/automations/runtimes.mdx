@@ -1,0 +1,77 @@
+---
+title: "Runtimes"
+description: "How Coven selects, binds, and supervises the runtime that executes an automation — and why runtimes are replaceable workers, not schedulers."
+read_when:
+  - You are choosing or building a runtime for automations
+  - You need the runtime adapter contract boundary
+---
+
+A runtime executes an occurrence that Coven has already claimed. It never owns
+the schedule, the occurrence ledger, or retry policy. Runtime capability truth
+and conformance are owned by [Coven Runtimes](https://github.com/OpenCoven/coven-runtimes).
+
+## Selection and the shared dispatch path
+
+Landed today:
+
+- A definition names a `runtime` (1–64 characters). `coven-code` is the default.
+- Scheduled runs and manual run-now share one dispatch path: the same claim,
+  ledger, familiar propagation, launch, and delivery treatment. There is no
+  separate "automation runtime" that bypasses daemon validation.
+- Familiar context propagates into the launch so the current identity and policy
+  surface loads at execution time.
+- A run without a `cwd` fails with a recorded reason instead of guessing a
+  working directory.
+
+Ratified (in [#857](https://github.com/OpenCoven/coven/issues/857), with
+descriptor truth in Coven Runtimes): before launch, the run pins an immutable
+binding of the exact runtime descriptor, version, capabilities, and selection
+rationale. The runtime receives only the bounded execution projection it needs
+— never credentials, unrelated identity history, private audit material, or
+broad ambient authority.
+
+## Capability compatibility
+
+An action declares runtime capability requirements. At dispatch the resolver
+selects a runtime whose descriptor satisfies them:
+
+- Requirements met → the descriptor and capabilities are pinned into the run.
+- Requirements unmet → the run refuses with a typed reason; nothing launches.
+- Capability mismatch or downgrade at execution time → refusal, not
+  degradation. A runtime that arrives with different capabilities than pinned
+  does not run the occurrence.
+
+Capability negotiation is negative by design: unsupported trigger, action, or
+policy variants fail explicitly instead of being approximated (see
+[Protocol reference](/docs/automations/definitions)).
+
+## Adapter contract boundary
+
+A runtime adapter is a worker seam, not a product authority:
+
+- It executes the bounded projection Coven hands it.
+- It reports observations back through the daemon surfaces; it does not write
+  run state directly.
+- It cannot widen its own permissions — capability escalation through runtime
+  names, tags, or payloads is refused (see
+  [Security and privacy](/docs/automations/security-privacy)).
+- It keeps its own provider credentials and model access; Coven proxies none of
+  it (see [Provider boundary](/docs/guide/concepts#provider-boundary)).
+
+A missing or unavailable adapter fails the dispatch visibly. There is no
+fallback launch path that skips the binding.
+
+## Direct execution versus Psyche orchestration
+
+A direct runtime launch is the default. When an action needs multi-step
+orchestration, the occurrence invokes Psyche as an adapter — Psyche gains no
+schedule or ledger authority from that. See [Psyche](/docs/automations/psyche).
+
+## Observability
+
+Run evidence lands in the shared ledger: `status`, `exitCode`, bounded
+`logJson`, `outputCommit`, and timestamps, readable via `coven.automations.runs`
+and the [health projection](/docs/automations/lifecycle#health-projection).
+For runbooks covering unavailable, lost, or mismatched runtimes, see
+[Stuck claimed or running attempt](/docs/automations/operations/stuck) and
+[Unauthorized run](/docs/automations/operations/unauthorized).

@@ -1,0 +1,125 @@
+---
+title: "Schedules and timezones"
+description: "The exact supported RRULE vocabulary, timezone compatibility semantics, misfire and overlap behavior, and the ratified time contract for DST, clock jumps, retries, and cancellation."
+read_when:
+  - You are authoring or reviewing an automation schedule
+  - You need to know what the scheduler refuses instead of approximating
+---
+
+Coven refuses schedule vocabulary it does not understand. A definition can never
+silently schedule work the scheduler does not know how to plan — unsupported
+input fails validation.
+
+## Supported RRULE subset
+
+| Part | Rules |
+| --- | --- |
+| `FREQ` | Required. `DAILY` or `WEEKLY` only. Anything else is rejected. |
+| `BYHOUR` | Optional list of integers 0–23, no duplicates. Defaults to `9` when absent. |
+| `BYDAY` | Optional, `WEEKLY` only. Two- or three-letter weekday codes (`MO`, `TUE`, …), canonicalized to two letters, deduplicated, sorted. Defaults to `MO`. |
+| Anything else | Rejected. `COUNT`, `INTERVAL`, `UNTIL`, `BYMINUTE`, `BYMONTH`, and every other key fail validation. |
+
+Keys are case-insensitive and tolerate surrounding whitespace. A `WEEKLY`
+definition without `BYDAY` runs Mondays; a `DAILY` definition ignores `BYDAY`.
+
+### Executable vectors
+
+These vectors mirror the scheduler's parser tests at the pinned revision:
+
+```text
+FREQ=DAILY                          → valid (BYHOUR defaults to 9)
+FREQ=DAILY;BYHOUR=9,17              → valid (twice daily, hours sorted)
+FREQ=WEEKLY;BYDAY=MO,WE,FR;BYHOUR=8 → valid
+FREQ=HOURLY                         → rejected: FREQ `HOURLY` is not supported (DAILY or WEEKLY)
+FREQ=DAILY;COUNT=3                  → rejected: rrule key `COUNT` is not supported
+FREQ=DAILY;BYHOUR=24                → rejected: BYHOUR entry 24 exceeds 23
+FREQ=DAILY;BYHOUR=9,9               → rejected: BYHOUR repeats entry 9
+FREQ=WEEKLY;BYDAY=XX                → rejected: BYDAY entry `XX` is not a weekday
+BYHOUR=9                            → rejected: rrule requires FREQ
+FREQ=DAILY;                         → rejected: trailing empty part is not KEY=VALUE
+```
+
+## Timezones
+
+Landed values are `local` and `utc`:
+
+- `utc` plans against UTC wall time.
+- `local` is a **compatibility input**: it resolves against the host clock at
+  plan time. Changing the host timezone therefore changes when `local`
+  schedules run — that is exactly the ambiguity the stable contract removes.
+
+Ratified in [#856](https://github.com/OpenCoven/coven/issues/856), not yet
+landed:
+
+- The stable contract accepts `UTC` and explicit IANA `TZID` values.
+- `local` is resolved to an exact IANA zone at activation or legacy import where
+  the platform can prove it, and the resolved zone is recorded with the
+  definition.
+- Changing a definition's timezone creates a new definition revision and replans
+  only future occurrences.
+- Changing the host timezone must never silently reinterpret an active
+  definition.
+
+Until then, prefer `utc` for anything that must not drift with the host clock,
+and verify a new definition's first two planned slots with
+`coven.automations.health` before activating it.
+
+## DST gap and fold policy
+
+Ratified defaults in [#856](https://github.com/OpenCoven/coven/issues/856) —
+vector-tested when they land, never inferred:
+
+| Case | Ratified policy |
+| --- | --- |
+| Spring-forward gap (nonexistent local wall time) | The occurrence is **skipped** with a durable reason, not silently shifted to a neighbor slot. |
+| Fall-back fold (repeated local wall time) | Exactly **one** occurrence is planned under an explicit deterministic fold rule, with the chosen offset recorded. |
+| Leap day, month/year boundary, end of month | Deterministic under the supported weekly/daily rules. |
+| Unsupported vocabulary | Rejected at validation, never approximated. |
+
+Alternative gap/fold policies may arrive later as explicit versioned variants.
+They will never be inferred from existing definitions.
+
+## Downtime, sleep, and clock jumps
+
+Landed behavior:
+
+- The daemon's recurring tick plans, recovers expired leases, and claims due
+  occurrences. When the daemon is down, nothing runs — there is no fallback.
+- After sleep, restart, or downtime, recovery plans **the latest missed
+  occurrence only** (`misfire: latest`). You never get one run per missed slot.
+- Expired claims are marked `failed` with a `lease expired` reason; a stale
+  lease can never render as live work or block the next slot forever.
+
+Ratified in [#856](https://github.com/OpenCoven/coven/issues/856):
+
+- Scheduler startup performs an immediate reconciliation pass before its first
+  timed wait.
+- Definition changes wake the scheduler instead of waiting for the next tick.
+- A backward or forward wall-clock jump produces a recorded replan — never
+  duplicate work and never a permanently delayed slot.
+
+## Misfire, overlap, retry, cancellation, quarantine
+
+| Behavior | Status |
+| --- | --- |
+| Misfire: latest-only | Landed; the only supported `misfire` value. |
+| Overlap refusal | Landed; `overlap: forbid` skips a run when the previous occurrence has not settled. |
+| Per-run timeout | Landed; `timeoutMinutes` 1–44640 is required. |
+| Lease-bounded claims | Landed; claim leases are bounded to 1–1440 minutes and expired leases recover on a later tick. |
+| Failure-class-aware retry, backoff, jitter | Ratified target: bounded exponential backoff with deterministic full jitter, persisted retry policy, and class rules (validation and authority refusals never retry; ambiguous side effects go to recovery, never automatic retry). [#856](https://github.com/OpenCoven/coven/issues/856) |
+| Quarantine | Ratified target: a circuit state for repeatedly failing routines so a broken routine cannot storm. [#856](https://github.com/OpenCoven/coven/issues/856) |
+| Cancellation | Ratified target: cancellation is a request until acknowledged or reconciled, with defined completion-vs-cancel and timeout races. [#856](https://github.com/OpenCoven/coven/issues/856) |
+
+## Preview and dry-run
+
+Today's preview surface is the health projection
+(`coven.automations.health`), which reports `nextDueAt` for the definition's
+RRULE and timezone. The ratified operator surface adds a range dry-run:
+
+```sh
+coven automations schedule --from 2026-01-01T00:00:00Z --to 2026-01-07T00:00:00Z --dry-run
+```
+
+Treat that command as unavailable until [#856](https://github.com/OpenCoven/coven/issues/856)
+lands; do not script against it. For diagnosis recipes, see
+[Operations](/docs/automations/operations).

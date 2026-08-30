@@ -1,0 +1,58 @@
+---
+title: "Compatibility ledger"
+description: "The current compatibility matrix: exact revisions, per-profile conformance status, and what is missing for each certification claim."
+read_when:
+  - You need the verified revision this documentation describes
+  - You are checking which conformance profile holds today
+---
+
+There is no generic "compatible" badge. This ledger reports each conformance
+profile separately, at exact revisions, and distinguishes implementation
+evidence from certification.
+
+## Artifact pins
+
+| Artifact | Owner | Reference | Status |
+| --- | --- | --- | --- |
+| Coven automations implementation (foundation) | OpenCoven/coven | `crates/coven-cli/src/automations/**` at commit `1364cec9dbaf1e2aca2e4544dec0e1ce807d859c` (2026-08-30) | Landed, verified against source; watched by the docs source-drift check |
+| `coven.automations.v1` protocol (schemas, state machines, adoption, changefeed) | OpenCoven/coven | [#855](https://github.com/OpenCoven/coven/issues/855) | Ratified target; versioned contract artifacts not yet published |
+| Scheduler reliability contract (time, DST, retry, fencing, crash matrix) | OpenCoven/coven | [#856](https://github.com/OpenCoven/coven/issues/856) | Ratified target |
+| Familiar Contract embodiment binding | OpenCoven/familiar-contract | [#17](https://github.com/OpenCoven/familiar-contract/issues/17) | Profile in progress |
+| Threads automation-authority profile | OpenCoven/coven-threads | [#29](https://github.com/OpenCoven/coven-threads/issues/29) | Profile in progress |
+| Authority/dispatch integration and receipts | OpenCoven/coven | [#857](https://github.com/OpenCoven/coven/issues/857) | Ratified target |
+| Conformance runner and vectors | OpenCoven/coven | [#858](https://github.com/OpenCoven/coven/issues/858) | Not yet published |
+| SDK automation surface | OpenCoven/sdk | [#80](https://github.com/OpenCoven/sdk/issues/80) | Not yet released |
+| Cave oversight and facade retirement | OpenCoven/coven-cave | [#5217](https://github.com/OpenCoven/coven-cave/issues/5217); migration via [#4990](https://github.com/OpenCoven/coven-cave/pull/4990) | Migration landed; oversight and retirement open |
+| Psyche orchestration adapter | OpenCoven/psyche | [#18](https://github.com/OpenCoven/psyche/issues/18) | Not yet implemented |
+| Program tracking (Beads/GitHub graph) | OpenCoven/coven, OpenCoven/coven-cave | [#859](https://github.com/OpenCoven/coven/issues/859), [coven-cave#5217](https://github.com/OpenCoven/coven-cave/issues/5217) | In progress |
+
+When the pinned versioned artifacts publish, each row above gains an immutable
+artifact revision and digest; until then the commit and issue references are
+the pins.
+
+## Profile status
+
+| Profile | Status today | Evidence that exists | Missing for certification |
+| --- | --- | --- | --- |
+| Structural | Partial | Landed definition schema, validation refusal vectors, parser tests at the pinned commit | Versioned JSON Schema artifacts, unknown-field and downgrade vectors, machine-readable compatibility matrix ([#855](https://github.com/OpenCoven/coven/issues/855)) |
+| Scheduler Reliability | Partial | Occurrence fencing, bounded leases, lease-expiry recovery, latest-only misfire, overlap refusal, per-run timeout | Deterministic virtual-time tests, IANA/DST vectors, clock-jump and sleep/wake contracts, retry/backoff classes, cancellation races, duplicate-process proof, crash matrix, load/SLOs ([#856](https://github.com/OpenCoven/coven/issues/856)) |
+| Runtime Authority | Target not met | Familiar ID propagation into the shared launch path; policy defaults (paused-by-default) | Authenticated principal binding, embodiment binding, capability/approval decisions, receipts, fail-closed adapters ([#857](https://github.com/OpenCoven/coven/issues/857), [familiar-contract#17](https://github.com/OpenCoven/familiar-contract/issues/17), [coven-threads#29](https://github.com/OpenCoven/coven-threads/issues/29)) |
+| Continuity | Target not met | Familiar context loads at execution time | Exact root/revision pinning per run, historical rehydration/correlation semantics ([familiar-contract#17](https://github.com/OpenCoven/familiar-contract/issues/17)) |
+| Privacy | Partial | Bounded logs, local-only daemon boundary, `COVEN_HOME` treated as sensitive | Privacy classification of events/receipts, retention/erasure semantics, changefeed field authorization, redaction test evidence ([#857](https://github.com/OpenCoven/coven/issues/857)) |
+| Interoperability | Partial | Cave consumes the Coven control plane ([coven-cave#4990](https://github.com/OpenCoven/coven-cave/pull/4990)) | SDK surface, Psyche adapter, cross-repository canaries at pinned artifacts ([sdk#80](https://github.com/OpenCoven/sdk/issues/80), [psyche#18](https://github.com/OpenCoven/psyche/issues/18), [#858](https://github.com/OpenCoven/coven/issues/858)) |
+| Full | Not certified | — | Every required v1 profile passing at one immutable compatibility set |
+
+## Reading this ledger
+
+- "Partial" means landed behavior with public evidence — it is still not a
+  certification claim.
+- "Target not met" means the normative behavior is ratified but not
+  implemented; do not build against it as if it exists.
+- The overall program status is **foundation-ready, not v1-certified**
+  ([#854](https://github.com/OpenCoven/coven/issues/854)). Unattended external
+  side effects remain out of scope until the authority and certification gates
+  pass.
+
+This page is part of the documentation's verification surface: when upstream
+artifacts move, the [source-drift check](https://github.com/OpenCoven/coven-docs/blob/main/docs/freshness.md)
+creates the review obligation that keeps these rows truthful.
