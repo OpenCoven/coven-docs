@@ -1,30 +1,46 @@
 ---
 title: Getting started
-description: Install Coven, run one session, and keep its record.
+description: Install Coven, run one recorded session, inspect it, and recover when a step fails.
 read_when:
   - You want the concrete first-session loop for a new Coven install
   - You want the default interactive path plus the explicit recorded-session commands
+  - You want to know where recovery starts when a journey step fails
 ---
 
 ## What you get
 
 Coven supervises a coding-agent CLI in a project boundary, then keeps its session record and event log locally. Your harness keeps its own provider login; Coven keeps the lifecycle, replay, and local API consistent.
 
+One pass through this page is the whole first-session journey: install and verify Coven, connect a harness, run one recorded session, inspect its record, and recover from the first failure. [Advanced next steps](#6-advanced-next-steps) stay one link away until that journey is done.
+
 ## Interactive default
 
 Run `coven` when you want Coven's guided interactive front door. The default interactive path is the managed `coven-code` engine: on first run Coven can install the pinned engine for you, and later interactive launches reuse that managed binary. `COVEN_LEGACY_TUI=1` is only a deprecated compatibility escape hatch for the older in-process shell.
 
-## 1. Optional Coven preflight
+## 1. Install and verify
 
-Use the package without installing `coven` on `PATH` when you want a one-off readiness check:
+Install Coven with the published npm wrapper:
+
+```sh
+npm install -g @opencoven/cli
+```
+
+Verify the install before connecting anything:
+
+```sh
+coven --version
+coven doctor
+```
+
+`doctor` reports the next setup action when the local store, project detection, daemon, or a harness is not ready.
+
+Use the package without installing `coven` on `PATH` only for a one-off readiness check:
 
 ```sh
 npx @opencoven/cli doctor
 ```
 
-This is only a preflight. It does not replace a normal install for the daemon and session steps below because those commands expect `coven` on `PATH`. Before you run `coven doctor`, install Coven with either `npm install -g @opencoven/cli` or `cargo install --path crates/coven-cli`; `cargo build --workspace` is only an active-development build and does not install `coven` on `PATH`. Then come back here and run `coven doctor`.
-
-`doctor` reports the next setup action when the local store, project detection, daemon, or a harness is not ready.
+That is only a preflight. The daemon and recorded-session steps below expect `coven` on `PATH`, so finish a normal install before continuing. Source checkouts install with `cargo install --path crates/coven-cli`; `cargo build --workspace` is only an active-development build and does not install `coven` on `PATH`. Both routes are detailed in [Install Coven](/docs/guide/install), with per-OS notes in [Platforms](/docs/guide/platforms).
 
 ## 2. Connect a harness
 
@@ -58,9 +74,7 @@ See [Provider setup](/docs/cli/setup) for verification and report semantics, [In
 
 ## 3. Run a first session
 
-Before you start the daemon or recorded-session flow, complete a normal Coven install from [Install Coven](/docs/guide/install) so `coven` is available on `PATH`.
-
-From the repository you want to work in, use this exact first-session loop as the checked Codex example. It assumes you already installed and authenticated Codex. If you chose Claude Code or Copilot CLI instead, keep the same loop and substitute `claude` or `copilot` in the `coven run` command.
+From the repository you want to work in, use this exact first-session loop as the checked Codex example. It assumes you installed and verified Coven above and already authenticated Codex. If you chose Claude Code or Copilot CLI instead, keep the same loop and substitute `claude` or `copilot` in the `coven run` command.
 
 ```sh
 coven doctor
@@ -108,10 +122,42 @@ For a cross-surface summary of the daemon, open sessions, familiars, skills, res
 coven status
 ```
 
-## Continue
+## 5. Recover when a step fails
 
-- [Provider setup](/docs/cli/setup)
-- [Install options](/docs/guide/install)
-- [Core concepts](/docs/guide/concepts)
-- [CLI session commands](/docs/cli/sessions)
-- [Troubleshooting](/docs/reference/troubleshooting)
+Every stage above has the same recovery entry point:
+
+```sh
+coven doctor
+```
+
+Keep recovery narrow:
+
+- Fix the first failing branch `doctor` reports, then rerun `coven doctor` before changing anything else.
+- Inspect before you mutate. `coven sessions show`, `coven sessions events`, `coven sessions log`, and `coven status` are read-only; `coven sacrifice` permanently deletes a non-running session and its events.
+- Route the failure to the stage it appeared in — [harness](/docs/reference/troubleshooting#harness-missing), [daemon](/docs/reference/troubleshooting#daemon-unavailable), [project boundary](/docs/reference/troubleshooting#cwd-rejected), or [session state](/docs/reference/troubleshooting#stale-running-sessions) — and follow the first fix that matches.
+
+The ordered decision path for every failure mode, including a broken install, lives in [Troubleshooting](/docs/reference/troubleshooting#recovery-rules).
+
+## 6. Advanced next steps
+
+Once the first recorded session is inspectable, expand along the surface you actually need. Each row is the canonical page for that area:
+
+| You want to | Read |
+| --- | --- |
+| Add a provider or verify a login | [Provider setup](/docs/cli/setup) |
+| Install another harness CLI | [Install harness CLIs](/docs/harnesses/installing) |
+| Understand adapters and credential boundaries | [Harnesses](/docs/harnesses) |
+| Run the daemon on a headless host or in a container | [Deployments](/docs/guide/deployments) |
+| Operate the daemon day to day | [Daemon](/docs/daemon) |
+| Manage and search past sessions | [CLI session commands](/docs/cli/sessions) |
+| Build against the local API | [Local API](/docs/reference/api) and [API Reference](/docs/openapi) |
+| Store and search agent memory (preview) | [Memory + Models](/docs/memory-models) |
+| Inspect multi-host hub and scheduler state | [Hub and scheduler](/docs/cli/hub-scheduler) |
+
+Browse every public command grouped by task with:
+
+```sh
+coven help --all
+```
+
+For the model behind the runtime, read [Core concepts](/docs/guide/concepts) and [Architecture](/docs/guide/architecture).
