@@ -20,7 +20,7 @@ If `coven` runs at all, run it first:
 coven doctor
 ```
 
-`doctor` reports store, project, daemon, socket, and harness readiness. If `coven doctor` fails because the command is not found, work through the sections below.
+`doctor` reports store, project, daemon, socket, and harness readiness. When more than one `coven` is on `PATH`, it also reports install conflicts: the prose output lists every path as `active` or `shadowed` before any other check, because a shadowed install answers every command and the rest of the report describes the wrong binary. If `coven doctor` fails because the command is not found, work through the sections below.
 
 If `coven` is not on `PATH` yet, you can still exercise the published package without a global install:
 
@@ -78,7 +78,7 @@ Get-Command -All coven
 coven --version
 ```
 
-Multiple entries mean more than one install is on your search path. Remove the stale copy or move the intended install earlier on `PATH` before debugging anything else.
+Multiple entries mean more than one install is on your search path. Remove the stale copy or move the intended install earlier on `PATH` before debugging anything else. `coven doctor` reports the same situation as `install:conflicts` with the concrete paths in its prose output. On Windows, two `PATH` entries that differ only in letter case are one directory and one install; on Unix-like hosts they are distinct directories and both count.
 
 ## `coven` Command Not Found
 

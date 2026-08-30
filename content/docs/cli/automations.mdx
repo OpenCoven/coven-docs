@@ -1,0 +1,101 @@
+---
+title: "Routines and Automations"
+summary: "Define recurring Coven-native routines: schedules, familiar-bound prompts, run ledgers, and health snapshots."
+description: "Reference for Coven-native routine automations: the definition contract, control-plane actions, daemon scheduling, run records, and legacy Codex import."
+read_when:
+  - You want a prompt to run on a recurring schedule
+  - You are importing legacy Codex automations into Coven
+  - You are debugging a routine that did not run
+---
+
+Routines are Coven-native automations: a recurring schedule plus a prompt that a harness runtime executes, optionally bound to a familiar. A routine is durable Coven-owned state in the single Coven store, not a file in a harness home directory. Every run — manual or scheduled — re-reads the definition, re-validates the familiar and runtime, and dispatches through the same validated session-launch path every other launch uses.
+
+| Field | Value |
+| --- | --- |
+| Store | The `automation_definitions` and occurrence/run ledger tables in `$COVEN_HOME/coven.sqlite3` |
+| Discovery | The `coven.automations` capability over the daemon API |
+| Scheduling | A daemon-side tick on a 60-second cadence |
+| Legacy import | Non-destructive import from `~/.codex/automations` |
+
+## How scheduling works
+
+The daemon schedules routines while it runs. On each tick it plans due slots, recovers expired leases, claims the earliest due occurrence of every `ACTIVE` routine, and dispatches it through the shared session-launch path. Scheduler failures land in the daemon recovery log, so a failed tick leaves evidence instead of a silently skipped schedule.
+
+Planning is idempotent: an occurrence is fenced by its routine id and scheduled slot, so repeated ticks, restarts, and recovery never duplicate a slot. If the daemon was down for three days of a daily routine, only the latest missed slot runs — earlier slots collapse rather than backfill. Overlapping runs are forbidden: when the previous occurrence has not settled, the next one is skipped. A lease that expires is marked failed with a recorded reason so stale work never renders as live.
+
+## Manage routines through the control plane
+
+Routines are read and written through the daemon control plane: `POST /api/v1/actions` with the action id in the JSON `action` field, following the health → capabilities → actions flow in [Socket API](/docs/daemon/socket-api). Branch on the advertised `coven.automations` capability before using these actions.
+
+| Action | Purpose |
+| --- | --- |
+| `coven.automations.create` | Validate and store a new routine definition. |
+| `coven.automations.list` | List routines by name. |
+| `coven.automations.get` | Read one routine by id. |
+| `coven.automations.update` | Mutate the routine in place; the id stays stable. |
+| `coven.automations.delete` | Remove the routine definition. |
+| `coven.automations.run` | Run the routine once, now. |
+| `coven.automations.runs` | List recent runs for a routine. |
+| `coven.automations.health` | One health snapshot for a routine. |
+| `coven.automations.import` | Import legacy Codex automations. |
+| `coven.automations.tick` | Run one scheduling tick now. |
+
+`create` validates the whole definition before anything is stored; an invalid definition is rejected with the structured action error and nothing is persisted:
+
+```json
+{
+  "action": "coven.automations.create",
+  "definition": {
+    "schemaVersion": 1,
+    "id": "daily-notes",
+    "name": "Daily notes",
+    "status": "PAUSED",
+    "rrule": "FREQ=DAILY;BYHOUR=9",
+    "timezone": "local",
+    "misfire": "latest",
+    "overlap": "forbid",
+    "timeoutMinutes": 30,
+    "runtime": "coven-code",
+    "familiarId": "charm",
+    "prompt": "Write the daily reflection."
+  }
+}
+```
+
+## Definition contract
+
+| Field | Rules |
+| --- | --- |
+| `schemaVersion` | Must be `1`. |
+| `id` | 1–96 characters; ASCII letters, digits, `-`, `_`, and `.` only. Keep it stable: the scheduler and run ledger key occurrences by this id. |
+| `name` | 1–160 characters. |
+| `status` | `ACTIVE` or `PAUSED`. The scheduler only plans `ACTIVE` routines; a `PAUSED` routine never runs. Imported routines are created `PAUSED`. |
+| `rrule` | Supported vocabulary: `FREQ=DAILY` or `FREQ=WEEKLY`, an optional `BYHOUR` list (`0`–`23`, defaulting to `9`), and an optional `BYDAY` list for weekly schedules (defaulting to Monday). Anything else is refused, so a definition can never silently schedule work the scheduler does not understand. |
+| `timezone` | `local` or `utc`. |
+| `misfire` | `latest` — the only supported policy. After recovery, only the latest missed occurrence runs. |
+| `overlap` | `forbid` — the only supported policy. A run is skipped when the previous occurrence has not settled. |
+| `timeoutMinutes` | Required bound per run, `1`–`44640` minutes. |
+| `runtime` | Harness id, 1–64 characters, for example `coven-code`. |
+| `familiarId` | Optional familiar id; re-validated on every run. |
+| `cwd` | Optional project directory. A routine with no `cwd` fails its runs with a recorded reason instead of guessing a project. |
+| `prompt` | Required. |
+| `outputTarget` | Optional atomic output target path. |
+| `model` | Optional model override. |
+| `tags` | Optional label list. |
+
+## Runs and health
+
+Every run records a row in the run ledger: which occurrence triggered it, which familiar and runtime ran it, the launched session id, and the terminal status. Read runs with `coven.automations.runs`; the launched session itself appears in [Sessions](/docs/cli/sessions).
+
+`coven.automations.health` returns one structured snapshot per routine: `automationId`, `nextDueAt`, `lastPlannedAt`, `lastStartedAt`, `lastSuccessAt`, `consecutiveFailures`, `leaseOwner`, `leaseExpiresAt`, and `staleReason`. The values come only from the Coven store — no harness history files — so the snapshot describes what Coven planned, started, and settled, not what a harness home directory remembers.
+
+## Import legacy Codex automations
+
+`coven.automations.import` reads `~/.codex/automations/<id>/automation.toml` and imports each parseable definition as a Coven routine. Import is non-destructive: source files are never modified, moved, or deleted. Every imported routine is created `PAUSED`, so nothing runs until you review it and set it `ACTIVE`. Definitions whose schedules use vocabulary the Coven scheduler does not support are reported and skipped — never silently downgraded.
+
+## Related
+
+- [Daemon commands](/docs/cli/daemon) for `start`, `status`, and `restart` — routines schedule only while the daemon runs.
+- [Socket API](/docs/daemon/socket-api) for the local API boundary the actions flow through.
+- [Sessions](/docs/cli/sessions) for the session records routine runs leave in the ledger.
+- [Daemon observability](/docs/daemon/observability) for recovery-log evidence when a tick fails.

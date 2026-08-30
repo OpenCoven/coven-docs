@@ -21,6 +21,7 @@ It checks the local state directory, project detection, daemon/socket status, an
 | --- | --- |
 | Store | The path Coven will use for local state. Defaults to `~/.coven` unless `COVEN_HOME` is set. |
 | Project | Whether the current directory resolves to a git/project root. |
+| Installs | Whether more than one `coven` executable is on `PATH`. The check warns with a count; the prose report lists each path as `active` or `shadowed`. |
 | Daemon | Whether the daemon is running, stale, or stopped, and which local IPC endpoint it owns. |
 | Harnesses | Whether Codex, Claude Code, GitHub Copilot CLI, or the managed Coven Code engine is available. |
 | Next steps | A provider-specific install, `coven setup <provider>`, or `coven run <harness> "..."` command. |
@@ -40,6 +41,8 @@ If the daemon is stale:
 ```bash
 coven daemon restart
 ```
+
+If doctor reports install conflicts, resolve them before anything else: a shadowed install answers every command, so the rest of the report describes a different binary than the one you think you are running. The prose report prints each `coven` on `PATH` as `[OK] (active)` or `[!!] (shadowed)` with its concrete path. The first entry wins — remove the others or reorder `PATH`, then re-check with `coven --version`. The JSON report keeps paths out on purpose, because doctor output is routinely attached to bug reports; run `coven doctor` again to see the prose list. See [Install Debugging](/docs/cli/install-debugging) for the full PATH cleanup flow.
 
 If a provider CLI is missing, install it with the provider's official package. If the executable exists but login is incomplete, hand the terminal to the provider-owned flow explicitly:
 
