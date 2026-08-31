@@ -3,7 +3,7 @@ title: "Troubleshooting"
 description: "Recover a Coven install, daemon, harness, or recorded session through one ordered decision path."
 ---
 
-Start with:
+Recovery is the final leg of the [first-session journey](/docs/guide/getting-started). Start with:
 
 ```sh
 coven doctor
@@ -12,6 +12,25 @@ coven doctor
 `doctor` is the fastest readiness check for the store, current project, daemon,
 and installed harnesses. Follow the first failing branch instead of changing
 multiple parts of the system at once.
+
+## Recovery rules
+
+- Fix the first failing branch `doctor` reports, then rerun `coven doctor`
+  before changing anything else.
+- Inspect before you mutate. `coven sessions show`, `coven sessions events`,
+  `coven sessions log`, `coven status`, and `coven pc status` are read-only;
+  `coven pc` relief commands require explicit confirmation, and `coven
+  sacrifice` permanently deletes a record and its events.
+- Map the failure to the journey stage where it appeared and start from that
+  section:
+
+| Journey stage | Symptom | Section |
+| --- | --- | --- |
+| Install | `coven` is not on `PATH` | [`coven` command not found](#coven-command-not-found) |
+| Harness | harness missing or unauthenticated | [Harness missing](#harness-missing) |
+| Daemon | client cannot connect | [Daemon unavailable](#daemon-unavailable) |
+| Run | working directory rejected | [`cwd` rejected](#cwd-rejected) |
+| Session | stale, orphaned, or blocked records | [Stale running sessions](#stale-running-sessions) |
 
 ```mermaid
 flowchart LR
