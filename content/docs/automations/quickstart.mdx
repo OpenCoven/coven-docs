@@ -171,8 +171,9 @@ only.
 
 ## 7. Observe occurrences, runs, and delivery
 
-Let the daemon's recurring tick claim the next due occurrence, or force one tick
-manually to see the machinery move:
+The daemon's scheduler thread runs this tick automatically every 60 seconds.
+Let it claim the next due occurrence, or force one tick manually to see the
+machinery move:
 
 ```sh
 curl --unix-socket "$COVEN_HOME/coven.sock" http://localhost/api/v1/actions \

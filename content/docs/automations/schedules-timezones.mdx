@@ -83,8 +83,11 @@ They will never be inferred from existing definitions.
 
 Landed behavior:
 
-- The daemon's recurring tick plans, recovers expired leases, and claims due
-  occurrences. When the daemon is down, nothing runs — there is no fallback.
+- The daemon's recurring tick runs every 60 seconds on a dedicated scheduler
+  thread: it plans, recovers expired leases, and claims due occurrences. When
+  the daemon is down, nothing runs — there is no fallback.
+- Tick failures are appended to the daemon recovery log — see
+  [Observability](/docs/daemon/observability).
 - After sleep, restart, or downtime, recovery plans **the latest missed
   occurrence only** (`misfire: latest`). You never get one run per missed slot.
 - Expired claims are marked `failed` with a `lease expired` reason; a stale
