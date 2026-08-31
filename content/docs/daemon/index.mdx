@@ -22,6 +22,7 @@ For the supported route topology, compatibility handshake, event cursor flow, an
 | PTY lifecycle | Spawns supported harnesses with argv APIs, tracks live processes, forwards input, records exits. |
 | Session ledger | Stores session records in SQLite so clients can list, attach, replay, archive, and diagnose work. |
 | Event log | Appends output, input, status, exit, and action events with stable sequence cursors. |
+| Routine automations | Stores durable routine definitions, occurrence plans, and a run ledger in the same SQLite store, and runs a plan/recover/claim tick on a 60-second scheduler thread; tick failures land in the recovery log. |
 | Socket API | Serves `/api/v1` over `<COVEN_HOME>/coven.sock` on Unix-like hosts or an owner-only named pipe on Windows. |
 | Policy boundary | Canonicalizes project roots and cwd, validates harness ids, session ids, liveness, and action ids. |
 
@@ -45,7 +46,7 @@ By default, Coven stores daemon state under `~/.coven`.
 | `$COVEN_HOME` | Root state directory. Defaults to `~/.coven` unless overridden. |
 | `$COVEN_HOME/coven.sock` | Unix socket the daemon binds on Unix-like hosts. |
 | Daemon-reported named pipe | Owner-only local IPC endpoint on Windows. |
-| `$COVEN_HOME/coven.sqlite3` | SQLite session ledger and append-only event log. |
+| `$COVEN_HOME/coven.sqlite3` | SQLite session ledger, append-only event log, and automation routines (definitions, occurrences, runs). |
 | `$COVEN_HOME/daemon.json` | Background daemon metadata such as pid, socket path, and start time. |
 
 Treat `$COVEN_HOME` as sensitive local state. It contains prompts, harness output, session metadata, and operational traces.

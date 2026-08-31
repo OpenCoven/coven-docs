@@ -13,12 +13,13 @@ read_when:
 coven doctor
 ```
 
-It checks the local state directory, project detection, daemon/socket status, and supported harness CLIs.
+It checks the local state directory, project detection, daemon/socket status, the Coven installs visible on `PATH`, and supported harness CLIs.
 
 ## What it checks
 
 | Area | What to look for |
 | --- | --- |
+| Installs | Whether more than one `coven` executable is on `PATH`. The prose report opens with an `Installs:` section marking the active copy and each shadowed one; the JSON report states the count and keeps paths out. A conflict warns but does not block the exit code. |
 | Store | The path Coven will use for local state. Defaults to `~/.coven` unless `COVEN_HOME` is set. |
 | Project | Whether the current directory resolves to a git/project root. |
 | Daemon | Whether the daemon is running, stale, or stopped, and which local IPC endpoint it owns. |
@@ -26,6 +27,19 @@ It checks the local state directory, project detection, daemon/socket status, an
 | Next steps | A provider-specific install, `coven setup <provider>`, or `coven run <harness> "..."` command. |
 
 `doctor` does not inspect provider credential stores and does not silently run a network verification turn. Provider verification can consume network access or paid usage, so it remains a separately consented `coven setup` action.
+
+## Shadowed installs
+
+When several `coven` executables are on `PATH`, the first entry wins and silently answers every command: an upgrade can appear to do nothing because an older binary is still running. `coven doctor` reports installs before every other check. The prose report prints each path:
+
+```text
+Installs:
+  [OK] /usr/local/bin/coven (active)
+  [!!] /Users/ada/.cargo/bin/coven (shadowed)
+  The first entry wins. Remove the others or reorder PATH, then re-check with `coven --version`.
+```
+
+The JSON report from `coven doctor --json` is deliberately path-free: check id `install:conflicts` reports `"<N> coven executables on PATH"` with the hint "run `coven doctor` for the paths; the first entry wins, so remove the others or reorder PATH", and reports `"one coven on PATH"` when the install is unambiguous. The check warns rather than fails, so it never changes the exit code on its own. After removing or reordering installs, re-check with `coven --version`.
 
 ## Common next steps
 
@@ -40,6 +54,8 @@ If the daemon is stale:
 ```bash
 coven daemon restart
 ```
+
+If doctor reports install conflicts, resolve them before anything else: a shadowed install answers every command, so the rest of the report describes a different binary than the one you think you are running. See [Shadowed installs](#shadowed-installs) for the report format, and [Install Debugging](/docs/cli/install-debugging) for the full PATH cleanup flow.
 
 If a provider CLI is missing, install it with the provider's official package. If the executable exists but login is incomplete, hand the terminal to the provider-owned flow explicitly:
 
