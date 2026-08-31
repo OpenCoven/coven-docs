@@ -1,0 +1,92 @@
+---
+title: "SDK and integrations"
+description: "The constrained SDK surface for automations: read, verify, subscribe first — then authority-aware adopted commands. No direct database or filesystem fallback."
+read_when:
+  - You are building a client that observes or drives automations
+  - You need the integration guardrails for mutations and receipts
+---
+
+The OpenCoven SDK integration for automations is defined in
+[sdk#80](https://github.com/OpenCoven/sdk/issues/80): constrained typed clients
+that read, verify, and subscribe first, and only then gain authority-aware
+adopted commands. The SDK surface is not released yet; this page is the
+contract every integration must respect.
+
+## Read first
+
+Integrations begin with reads against the daemon surfaces, never against files
+or databases:
+
+- **List and get** definitions through the control actions
+  ([Protocol reference](/docs/automations/definitions) has the landed payload
+  shapes).
+- **Health and history** through `coven.automations.health` and
+  `coven.automations.runs` — the same read-only evidence an operator sees.
+- **Events** through the daemon's supported event surfaces with cursors
+  ([the local API](/docs/reference/api)).
+
+## Subscribe with duplicate-safe replay
+
+A subscription consumer must survive reconnects and duplicate delivery:
+
+1. Track the last contiguous cursor you processed.
+2. On reconnect, replay from that cursor.
+3. Treat each event as carrying a stable identity; process it at least once and
+   deduplicate by identity, not by arrival order.
+4. Never assume in-order delivery; the ratified changefeed defines replay,
+   pagination, cursor expiry, and out-of-order rejection semantics
+   ([#855](https://github.com/OpenCoven/coven/issues/855)).
+
+The landed `automations.changed` event gives correlation (`origin`, `intentId`)
+but not yet the durable per-stream cursor contract — build consumers against
+the ratified envelope, not against the transitional shape.
+
+## Verify receipts, degrade honestly
+
+When receipts land ([#857](https://github.com/OpenCoven/coven/issues/857)),
+verification is an SDK obligation: check the receipt's integrity/authentication
+fields against the committed body before presenting a run as verified. A receipt
+that fails verification, or a history gap where a receipt should exist, is
+rendered as degraded evidence — never silently upgraded to trusted. A receipt
+proves what Coven observed and authorized; it does not certify model intent or
+unobserved external effects
+([Identity and authority](/docs/automations/identity-authority#what-an-automationreceipt-proves)).
+
+## Mutations: adoption keys, conflicts, and reconcile
+
+Authority-bearing commands (create, revise, activate, pause, cancel, retry) are
+the last part of the SDK surface, and they are guarded:
+
+- **Adoption keys** — every mutating request carries a stable adoption key;
+  replaying it is idempotent, and a conflicting reuse is rejected.
+- **Revision conflicts** — updates carry an expected definition revision; a
+  stale client loses with a typed conflict error instead of overwriting newer
+  state.
+- **Unknown outcomes** — if a mutation's outcome is unknown (disconnect, crash,
+  ambiguous response), the client asks the daemon to reconcile. It never
+  blindly re-sends a mutating command hoping it did not land.
+- **Approval and cancel/retry guardrails** — approvals are consumed, not
+  reused; cancel is a request, not a kill; retry follows the failure-class
+  rules ([Lifecycle](/docs/automations/lifecycle)).
+
+The landed control actions predate this contract: they accept an `intentId`
+correlation hint but do not yet enforce adoption-key idempotency or expected
+revisions. Integrations that need those guarantees should wait for the ratified
+contract rather than layering their own.
+
+## Boundaries integrations must not cross
+
+- **No direct SQLite access.** The ledger is the daemon's; clients read through
+  surfaces and never open the database.
+- **No filesystem fallback.** Reading `$COVEN_HOME/automations/` or the
+  definition files directly is not a supported integration path and misses the
+  ledger's truth.
+- **No runtime side-channels.** Driving a harness directly to "run the routine
+  now" bypasses claim, fence, binding, and receipt — it is not an integration,
+  it is a second scheduler.
+- **No synthesized state.** Render what the daemon reports. A client that
+  displays `succeeded`, `authorized`, or `healthy` without daemon evidence is
+  lying to its user.
+
+For the Cave-side projection boundary, see
+[Cave oversight](/docs/automations/cave-oversight).

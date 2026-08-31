@@ -1,0 +1,125 @@
+---
+title: "Security and privacy"
+description: "The automation threat model: authority binding, replay, confused deputies, TOCTOU, redaction, and the exactly-once limits that must stay honest."
+read_when:
+  - You are assessing what an automation can be tricked into doing
+  - You need the privacy and retention rules for automation evidence
+---
+
+Automations repeat actions without a human in the loop, so the security review
+starts from a hostile assumption: anything that can make a run dispatch, widen
+its authority, or falsify its evidence will eventually be tried.
+
+## Authentication and replay
+
+Ratified requirements ([#857](https://github.com/OpenCoven/coven/issues/857)):
+
+- Every mutating command carries authenticated principal context, a stable
+  adoption key, and a nonce; replayed commands and replayed approval or nonce
+  values are rejected, not re-executed.
+- Principal credentials support rotation and revocation. A revoked principal
+  fails closed at the next dispatch.
+- Command adoption commits before consequential side effects, so a replayed
+  request is idempotent rather than a second execution.
+
+The landed control actions predate this contract: they accept an `intentId`
+correlation hint but do not yet enforce nonce/adoption semantics. Until the
+ratified contract lands, restrict who can reach the daemon (same-user local
+IPC) and treat the [approval guardrails](/docs/automations/approvals) as
+normative targets.
+
+## Binding failures that must refuse
+
+Every dispatched run pins principal, familiar root/revision, definition
+revision, occurrence fence, runtime descriptor, and capability/approval
+evidence. Each of these inputs must refuse dispatch when it is unknown, stale,
+malformed, revoked, or unavailable. Required refusal vectors:
+
+- forged `familiarId` or principal strings;
+- stale or revoked identity revision;
+- approval reused after a definition or action change;
+- runtime capability mismatch or downgrade;
+- a duplicate scheduler or worker presenting an old fence;
+- forged client-authored run, approval, or receipt state.
+
+## Confused deputy and capability escalation
+
+A confused deputy is a run that uses its legitimate authority for an
+attacker-chosen goal. The automation defenses:
+
+- Authority is bound to the action, not to the prompt: **prompt text, tags,
+  runtime names, and creation-time approvals are not authority**
+  ([Identity and authority](/docs/automations/identity-authority#what-is-not-authority)).
+- The runtime receives only the bounded execution projection it needs — never
+  credentials, unrelated identity history, private audit material, or ambient
+  authority.
+- Capability grants are explicit, per-operation, and pinned; a client payload
+  cannot expand them.
+- Cross-familiar or cross-project delegation requires its own binding; one
+  familiar's authority never silently covers another's work.
+
+## Time-of-check to time-of-use
+
+Authorization, binding commit, and dispatch are separate moments, so TOCTOU is
+a first-class test axis: identity revocation during queued, awaiting-approval,
+dispatching, and running states; approval expiry races; policy snapshots going
+stale between decision and dispatch. The ratified rule is that authorization and
+the dispatch-binding commit operate on the same immutable snapshot boundary, and
+policy changes never rewrite history — revocation during a run is explicit and
+audited.
+
+## Redaction: secrets, prompts, memory, paths
+
+- Logs and errors must never print credentials, raw approval secrets,
+  unrestricted prompts, private memories, or unrelated filesystem paths.
+- Run logs are bounded and privacy-classified.
+- Sensitive identity, prompt, memory, and authority payloads are separated from
+  public/operational receipt fields, and encrypted at rest where the deployment
+  profile requires it.
+- Prefer stable opaque IDs and digests over copying declarations or personal
+  data into every row or event.
+
+## Access control for events, history, and receipts
+
+- A changefeed subscriber receives only the fields authorized for its principal
+  and client profile.
+- Read access to history and receipts is authenticated and profiled; "local
+  same-user" is the deployment boundary, not an authorization model.
+- Receipts carry a privacy/retention class and a redaction status so consumers
+  know what they are allowed to retain.
+
+## Retention, redaction, erasure, tombstones
+
+Retention and erasure must not break the minimum audit evidence:
+
+- Retention bounds apply to logs, events, and receipts without breaking
+  recovery or verification evidence.
+- Erasure and redaction semantics preserve the minimum security/audit evidence
+  while removing personal data.
+- Deletion tombstones definitions and preserves required history
+  ([Lifecycle](/docs/automations/lifecycle)); there is no command that erases
+  run history.
+
+## Exactly-once limitations
+
+Coven does not claim exactly-once external effects. The honest model:
+
+- **No duplicate fenced execution** — one occurrence fence cannot own two
+  accepted runs; that is enforced and tested.
+- **At-least-once observation** — observers may see evidence more than once;
+  consumers deduplicate.
+- **External effects are not transactional** — an effect in an external system
+  cannot be rolled back by Coven, and an ambiguous one is marked
+  `recovery_required` and resolved by a human with evidence
+  ([Delivery](/docs/automations/operations/delivery)).
+
+Any claim that an automation executed an external effect exactly once is
+misrepresentation unless the external system itself provides the transaction.
+
+## Conservative language
+
+Products and integrations built on automations must not claim: certified
+security, legal agency or personhood for a familiar, ownership of effects,
+correctness of generated content, or effects Coven could not verify. The
+[receipt semantics](/docs/automations/identity-authority#what-an-automationreceipt-proves)
+define what is provable; everything else needs hedged, conservative wording.

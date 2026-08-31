@@ -1,0 +1,167 @@
+---
+title: "Protocol reference"
+description: "The versioned automation objects: the landed routine definition schema, and the ratified coven.automations.v1 objects for occurrences, runs, attempts, commands, events, and receipts."
+read_when:
+  - You are building a client, runtime, or projection against automation objects
+  - You need exact field rules instead of paraphrase
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+Coven owns one canonical automation truth. This page separates the schema that
+is landed and verified today from the versioned `coven.automations.v1` objects
+ratified in [OpenCoven/coven#855](https://github.com/OpenCoven/coven/issues/855).
+
+<Callout type="info" title="Schema source of truth">
+The landed definition schema is verified against the Coven implementation at the
+revision pinned in
+[`docs/source-lock.json`](https://github.com/OpenCoven/coven-docs/blob/main/docs/source-lock.json)
+(`coven-runtime-contract` source; the landed schema lives in
+`crates/coven-cli/src/automations/**`).
+When the implementation and this page disagree, the implementation wins and this
+page must be updated — documentation is never the canonical protocol source.
+</Callout>
+
+## Landed: routine definition v1
+
+The wire form is JSON with camelCase keys. `schemaVersion` must be `1`.
+
+| Field | Type | Rules |
+| --- | --- | --- |
+| `schemaVersion` | integer | Must be exactly `1`. Other versions are refused. |
+| `id` | string | 1–96 characters; ASCII letters, digits, `-`, `_`, `.`. Stable across edits: the ledger keys occurrences by it. |
+| `name` | string | 1–160 characters after trimming. |
+| `status` | string | `ACTIVE` or `PAUSED`. New definitions must be `PAUSED`. |
+| `rrule` | string | Scoped RRULE text — see [Schedules and timezones](/docs/automations/schedules-timezones). |
+| `timezone` | string | `local` or `utc`. Compatibility input; the IANA binding is a [#856](https://github.com/OpenCoven/coven/issues/856) target. |
+| `misfire` | string | `latest` is the only supported value. |
+| `overlap` | string | `forbid` is the only supported value. |
+| `timeoutMinutes` | integer | 1 through 44640. |
+| `runtime` | string | 1–64 characters. `coven-code` is the default runtime. |
+| `familiarId` | string, optional | 1–64 characters when present. Propagated into the shared runtime launch path. |
+| `cwd` | string, optional | Working directory. Required by run-now; a missing `cwd` fails the run with a recorded reason. |
+| `outputTarget` | string, optional | Atomic output target. Delivery lands there only on a completed, verified run. |
+| `prompt` | string | Required, non-empty. |
+| `model` | string, optional | Model hint passed through to the runtime launch. |
+| `tags` | string array, optional | Omitted from the wire when empty. |
+
+### Golden definition vectors
+
+Valid:
+
+```json
+{
+  "schemaVersion": 1,
+  "id": "daily-notes",
+  "name": "Daily notes",
+  "status": "PAUSED",
+  "rrule": "FREQ=DAILY;BYHOUR=9",
+  "timezone": "local",
+  "misfire": "latest",
+  "overlap": "forbid",
+  "timeoutMinutes": 30,
+  "runtime": "coven-code",
+  "familiarId": "charm",
+  "prompt": "Write the daily reflection."
+}
+```
+
+Rejected (all of these fail validation before storage):
+
+```text
+FREQ=HOURLY              → FREQ `HOURLY` is not supported (DAILY or WEEKLY)
+FREQ=DAILY;COUNT=3       → rrule key `COUNT` is not supported
+FREQ=DAILY;BYHOUR=24     → BYHOUR entry 24 exceeds 23
+id: "daily notes!"       → id may contain only ASCII letters, digits, '-', '_', and '.'
+timeoutMinutes: 0        → timeoutMinutes must be 1..=44640
+schemaVersion: 2         → schemaVersion must be 1, got 2
+missing prompt           → prompt is required
+```
+
+## Ratified: coven.automations.v1 objects
+
+[#855](https://github.com/OpenCoven/coven/issues/855) ratifies the full object
+set. These are normative targets — do not build clients that assume they exist
+until the contract artifacts land.
+
+| Object | Key fields (ratified) |
+| --- | --- |
+| `AutomationDefinition` | stable `automationId`; monotonic `revision` + integrity digest; `schemaVersion`/contract profile; display metadata; lifecycle state (`draft`, `paused`, `active`, `disabled`, `invalid`); one versioned `Trigger` union; zero or more versioned `Condition` values; one versioned `Action` union; familiar binding policy; authority/approval policy references; runtime capability requirements; timeout, retry, concurrency, misfire, retention, delivery policies; creator principal and provenance; effective/activation timestamps; explicit extension-bag rules |
+| `AutomationOccurrence` | stable `occurrenceId`; automation ID + exact definition revision; trigger identity and canonical occurrence key; scheduled/observed/eligible timestamps; fence token/generation; state and state reason; misfire disposition; claim/lease metadata; active run reference; cancellation/recovery metadata; event sequence boundaries |
+| `AutomationRun` | stable `runId` + occurrence correlation; exact familiar identity binding; exact principal/authority/approval binding; exact runtime descriptor/capabilities; state, reason, start/finish; current attempt and terminal disposition; delivery/result/artifact references; receipt reference |
+| `AutomationAttempt` | stable `attemptId` + monotonic attempt number; request/adoption key; dispatch fence; worker/runtime correlation; retry classification; heartbeat/lease observations; output/event cursors; terminal or ambiguous disposition |
+| `AutomationReceipt` | immutable versioned body; definition/occurrence/run/attempt/identity/authority/approval/runtime/delivery/result digests; exercised capabilities and side-effect class; timestamps and producer identity; partial failures and recovery disposition; integrity/authentication field; retention/privacy classification |
+
+For v1, `ScheduleTrigger` and `FamiliarInvocationAction` may be the only
+executable variants. The unions must permit future variants without redefining
+v1 fields, and unsupported variants fail through explicit capability
+negotiation rather than approximation.
+
+## Commands, adoption, and idempotency
+
+Ratified rule: **every mutating command carries a stable request/adoption key,
+an expected revision where applicable, authenticated origin context, and
+explicit intent.** Command adoption commits before consequential side effects,
+and a rejected or failed domain operation must never be wrapped as
+`accepted: true` merely because routing succeeded.
+
+The landed surface is earlier than that contract:
+
+- `POST /api/v1/actions` routes `coven.automations.*` actions and echoes an
+  optional client-supplied `intentId` into the `automations.changed` event —
+  the precursor of the adoption key.
+- There is no expected-revision conflict detection yet; `update` replaces the
+  stored definition.
+- Domain failures are returned inside a `200`/completed envelope as an `error`
+  field in the event payload. **Read `event.payload`, not the HTTP status.**
+  Until [#855](https://github.com/OpenCoven/coven/issues/855) lands, a `200`
+  means the action routed and completed — it does not mean the domain operation
+  succeeded.
+
+| Action | Arguments | Result payload |
+| --- | --- | --- |
+| `coven.automations.list` | — | `{ routines: [...] }` |
+| `coven.automations.get` | `id` | `{ routine }` (`routine` is `null` when absent) |
+| `coven.automations.create` | `definition` | `{ routine, createdAt }` |
+| `coven.automations.update` | `definition` | `{ routine, updatedAt }` |
+| `coven.automations.delete` | `id` | `{ id, deleted }` |
+| `coven.automations.tick` | — | `{ planned, alreadyFenced, pausedSkipped, recovered, claimed, failed }` |
+| `coven.automations.runs` | `id`, `limit?` (default 20) | `{ runs: [...] }` |
+| `coven.automations.health` | `id` | `{ health: {...} }` — fields in [Lifecycle](/docs/automations/lifecycle) |
+| `coven.automations.import` | — | `{ imported, skipped, failures }` |
+| `coven.automations.run` | `id` | `{ runId, status, sessionId, error }` |
+
+Unknown action ids fail closed with HTTP 400 before any adapter runs.
+
+## Events and changefeed
+
+Today the automations surface emits `automations.changed` events through the
+control-action response envelope. The ratified
+[#855](https://github.com/OpenCoven/coven/issues/855) changefeed goes further:
+each durable event carries a schema/profile version, correlation ids, a
+monotonic stream sequence, a globally unique event ID, observed and recorded
+timestamps, producer identity, idempotency/causation keys, a user-safe summary,
+a structured payload, and a privacy/retention class — with defined replay,
+pagination, cursor expiry, duplicate delivery, out-of-order rejection, and
+compaction behavior. Until that lands, treat event cursors on other daemon
+surfaces ([the local API](/docs/reference/api)) as the only stable cursor
+contract.
+
+## Deletion, tombstones, and history
+
+- Deleting a definition removes the definition row and stops planning.
+- Historical occurrence and run rows are not erased by deletion.
+- The ratified semantics add versioned tombstones: deletion preserves required
+  history behind a tombstone marker, and definition revisions never rewrite
+  historical occurrences or runs.
+- There is no command that erases run history, and none should be requested.
+
+## Compatibility evolution
+
+Ratified rules from [#855](https://github.com/OpenCoven/coven/issues/855):
+publish JSON Schema (or an equivalently portable normative format), define
+required/optional fields and unknown-field behavior, add negative capability
+negotiation, separate contract version from implementation/release version, and
+publish golden valid/invalid/downgrade/unknown-field/replay vectors with a
+machine-readable compatibility matrix. See
+[Compatibility](/docs/automations/compatibility) for the current ledger.

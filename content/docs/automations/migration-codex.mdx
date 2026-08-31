@@ -1,0 +1,94 @@
+---
+title: "Migration from Codex"
+description: "The source-preserving path from Codex-owned automation definitions to Coven-owned routines: discovery, normalization, refusal, review, and rollback."
+read_when:
+  - You have definitions in ~/.codex/automations to bring into Coven
+  - You are planning the Cave compatibility-facade retirement
+---
+
+Migration moves ownership, not files. Codex-owned definitions under
+`~/.codex/automations/<id>/automation.toml` are imported as Coven-owned
+routines; the source files stay exactly where they are.
+
+## What is discovered and normalized
+
+`coven.automations.import` scans `~/.codex/automations/` and, for each
+directory with a parseable `automation.toml`:
+
+- normalizes the schedule into the supported Coven RRULE vocabulary;
+- maps fields onto the Coven definition schema (schedule, prompt, familiar
+  binding, runtime, timeout, working directory, output target);
+- stores the result as a Coven-owned definition with a stable automation id.
+
+The action reports `{ imported, skipped, failures }`:
+
+- **imported** — definitions converted and stored;
+- **skipped** — definitions whose schedules use vocabulary the Coven scheduler
+  does not support; they are reported, not approximated;
+- **failures** — definitions that could not be read or parsed, with reasons.
+
+## What is unsupported or refused
+
+Anything outside the [supported RRULE subset](/docs/automations/schedules-timezones#supported-rrule-subset)
+(`COUNT`, `INTERVAL`, `UNTIL`, hourly or finer frequencies, unsupported
+timezone vocabulary) is refused at import. A refused definition is never half-
+converted: it stays in the skipped report with its reason, and you can migrate
+it by hand once its schedule can be expressed in supported vocabulary.
+
+## Imported definitions remain paused
+
+Every imported routine is stored `PAUSED`. Import never schedules anything.
+Nothing runs until a human reviews the definition and explicitly activates it —
+the same rule as authored definitions.
+
+## Source files remain unchanged
+
+The import reads; it never writes, moves, or deletes `~/.codex/automations/`.
+After a successful import the source definitions still exist in their original
+form, which is what makes the migration reversible:
+
+- **Rollback** — pause or delete the imported Coven definitions; the Codex
+  sources are untouched and can be re-imported later.
+- **Data preservation** — imported definitions, occurrences, and runs live in
+  Coven's ledger. Deleting a definition tombstones the planning and preserves
+  run history ([Lifecycle](/docs/automations/lifecycle)).
+
+## Review and activation checklist
+
+For each imported routine, before flipping `status` to `ACTIVE`:
+
+1. `coven.automations.get <id>` — read the normalized definition end to end.
+2. Confirm the RRULE maps to the intended times and the timezone semantics are
+   understood (`local` is a compatibility input; see
+   [Schedules and timezones](/docs/automations/schedules-timezones)).
+3. Confirm `cwd` points at the intended project directory and
+   `outputTarget` (if set) stays inside it.
+4. Confirm the prompt only asks for effects you accept on a schedule — a
+   routine repeats, so any external effect in the prompt is an unattended
+   external effect. Keep first routines local and low-risk.
+5. Check the `familiarId` binding resolves to the familiar you mean.
+6. Preview `nextDueAt` with `coven.automations.health` before activating.
+7. Activate explicitly, then watch the first occurrence's run record.
+
+## Cave compatibility facade
+
+Cave no longer owns automation execution: it consumes the Coven control plane
+([coven-cave#4990](https://github.com/OpenCoven/coven-cave/pull/4990)). A
+compatibility facade for legacy Codex-backed surfaces remains during the
+transition and is deprecated and retired by
+[coven-cave#5217](https://github.com/OpenCoven/coven-cave/issues/5217).
+Retirement removes facade read/write paths — it does not delete user source
+files, and it follows the same source-preserving rules as import.
+
+## Terminology mapping
+
+| Codex era | Coven |
+| --- | --- |
+| Codex automation (file in `~/.codex/automations/`) | Coven automation definition (routine) |
+| Harness-owned schedule | Coven-owned schedule with occurrence fencing |
+| App-triggered "run now" JSON history | Coven run ledger with shared dispatch path |
+| `codex exec` direct spawn | Runtime launch through the daemon with familiar propagation |
+| Harness owning wall-clock liveness | Daemon tick with bounded leases and lease-expiry recovery |
+
+The vocabulary rule: a *Codex automation* becomes a *Coven automation* or
+*routine*; docs and UI should not mix the terms once a definition is imported.

@@ -1,0 +1,155 @@
+---
+title: "Identity and authority"
+description: "How automation runs bind to familiar identity, principal authority, capabilities, and approvals — and what is landed versus ratified."
+read_when:
+  - You need to know who (or what) actually authorized a run
+  - You are evaluating whether an automation result can be trusted
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+A routine carrying `familiarId = "charm"` is not proof that Charm ran, that the
+current principal authorized the run, or that the runtime had permission to
+perform its effects. Authority is established fresh, at dispatch time, by
+explicit binding — never inherited from creation time, prompt text, or naming.
+
+<Callout type="warn" title="Current status">
+The landed foundation propagates a `familiarId` string into the shared runtime
+launch path. The normative authority contract below — exact embodiment binding,
+authenticated principals, capability decisions, approvals, and receipts — is
+ratified in [OpenCoven/coven#857](https://github.com/OpenCoven/coven/issues/857)
+with the profiles in
+[familiar-contract#17](https://github.com/OpenCoven/familiar-contract/issues/17)
+and [coven-threads#29](https://github.com/OpenCoven/coven-threads/issues/29).
+Until it lands, recurring familiar work is a local execution convenience, and
+unattended external side effects remain out of scope.
+</Callout>
+
+## Familiar root versus display alias
+
+A familiar's display name or alias is not its identity. The Familiar Contract
+owns a stable **familiar root** identity plus an **identity revision**; a
+definition may name an alias, but the alias must resolve to exactly one stable
+root or the dispatch refuses with a typed, durable reason. Ambiguity is not
+resolved by best guess.
+
+The exact-revision embodiment binding (familiar-contract#17) pins, for every
+run: the familiar root ID, the exact identity revision and declaration digest at
+decision time, and the validity/revocation/retirement status at that moment. A
+paused, retired, or revoked familiar fails closed.
+
+## Authenticated principal binding
+
+Every dispatched run resolves an authenticated principal — a stable, opaque
+principal identity plus a credential/key reference or authorization proof —
+and records it in the run's execution binding. Creation-time identity,
+credentials, approvals, runtime availability, and authorization are never
+silently reused: identity and authority are resolved after the occurrence
+claim, immediately before dispatch.
+
+## Capability and risk classification
+
+Ratified risk vocabulary, aligned with the organization-wide agent risk classes:
+
+| Class | Meaning | v1 default policy |
+| --- | --- | --- |
+| R0 | Read-only local analysis, no protected mutation | May run unattended only under an explicit narrow grant |
+| R1 | Bounded local artifact creation in an approved scope | May run unattended only under an explicit narrow grant |
+| R2 | Mutable local state or migrations | Requires a reviewed policy with deterministic fixture/rollback contract |
+| R3 | Network, credentials, user data, remote APIs, publication, external effects | Requires per-run or tightly scoped recurring approval and protected-owner policy |
+| R4 | Identity, authorization, persistence control, release, deletion, security-critical mutation | Requires per-run or tightly scoped recurring approval and protected-owner policy |
+
+New and imported routines are paused by default. Prompt text cannot self-declare
+its risk class or grant capabilities; classification comes from the authority
+profile, not from the payload.
+
+## Authority decisions
+
+The Threads authority profile resolves each action to one of:
+
+- **permit** — dispatch proceeds;
+- **requires approval** — dispatch waits within a bounded policy or skips/fails
+  according to a declared approval-misfire policy;
+- **degrade to proposal** — the action is not executable as scheduled; it
+  becomes a proposal for a human to act on;
+- **reject** — the dispatch fails closed with a typed, durable reason.
+
+Unknown, stale, malformed, incompatible, or unavailable policy inputs refuse
+dispatch. There is no string-only fallback and no unbound launch when an
+authority adapter is missing.
+
+## Approval lifecycle
+
+```text
+not_required
+required -> requested -> approved | rejected | expired | revoked
+approved -> consumed | revoked | expired
+```
+
+Ratified requirements: an approval records the exact definition revision,
+occurrence, action digest, capabilities, familiar revision, and intended
+runtime; any relevant change after approval invalidates it; approvals are
+operation-specific, bounded, expiring, non-transferable, and consumed or
+otherwise replay-safe; an approval for one occurrence cannot authorize another
+occurrence, a changed definition, or expanded capabilities; and no client can
+directly write `approved` into run state. See
+[Approvals](/docs/automations/approvals) for operator behavior.
+
+## Runtime capability binding
+
+Before launch, the run pins the exact runtime descriptor, version, and
+capabilities, selected to satisfy the action's declared requirements, together
+with the selection rationale. A runtime that cannot meet the declared
+requirements refuses dispatch. Capability downgrade — a runtime arriving with
+fewer or different capabilities than pinned — is a refusal, not a degradation.
+See [Runtimes](/docs/automations/runtimes).
+
+## What an AutomationReceipt proves
+
+Every terminal run commits a versioned `AutomationReceipt` (ratified in
+[#857](https://github.com/OpenCoven/coven/issues/857)) that can be verified
+independently of Coven internals: all definition/occurrence/run/attempt
+correlation, the exact familiar and principal binding, authorization/approval/
+capability decision digests, the runtime descriptor and session correlation,
+exercised capabilities and declared side-effect class, start/finish/terminal
+disposition, normalized result/artifact/delivery digests, retry/cancellation/
+recovery history, producer identity and integrity fields, and the privacy/
+retention class.
+
+**A receipt proves what Coven observed and authorized.** It does not prove:
+
+- model intent or why the model acted;
+- legal agency, personhood, or ownership of effects;
+- correctness of generated content;
+- completion of effects Coven could not verify (for example, an external
+  system's state after a network call).
+
+Where an external effect cannot be observed, the receipt records the ambiguity
+instead of papering over it. See
+[Receipts](/docs/automations/operations/receipts) for verification guidance and
+[Security and privacy](/docs/automations/security-privacy) for the threat model.
+
+## What is not authority
+
+Each of these is a common misrepresentation, and none of them authorizes a run:
+
+- **Prompt text** — prose inside a definition cannot grant capabilities, declare
+  a risk class, or widen scope.
+- **Tags** — labels are metadata, not authorization evidence.
+- **Runtime names** — naming a runtime does not make that runtime permitted for
+  the action.
+- **Creation-time approval** — an approval captured when the definition was
+  created does not authorize later runs; authority is resolved fresh per run.
+- **A familiar display name** — `familiarId` routes context; it does not
+  authenticate a principal or bind an identity revision.
+
+## Pinned artifacts
+
+- Familiar Contract embodiment-binding profile: [familiar-contract#17](https://github.com/OpenCoven/familiar-contract/issues/17)
+- Coven Threads automation-authority profile: [coven-threads#29](https://github.com/OpenCoven/coven-threads/issues/29)
+- Dispatch integration: [#857](https://github.com/OpenCoven/coven/issues/857)
+
+The [Compatibility](/docs/automations/compatibility) ledger records the exact
+revisions this documentation was verified against, and the
+[source-lock](https://github.com/OpenCoven/coven-docs/blob/main/docs/source-lock.json)
+watches the implementation files that must not drift silently.

@@ -1,0 +1,91 @@
+---
+title: "Conformance and certification"
+description: "The conformance profiles, the golden scenarios, and how certification status is reported without overclaiming."
+read_when:
+  - You need to know what has been proven versus what is only implemented
+  - You are building conformance tooling or evidence packets
+---
+
+Passing unit tests or observing one scheduled run is evidence, not
+certification. Certification happens on an independent, implementation-
+independent plane: versioned vectors, a runner that can target a daemon or a
+packed release, and machine-readable reports pinned to exact artifact revisions
+([#858](https://github.com/OpenCoven/coven/issues/858)).
+
+## Conformance profiles
+
+Confidence is never collapsed into one `compliant` bit. The ratified profiles:
+
+| Profile | Proves |
+| --- | --- |
+| Structural | Schema, canonicalization, state-machine, and compatibility validity |
+| Scheduler Reliability | Time, timezone/DST, occurrence fencing, misfire, overlap, retry, cancellation, lease, crash/restart, backpressure |
+| Runtime Authority | Authenticated principal, familiar embodiment, capability/approval decisions, runtime descriptor, fail-closed dispatch |
+| Continuity | Exact familiar root/revision and historical rehydration/correlation |
+| Privacy | Access control, minimization, redaction, retention, erasure/tombstone, changefeed projection |
+| Interoperability | SDK/Cave/Psyche/runtime clients consuming pinned artifacts and replaying events correctly |
+| Full | All required v1 profiles at one immutable compatibility set |
+
+Every result must name exactly which profile and which artifact versions passed.
+See [Compatibility](/docs/automations/compatibility) for the current status per
+profile.
+
+## Golden scenarios
+
+The certification suite replays golden end-to-end scenarios deterministically —
+at minimum: paused creation and explicit activation; a twice-daily routine;
+daemon restart before and after claim; sleep through multiple occurrences with
+latest-only misfire; DST spring gap; DST fall fold; a duplicate scheduler
+process; run-now adoption replay; runtime unavailable before launch; a runtime
+lost after a possible side effect; timeout and cancel races; delivery commit
+failure after success; revoked familiar revision; approval
+required/approved/consumed and expired/replayed; runtime capability downgrade;
+repeated retryable failure and quarantine; subscriber disconnect/replay with
+duplicates; legacy import staying paused and source-preserving; retention and
+redaction without breaking receipt verification; and direct versus
+Psyche-orchestrated runs sharing one binding and receipt contract.
+
+Each vector declares its profile/version, prerequisites, input, expected
+events/state/receipt, and refusal behavior. Vectors are consumable without
+linking Coven private modules.
+
+## Documentation as a verification surface
+
+This documentation set participates in conformance rather than paraphrasing it:
+
+- The landed schema pages are generated against and verified with the
+  implementation at the revision pinned in
+  [`docs/source-lock.json`](https://github.com/OpenCoven/coven-docs/blob/main/docs/source-lock.json);
+  the daily source-drift check turns upstream changes into a review obligation
+  instead of silent staleness ([freshness contract](https://github.com/OpenCoven/coven-docs/blob/main/docs/freshness.md)).
+- Executable vectors on
+  [Schedules and timezones](/docs/automations/schedules-timezones) mirror the
+  scheduler's parser tests.
+- Operator runbooks are dogfooded against the landed diagnostics and are
+  required to name ratified-but-unavailable commands instead of inventing them.
+- Link, anchor, Mermaid, accessibility, and machine-readable output gates run in
+  CI on every change (`pnpm verify`); the site publishes `llms.txt` and
+  `llms-full.txt` plus a per-deployment build identifier (`/build.txt` and the
+  `x-coven-docs-commit` header) that search/RAG surfaces consume.
+
+## Evidence packets
+
+Automation-affecting work carries an evidence packet, not a claim. A packet
+includes: objective and acceptance criteria; the canonical contract/artifact
+revisions consulted; lifecycle, authority, and privacy impact; exact tests and
+results; fault/crash points exercised; migration and rollback notes; generated
+artifacts and provenance; cross-repository canaries; and unresolved uncertainty.
+
+The release packet pins the source commit, dependency lockfiles, packed artifact
+digests, conformance runner and vector versions, the environment matrix, and all
+profile results — the input for an independent go/no-go decision.
+
+## Current status
+
+**Foundation-ready, not v1-certified** (program assessment in
+[#854](https://github.com/OpenCoven/coven/issues/854), 2026-08-30). The local
+scheduler foundation is landed and verified; the conformance runner, chaos/load
+certification, and cross-repository canaries are open work. Until the gates
+pass, this documentation refuses to describe automations as a certified
+production workflow — the [Compatibility](/docs/automations/compatibility)
+ledger reports each profile separately.

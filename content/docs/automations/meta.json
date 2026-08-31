@@ -1,0 +1,26 @@
+{
+  "title": "Automations",
+  "description": "Durable familiar routines",
+  "root": true,
+  "icon": "LuZap",
+  "pages": [
+    "index",
+    "quickstart",
+    "architecture",
+    "definitions",
+    "schedules-timezones",
+    "lifecycle",
+    "identity-authority",
+    "approvals",
+    "runtimes",
+    "psyche",
+    "sdk",
+    "cave-oversight",
+    "migration-codex",
+    "operations",
+    "security-privacy",
+    "conformance",
+    "compatibility",
+    "adr-index"
+  ]
+}

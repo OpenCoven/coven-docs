@@ -1,0 +1,15 @@
+{
+  "title": "Operations",
+  "description": "Runbooks for unhealthy automation states",
+  "pages": [
+    "index",
+    "missed",
+    "duplicate",
+    "stuck",
+    "unauthorized",
+    "stale-identity",
+    "failing",
+    "delivery",
+    "receipts"
+  ]
+}

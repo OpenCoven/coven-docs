@@ -1,0 +1,255 @@
+---
+title: "Safe quickstart"
+description: "Create, preview, activate, observe, pause, and remove a paused-by-default automation with a low-risk local action."
+read_when:
+  - You are running your first Coven-owned recurring routine
+  - You want every safety gate demonstrated before activation
+---
+
+This walkthrough uses a low-risk local action (writing one local file) and keeps
+the routine paused until you explicitly activate it. No step normalizes
+unattended external effects: the example action stays inside the working
+directory, and external side effects remain out of scope for v1.
+
+## 1. Install and verify compatible components
+
+Install the CLI, then verify the local boundary and start the daemon. The
+scheduler lives in the daemon process, not in the CLI.
+
+```sh
+npm install -g @opencoven/cli
+coven doctor
+coven daemon start
+coven daemon status
+```
+
+`coven doctor` must pass before you continue. If the daemon will not start,
+resolve that first — [Daemon lifecycle](/docs/daemon/lifecycle) has the
+diagnostics. There is no fallback scheduler: when the daemon is down, nothing is
+planned, claimed, or dispatched.
+
+## 2. Inspect the automations capability
+
+Ask the daemon which control actions it supports before hard-coding any of
+them:
+
+```http
+GET /api/v1/capabilities
+```
+
+The response lists the `coven.automations` capability with its action ids
+(`coven.automations.list`, `get`, `create`, `update`, `delete`, `tick`, `runs`,
+`run`, `import`, `health`). An action id that is not advertised must be treated
+as unsupported — [Daemon socket API](/docs/daemon/socket-api) covers the
+handshake.
+
+## 3. Create a paused draft
+
+Definitions are stored by Coven under `$COVEN_HOME/automations/` and in the
+SQLite ledger. New definitions are `PAUSED` and stay that way until you
+explicitly activate them.
+
+```sh
+curl --unix-socket "$COVEN_HOME/coven.sock" http://localhost/api/v1/actions \
+  -H 'content-type: application/json' \
+  -d '{
+    "action": "coven.automations.create",
+    "origin": "docs-quickstart",
+    "intentId": "quickstart-create-1",
+    "definition": {
+      "schemaVersion": 1,
+      "id": "daily-reflection",
+      "name": "Daily reflection",
+      "status": "PAUSED",
+      "rrule": "FREQ=DAILY;BYHOUR=9,17",
+      "timezone": "local",
+      "misfire": "latest",
+      "overlap": "forbid",
+      "timeoutMinutes": 30,
+      "runtime": "coven-code",
+      "cwd": "/home/you/coven-notes",
+      "outputTarget": "reflection.md",
+      "prompt": "Append one dated paragraph of today notes to reflection.md. Work only inside the project directory."
+    }
+  }'
+```
+
+A successful create returns HTTP 200 with an `automations.changed` event whose
+payload contains the stored `routine` and `createdAt`. Read the payload, not
+just the status code: a domain failure (for example, an invalid RRULE) is
+returned inside that same envelope as an `error` field until typed failure
+semantics land in [#855](https://github.com/OpenCoven/coven/issues/855).
+
+`PAUSED` is a first-class state, not an afterthought: a paused definition is
+reported as `pausedSkipped` by ticks and never claims work.
+
+## 4. Preview the schedule and timezone behavior
+
+The landed preview surface is the health projection:
+
+```sh
+curl --unix-socket "$COVEN_HOME/coven.sock" http://localhost/api/v1/actions \
+  -H 'content-type: application/json' \
+  -d '{
+    "action": "coven.automations.health",
+    "origin": "docs-quickstart",
+    "id": "daily-reflection"
+  }'
+```
+
+The `health` payload reports `nextDueAt`, `lastPlannedAt`, `lastStartedAt`,
+`lastSuccessAt`, `consecutiveFailures`, lease fields, and a `staleReason` when
+something is wrong. `nextDueAt` is the next planned slot for the definition's
+RRULE and `timezone`.
+
+`timezone: local` is a compatibility input; it resolves against the host clock.
+The stable contract — explicit IANA timezone binding, DST gap/fold policy, and a
+range preview — is ratified in [#856](https://github.com/OpenCoven/coven/issues/856).
+Until it lands, schedule
+[schedules-timezones](/docs/automations/schedules-timezones) and verify a
+twice-daily `BYHOUR=9,17` routine resolves to the two hours you expect on your
+host.
+
+## 5. Inspect the familiar binding and policy surface
+
+Read the stored definition and check the binding fields:
+
+```sh
+curl --unix-socket "$COVEN_HOME/coven.sock" http://localhost/api/v1/actions \
+  -H 'content-type: application/json' \
+  -d '{
+    "action": "coven.automations.get",
+    "origin": "docs-quickstart",
+    "id": "daily-reflection"
+  }'
+```
+
+What exists today: the `familiarId` string is propagated into the shared
+runtime launch path so the run loads the current familiar context.
+
+What is not normative yet: exact familiar root/revision embodiment binding,
+capability and risk classification, and approval policy are ratified targets
+([familiar-contract#17](https://github.com/OpenCoven/familiar-contract/issues/17),
+[coven-threads#29](https://github.com/OpenCoven/coven-threads/issues/29),
+[#857](https://github.com/OpenCoven/coven/issues/857)). Until they land, a
+`familiarId` is a routing hint — not proof that the named familiar ran, and not
+an authorization. See
+[Identity and authority](/docs/automations/identity-authority).
+
+## 6. Activate explicitly
+
+Activation is a deliberate edit that sets `status` to `ACTIVE`:
+
+```sh
+curl --unix-socket "$COVEN_HOME/coven.sock" http://localhost/api/v1/actions \
+  -H 'content-type: application/json' \
+  -d '{
+    "action": "coven.automations.update",
+    "origin": "docs-quickstart",
+    "intentId": "quickstart-activate-1",
+    "definition": {
+      "schemaVersion": 1,
+      "id": "daily-reflection",
+      "name": "Daily reflection",
+      "status": "ACTIVE",
+      "rrule": "FREQ=DAILY;BYHOUR=9,17",
+      "timezone": "local",
+      "misfire": "latest",
+      "overlap": "forbid",
+      "timeoutMinutes": 30,
+      "runtime": "coven-code",
+      "cwd": "/home/you/coven-notes",
+      "outputTarget": "reflection.md",
+      "prompt": "Append one dated paragraph of today notes to reflection.md. Work only inside the project directory."
+    }
+  }'
+```
+
+`update` replaces the stored definition, so send the complete definition you
+want stored. The next daemon tick plans occurrences for active definitions
+only.
+
+## 7. Observe occurrences, runs, and delivery
+
+The daemon's scheduler thread runs this tick automatically every 60 seconds.
+Let it claim the next due occurrence, or force one tick manually to see the
+machinery move:
+
+```sh
+curl --unix-socket "$COVEN_HOME/coven.sock" http://localhost/api/v1/actions \
+  -H 'content-type: application/json' \
+  -d '{"action": "coven.automations.tick", "origin": "docs-quickstart"}'
+```
+
+The tick report separates `planned`, `alreadyFenced`, `pausedSkipped`,
+`recovered`, `claimed`, and `failed` counts. Then read the run ledger:
+
+```sh
+curl --unix-socket "$COVEN_HOME/coven.sock" http://localhost/api/v1/actions \
+  -H 'content-type: application/json' \
+  -d '{
+    "action": "coven.automations.runs",
+    "origin": "docs-quickstart",
+    "id": "daily-reflection",
+    "limit": 5
+  }'
+```
+
+Each run record carries `status`, `exitCode`, `sessionId`, bounded `logJson`,
+`outputCommit`, and start/finish timestamps. An atomic output commit lands in
+`outputTarget` only after a verified run; a failed commit fails the run visibly.
+
+## 8. Pause, cancel, retry, reconcile
+
+Safe actions that exist today:
+
+- **Pause** — `update` the definition with `status: "PAUSED"`. Planning stops
+  immediately; history is untouched.
+- **Observe a stuck claim** — `health` shows `leaseOwner` and
+  `leaseExpiresAt`; an expired lease is recovered on a later tick and the
+  occurrence is marked `failed` with a stale reason. See
+  [Stuck claimed or running attempt](/docs/automations/operations/stuck).
+
+Cancellation requests, retry classification, and one-run reconciliation are
+ratified targets in [#856](https://github.com/OpenCoven/coven/issues/856). Until
+they land, the safe moves are pause, inspect, and let lease recovery converge —
+never raw database edits.
+
+## 9. Diagnose daemon unavailability
+
+If runs stop happening, check liveness before the automations layer:
+
+```sh
+coven daemon status
+```
+
+A down daemon means no ticks, no claims, and no dispatch — by design. After a
+restart, the next tick recovers expired leases and plans the latest missed
+occurrence (`misfire: latest`), not a burst. See
+[Operations](/docs/automations/operations) for the full runbook set.
+
+## 10. Remove without erasing history
+
+Deleting a definition stops all future planning:
+
+```sh
+curl --unix-socket "$COVEN_HOME/coven.sock" http://localhost/api/v1/actions \
+  -H 'content-type: application/json' \
+  -d '{
+    "action": "coven.automations.delete",
+    "origin": "docs-quickstart",
+    "id": "daily-reflection"
+  }'
+```
+
+The response reports `deleted: true` or `false`. Deleting removes the
+definition row; historical occurrence and run rows remain in the ledger, and no
+command erases them. Versioned tombstone semantics are ratified in
+[#855](https://github.com/OpenCoven/coven/issues/855). To stop a routine
+temporarily, prefer `PAUSED` over deletion.
+
+## After the quickstart
+
+- [Schedules and timezones](/docs/automations/schedules-timezones) — the exact RRULE vocabulary that validates.
+- [Lifecycle](/docs/automations/lifecycle) — what each state transition means.
+- [Migration from Codex](/docs/automations/migration-codex) — importing existing definitions, still paused.

@@ -45,6 +45,16 @@
       "searchable": true
     },
     {
+      "slug": "automations",
+      "title": "Automations",
+      "description": "Durable familiar routines",
+      "searchDescription": "Coven Automations v1: definitions, schedules, occurrence lifecycle, authority, operations, migration, and conformance status",
+      "stability": "preview",
+      "owner": "OpenCoven/coven",
+      "sourceRepo": "OpenCoven/coven",
+      "searchable": true
+    },
+    {
       "slug": "memory-models",
       "title": "Memory + Models",
       "description": "Memory Layers and Providers",
