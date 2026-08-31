@@ -49,6 +49,7 @@ The daemon keeps an append-only recovery log at `$COVEN_HOME/daemon-recovery.log
 - Termination of unreachable duplicate daemons.
 - Accept-loop and API handler errors.
 - Panics, including a captured backtrace.
+- Automations scheduler tick failures (the daemon runs the routine plan/recover/claim tick every 60 seconds).
 
 Read it first when the daemon restarted unexpectedly or a socket was left behind. The lock files `daemon.lock` (lifecycle orchestration) and `daemon-serve.lock` (single-writer serve guard) sit next to it; see [Configuration and COVEN_HOME](/docs/daemon/configuration) for the full state-directory layout.
 
