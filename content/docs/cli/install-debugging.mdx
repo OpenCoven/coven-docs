@@ -78,7 +78,7 @@ Get-Command -All coven
 coven --version
 ```
 
-Multiple entries mean more than one install is on your search path. Remove the stale copy or move the intended install earlier on `PATH` before debugging anything else. `coven doctor` reports the same situation as `install:conflicts` with the concrete paths in its prose output. On Windows, two `PATH` entries that differ only in letter case are one directory and one install; on Unix-like hosts they are distinct directories and both count.
+Multiple entries mean more than one install is on your search path. Remove the stale copy or move the intended install earlier on `PATH` before debugging anything else. `coven doctor` performs this check itself: when more than one install resolves, its prose report opens with an `Installs:` section that marks the active copy and each shadowed one, and the first entry wins. On Windows, two `PATH` entries that differ only in letter case are one directory and one install; on Unix-like hosts they are distinct directories and both count.
 
 ## `coven` Command Not Found
 
@@ -159,6 +159,8 @@ coven doctor
 ```
 
 If more than one `coven` appears in `which -a coven` or `Get-Command -All coven`, an earlier install is shadowing the new one on `PATH`. Remove the stale copy or reorder `PATH` so the intended install wins.
+
+`coven doctor` reports the same condition directly: an `Installs:` section in the prose output and an `install:conflicts` warning in the `--json` report. The JSON keeps paths out, so run plain `coven doctor` for the concrete paths to remove.
 
 ## Missing Or Mismatched Native Platform Package
 

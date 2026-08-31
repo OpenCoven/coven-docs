@@ -1,0 +1,138 @@
+---
+title: "Routine automations"
+summary: "Coven-native routine definitions: the coven.automations capability, the definition schema, the daemon scheduler tick, and the run ledger."
+description: "Reference for Coven routine automations: routine definitions, scoped RRULE schedules, the daemon 60-second tick, control-plane actions, and the run ledger."
+read_when:
+  - Scheduling recurring Coven work from the daemon
+  - Driving routine definitions through the local API
+---
+
+The daemon owns routine automations: durable routine definitions stored in the Coven
+SQLite ledger replace harness-owned schedules. A routine pairs a scoped recurrence rule
+with a prompt that a runtime executes; the daemon plans occurrences, claims them with a
+bounded lease, dispatches due runs, and records every run in a ledger.
+
+Routines are managed through the daemon control plane rather than dedicated CLI
+subcommands: you manage them through `POST /api/v1/actions` on the local API with the
+`coven.automations` capability. Use [capability discovery](/docs/reference/api) to
+confirm the daemon advertises `coven.automations` before sending action ids.
+
+## Capability and actions
+
+`GET /api/v1/capabilities` advertises `coven.automations` (adapter `coven-daemon`,
+status `available`, policy `allow`) with these action ids:
+
+| Action id | Behavior |
+| --- | --- |
+| `coven.automations.list` | Return all routine definitions as `routines`. |
+| `coven.automations.get` | Return one definition as `routine`; requires `id`. |
+| `coven.automations.create` | Validate and store a `definition`; returns the stored routine and `createdAt`. |
+| `coven.automations.update` | Validate and replace a stored `definition`; returns the routine and `updatedAt`. |
+| `coven.automations.delete` | Delete by `id`; returns `deleted: true` when a row was removed. |
+| `coven.automations.tick` | Run one plan/recover/claim pass and return the tick report. |
+| `coven.automations.runs` | List the run ledger for `id`; `limit` defaults to 20. |
+| `coven.automations.run` | Dispatch a stored routine by `id` immediately. |
+| `coven.automations.import` | Import legacy Codex automations; non-destructive, and imported routines start `PAUSED`. |
+| `coven.automations.health` | Return one health snapshot for `id`: next due slot, last planned, started, and success times, consecutive failures, and lease state. |
+
+Unknown action ids still fail closed, and an invalid definition returns `400` with
+`"accepted": false` plus the validation reason. Parsing and validation are one reviewable
+surface shared by create, update, and future import paths.
+
+## Routine definitions
+
+Definitions are validated camelCase objects with `schemaVersion: 1`:
+
+| Field | Rules |
+| --- | --- |
+| `id` | 1 to 96 characters; ASCII letters, digits, `-`, `_`, and `.` only. Keep it stable: occurrences and runs key on it. |
+| `name` | 1 to 160 characters after trimming. |
+| `status` | `ACTIVE` or `PAUSED`. Start new routines `PAUSED` so nothing runs until a human opts in. |
+| `rrule` | Scoped vocabulary only: `FREQ=DAILY` or `FREQ=WEEKLY` (required), optional `BYHOUR` list (hours 0 to 23; defaults to 9), optional `BYDAY` weekday list for weekly schedules (defaults to `MO`). Anything else, for example `FREQ=HOURLY` or `COUNT`, is refused. |
+| `timezone` | `utc` or `local`. |
+| `misfire` | `latest`: on recovery, only the latest missed occurrence runs. |
+| `overlap` | `forbid`: a run is skipped while the previous occurrence has not settled. |
+| `timeoutMinutes` | 1 to 44640 (one minute to 31 days). |
+| `runtime` | 1 to 64 characters; the executing harness, for example `coven-code`. |
+| `familiarId` | Optional, 1 to 64 characters. |
+| `cwd` | Optional project directory. A missing `cwd` fails the run with a recorded reason instead of guessing a project. |
+| `outputTarget` | Optional atomic output path; delivery lands there only on a completed, verified run. |
+| `prompt` | Required, non-empty. |
+| `model`, `tags` | Optional model override and tags. |
+
+## Scheduling and the daemon tick
+
+At startup the daemon spawns an automations scheduler thread that runs the
+plan/recover/claim tick every 60 seconds and dispatches every claimed occurrence through
+the shared session-launch path. Planning walks the scoped RRULE vocabulary forward from
+the later of the definition's creation time and its latest fenced occurrence, so slots
+from before the routine existed are never backfilled and a missed stretch collapses to
+the latest due slot (misfire `latest`). Wall-clock times resolve in the definition's
+timezone: DST spring-forward gaps are skipped and fall-back repeats pin to the first
+pass. Occurrences are fenced by `UNIQUE(automation_id, scheduled_for)`, claimed with a
+bounded lease, and expired claims fail with a stale reason so a dead owner never renders
+as live work. The tick is idempotent across restarts.
+
+Tick failures are appended to the daemon recovery log; see
+[Observability](/docs/daemon/observability). `coven.automations.tick` returns the same
+report on demand:
+
+```json
+{
+  "planned": ["daily-notes@2026-09-01T09:00:00Z"],
+  "alreadyFenced": 0,
+  "pausedSkipped": 0,
+  "recovered": 0,
+  "claimed": ["daily-notes@2026-09-01T09:00:00Z"],
+  "failed": []
+}
+```
+
+`planned`, `claimed`, and `failed` are occurrence id lists; `alreadyFenced`,
+`pausedSkipped`, and `recovered` are counts.
+
+## Runs and dispatch
+
+`coven.automations.run` loads the stored routine, claims an immediate occurrence, records
+a ledger row, builds a session launch from the definition (familiar binding, runtime,
+`cwd`, prompt), dispatches it through the shared session-launch path, and settles the
+occurrence and ledger row together. The response carries `runId`, `status` (`succeeded`,
+`failed`, or `cancelled`), `sessionId`, and `error`.
+
+`coven.automations.runs` lists ledger rows for one routine:
+
+```json
+{
+  "runs": [
+    {
+      "id": "run-...",
+      "automationId": "daily-notes",
+      "occurrenceId": "...",
+      "sessionId": "session-...",
+      "familiarId": "charm",
+      "runtime": "coven-code",
+      "status": "succeeded",
+      "exitCode": 0,
+      "logJson": "...",
+      "outputCommit": "...",
+      "startedAt": "...",
+      "finishedAt": "..."
+    }
+  ]
+}
+```
+
+The daemon tick does not stop at claiming: claimed occurrences are dispatched through the
+same shared session-launch path as manual runs, so an `ACTIVE` routine runs on schedule
+without a human in the loop. Use `coven.automations.run` to trigger a routine immediately
+instead of waiting for its next due slot.
+
+## Related
+
+- [Local API](/docs/reference/api) for the action envelope and error model.
+- [Socket API](/docs/daemon/socket-api) for the versioned local IPC boundary.
+- [Routines and automations (CLI)](/docs/cli/automations) for the same control plane from
+  the CLI docs, including legacy Codex import.
+- [Daemon lifecycle](/docs/daemon/lifecycle) for start, restart, and stop behavior around
+  the scheduler thread.
+- [Observability](/docs/daemon/observability) for the recovery log.
