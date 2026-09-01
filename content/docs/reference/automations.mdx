@@ -141,9 +141,17 @@ An immediate run uses:
 }
 ```
 
-A successful dispatch returns a run id and session id. A missing routine,
-missing `cwd`, runtime launch failure, or other execution problem is represented
-in the action payload and must remain a failed result.
+A successful dispatch returns a run id and session id with status `running`.
+That status proves durable correlation and runtime ownership, not completion.
+The automation run remains nonterminal until the correlated session ledger
+contains authoritative terminal evidence. Launch acknowledgement, process
+output, or a dropped client connection must not be reported as success.
+
+A missing routine, missing `cwd`, or launch rejection is represented in the
+action payload as a failed result. Deadline and restart recovery settle
+conservatively: timeout handling requires strict process-tree containment, and
+an interrupted run stays nonterminal until Coven can prove a terminal
+disposition.
 
 Use `coven.automations.health` for the next due time, recent planning and run
 timestamps, consecutive failure count, live lease owner/expiry, and a staleness
