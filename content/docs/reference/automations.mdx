@@ -1,0 +1,154 @@
+---
+title: Coven automations
+description: Durable Coven-owned routine definitions, scheduling, execution, health, and run history.
+---
+
+Coven automations are durable routine definitions owned by the Coven daemon and
+its local store. A routine binds a schedule to a validated runtime launch,
+optional familiar identity, project working directory, prompt, and delivery
+settings. The scheduler and run ledger live in Coven rather than in a harness
+home directory.
+
+Automations are exposed through the `coven.automations` capability and the
+versioned `POST /api/v1/actions` router. Always call
+`GET /api/v1/capabilities` first and use only action ids advertised by the live
+daemon.
+
+## Safety defaults
+
+- Imported legacy routines are created as `PAUSED`; import never opts them into execution.
+- Unsupported recurrence values fail validation rather than being approximated.
+- Overlap policy is `forbid` and misfire recovery is `latest` in the v1 definition shape.
+- A run without an explicit `cwd` fails instead of guessing a project.
+- Scheduled and manual runs use the same validated session-launch path.
+- The daemon processes the scheduler on a 60-second cadence and records occurrence and run state durably.
+
+Review a definition before changing its status to `ACTIVE`. Provider credentials
+remain owned by the selected runtime or harness and must not be embedded in the
+automation definition or action envelope.
+
+## Action envelope
+
+Automation arguments are top-level fields in the action request. `origin` and
+`intentId` are optional correlation fields.
+
+```json
+{
+  "action": "coven.automations.health",
+  "origin": "local-maintainer-tool",
+  "intentId": "inspect-daily-notes-1",
+  "id": "daily-notes"
+}
+```
+
+The router returns an event-shaped response when it recognized and routed the
+action:
+
+```json
+{
+  "ok": true,
+  "accepted": true,
+  "action": "coven.automations.health",
+  "status": "completed",
+  "event": {
+    "kind": "automations.changed",
+    "action": "coven.automations.health",
+    "origin": "local-maintainer-tool",
+    "intentId": "inspect-daily-notes-1",
+    "payload": {
+      "health": {
+        "automationId": "daily-notes"
+      }
+    }
+  }
+}
+```
+
+`accepted: true` proves that the router accepted the known action. It does not
+by itself prove that the requested automation operation succeeded. Inspect
+`event.payload.error` and action-specific result fields before reporting
+success. Malformed envelopes, missing required fields, and unknown action ids
+fail closed with HTTP `400`.
+
+## Supported actions
+
+| Action | Required fields | Result |
+| --- | --- | --- |
+| `coven.automations.list` | none | `routines` |
+| `coven.automations.get` | `id` | `routine` or `null` |
+| `coven.automations.create` | `definition` | created routine and timestamp |
+| `coven.automations.update` | `definition` | updated routine and timestamp |
+| `coven.automations.delete` | `id` | `id` and `deleted` |
+| `coven.automations.tick` | none | planning, recovery, claim, and failure report |
+| `coven.automations.runs` | `id`; optional `limit` | recent run records; default limit `20` |
+| `coven.automations.run` | `id` | immediate run id, status, session id, and error |
+| `coven.automations.import` | none | imported, skipped, and failure lists |
+| `coven.automations.health` | `id` | next due time, recent outcomes, lease, and staleness state |
+
+## Definition shape
+
+A create or update request supplies a top-level `definition` object:
+
+```json
+{
+  "action": "coven.automations.create",
+  "origin": "local-maintainer-tool",
+  "definition": {
+    "schemaVersion": 1,
+    "id": "daily-notes",
+    "name": "Daily notes",
+    "status": "PAUSED",
+    "rrule": "FREQ=DAILY;BYHOUR=9",
+    "timezone": "local",
+    "misfire": "latest",
+    "overlap": "forbid",
+    "timeoutMinutes": 30,
+    "runtime": "coven-code",
+    "familiarId": "charm",
+    "cwd": "/absolute/path/to/project",
+    "prompt": "Write the daily reflection.",
+    "tags": ["notes"]
+  }
+}
+```
+
+The v1 implementation validates:
+
+- `schemaVersion` is exactly `1`;
+- `id` is 1–96 ASCII letters, digits, `.`, `_`, or `-`;
+- `name` is 1–160 characters;
+- `status` is `ACTIVE` or `PAUSED`;
+- `rrule` uses the supported daily/weekly recurrence subset with supported `BYHOUR` and `BYDAY` values;
+- `timezone` is `local` or `utc`;
+- `misfire` is `latest` and `overlap` is `forbid`;
+- `timeoutMinutes` is 1–44,640;
+- `runtime` is non-empty and at most 64 characters;
+- `prompt` is non-empty;
+- optional `familiarId` is non-empty and at most 64 characters.
+
+Optional fields also include `model`, `outputTarget`, and `tags`. Treat all
+filesystem paths as host-local values. Do not copy a definition between hosts
+without reviewing its `cwd` and output target.
+
+## Manual runs and health
+
+An immediate run uses:
+
+```json
+{
+  "action": "coven.automations.run",
+  "id": "daily-notes"
+}
+```
+
+A successful dispatch returns a run id and session id. A missing routine,
+missing `cwd`, runtime launch failure, or other execution problem is represented
+in the action payload and must remain a failed result.
+
+Use `coven.automations.health` for the next due time, recent planning and run
+timestamps, consecutive failure count, live lease owner/expiry, and a staleness
+reason. Use `coven.automations.runs` for persisted run history rather than
+inferring completion from process output.
+
+See [Coven local API](/docs/reference/api) for transport and trust rules and
+[Safety](/docs/reference/safety) for the broader authority model.
