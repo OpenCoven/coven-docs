@@ -13,6 +13,27 @@ coven doctor
 and installed harnesses. Follow the first failing branch instead of changing
 multiple parts of the system at once.
 
+## Recovery rules
+
+Use the same rules at every stage of the first-session journey:
+
+1. Fix the first failing branch `coven doctor` reports, then rerun `doctor`.
+2. Inspect before you mutate. Session show, events, logs, and status are
+   read-only; sacrifice is permanent.
+3. Keep the recovery path aligned with the stage that failed.
+
+| Journey stage | Start here |
+| --- | --- |
+| Install or `PATH` | [`coven` command not found](#coven-command-not-found) |
+| Harness install or login | [Harness missing](#harness-missing) |
+| Daemon startup or connection | [Daemon unavailable](#daemon-unavailable) |
+| Recorded run or project boundary | [`cwd` rejected](#cwd-rejected) |
+| Session inspection or lifecycle | [Stale running sessions](#stale-running-sessions) and [Archive, summon, and sacrifice](#archive-summon-and-sacrifice) |
+
+Return to [Getting started](/docs/guide/getting-started) after the failing stage
+passes. Do not change unrelated configuration while the first failure is still
+unresolved.
+
 ```mermaid
 flowchart LR
   Start([Something broken?]) --> Doctor["coven doctor"]
