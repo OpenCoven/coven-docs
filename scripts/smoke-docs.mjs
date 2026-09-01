@@ -16,8 +16,11 @@ const report = {
   buildCommit: null,
   routes: [],
   mobile: [],
+  journeys: {},
   error: null,
 };
+
+const requiredJourneys = ['start', 'troubleshoot', 'reference', 'integration'];
 
 await mkdir(evidenceDir, { recursive: true });
 
@@ -168,6 +171,7 @@ try {
       path: '/docs/guide/getting-started',
       expectedText: 'Run a first session',
       stability: 'stable',
+      journey: 'start',
     },
     {
       path: '/docs/cli/setup',
@@ -175,11 +179,29 @@ try {
       stability: 'stable',
     },
     { path: '/docs/guide/ecosystem', expectedText: 'Where Coven ends', stability: 'stable' },
-    { path: '/docs/reference/api', expectedText: 'Supported flow', stability: 'stable' },
+    {
+      path: '/docs/reference/api',
+      expectedText: 'Supported flow',
+      stability: 'stable',
+      journey: 'reference',
+    },
     {
       path: '/docs/reference/troubleshooting',
       expectedText: 'Troubleshooting',
       stability: 'stable',
+      journey: 'troubleshoot',
+    },
+    {
+      path: '/docs/harnesses',
+      expectedText: 'Built-in harnesses',
+      stability: 'stable',
+      journey: 'integration',
+    },
+    {
+      path: '/docs/harnesses/codex',
+      expectedText: 'project-rooted PTY',
+      stability: 'stable',
+      journey: 'integration',
     },
     { path: '/docs/openapi', expectedText: 'API Reference', stability: 'stable' },
     {
@@ -269,10 +291,27 @@ try {
       status: response.status(),
       canonical,
       stability: route.stability ?? null,
+      journey: route.journey ?? null,
       h1Count,
       mainCount,
     });
   }
+
+  const coveredJourneys = new Set(
+    routes.flatMap((route) => (route.journey ? [route.journey] : [])),
+  );
+  const missingJourneys = requiredJourneys.filter((journey) => !coveredJourneys.has(journey));
+  if (missingJourneys.length > 0) {
+    throw new Error(
+      `Browser smoke is missing required journey routes: ${missingJourneys.join(', ')}`,
+    );
+  }
+  report.journeys = Object.fromEntries(
+    requiredJourneys.map((journey) => [
+      journey,
+      routes.filter((route) => route.journey === journey).map((route) => route.path),
+    ]),
+  );
 
   await page.setViewport({ width: 390, height: 844 });
   const mobileRoutes = [
@@ -310,7 +349,7 @@ try {
 
   report.ok = true;
   console.log(
-    `Docs smoke passed for ${report.routes.length} rendered pages plus exports, redirects, and ${report.mobile.length} mobile views.`,
+    `Docs smoke passed for ${report.routes.length} rendered pages covering the ${requiredJourneys.join(', ')} journeys plus exports, redirects, and ${report.mobile.length} mobile views.`,
   );
 } catch (error) {
   report.error = error instanceof Error ? error.message : String(error);
