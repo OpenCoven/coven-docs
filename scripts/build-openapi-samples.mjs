@@ -1,7 +1,8 @@
 #!/usr/bin/env node
-// Walks every operation in openapi/coven.daemon.v1.yaml, derives a realistic
-// example invocation from each operation's path/query parameters and request
-// body schema, and emits an `x-codeSamples` array in four languages.
+// Walks every operation in openapi/coven.daemon.v1.yaml, applies the reviewed
+// additive contract overlay, derives a realistic example invocation from each
+// operation's path/query parameters and request body schema, and emits an
+// `x-codeSamples` array in four languages.
 // Output: openapi/coven.daemon.v1.built.yaml.
 
 import fs from 'node:fs';
@@ -10,10 +11,33 @@ import yaml from 'js-yaml';
 
 const ROOT = process.cwd();
 const SRC = path.join(ROOT, 'openapi/coven.daemon.v1.yaml');
+const OVERLAY = path.join(ROOT, 'openapi/coven.daemon.v1.overlay.yaml');
 const OUT = path.join(ROOT, 'openapi/coven.daemon.v1.built.yaml');
 const API_PREFIX = '/api/v1';
 
 const doc = yaml.load(fs.readFileSync(SRC, 'utf8'));
+const overlay = yaml.load(fs.readFileSync(OVERLAY, 'utf8'));
+
+function isObject(value) {
+  return value !== null && typeof value === 'object' && !Array.isArray(value);
+}
+
+function applyOverlay(target, patch, pathParts = []) {
+  if (!isObject(target) || !isObject(patch)) {
+    throw new TypeError(`OpenAPI overlay must merge objects at ${pathParts.join('.') || '<root>'}`);
+  }
+
+  for (const [key, value] of Object.entries(patch)) {
+    const nextPath = [...pathParts, key];
+    if (isObject(value) && isObject(target[key])) {
+      applyOverlay(target[key], value, nextPath);
+    } else {
+      target[key] = value;
+    }
+  }
+}
+
+applyOverlay(doc, overlay);
 
 function deref(ref) {
   if (typeof ref !== 'string' || !ref.startsWith('#/')) return undefined;
@@ -264,6 +288,7 @@ for (const [pathTemplate, item] of Object.entries(doc.paths ?? {})) {
 const header =
   `# THIS FILE IS GENERATED — DO NOT EDIT.\n` +
   `# Source:  openapi/coven.daemon.v1.yaml\n` +
+  `# Overlay: openapi/coven.daemon.v1.overlay.yaml\n` +
   `# Builder: scripts/build-openapi-samples.mjs\n` +
   `# Run:     pnpm run openapi:build\n#\n`;
 
@@ -272,5 +297,6 @@ fs.writeFileSync(
   header + yaml.dump(doc, { lineWidth: -1, noRefs: true, quotingType: '"' }),
 );
 
+console.log(`✓ applied ${path.relative(ROOT, OVERLAY)}`);
 console.log(`✓ injected x-codeSamples into ${injected} operations`);
 console.log(`✓ wrote ${path.relative(ROOT, OUT)}`);

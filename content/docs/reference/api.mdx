@@ -15,11 +15,11 @@ capabilities, and treat structured errors as product behavior.
 ## Supported flow
 
 1. `GET /api/v1/health` — verify reachability and API compatibility.
-2. `GET /api/v1/capabilities` — discover available route families.
+2. `GET /api/v1/capabilities` — discover available route families and action ids.
 3. `POST /api/v1/sessions` — launch a validated harness session.
 4. `GET /api/v1/sessions` and `GET /api/v1/sessions/{id}` — inspect records.
 5. `GET /api/v1/events` — read ordered session events with a cursor.
-6. `POST /api/v1/actions` — request a validated control action with the action id in the JSON `action` field.
+6. `POST /api/v1/actions` — request a validated control action with the action id in the top-level JSON `action` field.
 
 ## Error envelope
 
@@ -36,7 +36,35 @@ envelope:
 }
 ```
 
-Use `error.code` for control flow; display `message` to people. The complete endpoint schemas and local examples are in the [interactive API reference](/docs/openapi).
+Use `error.code` for control flow; display `message` to people. The complete
+endpoint schemas and local examples are in the
+[interactive API reference](/docs/openapi).
+
+## Action router
+
+The action router accepts a top-level `action` string plus optional `origin` and
+`intentId` correlation fields. Action-specific fields are also top-level; there
+is no generic `args` wrapper in the current daemon implementation.
+
+```json
+{
+  "action": "coven.automations.health",
+  "origin": "local-maintainer-tool",
+  "intentId": "inspect-daily-notes-1",
+  "id": "daily-notes"
+}
+```
+
+Call `/capabilities` before invoking an action. The currently advertised stable
+action groups include `coven.capabilities.refresh` and the
+`coven.automations.*` actions documented in
+[Coven automations](/docs/reference/automations).
+
+A recognized action returns an event-shaped response. `accepted: true` means
+the router recognized and routed the request. Some action adapters report an
+operation-level failure in `event.payload.error`, so callers must inspect the
+payload before declaring success. Unknown actions, malformed bodies, and
+missing required top-level fields fail closed with HTTP `400`.
 
 ## Control-plane surface map
 
@@ -66,9 +94,10 @@ structured `raw_artifact_requires_raw_flag` or `raw_artifacts_disabled` error.
 ## Client rules
 
 - Send requests only to the daemon-reported same-user local IPC endpoint.
-- Check health and capabilities before assuming a route exists.
+- Check health and capabilities before assuming a route or action exists.
+- Put action-specific fields at the top level and validate action payload results.
 - Never treat a client-side check as a substitute for daemon validation.
-- Keep provider credentials in the harness, not in API requests.
+- Keep provider credentials in the harness, not in API requests or automation definitions.
 
 See [Daemon](/docs/daemon) for operating behavior, [Safety](/docs/reference/safety)
 for the enforcement model, and the

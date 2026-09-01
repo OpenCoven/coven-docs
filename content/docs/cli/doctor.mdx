@@ -1,6 +1,6 @@
 ---
 title: "Doctor"
-summary: "Use coven doctor to inspect store, project, daemon, socket, and harness readiness."
+summary: "Use coven doctor to inspect the active install, store, project, daemon, socket, and harness readiness."
 description: "Reference for coven doctor output and the readiness checks it performs before running harness sessions."
 read_when:
   - Coven setup is not working
@@ -13,19 +13,56 @@ read_when:
 coven doctor
 ```
 
-It checks the local state directory, project detection, daemon/socket status, and supported harness CLIs.
+It checks which Coven executable is answering, the local state directory,
+project detection, daemon/socket status, and supported harness CLIs.
 
 ## What it checks
 
 | Area | What to look for |
 | --- | --- |
+| Installed binary | `install:conflicts` reports the active executable and warns when more than one `coven` executable is visible on `PATH`. This check appears first because every later diagnostic must describe the binary you intended to run. |
 | Store | The path Coven will use for local state. Defaults to `~/.coven` unless `COVEN_HOME` is set. |
 | Project | Whether the current directory resolves to a git/project root. |
 | Daemon | Whether the daemon is running, stale, or stopped, and which local IPC endpoint it owns. |
 | Harnesses | Whether Codex, Claude Code, GitHub Copilot CLI, or the managed Coven Code engine is available. |
 | Next steps | A provider-specific install, `coven setup <provider>`, or `coven run <harness> "..."` command. |
 
-`doctor` does not inspect provider credential stores and does not silently run a network verification turn. Provider verification can consume network access or paid usage, so it remains a separately consented `coven setup` action.
+`doctor` does not inspect provider credential stores and does not silently run a
+network verification turn. Provider verification can consume network access or
+paid usage, so it remains a separately consented `coven setup` action.
+
+## Shadowed installs
+
+When `install:conflicts` warns, do not continue by reinstalling repeatedly. Find
+every executable visible to the current shell and identify which one answers
+first.
+
+On Unix-like shells:
+
+```bash
+which -a coven
+command -v coven
+```
+
+In PowerShell:
+
+```powershell
+Get-Command -All coven
+Get-Command coven
+```
+
+Remove or rename stale duplicate installs, or correct `PATH`, until the intended
+executable is first and `coven doctor` no longer reports a conflict. Then
+restart the daemon so its binary matches the foreground CLI:
+
+```bash
+coven daemon restart
+coven doctor
+```
+
+Do not delete an unfamiliar executable until you have identified how it was
+installed. Package-manager, npm, development-build, and manually copied binaries
+can coexist at different paths.
 
 ## Common next steps
 
@@ -41,7 +78,9 @@ If the daemon is stale:
 coven daemon restart
 ```
 
-If a provider CLI is missing, install it with the provider's official package. If the executable exists but login is incomplete, hand the terminal to the provider-owned flow explicitly:
+If a provider CLI is missing, install it with the provider's official package.
+If the executable exists but login is incomplete, hand the terminal to the
+provider-owned flow explicitly:
 
 ```bash
 coven setup codex
@@ -49,16 +88,18 @@ coven setup claude
 coven setup copilot
 ```
 
-Use `coven setup <provider> --verify` only when you also want a separate bounded provider turn after login. See [Provider setup](/docs/cli/setup).
+Use `coven setup <provider> --verify` only when you also want a separate bounded
+provider turn after login. See [Provider setup](/docs/cli/setup).
 
 ## Support evidence
 
 For support reports, include:
 
-- The exact `coven doctor` output.
+- The exact `coven doctor` output, including `install:conflicts`.
 - The command you expected to work.
 - The current working directory, if it is not private.
 - Whether you use custom `COVEN_HOME`.
 - A redacted `coven setup <provider> --verify-only --report-json <new-path>` report when stronger provider evidence is necessary and you explicitly accept possible provider usage or cost.
 
-For daemon-specific failures, continue with [Daemon commands](/docs/cli/daemon) and [Daemon observability](/docs/daemon/observability).
+For daemon-specific failures, continue with [Daemon commands](/docs/cli/daemon)
+and [Daemon observability](/docs/daemon/observability).

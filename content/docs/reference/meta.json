@@ -5,6 +5,7 @@
   "icon": "LuCode",
   "pages": [
     "api",
+    "automations",
     "auth",
     "safety",
     "troubleshooting"

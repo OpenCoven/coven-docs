@@ -1,0 +1,198 @@
+# Additive correction layer applied by scripts/build-openapi-samples.mjs.
+# The base document remains openapi/coven.daemon.v1.yaml; this overlay keeps
+# the live action-router contract reviewable without duplicating the full spec.
+
+paths:
+  /actions:
+    post:
+      description: |
+        Accepts a top-level action id plus optional correlation fields and
+        action-specific top-level fields. The daemon routes only known action
+        ids; unknown actions fail closed before an adapter can run.
+
+        `accepted: true` means the router recognized and routed the request. An
+        adapter can still report an operation-level failure in
+        `event.payload.error`; callers must inspect the payload before declaring
+        success.
+
+        Known action ids are discovered from `GET /capabilities`. The current
+        daemon advertises `coven.capabilities.refresh` and:
+        - `coven.automations.list`
+        - `coven.automations.get`
+        - `coven.automations.create`
+        - `coven.automations.update`
+        - `coven.automations.delete`
+        - `coven.automations.tick`
+        - `coven.automations.runs`
+        - `coven.automations.run`
+        - `coven.automations.import`
+        - `coven.automations.health`
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ActionRequest'
+            examples:
+              refreshCapabilities:
+                summary: Refresh capability discovery
+                value:
+                  action: coven.capabilities.refresh
+                  origin: coven-client
+                  intentId: refresh-1
+              automationHealth:
+                summary: Inspect one Coven automation
+                value:
+                  action: coven.automations.health
+                  origin: local-maintainer-tool
+                  intentId: inspect-daily-notes-1
+                  id: daily-notes
+              createPausedAutomation:
+                summary: Create a reviewed, paused automation
+                value:
+                  action: coven.automations.create
+                  origin: local-maintainer-tool
+                  definition:
+                    schemaVersion: 1
+                    id: daily-notes
+                    name: Daily notes
+                    status: PAUSED
+                    rrule: FREQ=DAILY;BYHOUR=9
+                    timezone: local
+                    misfire: latest
+                    overlap: forbid
+                    timeoutMinutes: 30
+                    runtime: coven-code
+                    cwd: /absolute/path/to/project
+                    prompt: Write the daily reflection.
+
+components:
+  schemas:
+    Capabilities:
+      examples:
+        - capabilities:
+            - id: coven.control.actions
+              label: Coven control-plane action router
+              adapter: coven-daemon
+              status: available
+              policy: allow
+              actions: [coven.capabilities.refresh]
+            - id: coven.automations
+              label: Coven-native routine automations
+              adapter: coven-daemon
+              status: available
+              policy: allow
+              actions:
+                - coven.automations.list
+                - coven.automations.get
+                - coven.automations.create
+                - coven.automations.update
+                - coven.automations.delete
+                - coven.automations.tick
+                - coven.automations.runs
+                - coven.automations.run
+                - coven.automations.import
+                - coven.automations.health
+            - id: desktop.automation
+              label: Desktop automation adapters
+              adapter: desktop-use
+              status: planned
+              policy: requiresApproval
+              actions: []
+
+    ActionRequest:
+      type: object
+      required: [action]
+      properties:
+        action:
+          type: string
+          minLength: 1
+          description: Known action id advertised by `GET /capabilities`.
+          examples: [coven.automations.health]
+        origin:
+          type: string
+          minLength: 1
+          description: Optional caller identifier echoed for correlation.
+          examples: [local-maintainer-tool]
+        intentId:
+          type: string
+          minLength: 1
+          description: Optional caller-supplied correlation id echoed in the event.
+          examples: [inspect-daily-notes-1]
+        id:
+          type: string
+          minLength: 1
+          description: Required by get, delete, runs, run, and health automation actions.
+          examples: [daily-notes]
+        limit:
+          type: integer
+          description: Optional recent-run limit for `coven.automations.runs`; defaults to 20.
+          examples: [20]
+        definition:
+          type: object
+          description: Required validated routine definition for create and update actions.
+          additionalProperties: true
+      additionalProperties: true
+      examples:
+        - action: coven.automations.health
+          origin: local-maintainer-tool
+          intentId: inspect-daily-notes-1
+          id: daily-notes
+
+    ActionResponse:
+      type: object
+      required: [ok, accepted, action, status]
+      properties:
+        ok:
+          type: boolean
+        accepted:
+          type: boolean
+          description: Whether the router recognized and accepted the action envelope.
+        action:
+          type: string
+          description: Echo of the action id that was routed.
+        status:
+          type: string
+          enum: [completed, rejected]
+        reason:
+          type: string
+          description: Rejection reason when the router fails closed.
+        event:
+          oneOf:
+            - $ref: '#/components/schemas/ActionEvent'
+            - type: 'null'
+      examples:
+        - ok: true
+          accepted: true
+          action: coven.automations.health
+          status: completed
+          event:
+            kind: automations.changed
+            action: coven.automations.health
+            origin: local-maintainer-tool
+            intentId: inspect-daily-notes-1
+            payload:
+              health:
+                automationId: daily-notes
+
+    ActionEvent:
+      type: object
+      required: [kind, action, payload]
+      properties:
+        kind:
+          type: string
+          description: Event kind produced by the routed action.
+          examples: [automations.changed]
+        action:
+          type: string
+          description: Echo of the action id.
+        origin:
+          type: string
+          description: Optional echo of the caller identifier.
+        intentId:
+          type: string
+          description: Optional echo of the caller correlation id.
+        payload:
+          type: object
+          description: Action-specific result payload. Inspect `error` before declaring operation success.
+          additionalProperties: true
