@@ -76,7 +76,7 @@
   "devDependencies": {
     "@types/js-yaml": "^4.0.9",
     "@types/mdx": "^2",
-    "@types/node": "^22",
+    "@types/node": "^26",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "js-yaml": "^4.1.1",
