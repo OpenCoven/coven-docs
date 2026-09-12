@@ -40,6 +40,12 @@ Use `error.code` for control flow; display `message` to people. The complete
 endpoint schemas and local examples are in the
 [interactive API reference](/docs/openapi).
 
+The health response can also advertise `sessionPolicyContracts`. When it
+includes `["coven.session-policy.v1"]`, the daemon supports the refusal-only
+restricted-session negotiation contract over owner-local IPC. That contract is
+discovery and correlation only: it does not imply a supported enforcement
+backend, a grant, or a launched session.
+
 ## Action router
 
 The action router accepts a top-level `action` string plus optional `origin` and
@@ -84,6 +90,16 @@ copying an implementation detail into an external integration.
 `GET /api/v1/health` advertises the named `coven.daemon.v1` contract.
 `GET /api/v1/api-version` is a legacy route-family diagnostic; its literal
 `v1` value is not sufficient proof that every named-contract capability exists.
+
+`GET /api/v1/session-policy` is an inert discovery route for that same
+refusal-only contract. `POST /api/v1/sessions/restricted` validates the closed
+request shape and returns a correlated HTTP `409` refusal when the request is
+valid, or structured `400` / `403` / `409` errors when it is not. It does not
+open a store, resolve a familiar, or launch a harness in this revision.
+
+Do not send top-level `sessionPolicy` data to legacy `POST /api/v1/sessions`.
+That route remains the ordinary session-launch path and rejects session-policy
+requests instead of silently downgrading them.
 
 Broad event and log responses are redacted by default. Raw sensitive artifacts
 are available only through the narrow

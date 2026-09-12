@@ -847,6 +847,7 @@ components:
             executorDispatch: true
             eventCursor: sequence
             structuredErrors: true
+            sessionPolicyContracts: [coven.session-policy.v1]
           daemon:
             pid: 12345
             startedAt: 2026-05-09T12:00:00Z
@@ -882,6 +883,11 @@ components:
         structuredErrors:
           type: boolean
           description: Whether failure responses use the `ErrorEnvelope` shape (always `true` in `coven.daemon.v1`).
+        sessionPolicyContracts:
+          type: array
+          description: Refusal-only restricted-session admission contracts advertised by this daemon. `["coven.session-policy.v1"]` is advertised only over owner-local IPC; older daemons may omit the field and TCP may return an empty array.
+          items:
+            type: string
 
     HubHealth:
       type: object
