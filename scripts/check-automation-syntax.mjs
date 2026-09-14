@@ -25,4 +25,14 @@ if (failures.length > 0) {
   process.exit(1);
 }
 
+const regressions = spawnSync(process.execPath, [
+  '--test',
+  'scripts/check-source-drift.test.mjs',
+  'scripts/docs-release-gate.test.mjs',
+], { cwd: root, stdio: 'inherit' });
+if (regressions.error || regressions.status !== 0) {
+  console.error('Automation regression tests failed.');
+  process.exit(1);
+}
+
 console.log(`Automation syntax check passed for ${files.length} JavaScript modules.`);
