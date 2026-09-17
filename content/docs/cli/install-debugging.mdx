@@ -57,7 +57,7 @@ flowchart LR
 | Symptom | Likely cause | Fix |
 | --- | --- | --- |
 | `coven: command not found` | Install dir not on `PATH`, or global install failed | Confirm install method, then add its bin dir to `PATH`. |
-| `coven` runs an old version after an upgrade | A second install is first on `PATH`, or `npm install -g` wrote to a different npm prefix than the one your shell resolves | Run `coven doctor`; its `Installs:` block names every copy, its origin, and the removal command. See [More Than One coven On PATH](#more-than-one-coven-on-path). |
+| `coven` runs an old version after an upgrade | A second install is first on `PATH`, or `npm install -g` wrote to a different npm prefix than the one your shell resolves | Run `coven doctor`; the richer `Installs:` block format (OpenCoven/coven#1124) names every copy, its origin, and the removal command, while current releases print the older path-only list. See [More Than One coven On PATH](#more-than-one-coven-on-path). |
 | `coven` runs an old version via `npx` | Stale `npx` cache | Compare `coven --version` with `npm view @opencoven/cli version`; clear the cache and rerun. |
 | npm warns about a missing optional dependency | The native platform package did not resolve for your OS/CPU | Reinstall `@opencoven/cli` from the environment where you run it. |
 | `Unsupported platform` on install | OS/CPU is not covered by a published native package | Build from source, or use a supported platform / WSL2. |
