@@ -85,7 +85,7 @@ Multiple entries mean more than one install is on your search path; continue wit
 
 ## More Than One coven On PATH
 
-This is the most common cause of "I upgraded and nothing changed". The first `coven` on `PATH` answers every command, so an upgrade applied to any other copy is invisible. Doctor lists each copy in resolution order, says how it was installed, marks the one that is the running process, and prints the command that removes each shadowed copy:
+This is the most common cause of "I upgraded and nothing changed". The first `coven` on `PATH` answers every command, so an upgrade applied to any other copy is invisible. Until the CLI release that includes OpenCoven/coven#1124, Doctor still prints the older path-only list; treat the block below as the forthcoming format. Doctor lists each copy in resolution order, says how it was installed, marks the one that is the running process, and prints the command that removes each shadowed copy:
 
 ```text
 Installs:
@@ -94,7 +94,6 @@ Installs:
        remove: npm uninstall -g --prefix ~/.nvm/versions/node/v24.18.1 @opencoven/cli
   [!!] ~/.cargo/bin/coven (shadowed) — cargo install
        remove: cargo uninstall coven-cli
-  [!!] `npm install -g` writes to ~/.nvm/versions/node/v24.18.1, a shadowed copy, so upgrades never reach the active install.
 ```
 
 The first entry wins. Keep one install per machine: remove the shadowed copies with the commands above, then re-check with `coven --version`.
