@@ -65,7 +65,7 @@ flowchart LR
 
 ## Identify The Binary You Are Actually Running
 
-`coven doctor` prints this first, as an `Install:` line (one copy, with its origin) or an `Installs:` block (several copies). If `coven` does not run at all, list the candidates yourself:
+In the CLI release that includes OpenCoven/coven#1124, `coven doctor` prints this first as an `Install:` line (one copy, with its origin) or an `Installs:` block (several copies). Until then, Doctor prints the older path-only list. If `coven` does not run at all, list the candidates yourself:
 
 ### Unix-like shells
 
@@ -106,7 +106,7 @@ coven daemon restart
 coven doctor
 ```
 
-If Doctor reports that `npm install -g` writes to a shadowed prefix, upgrade the active copy explicitly:
+If Doctor reports that `npm install -g` writes to a shadowed prefix, upgrade the prefix that owns the active copy (for current releases, use the first path from `which -a coven` / `Get-Command -All coven` to identify it):
 
 ```sh
 npm install -g --prefix <active-prefix> @opencoven/cli@latest

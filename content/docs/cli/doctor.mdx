@@ -61,7 +61,7 @@ coven --version
 coven doctor
 ```
 
-Doctor can also print an npm-prefix advisory (outside `Installs:`) when `npm install -g` writes to a shadowed copy. In that case, the documented upgrade command never touches the binary your shell runs. Use the prefix-explicit command Doctor prints until the extra copies are gone:
+In the CLI release that includes OpenCoven/coven#1124, Doctor can also print an npm-prefix advisory (outside `Installs:`) when `npm install -g` writes to a shadowed copy. In that case, the documented upgrade command never touches the binary your shell runs. Use this prefix-explicit upgrade until the extra copies are gone:
 
 ```sh
 npm install -g --prefix <active-prefix> @opencoven/cli@latest
