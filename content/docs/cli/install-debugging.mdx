@@ -94,9 +94,10 @@ Installs:
        remove: npm uninstall -g --prefix ~/.nvm/versions/node/v24.18.1 @opencoven/cli
   [!!] ~/.cargo/bin/coven (shadowed) — cargo install
        remove: cargo uninstall coven-cli
-  The first entry wins. Keep one install per machine: remove the shadowed copies with the commands above, then re-check with `coven --version`.
-  [!!] `npm install -g` writes to ~/.nvm/versions/node/v24.18.1, a shadowed copy, so upgrades never reach the active install. Upgrade the active copy with: npm install -g --prefix ~/.local @opencoven/cli@latest
+  [!!] `npm install -g` writes to ~/.nvm/versions/node/v24.18.1, a shadowed copy, so upgrades never reach the active install.
 ```
+
+The first entry wins. Keep one install per machine: remove the shadowed copies with the commands above, then re-check with `coven --version`.
 
 Run the `remove:` commands, then confirm a single copy remains and the daemon is running that same binary:
 
@@ -104,6 +105,12 @@ Run the `remove:` commands, then confirm a single copy remains and the daemon is
 coven doctor
 coven daemon restart
 coven doctor
+```
+
+If Doctor reports that `npm install -g` writes to a shadowed prefix, upgrade the active copy explicitly:
+
+```sh
+npm install -g --prefix <active-prefix> @opencoven/cli@latest
 ```
 
 ### How the copies get there
