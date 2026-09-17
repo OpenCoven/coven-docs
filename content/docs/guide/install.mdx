@@ -11,7 +11,7 @@ import { Callout } from 'fumadocs-ui/components/callout';
 Use this page to choose the install route first, then read the platform and deployment notes that match where Coven will run.
 
 <Callout type="warn" title="One route per machine">
-Every route below puts a `coven` on `PATH`, and none of them notices the others. Two routes on one machine means two executables answering to `coven`, and an upgrade applied to the one your shell does not resolve looks like an upgrade that did nothing. Pick one route per machine; if you switch routes, remove the old install first (see [Uninstall](/docs/cli/uninstall)). `coven doctor` lists every copy it finds and how each was installed.
+Each installed route below puts a `coven` on `PATH`, while the active-development route runs from the source tree instead. None of these routes notices the others. Two installed routes on one machine means two executables answering to `coven`, and an upgrade applied to the one your shell does not resolve looks like an upgrade that did nothing. Pick one installed route per machine; if you switch routes, remove the old install first (see [Uninstall](/docs/cli/uninstall)). `coven doctor` lists every copy it finds and how each was installed.
 </Callout>
 
 ## Choose The Canonical Install Route
