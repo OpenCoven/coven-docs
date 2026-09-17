@@ -39,10 +39,10 @@ npm prefix -g
 npm prefix -g
 ```
 
-On macOS and Linux the executable lands in `<prefix>/bin/coven`; on Windows it lands in `<prefix>\coven.cmd` (the prefix itself is the bin directory, `%APPDATA%\npm` by default). To target a specific prefix regardless of which Node is active, name it:
+On macOS and Linux the executable lands in `<prefix>/bin/coven`; on Windows it lands in `<prefix>\coven.cmd` (the prefix itself is the bin directory, `%APPDATA%\npm` by default). To target a known prefix regardless of which Node is active, pass that prefix explicitly:
 
 ```sh
-npm install -g --prefix "$(npm prefix -g)" @opencoven/cli@latest
+npm install -g --prefix <prefix> @opencoven/cli@latest
 ```
 
 `coven doctor` prints the prefix that owns each npm install it finds, so you never have to work this out by hand.
