@@ -20,11 +20,12 @@ project detection, daemon/socket status, and supported harness CLIs.
 
 | Area | What to look for |
 | --- | --- |
-| Installed binary | `install:conflicts` reports the active executable and warns when more than one `coven` executable is visible on `PATH`. This check appears first because every later diagnostic must describe the binary you intended to run. |
+| Installed binary | The `Install` / `Installs` block lists every `coven` executable visible on `PATH` in resolution order, with how each was installed (npm and its prefix, `cargo install`, source build, legacy coven-code installer) and which entry is the running process. When more than one exists, each shadowed copy gets its exact removal command, and Doctor reports where `npm install -g` currently writes. JSON reports this as `install:conflicts` without paths. This check appears first because every later diagnostic must describe the binary you intended to run. |
 | Store | The path Coven will use for local state. Defaults to `~/.coven` unless `COVEN_HOME` is set. |
 | Project | Whether the current directory resolves to a git/project root. |
 | Daemon | Whether the daemon is running, stale, or stopped, and which local IPC endpoint it owns. |
 | Harnesses | Whether Codex, Claude Code, GitHub Copilot CLI, or the managed Coven Code engine is available. |
+| Engine | Which `coven-code` Coven will run and whether it meets the minimum version. An advisory `engine:path` line names a `coven-code` that is first on `PATH` but is not the engine Coven runs. |
 | Next steps | A provider-specific install, `coven setup <provider>`, or `coven run <harness> "..."` command. |
 
 `doctor` does not inspect provider credential stores and does not silently run a
@@ -33,36 +34,53 @@ paid usage, so it remains a separately consented `coven setup` action.
 
 ## Shadowed installs
 
-When `install:conflicts` warns, do not continue by reinstalling repeatedly. Find
-every executable visible to the current shell and identify which one answers
-first.
+When Doctor prints an `Installs:` block, more than one `coven` is on `PATH` and the first entry answers every command. Do not reinstall repeatedly; read the block, which already names each copy's origin and the command that removes it:
 
-On Unix-like shells:
+```text
+Installs:
+  [OK] ~/.local/bin/coven (active, this process) — npm, prefix ~/.local
+  [!!] ~/.nvm/versions/node/v24.18.1/bin/coven (shadowed) — npm, prefix ~/.nvm/versions/node/v24.18.1
+       remove: npm uninstall -g --prefix ~/.nvm/versions/node/v24.18.1 @opencoven/cli
+  [!!] ~/.cargo/bin/coven (shadowed) — cargo install
+       remove: cargo uninstall coven-cli
+  The first entry wins. Keep one install per machine: remove the shadowed copies with the commands above, then re-check with `coven --version`.
+  [!!] `npm install -g` writes to ~/.nvm/versions/node/v24.18.1, a shadowed copy, so upgrades never reach the active install. Upgrade the active copy with: npm install -g --prefix ~/.local @opencoven/cli@latest
+```
+
+Run each `remove:` command, then confirm one copy remains and it is the version you expect:
 
 ```bash
 which -a coven
-command -v coven
+coven --version
+coven doctor
 ```
-
-In PowerShell:
 
 ```powershell
 Get-Command -All coven
-Get-Command coven
+coven --version
+coven doctor
 ```
 
-Remove or rename stale duplicate installs, or correct `PATH`, until the intended
-executable is first and `coven doctor` no longer reports a conflict. Then
-restart the daemon so its binary matches the foreground CLI:
+The last line of the block is the one that explains a "broken" upgrade: when the prefix `npm install -g` writes to is not the active copy, the documented upgrade command never touches the binary your shell runs. Use the prefix-explicit command Doctor prints until the extra copies are gone.
+
+Then restart the daemon so its binary matches the foreground CLI:
 
 ```bash
 coven daemon restart
 coven doctor
 ```
 
-Do not delete an unfamiliar executable until you have identified how it was
-installed. Package-manager, npm, development-build, and manually copied binaries
-can coexist at different paths.
+Doctor recognizes these origins:
+
+| Origin | Removal |
+| --- | --- |
+| `npm, prefix <dir>` | `npm uninstall -g --prefix <dir> @opencoven/cli` |
+| `cargo install` | `cargo uninstall coven-cli` |
+| `source build` | Delete the link or binary; it points into a checkout's `target/` directory. |
+| `legacy coven-code installer` | Delete the `coven` file in `~/.coven-code/bin`. |
+| `unknown origin` | Identify the install method before deleting anything. |
+
+The JSON report (`coven doctor --json`) keeps `install:conflicts` path-free by design; use the prose form for the paths. See [Install Debugging](/docs/cli/install-debugging) for the platform-specific causes.
 
 ## Common next steps
 

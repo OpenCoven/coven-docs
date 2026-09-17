@@ -6,15 +6,46 @@ read_when:
   - You need to verify a fresh install before reading platform or deployment notes
 ---
 
+import { Callout } from 'fumadocs-ui/components/callout';
+
 Use this page to choose the install route first, then read the platform and deployment notes that match where Coven will run.
+
+<Callout type="warn" title="One route per machine">
+Every route below puts a `coven` on `PATH`, and none of them notices the others. Two routes on one machine means two executables answering to `coven`, and an upgrade applied to the one your shell does not resolve looks like an upgrade that did nothing. Pick one route per machine; if you switch routes, remove the old install first (see [Uninstall](/docs/cli/uninstall)). `coven doctor` lists every copy it finds and how each was installed.
+</Callout>
 
 ## Choose The Canonical Install Route
 
 | Route | Exact command | Use when | Verify |
 | --- | --- | --- | --- |
 | Published npm wrapper | `npm install -g @opencoven/cli` | You want the normal released install on a currently published platform package. | `coven --version` then `coven doctor` |
-| Source checkout on your Cargo bin path | `cargo install --path crates/coven-cli` | You cloned `OpenCoven/coven` and want the built CLI installed from that checkout. | `coven --version` then `coven doctor` |
+| Source checkout on your Cargo bin path | `cargo install --path crates/coven-cli` | Your platform has no published npm package, or you deliberately run Coven from a checkout and do **not** also install the npm wrapper. | `coven --version` then `coven doctor` |
 | Active development build | `cargo build --workspace` | You are editing Coven and will run it from the source tree. | `cargo run -p coven-cli -- doctor` |
+
+## Where `npm install -g` Puts Coven
+
+The npm route installs into npm's *global prefix*, and that prefix follows the Node.js that is active in the current shell:
+
+- Node version managers (nvm, fnm, volta, nvm-windows) give **every Node version its own prefix**, each with its own `bin` directory.
+- A system or Homebrew Node has another prefix, and `npm config set prefix` or `NPM_CONFIG_PREFIX` can point at a third.
+
+Each `npm install -g @opencoven/cli` writes into whichever prefix is active at that moment. Switch Node versions, or change the prefix, and the next install creates a second copy instead of upgrading the first. Check where npm will write before you install or upgrade:
+
+```sh
+npm prefix -g
+```
+
+```powershell
+npm prefix -g
+```
+
+On macOS and Linux the executable lands in `<prefix>/bin/coven`; on Windows it lands in `<prefix>\coven.cmd` (the prefix itself is the bin directory, `%APPDATA%\npm` by default). To target a specific prefix regardless of which Node is active, name it:
+
+```sh
+npm install -g --prefix "$(npm prefix -g)" @opencoven/cli@latest
+```
+
+`coven doctor` prints the prefix that owns each npm install it finds, so you never have to work this out by hand.
 
 ## Source Checkout Commands
 

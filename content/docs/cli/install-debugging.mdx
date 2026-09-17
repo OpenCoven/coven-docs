@@ -57,12 +57,15 @@ flowchart LR
 | Symptom | Likely cause | Fix |
 | --- | --- | --- |
 | `coven: command not found` | Install dir not on `PATH`, or global install failed | Confirm install method, then add its bin dir to `PATH`. |
-| `coven` runs an old version | Stale `npx` cache, a `PATH` shadow, or a wrapper/native package mismatch | Compare `coven --version` with `npm view @opencoven/cli version`; check `which -a coven` or `Get-Command -All coven`. |
+| `coven` runs an old version after an upgrade | A second install is first on `PATH`, or `npm install -g` wrote to a different npm prefix than the one your shell resolves | Run `coven doctor`; its `Installs:` block names every copy, its origin, and the removal command. See [More Than One coven On PATH](#more-than-one-coven-on-path). |
+| `coven` runs an old version via `npx` | Stale `npx` cache | Compare `coven --version` with `npm view @opencoven/cli version`; clear the cache and rerun. |
 | npm warns about a missing optional dependency | The native platform package did not resolve for your OS/CPU | Reinstall `@opencoven/cli` from the environment where you run it. |
 | `Unsupported platform` on install | OS/CPU is not covered by a published native package | Build from source, or use a supported platform / WSL2. |
 | Source build fails to compile | Toolchain or dependency mismatch | Update Rust stable and retry a clean `cargo build`. |
 
 ## Identify The Binary You Are Actually Running
+
+`coven doctor` prints this first, as an `Install:` line (one copy, with its origin) or an `Installs:` block (several copies). If `coven` does not run at all, list the candidates yourself:
 
 ### Unix-like shells
 
@@ -78,7 +81,58 @@ Get-Command -All coven
 coven --version
 ```
 
-Multiple entries mean more than one install is on your search path. Remove the stale copy or move the intended install earlier on `PATH` before debugging anything else.
+Multiple entries mean more than one install is on your search path; continue with the next section before debugging anything else.
+
+## More Than One coven On PATH
+
+This is the most common cause of "I upgraded and nothing changed". The first `coven` on `PATH` answers every command, so an upgrade applied to any other copy is invisible. Doctor lists each copy in resolution order, says how it was installed, marks the one that is the running process, and prints the command that removes each shadowed copy:
+
+```text
+Installs:
+  [OK] ~/.local/bin/coven (active, this process) — npm, prefix ~/.local
+  [!!] ~/.nvm/versions/node/v24.18.1/bin/coven (shadowed) — npm, prefix ~/.nvm/versions/node/v24.18.1
+       remove: npm uninstall -g --prefix ~/.nvm/versions/node/v24.18.1 @opencoven/cli
+  [!!] ~/.cargo/bin/coven (shadowed) — cargo install
+       remove: cargo uninstall coven-cli
+  The first entry wins. Keep one install per machine: remove the shadowed copies with the commands above, then re-check with `coven --version`.
+  [!!] `npm install -g` writes to ~/.nvm/versions/node/v24.18.1, a shadowed copy, so upgrades never reach the active install. Upgrade the active copy with: npm install -g --prefix ~/.local @opencoven/cli@latest
+```
+
+Run the `remove:` commands, then confirm a single copy remains and the daemon is running that same binary:
+
+```sh
+coven doctor
+coven daemon restart
+```
+
+### How the copies get there
+
+| Cause | What happens | Platforms |
+| --- | --- | --- |
+| Node version managers (nvm, fnm, volta, nvm-windows) | Every Node version has its own npm prefix. `npm install -g` writes to the active version's prefix; switching versions later leaves the old copy behind, and a fresh install in the new version makes a second one. With nvm, a copy in an inactive version drops off `PATH` entirely, so `coven` "disappears" after `nvm use`. | macOS, Linux, WSL2, Windows |
+| A user-set npm prefix (`npm config set prefix`, `NPM_CONFIG_PREFIX`, a `~/.local` prefix) alongside a version manager | Two prefixes, both with `bin` on `PATH`. Whichever is earlier on `PATH` wins, while `npm install -g` keeps writing to the active Node's prefix. | macOS, Linux, WSL2 |
+| Homebrew or system Node plus a version manager | Same as above: `/opt/homebrew/bin` or `/usr/local/bin` holds one copy, the version manager another. | macOS, Linux |
+| `cargo install --path crates/coven-cli` from a checkout, plus the npm wrapper | `~/.cargo/bin/coven` (or `%USERPROFILE%\.cargo\bin\coven.exe`) and the npm shim both answer to `coven`. Contributors hit this. | all |
+| An older standalone coven-code installer | It used to write a `coven` alias into `~/.coven-code/bin` and add that directory to `PATH`. | macOS, Linux |
+| Native Windows and WSL2 | These are separate environments with separate `PATH`s; a copy in one never shadows the other. Debug each side in its own shell. | Windows |
+
+### Which prefix does `npm install -g` use right now?
+
+```sh
+npm prefix -g
+```
+
+```powershell
+npm prefix -g
+```
+
+On macOS, Linux, and WSL2 the executable is `<prefix>/bin/coven`; on Windows it is `<prefix>\coven.cmd` next to `<prefix>\node_modules`, with `%APPDATA%\npm` as the default prefix for a system Node and a per-version directory under nvm-windows or volta. If that prefix is not the one holding the active copy, either remove the active copy and reinstall into this prefix, or upgrade the active copy explicitly:
+
+```sh
+npm install -g --prefix <prefix-of-the-active-copy> @opencoven/cli@latest
+```
+
+Doctor prints exactly this command when it applies.
 
 ## `coven` Command Not Found
 
@@ -134,31 +188,26 @@ echo "$PATH" | tr ':' '\n' | grep "$HOME/.cargo/bin"
 
 ## Wrong Or Stale Version
 
-`npx` caches packages, so a one-off invocation can run an older CLI than you expect. Compare the running binary with the published wrapper version:
+If `coven doctor` shows a single install and `coven --version` is still older than the published wrapper, compare the two:
 
 ```sh
 npm view @opencoven/cli version
 coven --version
 ```
 
-Then check the actual command resolution in the shell where you launched it:
+Then upgrade the install Doctor named, using its origin:
+
+- `npm, prefix <dir>`: `npm install -g --prefix <dir> @opencoven/cli@latest`
+- `cargo install`: `cargo install --path crates/coven-cli --force` from an up-to-date checkout
+- `source build`: rebuild the checkout it points into
+
+`npx` caches packages, so a one-off invocation can run an older CLI than the global install. Clear the cache or pin the version:
 
 ```sh
-which -a coven
+npx @opencoven/cli@latest doctor
 ```
 
-```powershell
-Get-Command -All coven
-```
-
-Reinstall the latest global build, or clear the `npx` cache and rerun:
-
-```sh
-npm install -g @opencoven/cli@latest
-coven doctor
-```
-
-If more than one `coven` appears in `which -a coven` or `Get-Command -All coven`, an earlier install is shadowing the new one on `PATH`. Remove the stale copy or reorder `PATH` so the intended install wins.
+If `coven doctor` shows more than one install, go back to [More Than One coven On PATH](#more-than-one-coven-on-path) first; upgrading a shadowed copy changes nothing.
 
 ## Missing Or Mismatched Native Platform Package
 
@@ -251,7 +300,7 @@ Never copy macOS, Linux, Windows, or WSL-built binaries between platforms to "ro
 When an install problem needs a support report, include:
 
 - The install method (`npx`, global npm, native binary, or source build).
-- The output of `coven --version`, plus `which -a coven` on Unix-like shells or `Get-Command -All coven` in PowerShell.
+- The output of `coven --version` and the `Install`/`Installs` block from `coven doctor`, plus `which -a coven` on Unix-like shells or `Get-Command -All coven` in PowerShell.
 - Your OS and CPU architecture.
 - For npm installs, the output of `npm view @opencoven/cli version`, the matching platform-package `npm view` command above, and any missing-optional-dependency warning.
 - For source builds, the failing `cargo build` output.
