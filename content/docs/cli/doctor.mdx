@@ -20,7 +20,7 @@ project detection, daemon/socket status, and supported harness CLIs.
 
 | Area | What to look for |
 | --- | --- |
-| Installed binary | The `Install` / `Installs` block lists every `coven` executable visible on `PATH` in resolution order, with how each was installed (npm and its prefix, `cargo install`, source build, legacy coven-code installer) and which entry is the running process. When more than one exists, each shadowed copy gets its exact removal command, and Doctor reports where `npm install -g` currently writes. JSON only reports `install:conflicts` status and does not include install paths, origins, or removal commands. This check appears first because every later diagnostic must describe the binary you intended to run. |
+| Installed binary | In the CLI release that includes OpenCoven/coven#1124, the `Install` / `Installs` output lists every `coven` executable visible on `PATH` in resolution order, with how each was installed (npm and its prefix, `cargo install`, source build, legacy coven-code installer) and which entry is the running process. Until then, Doctor prints the older path-only list. When more than one exists, each shadowed copy gets its exact removal command, and Doctor reports where `npm install -g` currently writes. JSON only reports `install:conflicts` status and does not include install paths, origins, or removal commands. This check appears first because every later diagnostic must describe the binary you intended to run. |
 | Store | The path Coven will use for local state. Defaults to `~/.coven` unless `COVEN_HOME` is set. |
 | Project | Whether the current directory resolves to a git/project root. |
 | Daemon | Whether the daemon is running, stale, or stopped, and which local IPC endpoint it owns. |
