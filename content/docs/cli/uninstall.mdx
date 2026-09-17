@@ -38,7 +38,7 @@ Installs:
        remove: npm uninstall -g --prefix ~/.nvm/versions/node/v24.18.1 @opencoven/cli
 ```
 
-Work through the list until the block is gone, then remove the last copy with the method below that matches its origin. Copies in a Node version that is not currently active do not appear on `PATH`; switch to that version (`nvm use <version>`) and run `npm uninstall -g @opencoven/cli` there too if you want them gone.
+Copies in a Node version that is not currently active do not appear on `PATH`; switch to that version (`nvm use <version>`), run `npm prefix -g`, and use `npm uninstall -g --prefix <that-prefix> @opencoven/cli` there too if you want them gone.
 
 ## Remove The Install
 
