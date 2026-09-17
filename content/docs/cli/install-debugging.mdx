@@ -110,7 +110,7 @@ coven daemon restart
 | Cause | What happens | Platforms |
 | --- | --- | --- |
 | Node version managers (nvm, fnm, volta, nvm-windows) | Every Node version has its own npm prefix. `npm install -g` writes to the active version's prefix; switching versions later leaves the old copy behind, and a fresh install in the new version makes a second one. With nvm, a copy in an inactive version drops off `PATH` entirely, so `coven` "disappears" after `nvm use`. | macOS, Linux, WSL2, Windows |
-| A user-set npm prefix (`npm config set prefix`, `NPM_CONFIG_PREFIX`, a `~/.local` prefix) alongside a version manager | Two prefixes, both with `bin` on `PATH`. Whichever is earlier on `PATH` wins, while `npm install -g` keeps writing to the active Node's prefix. | macOS, Linux, WSL2 |
+| A user-set npm prefix (`npm config set prefix`, `NPM_CONFIG_PREFIX`, a `~/.local` prefix) alongside a version manager | Two prefixes, both with `bin` on `PATH`. Whichever is earlier on `PATH` wins; `npm install -g` writes to the prefix reported by `npm prefix -g`, which may be the user-set prefix or the active Node's prefix. | macOS, Linux, WSL2 |
 | Homebrew or system Node plus a version manager | Same as above: `/opt/homebrew/bin` or `/usr/local/bin` holds one copy, the version manager another. | macOS, Linux |
 | `cargo install --path crates/coven-cli` from a checkout, plus the npm wrapper | `~/.cargo/bin/coven` (or `%USERPROFILE%\.cargo\bin\coven.exe`) and the npm shim both answer to `coven`. Contributors hit this. | all |
 | An older standalone coven-code installer | It used to write a `coven` alias into `~/.coven-code/bin` and add that directory to `PATH`. | macOS, Linux |
