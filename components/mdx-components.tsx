@@ -7,15 +7,33 @@ import { Step, Steps } from 'fumadocs-ui/components/steps';
 import * as TabsComponents from 'fumadocs-ui/components/tabs';
 import { Accordion, Accordions } from 'fumadocs-ui/components/accordion';
 import { TypeTable } from 'fumadocs-ui/components/type-table';
-import { createAPIPage } from 'fumadocs-openapi/ui';
+import type { OperationItem, WebhookItem } from 'fumadocs-openapi/ui';
 import { Mermaid } from '@/components/mermaid';
 import { DocsDataTable } from '@/components/docs-data-table';
 import { ApiConsole } from '@/components/api-runner/api-console';
 import { ApiRequest } from '@/components/api-runner/api-request';
+import { OpenAPIPage } from '@/components/openapi-page-client';
 import { openapi } from '@/lib/openapi';
 
-// Created once at module load; cheap because createOpenAPI lazy-loads schemas.
-const APIPage = createAPIPage(openapi);
+interface APIPageProps {
+  document: string;
+  showTitle?: boolean;
+  showDescription?: boolean;
+  operations?: OperationItem[];
+  webhooks?: WebhookItem[];
+}
+
+async function APIPage({ document, ...props }: APIPageProps) {
+  const { bundled } = await openapi.getSchema(document);
+
+  return (
+    <OpenAPIPage
+      {...props}
+      document={document}
+      payload={{ bundled, proxyUrl: openapi.options.proxyUrl }}
+    />
+  );
+}
 
 export function getMDXComponents(components?: MDXComponents): MDXComponents {
   return {
