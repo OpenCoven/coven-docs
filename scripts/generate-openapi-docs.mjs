@@ -10,7 +10,7 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
-import yaml from 'js-yaml';
+import * as yaml from 'js-yaml';
 
 const ROOT = process.cwd();
 const BUILT = path.join(ROOT, 'openapi/coven.daemon.v1.built.yaml');
