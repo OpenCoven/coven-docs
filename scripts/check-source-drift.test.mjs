@@ -253,3 +253,29 @@ test('empty lock cannot yield a vacuous green result', () => {
   f.lock.sources = [];
   expectFailure(f);
 });
+
+// An unchanged ancestor obstruction is not an unchanged watched leaf. Neither
+// snapshot has supplied the bytes named by the lock in these cases.
+for (const [mode, type] of [['100644', 'blob'], ['120000', 'blob'], ['160000', 'commit']]) {
+  test(`unchanged ancestor ${mode} cannot certify an unresolved watched path`, () => {
+    const f = fixture();
+    f.lock.sources[0].paths = ['docs/contract.md'];
+    f.replies[`${prefix}/git/trees/${B}`].tree = [entry('docs', E, mode, type)];
+    f.replies[`${prefix}/git/trees/${D}`].tree = [entry('docs', E, mode, type)];
+    const result = expectFailure(f);
+    assert.match(result.report.error, /watched path unresolved in both pinned trees/);
+    assert.ok(!result.requests.includes(`${prefix}/git/trees/${E}`));
+  });
+}
+
+for (const obstructed of [B, D]) {
+  test(`missing versus obstructed snapshot ${obstructed[0]} cannot certify a leaf`, () => {
+    const f = fixture();
+    f.lock.sources[0].paths = ['docs/contract.md'];
+    f.replies[`${prefix}/git/trees/${B}`].tree = [];
+    f.replies[`${prefix}/git/trees/${D}`].tree = [];
+    f.replies[`${prefix}/git/trees/${obstructed}`].tree = [entry('docs', E, '120000')];
+    const result = expectFailure(f);
+    assert.match(result.report.error, /watched path unresolved in both pinned trees/);
+  });
+}

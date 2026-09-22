@@ -178,6 +178,14 @@ try {
       if (before === null && after === null) {
         throw new Error(`${source.id}: watched path absent from both pinned trees: ${path}`);
       }
+      // Obstructions describe an ancestor, not the watched leaf. Equal
+      // obstructions (or an obstruction opposite an absent path) cannot
+      // certify a path whose identity was unresolved in both snapshots.
+      const beforeResolved = before !== null && !Object.hasOwn(before, 'obstructedAt');
+      const afterResolved = after !== null && !Object.hasOwn(after, 'obstructedAt');
+      if (!beforeResolved && !afterResolved) {
+        throw new Error(`${source.id}: watched path unresolved in both pinned trees: ${path}`);
+      }
       const changed = JSON.stringify(before) !== JSON.stringify(after);
       if (changed) changedPathCount += 1;
       pathResults.push({
