@@ -126,4 +126,29 @@ if (!readFileSync(join(harnessRoot, 'troubleshooting.mdx'), 'utf8').includes('/d
   fail('troubleshooting page must link to CLI doctor docs.');
 }
 
+// Keep the load-time prompt safety contract on the adapter page itself;
+// a mention in an unrelated harness page does not document migration.
+const customAdapter = readFileSync(join(harnessRoot, 'custom-adapters.mdx'), 'utf8');
+const safety = customAdapter.split('## Prompt safety and migration\n')[1]?.split('\n## ')[0] ?? '';
+const safetyMentions = [
+  "interpreter executable names",
+  "case-insensitively",
+  ".exe",
+  "interactive_prompt_prefix_args",
+  "non_interactive_prompt_prefix_args",
+  "`-c`",
+  "`-e`",
+  "`--eval`",
+  "`--command`",
+  "`-command`",
+  "`/c`",
+  "model_arg_template: \"-c model={model}\"",
+  "not a sandbox",
+  "PATH",
+];
+const missingSafety = safetyMentions.filter((mention) => !safety.includes(mention));
+if (missingSafety.length > 0) {
+  fail(`Custom adapter prompt-safety contract is incomplete: ${missingSafety.join(', ')}.`);
+}
+
 console.log('Harness docs check passed.');
