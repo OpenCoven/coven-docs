@@ -29,6 +29,7 @@ const regressions = spawnSync(process.execPath, [
   '--test',
   'scripts/check-source-drift.test.mjs',
   'scripts/docs-release-gate.test.mjs',
+  'scripts/api-reference-contract.test.mjs',
 ], { cwd: root, stdio: 'inherit' });
 if (regressions.error || regressions.status !== 0) {
   console.error('Automation regression tests failed.');

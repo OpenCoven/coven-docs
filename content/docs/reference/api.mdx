@@ -10,7 +10,12 @@ construct a Windows pipe name from the Unix convention.
 
 Use the API from a same-user local client when the CLI does not fit your
 workflow. Start with the health response, branch on its advertised
-capabilities, and treat structured errors as product behavior.
+capabilities, and treat structured errors as product behavior. Capabilities
+advertise availability, not authorization.
+
+These details describe the current versioned source contract. Older installed
+builds may omit newer optional capabilities; negotiate with the running daemon
+rather than treating this page as proof that an upgrade has reached it.
 
 ## Supported flow
 
@@ -30,15 +35,32 @@ envelope:
 ```json
 {
   "error": {
-    "code": "project_root_violation",
+    "code": "invalid_request",
     "message": "working directory is outside the project root"
   }
 }
 ```
 
+For a working directory outside the project root, the emitted code is
+`invalid_request`; `project_root_violation` is reserved, not the current wire
+code for that rejection. Do not depend on the message text as a stable subtype.
+
 Use `error.code` for control flow; display `message` to people. The complete
 endpoint schemas and local examples are in the
 [interactive API reference](/docs/openapi).
+
+## Session-policy admission refusals
+
+The separately negotiated session-policy contract can return a closed HTTP `409`
+admission-refusal decision rather than the generic error envelope. This is
+not a launch success. Decode it according to the negotiated contract; a client
+must not retry the request as an unrestricted launch. Other `409` responses can
+still be ordinary structured errors, such as `session_not_live`, so status
+alone does not identify a policy refusal.
+
+Capability discovery establishes availability, not authorization. Neither a
+supported contract name nor a client-selected policy descriptor grants an
+execution profile or permission.
 
 ## Action router
 
@@ -90,6 +112,21 @@ are available only through the narrow
 `GET /api/v1/sessions/{sessionId}/artifacts/{artifactId}?raw=1` route when raw
 artifact persistence is explicitly enabled. Otherwise the daemon returns a
 structured `raw_artifact_requires_raw_flag` or `raw_artifacts_disabled` error.
+
+## Rust client and peer replacement
+
+For Rust integrations, prefer `opencoven-coven-client` (library `coven_client`)
+to composing HTTP over a hand-built socket or pipe path. Construct the endpoint
+with `DaemonEndpoint::discover(coven_home)`, then pass it to `DaemonClient::new`.
+The public client accepts no arbitrary URLs or endpoint paths, bounds response
+bodies to 4 MiB, and negotiates health before dependent operations.
+
+Its negotiation is bound to the transport peer. If the daemon endpoint is
+replaced, the next dependent operation fails before sending request bytes and
+clears the cached negotiation. Call `health` again, re-check capabilities, and
+then decide whether a retry is appropriate. The client never replays a mutation automatically.
+A reconnect or a missing response is not proof that a previous mutation had no
+effect; reconcile its outcome through the owning operation's contract.
 
 ## Client rules
 
