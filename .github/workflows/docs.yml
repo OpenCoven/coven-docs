@@ -41,21 +41,30 @@ jobs:
           cache: pnpm
 
       - name: Install dependencies
+        id: dependencies
         run: pnpm install --frozen-lockfile
 
       - name: Verify upstream source freshness
+        id: source
         env:
           GITHUB_TOKEN: ${{ github.token }}
           DOCS_DRIFT_REPORT_PATH: output/docs-source-drift.json
         run: pnpm check:source-drift
 
+      # Source drift must still fail the job. Continue independent build and
+      # browser verification so a remediation PR also gets actionable evidence.
       - name: Install Chrome for browser certification
+        id: browser
+        if: ${{ !cancelled() && steps.dependencies.outcome == 'success' }}
         run: pnpm exec puppeteer browsers install chrome
 
       - name: Verify docs
+        id: verify
+        if: ${{ !cancelled() && steps.browser.outcome == 'success' }}
         run: pnpm verify
 
       - name: Confirm clean generated tree
+        if: ${{ !cancelled() && steps.verify.outcome == 'success' }}
         shell: bash
         run: |
           if [ -n "$(git status --porcelain)" ]; then
