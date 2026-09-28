@@ -6,6 +6,7 @@
   "pages": [
     "api",
     "automations",
+    "automation-authority",
     "auth",
     "safety",
     "troubleshooting"

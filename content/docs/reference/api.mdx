@@ -44,7 +44,8 @@ endpoint schemas and local examples are in the
 
 The action router accepts a top-level `action` string plus optional `origin` and
 `intentId` correlation fields. Action-specific fields are also top-level; there
-is no generic `args` wrapper in the current daemon implementation.
+is no generic `args` wrapper in the current daemon implementation. Correlation
+fields are not credentials or authority grants.
 
 ```json
 {
@@ -58,13 +59,22 @@ is no generic `args` wrapper in the current daemon implementation.
 Call `/capabilities` before invoking an action. The currently advertised stable
 action groups include `coven.capabilities.refresh` and the
 `coven.automations.*` actions documented in
-[Coven automations](/docs/reference/automations).
+[Coven automations](/docs/reference/automations). Discovery does not prove caller
+authorization or availability of an execution backend.
 
-A recognized action returns an event-shaped response. `accepted: true` means
-the router recognized and routed the request. Some action adapters report an
-operation-level failure in `event.payload.error`, so callers must inspect the
-payload before declaring success. Unknown actions, malformed bodies, and
-missing required top-level fields fail closed with HTTP `400`.
+Legacy automation adapters return an event-shaped response. `accepted: true`
+means the router recognized and routed the request; operation-level failure may
+still appear in `event.payload.error`. Versioned automation contracts may use
+an action-specific `result` or typed top-level `error` instead. Inspect HTTP
+status and the named action's result contract before declaring success; do not
+require an event on every response or treat acceptance as durable completion.
+
+Malformed bodies and missing required top-level fields fail closed. The
+[forthcoming automation authority hardening](/docs/reference/automation-authority)
+adds HTTP `403` with `AUTHORITY_REQUIRED` for non-owner automation mutations,
+before command adoption or replay. Unknown automation actions also fail this
+transport check before action validation. Other unknown action ids return
+HTTP `400`. Do not apply an unconditional `400`-only error assumption to actions.
 
 ## Control-plane surface map
 

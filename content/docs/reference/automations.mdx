@@ -12,7 +12,13 @@ home directory.
 Automations are exposed through the `coven.automations` capability and the
 versioned `POST /api/v1/actions` router. Always call
 `GET /api/v1/capabilities` first and use only action ids advertised by the live
-daemon.
+daemon. Use owner-local IPC for mutations; capability discovery and correlation
+fields are not authorization. See [Automation authority](/docs/reference/automation-authority)
+for the forthcoming transport hardening, typed refusal, and release boundary.
+
+This page's action table and examples describe the legacy action ids, not every
+newer `.v1` automation command. Use each named versioned contract for its request,
+result, adoption, and availability rules; do not infer them from the legacy table.
 
 ## Safety defaults
 
@@ -30,7 +36,7 @@ automation definition or action envelope.
 ## Action envelope
 
 Automation arguments are top-level fields in the action request. `origin` and
-`intentId` are optional correlation fields.
+`intentId` are optional correlation fields, not authority grants.
 
 ```json
 {
@@ -41,8 +47,7 @@ Automation arguments are top-level fields in the action request. `origin` and
 }
 ```
 
-The router returns an event-shaped response when it recognized and routed the
-action:
+A recognized legacy action uses an event-shaped response after transport admission:
 
 ```json
 {
@@ -67,10 +72,13 @@ action:
 `accepted: true` proves that the router accepted the known action. It does not
 by itself prove that the requested automation operation succeeded. Inspect
 `event.payload.error` and action-specific result fields before reporting
-success. Malformed envelopes, missing required fields, and unknown action ids
-fail closed with HTTP `400`.
+success. Versioned commands can instead return typed `result` or `error` fields.
+Malformed envelopes and missing required fields fail closed. With the hardened
+transport gate, a non-owner automation mutation or unknown automation action
+returns HTTP `403` before command validation; unknown action ids that reach
+validation return HTTP `400`. Never assume every rejected action returns an event.
 
-## Supported actions
+## Legacy action ids
 
 | Action | Required fields | Result |
 | --- | --- | --- |

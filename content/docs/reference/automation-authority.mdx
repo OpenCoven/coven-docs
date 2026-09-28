@@ -1,0 +1,71 @@
+---
+title: Automation authority
+description: Owner-local transport, typed refusal, adoption safety, and fail-closed automation clients.
+---
+
+Automation discovery is not authorization. A daemon can advertise an action
+without authorizing the caller or making its execution backend available.
+
+## Release boundary
+
+The automation mutation transport hardening tracked in
+[OpenCoven/coven #857](https://github.com/OpenCoven/coven/issues/857) is a
+forthcoming correction. Do not assume an installed release contains it merely
+because capability discovery advertises automation mutations. Use owner-local
+IPC now, and qualify a release against its request-authority regression evidence
+before relying on loopback TCP refusal.
+
+The contract below describes that hardened boundary. It does not claim that
+older daemons enforce it or that the broader Runtime Authority work is complete.
+
+## Owner-local IPC, not loopback TCP
+
+The daemon derives request authority from the transport. On Unix-like systems,
+use the owner's `$COVEN_HOME/coven.sock`. On Windows, use the owner-only named pipe
+reported by daemon health or `coven daemon status`; do not invent a pipe name.
+Keep both the home directory and endpoint private to the daemon owner.
+
+On the hardened daemon, both `/actions` and `/api/v1/actions` require owner-local
+IPC for automation mutations. This includes legacy create, update, delete,
+import, run, and tick actions as well as versioned definition mutations and
+cancellation. Unknown automation actions are denied over TCP by default so that
+adding a command cannot silently add an unauthenticated mutation route.
+
+`127.0.0.1` is not evidence of daemon ownership. Caller-supplied `origin`,
+`intentId`, principal labels, and authority strings do not grant permission.
+Project roots and routing bindings do not authenticate a transport either.
+
+## Typed refusal before adoption
+
+A non-owner automation mutation is rejected with HTTP `403`, `accepted: false`,
+`status: "rejected"`, and `error.code: "AUTHORITY_REQUIRED"`. The typed error is
+not retryable. Refusal occurs before opening the store for the action, reserving
+an adoption key, replaying a saved mutation result, emitting an action event, or
+dispatching runtime work.
+
+A denied request must not consume an adoption key. A later authorized owner
+request may use that key normally; an unauthenticated caller must not replay
+an owner's saved result using the same key.
+
+Clients should display an actionable transport error and stop. Do not retry in
+a loop, add an identity label to the payload, or silently fall back to a more
+privileged connection. An owner must explicitly configure a supported trusted
+connection. Do not expose the owner's IPC endpoint through an unauthenticated
+bridge to work around this refusal.
+
+## Reads and execution are separate decisions
+
+Reviewed read-only automation actions retain their existing TCP behavior:
+definition list/get, event read/subscribe, run and occurrence inspection/history,
+health, and scheduler status. Receipt reads remain owner-local only. This is a
+specific reviewed allowlist, not permission for every action that sounds like a
+read.
+
+Passing the transport gate does not establish scoped delegation, a verified
+Runtime Authority adapter, or permission to advance SDK mutation phases. Keep
+currently unavailable execution commands refusal-only until their own producer
+and conformance gates pass. Existing legacy execution actions must still satisfy
+their independent runtime validation and lifecycle checks.
+
+For action-specific payloads, see [Coven automations](/docs/reference/automations).
+For transport discovery and response handling, see [Coven local API](/docs/reference/api).
