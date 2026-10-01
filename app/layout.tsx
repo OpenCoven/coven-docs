@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { RootProvider } from 'fumadocs-ui/provider/next';
 import 'fumadocs-ui/style.css';
 import 'fumadocs-ui/components/image-zoom2.css';
-import { Inter } from 'next/font/google';
+import { Bodoni_Moda, Inter } from 'next/font/google';
 import type { ReactNode } from 'react';
 import { Analytics } from '@vercel/analytics/next';
 import { SpeedInsights } from '@vercel/speed-insights/next';
@@ -12,6 +12,15 @@ import './docs-facelift.css';
 import './docs-sidebar.css';
 
 const inter = Inter({ subsets: ['latin'] });
+
+// Display face for docs titles. The opsz axis keeps hairlines fine at hero
+// sizes and sturdier at section-heading sizes.
+const display = Bodoni_Moda({
+  subsets: ['latin'],
+  style: ['normal', 'italic'],
+  axes: ['opsz'],
+  variable: '--font-coven-display',
+});
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? 'https://docs.opencoven.ai';
 
@@ -56,7 +65,7 @@ export const metadata: Metadata = {
 
 export default function Layout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" className={inter.className} suppressHydrationWarning>
+    <html lang="en" className={`${inter.className} ${display.variable}`} suppressHydrationWarning>
       <head>
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
