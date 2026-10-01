@@ -44,7 +44,7 @@ coven daemon status   # verify pid + socket
 | --- | --- |
 | Protocol | HTTP/1.1 over same-user local IPC |
 | Default local endpoint | `~/.coven/coven.sock` on Unix-like hosts; daemon-reported owner-only named pipe on Windows |
-| Optional TCP | Unix-like hosts only: loopback listener via `coven daemon serve --tcp 127.0.0.1:3000` (standard port `3000`) |
+| Optional TCP | Unix-like hosts only: loopback listener via `coven daemon serve --tcp 127.0.0.1:3000` (standard port `3000`). It does not prove daemon ownership, so owner-only operations, including automation actions other than health and scheduling diagnostics, return `403` over TCP. |
 | Auth | Operating-system permissions on local IPC — no Bearer / JWT / API-key / cookie |
 | Contract | `coven.daemon.v1` served under `/api/v1` |
 
