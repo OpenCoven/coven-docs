@@ -8,9 +8,21 @@
   --coven-docs-violet: #6558ac;
   --coven-docs-ember: #946b20;
 
-  /* --font-coven-display is set by next/font in app/layout.tsx. */
-  --coven-font-display: var(--font-coven-display), 'Iowan Old Style', 'Palatino Linotype', Georgia, serif;
-  --coven-font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  /* OpenCoven type system, mirrored from coven/brand/ui/typography.css.
+   * --font-eb-garamond and --font-jetbrains-mono come from next/font in
+   * app/layout.tsx. */
+  --oc-font-display:
+    var(--font-eb-garamond, 'EB Garamond'), 'Iowan Old Style', Georgia, 'Times New Roman', serif;
+  --oc-font-mono:
+    var(--font-jetbrains-mono, 'JetBrains Mono'), 'SF Mono', SFMono-Regular, ui-monospace, Menlo,
+    Monaco, Consolas, 'Liberation Mono', monospace;
+  --oc-tracking-display: -0.005em;
+  --oc-tracking-label: 0.14em;
+  --oc-line-heading: 1.2;
+
+  /* Code blocks, inline code and Tailwind's font-mono use the canonical mono. */
+  --font-mono: var(--oc-font-mono);
+  --default-mono-font-family: var(--oc-font-mono);
   --coven-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -64,7 +76,7 @@
   border-left: 1px solid var(--coven-docs-rule);
   padding-left: 0.55rem;
   color: var(--coven-docs-violet);
-  font-family: var(--coven-font-mono);
+  font-family: var(--oc-font-mono);
   font-size: 0.64rem;
   font-weight: 800;
   letter-spacing: 0.1em;
@@ -96,16 +108,20 @@
   gap: 0.375rem;
 }
 
-/* Fumadocs secondary buttons, re-cut as hairline pills. */
+/* Fumadocs secondary buttons, re-cut to the OpenCoven button style: 5px
+ * corners, uppercase mono label, subtle border. */
 .coven-docs-page-toolbar :is(a, button) {
   height: 1.875rem;
   border: 1px solid var(--coven-docs-rule);
-  border-radius: 999px;
+  border-radius: 5px;
   background: transparent;
-  padding-inline: 0.75rem;
+  padding-inline: 0.625rem;
   color: var(--coven-docs-muted);
-  font-size: 0.75rem;
-  font-weight: 500;
+  font-family: var(--oc-font-mono);
+  font-size: 0.65625rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
   transition:
     color 150ms ease,
     border-color 150ms ease,
@@ -122,11 +138,11 @@
   max-width: 24ch;
   margin: 2rem 0 0;
   color: var(--coven-docs-ink);
-  font-family: var(--coven-font-display);
-  font-size: clamp(2.375rem, 1.5rem + 2.6vw, 3.75rem);
-  font-weight: 500;
-  letter-spacing: -0.022em;
-  line-height: 1.04;
+  font-family: var(--oc-font-display);
+  font-size: clamp(2.5rem, 1.6rem + 2.7vw, 3.875rem);
+  font-weight: 600;
+  letter-spacing: var(--oc-tracking-display);
+  line-height: 1.08;
   text-wrap: balance;
 }
 
@@ -183,7 +199,7 @@
   flex: none;
   margin: 0;
   color: var(--coven-docs-muted);
-  font-family: var(--coven-font-mono);
+  font-family: var(--oc-font-mono);
   font-size: 0.625rem;
   letter-spacing: 0.16em;
   text-transform: uppercase;
@@ -225,10 +241,10 @@
   background: color-mix(in oklab, var(--coven-docs-violet) 8%, transparent);
   padding: 0 0.4375rem;
   color: var(--coven-docs-violet);
-  font-family: var(--coven-font-mono);
+  font-family: var(--oc-font-mono);
   font-size: 0.625rem;
-  font-weight: 600;
-  letter-spacing: 0.14em;
+  font-weight: 700;
+  letter-spacing: var(--oc-tracking-label);
   text-transform: uppercase;
 }
 
@@ -249,7 +265,7 @@
   border-left: 1px solid var(--coven-docs-rule);
   padding-left: 0.875rem;
   color: var(--coven-docs-muted);
-  font-family: var(--coven-font-mono);
+  font-family: var(--oc-font-mono);
   font-size: 0.6875rem;
   text-decoration: none;
   transition: color 150ms ease;
@@ -257,6 +273,7 @@
 
 .coven-docs-status-label {
   font-size: 0.5625rem;
+  font-weight: 700;
   letter-spacing: 0.16em;
   opacity: 0.8;
   text-transform: uppercase;

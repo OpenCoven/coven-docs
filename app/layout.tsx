@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { RootProvider } from 'fumadocs-ui/provider/next';
 import 'fumadocs-ui/style.css';
 import 'fumadocs-ui/components/image-zoom2.css';
-import { Bodoni_Moda, Inter } from 'next/font/google';
+import { EB_Garamond, Inter, JetBrains_Mono } from 'next/font/google';
 import type { ReactNode } from 'react';
 import { Analytics } from '@vercel/analytics/next';
 import { SpeedInsights } from '@vercel/speed-insights/next';
@@ -13,13 +13,18 @@ import './docs-sidebar.css';
 
 const inter = Inter({ subsets: ['latin'] });
 
-// Display face for docs titles. The opsz axis keeps hairlines fine at hero
-// sizes and sturdier at section-heading sizes.
-const display = Bodoni_Moda({
+// The OpenCoven type system (coven/DESIGN.md §4, coven/brand/ui/typography.css):
+// EB Garamond for display, Inter for reading, JetBrains Mono for everything you
+// inspect. The variable names match the canon so its --oc-font-* stacks resolve.
+const display = EB_Garamond({
   subsets: ['latin'],
   style: ['normal', 'italic'],
-  axes: ['opsz'],
-  variable: '--font-coven-display',
+  variable: '--font-eb-garamond',
+});
+
+const mono = JetBrains_Mono({
+  subsets: ['latin'],
+  variable: '--font-jetbrains-mono',
 });
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? 'https://docs.opencoven.ai';
@@ -65,7 +70,7 @@ export const metadata: Metadata = {
 
 export default function Layout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" className={`${inter.className} ${display.variable}`} suppressHydrationWarning>
+    <html lang="en" className={`${inter.className} ${display.variable} ${mono.variable}`} suppressHydrationWarning>
       <head>
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />

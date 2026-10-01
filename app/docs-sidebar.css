@@ -47,7 +47,7 @@
   border-radius: 4px;
   background: var(--coven-sidebar-hover);
   padding: 0 0.25rem;
-  font-family: inherit;
+  font-family: var(--oc-font-mono);
   font-size: 0.6875rem;
 }
 
@@ -279,11 +279,9 @@
   box-shadow: 0 1px 3px rgb(0 0 0 / 0.12);
   color: var(--color-fd-muted-foreground);
   opacity: 0;
-  scale: 0.85;
   translate: -50% -50%;
   transition:
     opacity 150ms ease,
-    scale 150ms ease,
     color 150ms ease;
 }
 
@@ -296,7 +294,6 @@
 .coven-sidebar-rail[data-collapsed='true'] .coven-sidebar-rail-handle {
   left: 0.25rem;
   opacity: 1;
-  scale: 1;
   translate: 0 -50%;
 }
 
@@ -336,7 +333,7 @@
   background: color-mix(in oklab, var(--color-fd-foreground) 7%, transparent);
   padding: 0 0.3rem;
   color: var(--color-fd-muted-foreground);
-  font-family: inherit;
+  font-family: var(--oc-font-mono);
   font-size: 0.6875rem;
 }
 
@@ -350,7 +347,6 @@
 .coven-sidebar-rail:is(:hover, :focus-visible) .coven-sidebar-rail-handle {
   color: var(--color-fd-foreground);
   opacity: 1;
-  scale: 1;
   transition-delay: 100ms;
 }
 
