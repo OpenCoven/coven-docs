@@ -66,17 +66,6 @@
   text-transform: uppercase;
 }
 
-#nd-sidebar {
-  border-right-color: var(--coven-docs-rule) !important;
-  background: var(--coven-docs-panel) !important;
-}
-
-#nd-sidebar a[data-active] {
-  border-radius: 6px;
-  background: var(--coven-docs-panel-soft) !important;
-  box-shadow: inset 2px 0 0 var(--coven-docs-violet);
-}
-
 .coven-docs-page-header {
   position: relative;
   overflow: hidden;

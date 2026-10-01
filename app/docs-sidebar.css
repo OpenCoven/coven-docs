@@ -1,0 +1,196 @@
+/* ─────────────────────────────────────────
+   Docs sidebar
+   A quiet list: muted labels with no per-row chrome, one violet tint on the
+   current page, hairline controls. Fumadocs builds the sidebar from Tailwind
+   utilities inside @layer, so these unlayered rules win without !important
+   except where another !important rule is in the way.
+   #nd-sidebar is the desktop aside; #nd-sidebar-mobile is the drawer.
+───────────────────────────────────────── */
+
+:is(#nd-sidebar, #nd-sidebar-mobile) {
+  --coven-sidebar-rule: color-mix(in oklab, var(--color-fd-foreground) 9%, transparent);
+  --coven-sidebar-hover: color-mix(in oklab, var(--color-fd-foreground) 5%, transparent);
+  --coven-sidebar-active: color-mix(in oklab, var(--coven-docs-violet) 13%, transparent);
+
+  /* Re-point Fumadocs tokens so its own borders, folder guide lines, and the
+   * nested active bar pick up the hairline and the brand violet. */
+  --color-fd-border: var(--coven-sidebar-rule);
+  --color-fd-primary: var(--coven-docs-violet);
+}
+
+/* Same surface as the page; a hairline carries the edge. */
+#nd-sidebar {
+  background: var(--color-fd-background);
+}
+
+/* ── Search: a hairline field rather than a filled box ── */
+
+:is(#nd-sidebar, #nd-sidebar-mobile) [data-search-full] {
+  height: 2.25rem;
+  border-radius: 8px;
+  background: transparent;
+  padding-inline: 0.625rem 0.4375rem;
+  font-size: 0.8125rem;
+}
+
+:is(#nd-sidebar, #nd-sidebar-mobile) [data-search-full]:hover {
+  background: var(--coven-sidebar-hover);
+  color: var(--color-fd-foreground);
+}
+
+:is(#nd-sidebar, #nd-sidebar-mobile) [data-search-full] kbd {
+  display: inline-grid;
+  min-width: 1.25rem;
+  height: 1.25rem;
+  place-items: center;
+  border: 0;
+  border-radius: 4px;
+  background: var(--coven-sidebar-hover);
+  padding: 0 0.25rem;
+  font-family: inherit;
+  font-size: 0.6875rem;
+}
+
+/* ── Section switcher: one row of icon, title, chevrons ──
+ * Fumadocs hides the description from md up; the popover still shows it. */
+
+:is(#nd-sidebar, #nd-sidebar-mobile) button[aria-haspopup="dialog"] {
+  gap: 0.625rem;
+  border-radius: 8px;
+  background: transparent;
+  padding: 0.4375rem 0.5rem 0.4375rem 0.625rem;
+  color: var(--color-fd-foreground);
+}
+
+:is(#nd-sidebar, #nd-sidebar-mobile) button[aria-haspopup="dialog"]:is(:hover, [data-state="open"]) {
+  background: var(--coven-sidebar-hover);
+  color: var(--color-fd-foreground);
+}
+
+:is(#nd-sidebar, #nd-sidebar-mobile) button[aria-haspopup="dialog"] > div {
+  min-width: 0;
+}
+
+@media (min-width: 768px) {
+  #nd-sidebar button[aria-haspopup="dialog"] > div:first-child {
+    width: 1rem;
+    height: 1rem;
+    color: var(--coven-docs-violet);
+  }
+}
+
+/* Popover rows (portaled to body): keep each description on one line. */
+[data-radix-popper-content-wrapper] a[class*="rounded-lg"][class*="p-1.5"] > div {
+  min-width: 0;
+}
+
+/* The site-wide a:hover lavender is unreadable on the light accent fill. */
+[data-radix-popper-content-wrapper] a[class*="rounded-lg"][class*="p-1.5"]:hover {
+  color: var(--color-fd-accent-foreground);
+}
+
+[data-radix-popper-content-wrapper] a[class*="rounded-lg"][class*="p-1.5"] p.text-fd-muted-foreground {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── Page tree ── */
+
+/* Fumadocs pads the viewport by 1rem on every side; the header above already
+ * ends in its own padding, so trim the top. */
+:is(#nd-sidebar, #nd-sidebar-mobile) [data-radix-scroll-area-viewport] {
+  padding-top: 0.5rem;
+}
+
+:is(#nd-sidebar, #nd-sidebar-mobile) [data-radix-scroll-area-viewport] :is(a[data-active], button[aria-expanded]) {
+  min-width: 0;
+  border-radius: 6px;
+  padding-block: 0.375rem;
+  padding-inline-end: 0.5rem;
+  color: var(--color-fd-muted-foreground);
+  line-height: 1.35;
+  transition:
+    background-color 150ms ease,
+    color 150ms ease;
+}
+
+/* Instant on the way in, eased on the way out. */
+:is(#nd-sidebar, #nd-sidebar-mobile) [data-radix-scroll-area-viewport] :is(a[data-active], button[aria-expanded]):hover {
+  background: var(--coven-sidebar-hover);
+  color: var(--color-fd-foreground);
+  transition-duration: 0ms;
+}
+
+/* !important to outrank the site-wide active-link colour in globals.css. */
+:is(#nd-sidebar, #nd-sidebar-mobile) [data-radix-scroll-area-viewport] a[data-active="true"] {
+  background: var(--coven-sidebar-active);
+  color: var(--coven-docs-violet) !important;
+  font-weight: 500;
+}
+
+/* Folder headings read a step stronger than the pages inside them. */
+:is(#nd-sidebar, #nd-sidebar-mobile) [data-radix-scroll-area-viewport] button[aria-expanded] {
+  color: var(--color-fd-foreground);
+  font-weight: 500;
+}
+
+/* Folder chevrons; Fumadocs marks them with data-icon. */
+:is(#nd-sidebar, #nd-sidebar-mobile) [data-radix-scroll-area-viewport] :is(a, button) > svg[data-icon] {
+  width: 0.875rem;
+  height: 0.875rem;
+  color: var(--color-fd-muted-foreground);
+}
+
+/* API method badges: pinned to the first line so long labels can wrap. */
+:is(#nd-sidebar, #nd-sidebar-mobile) [data-radix-scroll-area-viewport] a[data-active] > span.font-mono {
+  align-self: flex-start;
+  font-size: 0.625rem;
+  letter-spacing: 0.04em;
+  line-height: 1.1875rem;
+  opacity: 0.85;
+}
+
+:is(#nd-sidebar, #nd-sidebar-mobile) :is(a, button):focus-visible {
+  outline: 2px solid var(--coven-docs-violet);
+  outline-offset: -2px;
+}
+
+/* ── Footer: icon links and the theme toggle on one bare row ── */
+
+#nd-sidebar > div:has(> div > [data-theme-toggle]) {
+  border-top: 1px solid var(--coven-sidebar-rule);
+  padding-block: 0.75rem;
+}
+
+#nd-sidebar div:has(> [data-theme-toggle]) {
+  gap: 0.125rem;
+  border: 0;
+  background: transparent;
+  padding: 0;
+}
+
+#nd-sidebar div:has(> [data-theme-toggle]) > a {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 6px;
+  color: var(--color-fd-muted-foreground);
+}
+
+#nd-sidebar div:has(> [data-theme-toggle]) > a:hover {
+  background: var(--coven-sidebar-hover);
+  color: var(--color-fd-foreground);
+}
+
+#nd-sidebar [data-theme-toggle] {
+  gap: 0.125rem;
+  border: 1px solid var(--coven-sidebar-rule);
+  border-radius: 999px;
+  padding: 0.125rem;
+}
+
+#nd-sidebar [data-theme-toggle] > svg {
+  width: 1.625rem;
+  height: 1.625rem;
+  border-radius: 999px;
+}
