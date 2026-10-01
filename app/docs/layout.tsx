@@ -3,6 +3,7 @@ import type { LinkItemType } from 'fumadocs-ui/layouts/shared';
 import { Icon } from '@iconify/react';
 import type { ReactNode } from 'react';
 import { baseOptions } from '@/app/layout.config';
+import { SidebarRail } from '@/components/sidebar-rail';
 import { source } from '@/lib/source';
 
 // The docs sidebar renders text links as rows above the page tree, where
@@ -25,11 +26,11 @@ export default function Layout({ children }: { children: ReactNode }) {
   return (
     <DocsLayout
       tree={source.pageTree}
-      sidebar={{ collapsible: false }}
       {...baseOptions}
       nav={{ ...baseOptions.nav, url: '/docs' }}
       links={docsLinks}
     >
+      <SidebarRail />
       {children}
     </DocsLayout>
   );
