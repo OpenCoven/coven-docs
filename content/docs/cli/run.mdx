@@ -19,7 +19,7 @@ The current built-in harness ids are `codex` and `claude`.
 ## Syntax
 
 ```bash
-coven run <harness> <prompt> [--cwd <path>] [--title <title>] [--detach]
+coven run <harness> <prompt> [--cwd <path>] [--title <title>] [--detach] [--context-admission <file>]
 ```
 
 | Part | Meaning |
@@ -29,6 +29,7 @@ coven run <harness> <prompt> [--cwd <path>] [--title <title>] [--detach]
 | `--cwd <path>` | Working directory inside the detected project root. |
 | `--title <title>` | Readable session title for `coven sessions`. |
 | `--detach` | Create the session record without launching the harness. |
+| `--context-admission <file>` | Submit an explicit ordinary-chat context intent. This boundary currently fails closed and never launches a harness. |
 
 ## Project boundary
 
@@ -58,3 +59,14 @@ coven run codex "prepare release notes" --detach
 ```
 
 Detached mode is intentionally narrow. Most users should launch a live harness and then manage it through [Sessions](/docs/cli/sessions).
+
+## Context-admission intent
+
+`--context-admission FILE` is a fail-closed prerequisite, not an enabled
+context or isolation mode. Coven currently refuses even a structurally valid
+intent because it has no trusted identity/ledger consumer or qualified native
+context profile. Malformed intents fail validation; valid intents return a
+nonzero refusal such as `chat_context_admission_unavailable`. No harness is
+launched, and clients must not remove the intent and retry through ordinary
+chat. The same boundary applies to continuation, detached, and streaming
+options.

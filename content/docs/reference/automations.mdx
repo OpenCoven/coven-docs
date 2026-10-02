@@ -11,8 +11,32 @@ home directory.
 
 Automations are exposed through the `coven.automations` capability and the
 versioned `POST /api/v1/actions` router. Always call
-`GET /api/v1/capabilities` first and use only action ids advertised by the live
-daemon.
+`GET /api/v1/capabilities` first and use only action ids and variants advertised
+by the live daemon. Unsupported variants fail with typed
+`CAPABILITY_UNSUPPORTED`; clients must not guess, default, or silently downgrade
+them.
+
+Automation mutations, sensitive definition/run/receipt reads, and event reads
+require owner-local IPC. Loopback TCP is limited to scheduling and health
+diagnostics; it does not establish daemon ownership. Requests over TCP to
+owner-only automation operations fail with `403 AUTHORITY_REQUIRED` before
+store access.
+
+## Versioned automation contract
+
+The `coven.automations.v1` command envelope supports revisioned definition
+creation and updates, lifecycle changes, run and occurrence control, paged
+history, health, and event reads. Commands carry an adoption key for safe
+replay; revision-scoped updates also carry the expected current revision.
+Rich definitions retain their revision and integrity digest, but an
+unadvertised or unimplemented variant is refused rather than ignored. For
+example, delivery policies and activation windows remain unsupported.
+
+Durable schedules use `utc` or an exact IANA time-zone identifier. A legacy
+`local` value is resolved at the compatibility boundary before persistence; it
+is not a durable time-zone value. The profile also pins daylight-saving
+behavior and retry eligibility, so clients should negotiate the live profile
+instead of assuming that a structurally valid definition can execute.
 
 ## Safety defaults
 
@@ -87,7 +111,7 @@ fail closed with HTTP `400`.
 
 ## Definition shape
 
-A create or update request supplies a top-level `definition` object:
+The legacy flat create/update action supplies a top-level `definition` object:
 
 ```json
 {
@@ -99,7 +123,7 @@ A create or update request supplies a top-level `definition` object:
     "name": "Daily notes",
     "status": "PAUSED",
     "rrule": "FREQ=DAILY;BYHOUR=9",
-    "timezone": "local",
+    "timezone": "utc",
     "misfire": "latest",
     "overlap": "forbid",
     "timeoutMinutes": 30,
@@ -112,14 +136,14 @@ A create or update request supplies a top-level `definition` object:
 }
 ```
 
-The v1 implementation validates:
+The legacy flat action validates:
 
 - `schemaVersion` is exactly `1`;
 - `id` is 1–96 ASCII letters, digits, `.`, `_`, or `-`;
 - `name` is 1–160 characters;
 - `status` is `ACTIVE` or `PAUSED`;
 - `rrule` uses the supported daily/weekly recurrence subset with supported `BYHOUR` and `BYDAY` values;
-- `timezone` is `local` or `utc`;
+- `timezone` is `utc` or an exact IANA time-zone identifier for durable schedules; legacy `local` inputs are resolved before persistence;
 - `misfire` is `latest` and `overlap` is `forbid`;
 - `timeoutMinutes` is 1–44,640;
 - `runtime` is non-empty and at most 64 characters;

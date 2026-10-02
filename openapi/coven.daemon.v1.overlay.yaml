@@ -7,26 +7,55 @@ paths:
     post:
       description: |
         Accepts a top-level action id plus optional correlation fields and
-        action-specific top-level fields. The daemon routes only known action
-        ids; unknown actions fail closed before an adapter can run.
+        action-specific fields. Legacy action fields are top-level; the
+        versioned `coven.automations.command.v1` action carries its command
+        object in `envelope`. The daemon routes only known action ids; unknown
+        actions fail closed before an adapter can run.
 
         `accepted: true` means the router recognized and routed the request. An
         adapter can still report an operation-level failure in
         `event.payload.error`; callers must inspect the payload before declaring
         success.
 
-        Known action ids are discovered from `GET /capabilities`. The current
-        daemon advertises `coven.capabilities.refresh` and:
+        Known action ids are discovered from `GET /capabilities`. Automation
+        mutation and sensitive-read actions require owner-local IPC; TCP remains
+        limited to scheduling and health diagnostics. Versioned command clients
+        should read the advertised variant-negotiation profile and refuse
+        unsupported variants rather than silently downgrading.
+
+        The current daemon advertises `coven.capabilities.refresh` and:
         - `coven.automations.list`
         - `coven.automations.get`
         - `coven.automations.create`
         - `coven.automations.update`
         - `coven.automations.delete`
+        - `coven.automations.definition.list.v1`
+        - `coven.automations.definition.get.v1`
+        - `coven.automations.command.v1`
+        - `coven.automations.definition.create.v1`
+        - `coven.automations.definition.revise.v1`
+        - `coven.automations.definition.disable.v1`
+        - `coven.automations.definition.activate.v1`
+        - `coven.automations.definition.pause.v1`
+        - `coven.automations.definition.tombstone.v1`
+        - `coven.automations.run.cancel.v1`
+        - `coven.automations.events.read.v1`
+        - `coven.automations.events.subscribe.v1`
         - `coven.automations.tick`
         - `coven.automations.runs`
+        - `coven.automations.run.history.v1`
+        - `coven.automations.receipt.get.v1`
         - `coven.automations.run`
         - `coven.automations.import`
+        - `coven.automations.legacy.import.v1`
         - `coven.automations.health`
+        - `coven.automations.definition.health.v1`
+        - `coven.automations.scheduler.status.v1`
+        - `coven.automations.occurrence.list.v1`
+        - `coven.automations.occurrence.get.v1`
+        - `coven.automations.run.get.v1`
+        - `coven.automations.occurrence.history.v1`
+        - `coven.automations.unquarantine`
       requestBody:
         required: true
         content:
@@ -58,7 +87,7 @@ paths:
                     name: Daily notes
                     status: PAUSED
                     rrule: FREQ=DAILY;BYHOUR=9
-                    timezone: local
+                    timezone: utc
                     misfire: latest
                     overlap: forbid
                     timeoutMinutes: 30
@@ -88,17 +117,46 @@ components:
                 - coven.automations.create
                 - coven.automations.update
                 - coven.automations.delete
+                - coven.automations.definition.list.v1
+                - coven.automations.definition.get.v1
+                - coven.automations.command.v1
+                - coven.automations.definition.create.v1
+                - coven.automations.definition.revise.v1
+                - coven.automations.definition.disable.v1
+                - coven.automations.definition.activate.v1
+                - coven.automations.definition.pause.v1
+                - coven.automations.definition.tombstone.v1
+                - coven.automations.run.cancel.v1
+                - coven.automations.events.read.v1
+                - coven.automations.events.subscribe.v1
                 - coven.automations.tick
                 - coven.automations.runs
+                - coven.automations.run.history.v1
+                - coven.automations.receipt.get.v1
                 - coven.automations.run
                 - coven.automations.import
+                - coven.automations.legacy.import.v1
                 - coven.automations.health
+                - coven.automations.definition.health.v1
+                - coven.automations.scheduler.status.v1
+                - coven.automations.occurrence.list.v1
+                - coven.automations.occurrence.get.v1
+                - coven.automations.run.get.v1
+                - coven.automations.occurrence.history.v1
+                - coven.automations.unquarantine
             - id: desktop.automation
               label: Desktop automation adapters
               adapter: desktop-use
               status: planned
               policy: requiresApproval
               actions: []
+
+    Capability:
+      properties:
+        variantNegotiation:
+          type: object
+          description: Optional machine-readable supported, experimental, and refused variant profile. Clients must not guess or silently downgrade unsupported variants.
+          additionalProperties: true
 
     ActionRequest:
       type: object
@@ -130,7 +188,11 @@ components:
           examples: [20]
         definition:
           type: object
-          description: Required validated routine definition for create and update actions.
+          description: Routine definition for legacy create and update actions. Versioned command actions carry their closed command envelope in `envelope`.
+          additionalProperties: true
+        envelope:
+          type: object
+          description: Versioned `coven.automations.v1` command envelope for `coven.automations.command.v1`.
           additionalProperties: true
       additionalProperties: true
       examples:

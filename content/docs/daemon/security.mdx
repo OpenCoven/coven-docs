@@ -69,6 +69,12 @@ Reasonable owner-operated patterns:
 - Tailscale between your own devices.
 - A private gateway that adds authentication before touching the socket.
 
+For a loopback TCP listener behind a trusted proxy, repeat `--allow-host` with
+the bare hostname or `hostname:port` that the proxy forwards. Do not include a
+scheme or path. A browser `Origin` must match the exact HTTPS origin, including
+its port; plain HTTP, another port, or an origin with a path is rejected.
+Allowlisting a host does not authenticate the API or widen the loopback bind.
+
 Avoid exposing the daemon's local IPC endpoint directly to browsers, public
 networks, shared machines, or unauthenticated TCP bridges.
 

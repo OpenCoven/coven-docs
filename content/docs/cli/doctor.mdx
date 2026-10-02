@@ -37,6 +37,14 @@ When `install:conflicts` warns, do not continue by reinstalling repeatedly. Find
 every executable visible to the current shell and identify which one answers
 first.
 
+Doctor identifies each install's origin (for example npm and its global prefix,
+Cargo, a source build, or an older Coven Code installer), marks the executable
+running the current process, and prints the removal command for shadowed copies.
+When `npm prefix -g` points at a shadowed copy, Doctor reports that mismatch
+and gives a prefix-specific command for the active install. `coven doctor
+--json` reports install counts and origin kinds without absolute paths; use the
+prose output for concrete paths and commands.
+
 On Unix-like shells:
 
 ```bash
