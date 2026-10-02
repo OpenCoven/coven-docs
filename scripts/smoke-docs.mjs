@@ -160,7 +160,7 @@ try {
   }
 
   const routes = [
-    { path: '/', expectedText: 'Start a session', screenshot: 'home-desktop.png' },
+    { path: '/', expectedText: 'Choose the harness.', screenshot: 'home-desktop.png' },
     {
       path: '/docs',
       expectedText: 'From install to evidence.',
@@ -315,7 +315,7 @@ try {
 
   await page.setViewport({ width: 390, height: 844 });
   const mobileRoutes = [
-    { path: '/', expectedText: 'Start a session', screenshot: 'home-mobile.png' },
+    { path: '/', expectedText: 'Choose the harness.', screenshot: 'home-mobile.png' },
     {
       path: '/docs',
       expectedText: 'From install to evidence.',

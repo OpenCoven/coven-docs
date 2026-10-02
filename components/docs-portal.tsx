@@ -50,15 +50,49 @@ const sectionIcons: Record<string, string> = {
   experimental: 'ph:flask-duotone',
 };
 
+// 24 squares stepped 3.75° apart: their overlapping edges interfere into a
+// guilloché rosette, the engraving used on certificates of authenticity.
+const ROSETTE_TURNS = Array.from({ length: 24 }, (_, i) => i * 3.75);
+const SEAL_TEXT_RADIUS = 86;
+const SEAL_TEXT_LENGTH = 2 * Math.PI * SEAL_TEXT_RADIUS;
+
+function EvidenceSeal() {
+  return (
+    <svg className={styles.seal} viewBox="-100 -100 200 200" aria-hidden="true" focusable="false">
+      <defs>
+        <path
+          id="docs-seal-text-path"
+          d={`M 0 ${SEAL_TEXT_RADIUS} A ${SEAL_TEXT_RADIUS} ${SEAL_TEXT_RADIUS} 0 1 1 0 -${SEAL_TEXT_RADIUS} A ${SEAL_TEXT_RADIUS} ${SEAL_TEXT_RADIUS} 0 1 1 0 ${SEAL_TEXT_RADIUS}`}
+        />
+      </defs>
+      <circle className={styles.sealRing} r="94" />
+      <circle className={styles.sealRing} r="78" />
+      <text className={styles.sealText}>
+        <textPath href="#docs-seal-text-path" textLength={SEAL_TEXT_LENGTH} lengthAdjust="spacing">
+          LOCAL · DURABLE · AUDITABLE · LOCAL · DURABLE · AUDITABLE ·
+        </textPath>
+      </text>
+      <g className={styles.sealRosette}>
+        {ROSETTE_TURNS.map((turn) => (
+          <rect key={turn} x="-52" y="-52" width="104" height="104" transform={`rotate(${turn})`} />
+        ))}
+      </g>
+      <circle className={styles.sealCore} r="24" />
+      <rect className={styles.sealDiamond} x="-9" y="-9" width="18" height="18" transform="rotate(45)" />
+      <circle className={styles.sealDot} r="2.5" />
+    </svg>
+  );
+}
+
 export function DocsPortal() {
   return (
     <div className={styles.portal} data-docs-portal>
-      <section className={styles.hero} aria-labelledby="docs-portal-title">
+      <section className={`${styles.hero} not-prose`} aria-labelledby="docs-portal-title">
         <div className={styles.heroCopy}>
           <p className={styles.eyebrow}>Canonical Coven runtime manual</p>
-          <h2 id="docs-portal-title" className={styles.heroTitle}>
-            From install to evidence.
-          </h2>
+          <h1 id="docs-portal-title" className={styles.heroTitle}>
+            From install to <em>evidence.</em>
+          </h1>
           <p className={styles.heroLead}>
             Start with one recorded coding-agent session, then move outward into the CLI,
             daemon, harness, memory, and local API contracts that make the work durable.
@@ -66,7 +100,7 @@ export function DocsPortal() {
           <div className={styles.heroActions}>
             <Link href="/docs/guide/getting-started" className={styles.primaryAction}>
               Run a first session
-              <Icon icon="ph:arrow-right-bold" width={15} aria-hidden="true" />
+              <Icon icon="ph:arrow-right" width={15} aria-hidden="true" />
             </Link>
             <Link href="/docs/guide/architecture" className={styles.secondaryAction}>
               Understand the boundary
@@ -74,19 +108,22 @@ export function DocsPortal() {
           </div>
         </div>
 
-        <div className={styles.proof} aria-label="Documentation release signals">
-          <div className={styles.proofItem}>
-            <strong>{docsSections.length}</strong>
-            <span>governed sections</span>
-          </div>
-          <div className={styles.proofItem}>
-            <strong>Hourly</strong>
-            <span>production checks</span>
-          </div>
-          <div className={styles.proofItem}>
-            <strong>Daily</strong>
-            <span>source-drift checks</span>
-          </div>
+        <EvidenceSeal />
+
+        <div className={styles.sealRule}>
+          <span className={styles.sealMark} aria-hidden="true" />
+          <span className={styles.sealLine} aria-hidden="true" />
+          <ul className={styles.hallmarks} aria-label="Documentation release signals">
+            <li>
+              <strong>{docsSections.length}</strong> governed sections
+            </li>
+            <li>
+              <strong>Hourly</strong> production checks
+            </li>
+            <li>
+              <strong>Daily</strong> source-drift checks
+            </li>
+          </ul>
         </div>
       </section>
 

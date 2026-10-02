@@ -127,7 +127,7 @@ test('POST /sessions validates like the daemon', () => {
   assert.equal(escape.status, 400);
   assert.equal(
     (escape.json as { error: { code: string } }).error.code,
-    'project_root_violation',
+    'invalid_request',
   );
 });
 

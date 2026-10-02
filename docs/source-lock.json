@@ -5,8 +5,8 @@
       "id": "coven-runtime-contract",
       "repo": "OpenCoven/coven",
       "ref": "main",
-      "verifiedAt": "2026-09-12T01:24:34Z",
-      "verifiedCommit": "efb56512e4f417a9ca79f5aa211d7905a849d931",
+      "verifiedAt": "2026-10-01T23:39:38Z",
+      "verifiedCommit": "586567a68aef82322e10c8bf156d298240ddc579",
       "sections": [
         "guide",
         "cli",
@@ -30,7 +30,23 @@
         "crates/coven-cli/src/setup/copilot.rs",
         "docs/API-CONTRACT.md",
         "docs/SAFETY-MODEL.md",
-        "npm/coven/package.json"
+        "npm/coven/package.json",
+        "crates/coven-cli/engine.lock",
+        "crates/coven-cli/src/engine.rs",
+        "crates/coven-cli/src/help.rs",
+        "crates/coven-cli/src/install_conflict.rs",
+        "crates/coven-cli/src/theme.rs",
+        "crates/coven-cli/src/tui/sessions.rs",
+        "crates/coven-cli/src/mobile_memory/device.rs",
+        "crates/coven-cli/src/control_plane.rs",
+        "crates/coven-cli/src/automations/definition.rs",
+        "crates/coven-cli/src/automations/command_envelope.rs",
+        "crates/coven-cli/src/session_policy.rs",
+        "crates/coven-cli/src/chat_context_admission.rs",
+        "crates/coven-cli/src/api_health.rs",
+        "crates/coven-cli/src/store.rs",
+        "docs/architecture/coven-automations-v1.md",
+        "spec/coven-automations/v1/capabilities.json"
       ]
     }
   ]

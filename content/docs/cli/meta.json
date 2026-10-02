@@ -19,6 +19,7 @@
     "engine-auth",
     "repo-workflow",
     "patch-openclaw",
-    "pc"
+    "pc",
+    "device"
   ]
 }
