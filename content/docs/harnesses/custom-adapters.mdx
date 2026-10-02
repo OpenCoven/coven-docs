@@ -64,6 +64,13 @@ Optional fields: `system_prompt_flag`, `prompt_flag`, `interactive_prompt_flag`,
 
 The prompt is the final argument after the fixed prefix args unless the adapter declares a `prompt_flag`.
 
+Because Coven appends the prompt as an argument, external manifests cannot name
+a shell or language interpreter, and neither prompt-prefix vector may contain
+prompt-evaluating flags such as `-c`, `-e`, `--eval`, `--command`, or `/c`.
+These checks prevent a manifest from turning prompt text into executable code.
+They do not ban `-c` for non-interpreter executables, where it can be a normal
+model argument.
+
 ## Review checklist
 
 Before registering a new adapter, verify:

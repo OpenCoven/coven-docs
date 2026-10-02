@@ -14,6 +14,13 @@ versioned `POST /api/v1/actions` router. Always call
 `GET /api/v1/capabilities` first and use only action ids advertised by the live
 daemon.
 
+The automation catalog entry can include `variantNegotiation`, which identifies
+the contract profile and supported, experimental, and refused variants. Check
+that data before sending definition semantics; an advertised action alone does
+not mean every definition variant is supported. The
+[versioned automations protocol](https://github.com/OpenCoven/coven/blob/main/spec/coven-automations/v1/README.md)
+is the normative source for that negotiation.
+
 ## Safety defaults
 
 - Imported legacy routines are created as `PAUSED`; import never opts them into execution.
@@ -71,6 +78,11 @@ success. Malformed envelopes, missing required fields, and unknown action ids
 fail closed with HTTP `400`.
 
 ## Supported actions
+
+This table covers the flat compatibility actions. Newer daemon releases may
+advertise additional versioned actions; discover action ids and supported
+definition variants from the live capability response rather than treating this
+list as exhaustive.
 
 | Action | Required fields | Result |
 | --- | --- | --- |

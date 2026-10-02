@@ -79,11 +79,33 @@ and the generated [API Reference](/docs/openapi). For every other route, use
 capability discovery and the owning first-party client's contract instead of
 copying an implementation detail into an external integration.
 
+## Refusal-only admission contracts
+
+Some separately negotiated contracts are deliberately refusal-only; their
+advertisement is not an enforcement grant or proof that a request can launch.
+The `coven.automations` capability may also include `variantNegotiation`, so
+clients must check supported variants rather than infer definition support
+from the action catalog alone. See the
+[versioned source contract](https://github.com/OpenCoven/coven/blob/main/docs/API-CONTRACT.md)
+and its linked protocol specifications for normative details.
+
+`sessionPolicyContracts` advertises `coven.session-policy.v1` only over
+owner-local IPC. `GET /api/v1/session-policy` is inert and reports no supported
+profiles; a valid `POST /api/v1/sessions/restricted` is rejected with HTTP
+`409` and does not start a session. TCP cannot submit that request.
+
+An explicit `contextAdmission` on owner-local session launch or input is also
+refused while trusted context verification is unavailable. Other mutations
+reject its presence rather than treating it as an ordinary request. Callers
+must not strip the field and retry through a legacy route.
+
 ## Version and privacy rules
 
 `GET /api/v1/health` advertises the named `coven.daemon.v1` contract.
 `GET /api/v1/api-version` is a legacy route-family diagnostic; its literal
 `v1` value is not sufficient proof that every named-contract capability exists.
+`covenVersion` is an opaque build identity, not an API compatibility version;
+negotiate on `apiVersion` and `capabilities`.
 
 Broad event and log responses are redacted by default. Raw sensitive artifacts
 are available only through the narrow
