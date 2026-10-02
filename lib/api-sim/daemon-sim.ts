@@ -125,12 +125,9 @@ export class DaemonSim {
     }
     const cwd = typeof input.cwd === 'string' && input.cwd !== '' ? input.cwd : projectRoot;
     if (!isInsideRoot(cwd, projectRoot)) {
-      return errorEnvelope(
-        400,
-        'project_root_violation',
-        'cwd resolves outside the declared project root.',
-        { cwd, projectRoot },
-      );
+      // The daemon reports a cwd outside the project root as invalid_request;
+      // project_root_violation is a reserved code it does not emit.
+      return errorEnvelope(400, 'invalid_request', 'cwd is outside the Coven project root');
     }
 
     this.launchCounter += 1;

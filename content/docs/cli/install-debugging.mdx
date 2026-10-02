@@ -106,7 +106,7 @@ coven daemon restart
 coven doctor
 ```
 
-If Doctor reports that `npm install -g` writes to a shadowed prefix, upgrade the prefix that owns the active copy (for current releases, use the first path from `which -a coven` / `Get-Command -All coven` to identify it):
+If Doctor reports that `npm install -g` writes to a shadowed copy or to a prefix with no `coven` on `PATH`, upgrade the prefix that owns the active copy (for current releases, use the first path from `which -a coven` / `Get-Command -All coven` to identify it):
 
 ```sh
 npm install -g --prefix <active-prefix> @opencoven/cli@latest
