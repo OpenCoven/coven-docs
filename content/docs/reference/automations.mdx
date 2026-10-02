@@ -171,6 +171,13 @@ order. `events.read.v1` takes an exclusive sequence in `after` or a UTC
 timestamp in `from`, and `limit` from 1 to 1,000 (default 100). Checkpoints
 expire after 24 hours and then return `CURSOR_EXPIRED` instead of rewinding.
 
+Occurrence, run, and attempt state changes publish `occurrence.transitioned`,
+`run.transitioned`, and `attempt.transitioned` events in the same transaction
+as the change: occurrence events on the `occurrence` stream, run and attempt
+events on the `run` stream. Creating a row publishes `from: "none"`. History
+from before these events existed is not backfilled, so a stream can begin
+mid-lifecycle; treat its first prior state as unknown.
+
 `coven.automations.receipt.get.v1` returns the stored receipt with a
 `verification` summary. Current builds cannot authenticate the receipt
 producer, so `verification.status` is `unverifiable`; treat a receipt as
