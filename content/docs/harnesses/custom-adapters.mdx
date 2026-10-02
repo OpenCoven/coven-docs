@@ -22,7 +22,8 @@ Set the environment variables before starting Coven (both the CLI and the daemon
 
 ## Trusted recipes: grok and hermes
 
-Two external adapters ship as installable recipes:
+The examples below use the `grok` and `hermes` installable recipes.
+The current recipe registry also includes `opencode`.
 
 | Recipe | Label | Executable | Auth |
 | --- | --- | --- | --- |
@@ -42,7 +43,7 @@ Grok's headless runner never blocks on approvals: with `--permission` omitted it
 ```bash
 coven adapter list            # configured adapters, source, availability (--json available)
 coven adapter doctor [id]     # diagnose all adapters or one id; exits 1 if unavailable
-coven adapter install <id>    # install a trusted recipe (grok or hermes)
+coven adapter install <id>    # install a trusted recipe (grok, hermes, or opencode)
 ```
 
 `coven run` with an unregistered harness id fails closed and names the known recipes plus the manifest mechanism.
@@ -64,13 +65,19 @@ Optional fields: `system_prompt_flag`, `prompt_flag`, `interactive_prompt_flag`,
 
 The prompt is the final argument after the fixed prefix args unless the adapter declares a `prompt_flag`.
 
-Because Coven appends the prompt to those arguments, external manifests may not
-name a shell or language interpreter as `executable`, or put prompt-evaluating
-flags such as `-c`, `-e`, `--eval`, `--command`, `-command`, or `/c` in either
-prompt-prefix vector. These checks are case-insensitive and recognize `.exe`
-interpreter names. They prevent the prompt from being evaluated as code. The
-restriction does not ban `-c` in `model_arg_template`; non-interpreter runtimes
-may use it for configuration.
+## Prompt safety
+
+In the CLI release that includes OpenCoven/coven#1089, the manifest loader refuses adapters that could run the prompt as code. Coven appends the prompt as a trailing argument, so:
+
+- `executable` may not name a shell or language interpreter, such as `sh`, `bash`, `zsh`, `python3`, `node`, `env`, or `powershell`. Names are compared case-insensitively, ignoring surrounding whitespace and a `.exe` suffix.
+- Neither `interactive_prompt_prefix_args` nor `non_interactive_prompt_prefix_args` may contain `-c`, `-e`, `--eval`, `--command`, `-command`, or `/c` as a whole argument, compared case-insensitively.
+
+Other fields are not checked for these flags, so `model_arg_template: "-c model={model}"` stays valid for a harness that is not an interpreter.
+
+A rejected adapter fails the whole manifest load. Until you fix it, `coven run` (for every harness, built-ins included), `coven doctor`, `coven adapter list`, and `coven adapter doctor` exit with an error that names the manifest path, the adapter id, and the rejected executable or field.
+
+To fix it, point `executable` at the real harness CLI on the daemon's `PATH` and let it take the prompt as data. Do not work around the check with `sh -c`, an interpreter wrapper script, or by moving the flag to another field. Coven re-reads manifest files on every launch; if you changed `COVEN_HARNESS_ADAPTER_MANIFEST` or `COVEN_HARNESS_ADAPTER_DIRS`, run `coven daemon restart` so the daemon sees the new value. Then run `coven adapter doctor <id>`.
+These checks block known interpreter names; they are not a sandbox. Review the manifest and the binary its `executable` resolves to, because external adapters run with your user's authority.
 
 ## Review checklist
 

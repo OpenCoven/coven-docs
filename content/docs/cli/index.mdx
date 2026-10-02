@@ -79,8 +79,9 @@ Use [Provider setup](/docs/cli/setup) for consent, verification, and report sema
 | `coven vacuum` | Repair and compact the local Coven session store. |
 | `coven reset` | Preview or recoverably reset selected local state categories; `--apply` moves them into a backup. |
 | `coven pc` | Diagnose and relieve macOS system pressure. See [PC Diagnostics](/docs/cli/pc). |
+| `coven device` | List, inspect, suspend, revoke, and reissue grants for enrolled devices. See [Devices](/docs/cli/device). |
 
-All of these except `coven pc` are covered on [Observability commands](/docs/cli/observe).
+All of these except `coven pc` and `coven device` are covered on [Observability commands](/docs/cli/observe).
 
 ### Hub and scheduling
 
@@ -134,6 +135,8 @@ explicit `light` or `dark` overrides environment detection. With `auto`, Coven
 checks `COVEN_THEME` first, then the final background-color field in
 `COLORFGBG`, and defaults to dark when neither identifies the background.
 `--theme` controls palette contrast; `--color` controls ANSI color output.
+
+Every command also accepts the global `--theme auto|light|dark` option, which picks a palette for a light or dark terminal background. `auto` is the default: it uses `COVEN_THEME` when it is set to `light` or `dark`, then the background color in `COLORFGBG`, and otherwise the dark palette. Coven does not query the terminal for its background, so pass `--theme light` or set `COVEN_THEME=light` when a light terminal is not detected.
 
 ## What owns what
 

@@ -1,0 +1,48 @@
+---
+title: "Devices"
+summary: "Administer enrolled devices: list, inspect, rename, suspend, resume, revoke, reissue grants, and rotate to a replacement."
+description: "Reference for coven device list, inspect, rename, suspend, resume, revoke, grant reissue, and rotate."
+read_when:
+  - You need to see which devices are enrolled and what their grants allow
+  - A device is lost, compromised, retired, or away for a while
+  - You are changing an enrolled device's grant or replacing the device
+---
+
+`coven device` manages devices already enrolled with this `COVEN_HOME` and the grant each one holds. It does not pair new devices; enrollment happens through the mobile gateway's pairing flow (`coven memory mobile pair`).
+
+```bash
+coven device list                    # id, status, grant status, and name (--json available)
+coven device inspect <device>        # one device and its grant (--json available)
+coven device rename <device> <name>
+coven device suspend <device>
+coven device resume <device>
+coven device revoke <device> --reason lost
+coven device grant reissue <device> --scope memory-read --expires-in-days 30
+coven device rotate <old-device> <replacement-device>
+```
+
+`<device>` is the device's exact id or exact display name. A name shared by more than one device fails; use the id instead.
+
+## Suspend or revoke
+
+In the CLI release that includes OpenCoven/coven#1139, `suspend` takes a device offline without ending its enrollment. Its grant and authorization key stay in place, so `resume` restores access without pairing again. Requests from a suspended device fail with `device_suspended`. Resuming grants nothing new: every request is still checked against the grant's scopes, assurance floor, and expiry, so a grant that expired or was tightened during the suspension stays unusable.
+
+`revoke` is permanent. It ends the device's grant and authorization key, and the device has to pair again to regain access. A revoked device cannot be suspended or resumed. `revoke` does not ask for confirmation, so check the id with `coven device list` first. `--reason` records why in the device audit trail: `ordinary` (default), `lost`, `suspected-compromise`, or `retired`.
+
+## Reissue a grant
+
+`coven device grant reissue` replaces the device's grant with exactly the policy you pass. Options you omit take their defaults, not the previous grant's values.
+
+| Option | Values |
+| --- | --- |
+| `--scope` (required) | One or more of `memory-read`, `session-metadata-read`, `conversation-read`, `message-send`, `tool-invocation-request`, `tool-execution-approve`, `secrets-read`, `familiar-memory-admin`, `device-admin`, `identity-admin`, `memory-export`, `identity-export`. Repeat the flag or comma-separate values; duplicates are rejected. |
+| `--expires-in-days` (required) | Whole days from now, `1` to `365`. |
+| `--minimum-assurance` | `possession` (default), `recent-user-verification`, `fresh-user-verification`, `fresh-biometric`, or `step-up`. |
+| `--require-fresh-user-verification-for` | Scopes that require fresh user verification. |
+| `--direct-only` | Restrict the grant to direct authenticated transport. |
+
+Each reissue creates a new grant id and advances the device's revocation epoch, which invalidates the device's outstanding sessions.
+
+## Replace a device
+
+Pair the replacement device first. `coven device rotate <old-device> <replacement-device>` then revokes the old device and moves its grant policy to the replacement under a new grant id.

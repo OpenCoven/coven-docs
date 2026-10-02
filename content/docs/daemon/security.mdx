@@ -44,6 +44,26 @@ cookies. Access uses:
 Anyone who can connect to that endpoint can act as a local Coven client. Keep
 `$COVEN_HOME` and the endpoint private to the user who owns the daemon.
 
+## Optional loopback TCP
+
+On Unix-like hosts, `coven daemon serve --tcp <addr>` can also bind a TCP
+listener. The daemon refuses non-loopback bind addresses and checks the `Host`
+and `Origin` headers to reduce browser risk. Each `--allow-host <host>` entry
+trusts one proxied hostname, and a browser `Origin` for it must be exactly
+`https://<host[:port]>`; plain-HTTP or different-port origins are rejected.
+
+TCP does not prove that the caller owns the daemon. Over TCP, the daemon
+refuses owner-only operations with HTTP `403`, including:
+
+- automation mutations and automation reads that return prompts, run logs,
+  receipts, or event checkpoints (`AUTHORITY_REQUIRED`);
+- restricted session launches and the `launchPolicy` launch field (`forbidden`);
+- any request that carries a `contextAdmission` member.
+
+Health over TCP reports `sessionLaunchPolicy: false` and an empty
+`sessionPolicyContracts` list. Send owner-only requests over the local IPC
+endpoint.
+
 ## Provider credentials
 
 Coven does not own model-provider credentials. Harness CLIs keep using their own login and auth stores.

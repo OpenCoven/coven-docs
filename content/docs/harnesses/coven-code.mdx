@@ -22,7 +22,7 @@ Coven Code is OpenCoven's own agent runtime. Unlike Codex, Claude Code, or Copil
 ## What makes it different
 
 - **Bundled, not detected.** External harnesses are provider-owned CLIs that Coven finds on `PATH`. The engine is downloaded and verified by `coven engine install` into a Coven-managed directory.
-- **Pinned by `engine.lock`.** Each `coven` build pins one engine release: currently version `0.7.0`, engine contract `1`, with a SHA-256 checksum per platform artifact (Linux x86_64/aarch64, macOS x86_64/aarch64, Windows x86_64). Installs verify the archive checksum before unpacking.
+- **Pinned by `engine.lock`.** Each `coven` build pins one engine release: currently version `0.8.0`, engine contract `1`, with a SHA-256 checksum per platform artifact (Linux x86_64/aarch64, macOS x86_64/aarch64, Windows x86_64). Installs verify the archive checksum before unpacking.
 - **Version-gated.** Coven refuses engines older than its minimum supported version (currently `0.6.1`), which moves independently of the pinned release.
 - **Separate process by license.** The engine is GPL-3.0 while Coven is MIT, so the engine is always launched as a separate process by path — never linked in.
 
@@ -32,7 +32,7 @@ When launching the `coven-code` harness, Coven resolves the binary in this order
 
 1. `COVEN_ENGINE_BIN` environment override.
 2. Managed install at `~/.coven/engine/<current>/` (the `current` file names the active version).
-3. `coven-code` on `PATH`.
+3. `coven-code` on `PATH`. In the CLI release that includes OpenCoven/coven#1130, only absolute `PATH` entries are searched; empty, `.`, and other relative entries are skipped, so a `coven-code` inside a project checkout cannot take over.
 4. Legacy `~/.coven-code/bin/` installs.
 
 ## Management commands

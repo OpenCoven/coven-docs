@@ -12,10 +12,25 @@ paths:
         object in `envelope`. The daemon routes only known action ids; unknown
         actions fail closed before an adapter can run.
 
-        `accepted: true` means the router recognized and routed the request. An
-        adapter can still report an operation-level failure in
-        `event.payload.error`; callers must inspect the payload before declaring
-        success.
+        A successful action returns `ok: true`, `accepted: true`, and
+        `status: completed`. Unversioned actions and automation reads return
+        their data in `event.payload`; versioned automation commands, event
+        pages, receipt reads, and `coven.automations.command.v1` return it in
+        `result`. A failed action returns `ok: false`, `accepted: false`,
+        `status: rejected`, and `reason`. Versioned automation actions and the
+        owner-local check also return a typed `error`; the HTTP status equals
+        `error.httpStatus`. Unversioned automation failures use `400`.
+        `accepted: true` on `coven.automations.run` does not mean the run
+        finished.
+
+        Automation actions require owner-local IPC. Over the optional loopback
+        TCP listener, only `coven.automations.health`,
+        `coven.automations.definition.health.v1`,
+        `coven.automations.scheduler.status.v1`,
+        `coven.automations.occurrence.list.v1`, and
+        `coven.automations.occurrence.history.v1` answer. Every other
+        `coven.automations.*` id returns `403` with `AUTHORITY_REQUIRED`
+        before the daemon opens the store.
 
         Known action ids are discovered from `GET /capabilities`. Automation
         mutation and sensitive-read actions require owner-local IPC; TCP remains
@@ -56,6 +71,10 @@ paths:
         - `coven.automations.run.get.v1`
         - `coven.automations.occurrence.history.v1`
         - `coven.automations.unquarantine`
+
+        Versioned automation command names this daemon does not implement,
+        such as `coven.automations.attempt.retry.v1`, are not advertised and
+        return `422` with `CAPABILITY_UNSUPPORTED`.
       requestBody:
         required: true
         content:
@@ -94,10 +113,65 @@ paths:
                     runtime: coven-code
                     cwd: /absolute/path/to/project
                     prompt: Write the daily reflection.
+              activateAutomation:
+                summary: Activate a reviewed automation at a known revision
+                value:
+                  action: coven.automations.definition.activate.v1
+                  id: daily-notes
+                  adoptionKey: activate-daily-notes-0001
+                  expectedRevision: 1
+                  reason: Reviewed prompt, cwd, and schedule.
+      responses:
+        '400':
+          $ref: '#/components/responses/ActionRejected'
+        '403':
+          $ref: '#/components/responses/ActionRejected'
+        '404':
+          $ref: '#/components/responses/ActionRejected'
+        '409':
+          $ref: '#/components/responses/ActionRejected'
+        '410':
+          $ref: '#/components/responses/ActionRejected'
+        '422':
+          $ref: '#/components/responses/ActionRejected'
+        '500':
+          $ref: '#/components/responses/ActionRejected'
 
 components:
+  responses:
+    ActionRejected:
+      description: |
+        The action was rejected; `reason` explains why. Versioned automation
+        actions and the owner-local check also return a typed `error`:
+        `VALIDATION_FAILED` or `SCHEMA_VERSION_UNSUPPORTED` (400),
+        `AUTHORITY_REQUIRED` (403), `NOT_FOUND` (404), `REVISION_CONFLICT`,
+        `ADOPTION_REPLAY_MISMATCH`, or `CANCEL_PENDING` (409),
+        `GONE_TOMBSTONED` or `CURSOR_EXPIRED` (410), `CAPABILITY_UNSUPPORTED`
+        or `ILLEGAL_TRANSITION` (422), and `INTERNAL` (500). Unknown action
+        ids, malformed bodies, and unversioned automation failures return
+        `400` with `reason` only.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ActionResponse'
+          example:
+            ok: false
+            accepted: false
+            action: coven.automations.definition.activate.v1
+            status: rejected
+            reason: Automation mutations require owner-local IPC.
+            error:
+              code: AUTHORITY_REQUIRED
+              httpStatus: 403
+              message: Automation mutations require owner-local IPC.
+              retryable: false
+
   schemas:
     Capabilities:
+      description: |
+        Catalog of capabilities advertised by this daemon. The
+        `coven.automations` entry also carries `variantNegotiation`, omitted
+        from this example.
       examples:
         - capabilities:
             - id: coven.control.actions
@@ -155,8 +229,14 @@ components:
       properties:
         variantNegotiation:
           type: object
-          description: Optional machine-readable supported, experimental, and refused variant profile. Clients must not guess or silently downgrade unsupported variants.
           additionalProperties: true
+          description: |
+            Present only on `coven.automations`: the packaged
+            `coven.automations.v1` variant profile with `version`,
+            `contractProfile`, `supported`, `experimental`, `refused`, and
+            `negotiationRules`. Read it before authoring definitions; versioned
+            create and revise refuse unsupported variants with
+            `CAPABILITY_UNSUPPORTED`.
 
     ActionRequest:
       type: object
@@ -170,30 +250,65 @@ components:
         origin:
           type: string
           minLength: 1
-          description: Optional caller identifier echoed for correlation.
+          description: Optional caller identifier echoed for correlation. Grants no authority.
           examples: [local-maintainer-tool]
         intentId:
           type: string
           minLength: 1
-          description: Optional caller-supplied correlation id echoed in the event.
+          description: |
+            Optional caller-supplied correlation id echoed in the event. On
+            `coven.automations.create`, `.update`, and `.delete` it is also an
+            idempotency key: a repeat returns the first result, and a different
+            request with the same value is rejected.
           examples: [inspect-daily-notes-1]
         id:
           type: string
           minLength: 1
-          description: Required by get, delete, runs, run, and health automation actions.
+          description: |
+            Definition, run, occurrence, or receipt id. Required by get, delete,
+            runs, run, health, unquarantine, the definition get, health,
+            activate, pause, disable, and tombstone commands, `run.get.v1`,
+            `occurrence.get.v1`, and `receipt.get.v1`.
           examples: [daily-notes]
         limit:
           type: integer
-          description: Optional recent-run limit for `coven.automations.runs`; defaults to 20.
+          description: |
+            Optional page size. `coven.automations.runs` defaults to 20;
+            history and occurrence reads accept 1 to 100 (default 20);
+            `events.read.v1` accepts 1 to 1000 (default 100).
           examples: [20]
         definition:
           type: object
-          description: Routine definition for legacy create and update actions. Versioned command actions carry their closed command envelope in `envelope`.
-          additionalProperties: true
+          description: Required routine definition for create, update, and the versioned create and revise commands.
         envelope:
           type: object
           description: Versioned `coven.automations.v1` command envelope for `coven.automations.command.v1`.
           additionalProperties: true
+        adoptionKey:
+          type: string
+          minLength: 8
+          maxLength: 200
+          pattern: '^[A-Za-z0-9][A-Za-z0-9._:-]*$'
+          description: |
+            Idempotency key required by versioned automation mutations. The
+            same request with the same key returns the first outcome; a
+            different request with a used key is rejected.
+          examples: [activate-daily-notes-0001]
+        expectedRevision:
+          type: integer
+          minimum: 1
+          description: Required by revise, activate, pause, disable, and tombstone; forbidden on create. A stale value returns `REVISION_CONFLICT`.
+          examples: [1]
+        reason:
+          type: string
+          description: Optional reason for activate, pause, and disable (at most 500 bytes). Required by `run.cancel.v1`.
+        automationId:
+          type: string
+          minLength: 1
+          description: Required by `run.history.v1` and `occurrence.history.v1`; optional filter for `occurrence.list.v1`.
+        cursor:
+          type: string
+          description: Opaque `cursor.next` value from a previous history page.
       additionalProperties: true
       examples:
         - action: coven.automations.health
@@ -209,7 +324,7 @@ components:
           type: boolean
         accepted:
           type: boolean
-          description: Whether the router recognized and accepted the action envelope.
+          description: Whether the action was accepted. A failed operation returns `false`.
         action:
           type: string
           description: Echo of the action id that was routed.
@@ -218,7 +333,13 @@ components:
           enum: [completed, rejected]
         reason:
           type: string
-          description: Rejection reason when the router fails closed.
+          description: Why the action was rejected, or a replay note.
+        result:
+          type: object
+          additionalProperties: true
+          description: Result of versioned automation commands, event pages, receipt reads, and `coven.automations.command.v1`.
+        error:
+          $ref: '#/components/schemas/AutomationError'
         event:
           oneOf:
             - $ref: '#/components/schemas/ActionEvent'
@@ -236,6 +357,64 @@ components:
             payload:
               health:
                 automationId: daily-notes
+        - ok: false
+          accepted: false
+          action: coven.automations.definition.activate.v1
+          status: rejected
+          reason: Automation mutations require owner-local IPC.
+          error:
+            code: AUTHORITY_REQUIRED
+            httpStatus: 403
+            message: Automation mutations require owner-local IPC.
+            retryable: false
+
+    AutomationError:
+      type: object
+      description: Typed Coven Automations error returned by versioned automation actions and the owner-local transport check.
+      required: [code, httpStatus, message, retryable]
+      properties:
+        code:
+          type: string
+          enum:
+            - SCHEMA_VERSION_UNSUPPORTED
+            - VALIDATION_FAILED
+            - ADOPTION_REPLAY_MISMATCH
+            - REVISION_CONFLICT
+            - NOT_FOUND
+            - GONE_TOMBSTONED
+            - CAPABILITY_UNSUPPORTED
+            - ILLEGAL_TRANSITION
+            - AUTHORITY_REQUIRED
+            - APPROVAL_REQUIRED
+            - CANCEL_PENDING
+            - OVERLAP_FORBIDDEN
+            - RETRY_DISPOSITION_INVALID
+            - AMBIGUOUS_RETRY_FORBIDDEN
+            - CURSOR_EXPIRED
+            - STREAM_OUT_OF_ORDER
+            - PAYLOAD_TOO_LARGE
+            - DEADLINE_EXCEEDED
+            - CONCURRENCY_LIMIT
+            - INTERNAL
+        httpStatus:
+          type: integer
+          description: HTTP status mapped from `code`; the response uses the same status.
+        message:
+          type: string
+          description: Human-readable diagnostic; do not parse.
+        retryable:
+          type: boolean
+        details:
+          type: object
+          additionalProperties: true
+        adoption:
+          type: object
+          additionalProperties: true
+          description: Adoption context on some adoption-key rejections.
+        currentRevision:
+          type: integer
+          minimum: 1
+          description: Stored revision, for example on `REVISION_CONFLICT`.
 
     ActionEvent:
       type: object
@@ -244,7 +423,7 @@ components:
         kind:
           type: string
           description: Event kind produced by the routed action.
-          examples: [automations.changed]
+          examples: [automations.changed, automations.run.cancellation]
         action:
           type: string
           description: Echo of the action id.
@@ -256,5 +435,8 @@ components:
           description: Optional echo of the caller correlation id.
         payload:
           type: object
-          description: Action-specific result payload. Inspect `error` before declaring operation success.
+          description: |
+            Action-specific result payload. On `coven.automations.run`, an
+            `error` beside status `running` means Coven kept runtime ownership
+            but could not confirm the launch; treat the run as unresolved.
           additionalProperties: true
