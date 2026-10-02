@@ -293,21 +293,25 @@
   line-height: 1.8;
 }
 
-[data-docs-body] > h2 {
-  margin-top: 3.5rem;
-  border-top: 1px solid var(--coven-docs-rule);
-  padding-top: 2.15rem;
+/* Section headings use the display face, as the canon binds h1–h3 to EB
+ * Garamond. MDX headings are direct children of the article's prose wrapper;
+ * headings nested in components (the portal sections) keep their own styles.
+ * EB Garamond's small x-height reads about a step smaller than Inter, so the
+ * sizes sit one step above Fumadocs' prose defaults (24px and 20px). */
+#nd-page > .prose > :is(h2, h3) {
   color: var(--coven-docs-ink);
-  font-family: 'Iowan Old Style', 'Palatino Linotype', Georgia, serif;
-  font-size: clamp(1.65rem, 3vw, 2.15rem);
+  font-family: var(--oc-font-display);
   font-weight: 600;
-  letter-spacing: -0.015em;
+  letter-spacing: var(--oc-tracking-display);
+  line-height: var(--oc-line-heading);
 }
 
-[data-docs-body] > h3 {
-  margin-top: 2.5rem;
-  color: var(--coven-docs-ink);
-  letter-spacing: -0.01em;
+#nd-page > .prose > h2 {
+  font-size: 1.875rem;
+}
+
+#nd-page > .prose > h3 {
+  font-size: 1.5rem;
 }
 
 [data-docs-body] :is(h2, h3, h4) {
