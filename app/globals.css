@@ -95,13 +95,14 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Full-width content — no artificial squeeze */
-[data-docs-body] {
-  max-width: 100% !important;
-  padding: 2rem 3rem !important;
+/* Full-width content — no artificial squeeze. Fumadocs v16 caps the page
+ * article (#nd-page) at 900px; let it fill the main column instead. */
+#nd-page {
+  max-width: 100%;
+  padding: 2rem 3rem;
 }
 @media (max-width: 900px) {
-  [data-docs-body] { padding: 1.5rem 1.25rem !important; }
+  #nd-page { padding: 1.5rem 1.25rem; }
 }
 
 /* Glassmorphism callouts */
