@@ -10,7 +10,12 @@ construct a Windows pipe name from the Unix convention.
 
 Use the API from a same-user local client when the CLI does not fit your
 workflow. Start with the health response, branch on its advertised
-capabilities, and treat structured errors as product behavior.
+capabilities, and treat structured errors as product behavior. Capabilities
+advertise availability, not authorization.
+
+These details describe the current versioned source contract. Older installed
+builds may omit newer optional capabilities; negotiate with the running daemon
+rather than treating this page as proof that an upgrade has reached it.
 
 ## Supported flow
 
@@ -30,15 +35,49 @@ envelope:
 ```json
 {
   "error": {
-    "code": "project_root_violation",
-    "message": "working directory is outside the project root"
+    "code": "invalid_request",
+    "message": "cwd is outside the Coven project root"
   }
 }
 ```
 
+For a working directory outside the project root, the emitted code is
+`invalid_request`; `project_root_violation` is reserved, not the current wire
+code for that rejection. Do not depend on the message text as a stable subtype.
+
 Use `error.code` for control flow; display `message` to people. The complete
 endpoint schemas and local examples are in the
 [interactive API reference](/docs/openapi).
+
+## Session-policy admission
+
+`coven.session-policy.v1` is a separately negotiated contract for restricted
+launches. This version is refusal-only: no enforcement backend exists, so it
+never launches a session, issues a receipt, or grants a profile.
+
+- `GET /api/v1/session-policy` is inert discovery. It reports
+  `"enforcement": "unavailable"` and an empty `supportedProfiles` list.
+- `POST /api/v1/sessions/restricted` requires local IPC; TCP returns
+  `403 forbidden`. A valid request returns HTTP `409` with
+  `"decision": "rejected"`, `"code": "enforcement_unavailable"`, and
+  `"admission": "not_started"`. This closed refusal is not the generic error
+  envelope, and it is never a launch success.
+- Health lists `coven.session-policy.v1` in `sessionPolicyContracts` over local
+  IPC and returns `[]` over TCP. Older daemons omit the field; treat absence as
+  unavailable.
+- `POST /api/v1/sessions` rejects any top-level `sessionPolicy` member,
+  including `null`, with `400 invalid_request`.
+
+Never retry a restricted request as an ordinary launch, and do not infer
+`not_started` from a timeout, a disconnect, or a generic error. Other `409`
+responses are ordinary structured errors, such as `session_policy_expired` on
+the restricted route or `session_not_live` on session input, so the status
+alone does not identify a policy refusal. The closed request schema, size
+limits, and digest rules are in the
+[session-policy specification](https://github.com/OpenCoven/coven/blob/main/spec/coven-session-policy/v1/README.md).
+
+A contract name in health establishes availability, not authorization. It is
+not an enforcement profile, identity proof, or grant.
 
 ## Action router
 
@@ -60,11 +99,16 @@ action groups include `coven.capabilities.refresh` and the
 `coven.automations.*` actions documented in
 [Coven automations](/docs/reference/automations).
 
-A recognized action returns an event-shaped response. `accepted: true` means
-the router recognized and routed the request. Some action adapters report an
-operation-level failure in `event.payload.error`, so callers must inspect the
-payload before declaring success. Unknown actions, malformed bodies, and
-missing required top-level fields fail closed with HTTP `400`.
+A successful action returns `ok: true`, `accepted: true`, and
+`status: "completed"`, with its data in `event.payload` or, for versioned
+automation actions, a top-level `result`. A failed action returns `ok: false`,
+`accepted: false`, `status: "rejected"`, and the cause in `reason`; versioned
+automation actions add a typed `error` whose `code` sets the HTTP status.
+Unknown actions, malformed bodies, and missing required top-level fields fail
+closed with HTTP `400`. Automation actions also require the owner-local IPC
+endpoint: over the optional loopback TCP listener, everything except health
+and scheduling diagnostics returns `403` with `AUTHORITY_REQUIRED`. See
+[Coven automations](/docs/reference/automations).
 
 ## Control-plane surface map
 
@@ -78,11 +122,6 @@ Treat a route as stable only when it appears in the versioned source contract
 and the generated [API Reference](/docs/openapi). For every other route, use
 capability discovery and the owning first-party client's contract instead of
 copying an implementation detail into an external integration.
-
-The separately negotiated `coven.session-policy.v1` contract is refusal-only:
-it does not enable a supported profile or grant permission to launch a session.
-Capability discovery is not an authorization grant, and this contract is
-intentionally outside the generated stable API surface.
 
 ## Version and privacy rules
 
@@ -98,9 +137,27 @@ are available only through the narrow
 artifact persistence is explicitly enabled. Otherwise the daemon returns a
 structured `raw_artifact_requires_raw_flag` or `raw_artifacts_disabled` error.
 
+## Rust client and peer replacement
+
+For Rust integrations, prefer `opencoven-coven-client` (library `coven_client`)
+to composing HTTP over a hand-built socket or pipe path. Construct the endpoint
+with `DaemonEndpoint::discover(coven_home)`, then pass it to `DaemonClient::new`.
+The public client accepts no arbitrary URLs or endpoint paths, bounds response
+bodies to 4 MiB, and negotiates health before dependent operations. The crate
+lives in the `OpenCoven/coven` workspace; its crates.io release is gated on a
+signed `coven-client-v*` tag, so confirm a version is published before you add
+it as a registry dependency.
+
+Its negotiation is bound to the transport peer. If the daemon endpoint is
+replaced, the next dependent operation fails before sending request bytes and
+clears the cached negotiation. Call `health` again, re-check capabilities, and
+then decide whether a retry is appropriate. The client never replays a mutation
+automatically.
+
 ## Client rules
 
 - Send requests only to the daemon-reported same-user local IPC endpoint.
+- Do not treat the optional loopback TCP listener as owner access; it refuses owner-only operations with `403`. See [Optional loopback TCP](/docs/daemon/security#optional-loopback-tcp).
 - Check health and capabilities before assuming a route or action exists.
 - Put action-specific fields at the top level and validate action payload results.
 - Never treat a client-side check as a substitute for daemon validation.

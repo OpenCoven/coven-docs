@@ -7,6 +7,23 @@
   --coven-docs-muted: #665e79;
   --coven-docs-violet: #6558ac;
   --coven-docs-ember: #946b20;
+
+  /* OpenCoven type system, mirrored from coven/brand/ui/typography.css.
+   * --font-eb-garamond and --font-jetbrains-mono come from next/font in
+   * app/layout.tsx. */
+  --oc-font-display:
+    var(--font-eb-garamond, 'EB Garamond'), 'Iowan Old Style', Georgia, 'Times New Roman', serif;
+  --oc-font-mono:
+    var(--font-jetbrains-mono, 'JetBrains Mono'), 'SF Mono', SFMono-Regular, ui-monospace, Menlo,
+    Monaco, Consolas, 'Liberation Mono', monospace;
+  --oc-tracking-display: -0.005em;
+  --oc-tracking-label: 0.14em;
+  --oc-line-heading: 1.2;
+
+  /* Code blocks, inline code and Tailwind's font-mono use the canonical mono. */
+  --font-mono: var(--oc-font-mono);
+  --default-mono-font-family: var(--oc-font-mono);
+  --coven-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .dark {
@@ -59,101 +76,175 @@
   border-left: 1px solid var(--coven-docs-rule);
   padding-left: 0.55rem;
   color: var(--coven-docs-violet);
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-family: var(--oc-font-mono);
   font-size: 0.64rem;
   font-weight: 800;
   letter-spacing: 0.1em;
   text-transform: uppercase;
 }
 
-#nd-sidebar {
-  border-right-color: var(--coven-docs-rule) !important;
-  background: var(--coven-docs-panel) !important;
-}
-
-#nd-sidebar a[data-active] {
-  border-radius: 6px;
-  background: var(--coven-docs-panel-soft) !important;
-  box-shadow: inset 2px 0 0 var(--coven-docs-violet);
-}
+/* ─────────────────────────────────────────
+   Page hero
+   No card: a hallmark row (stability, section, owning contract) with the
+   page actions, the title in the display face, the lead, and a seal rule
+   that closes the hero and carries the reading time.
+───────────────────────────────────────── */
 
 .coven-docs-page-header {
-  position: relative;
-  overflow: hidden;
-  margin: 0 0 2.25rem;
-  border: 1px solid var(--coven-docs-rule);
-  border-radius: 12px;
-  background: var(--coven-docs-panel);
-  padding: clamp(1.35rem, 3vw, 2.25rem);
+  margin: 0.25rem 0 2.25rem;
 }
 
-.coven-docs-page-header::before {
-  position: absolute;
-  inset: 0 auto 0 0;
+.coven-docs-page-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 1.5rem;
+}
+
+.coven-docs-page-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+/* Fumadocs secondary buttons, re-cut to the OpenCoven button style: 5px
+ * corners, uppercase mono label, subtle border. */
+.coven-docs-page-toolbar :is(a, button) {
+  height: 1.875rem;
+  border: 1px solid var(--coven-docs-rule);
+  border-radius: 5px;
+  background: transparent;
+  padding-inline: 0.625rem;
+  color: var(--coven-docs-muted);
+  font-family: var(--oc-font-mono);
+  font-size: 0.65625rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  transition:
+    color 150ms ease,
+    border-color 150ms ease,
+    background-color 150ms ease;
+}
+
+.coven-docs-page-toolbar :is(a, button):is(:hover, [data-state='open']) {
+  border-color: var(--coven-docs-rule-strong);
+  background: var(--coven-docs-panel-soft);
+  color: var(--coven-docs-ink);
+}
+
+.coven-docs-page-header h1 {
+  max-width: 24ch;
+  margin: 2rem 0 0;
+  color: var(--coven-docs-ink);
+  font-family: var(--oc-font-display);
+  font-size: clamp(2.5rem, 1.6rem + 2.7vw, 3.875rem);
+  font-weight: 600;
+  letter-spacing: var(--oc-tracking-display);
+  line-height: 1.08;
+  text-wrap: balance;
+}
+
+.coven-docs-page-header h1 + p {
+  max-width: 62ch;
+  margin: 1.125rem 0 0;
+  color: var(--coven-docs-muted);
+  font-size: clamp(1.0625rem, 1rem + 0.3vw, 1.1875rem);
+  line-height: 1.6;
+  text-wrap: pretty;
+}
+
+/* The seal rule: the brand diamond, then a hairline that draws itself out. */
+.coven-docs-seal-rule {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  margin-top: 2.25rem;
+}
+
+.coven-docs-seal {
+  display: grid;
+  width: 0.5625rem;
+  height: 0.5625rem;
+  flex: none;
+  place-items: center;
+  border: 1px solid var(--coven-docs-violet);
+  rotate: 45deg;
+  animation: coven-seal-set 500ms var(--coven-ease-out) both;
+}
+
+.coven-docs-seal::before {
   width: 3px;
+  height: 3px;
+  border-radius: 50%;
   background: var(--coven-docs-violet);
   content: '';
 }
 
-.coven-docs-page-toolbar {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.5rem;
-  margin-bottom: 1.5rem;
-}
-
-.coven-docs-page-header h1 {
-  max-width: 22ch;
-  margin-top: 0.9rem !important;
-  color: var(--coven-docs-ink);
-  font-family: 'Iowan Old Style', 'Palatino Linotype', Georgia, serif;
-  font-size: clamp(2.3rem, 5vw, 4.15rem) !important;
-  font-weight: 600 !important;
-  letter-spacing: -0.025em !important;
-  line-height: 1.02 !important;
-}
-
-.coven-docs-page-header h1 + p {
-  max-width: 72ch;
-  color: var(--coven-docs-muted) !important;
-  font-size: clamp(1rem, 1.6vw, 1.1rem) !important;
-  line-height: 1.7 !important;
+.coven-docs-seal-line {
+  height: 1px;
+  flex: 1;
+  background: linear-gradient(
+    90deg,
+    color-mix(in oklab, var(--coven-docs-violet) 70%, transparent),
+    var(--coven-docs-rule) 40%,
+    transparent
+  );
+  transform-origin: left center;
+  animation: coven-seal-draw 900ms 80ms var(--coven-ease-out) both;
 }
 
 .coven-docs-reading-time {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  margin: 0.2rem 0 0;
+  flex: none;
+  margin: 0;
   color: var(--coven-docs-muted);
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  font-size: 0.68rem;
-  letter-spacing: 0.04em;
+  font-family: var(--oc-font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
 }
+
+@keyframes coven-seal-set {
+  from {
+    opacity: 0;
+    rotate: 0deg;
+    scale: 0.5;
+  }
+}
+
+@keyframes coven-seal-draw {
+  from {
+    opacity: 0;
+    transform: scaleX(0);
+  }
+}
+
+/* ── Hallmarks: stability mark, section, owning contract ── */
 
 .coven-docs-status {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.55rem;
+  gap: 0.5rem 0.875rem;
   color: var(--coven-docs-muted);
-  font-size: 0.72rem;
+  font-size: 0.75rem;
 }
 
 .coven-docs-status-badge {
   display: inline-flex;
+  height: 1.375rem;
   align-items: center;
-  gap: 0.35rem;
-  border: 1px solid var(--coven-docs-rule-strong);
-  border-radius: 999px;
-  padding: 0.28rem 0.55rem;
+  gap: 0.375rem;
+  border: 1px solid color-mix(in oklab, var(--coven-docs-violet) 45%, transparent);
+  border-radius: 4px;
+  background: color-mix(in oklab, var(--coven-docs-violet) 8%, transparent);
+  padding: 0 0.4375rem;
   color: var(--coven-docs-violet);
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  font-size: 0.62rem;
-  font-weight: 800;
-  letter-spacing: 0.08em;
+  font-family: var(--oc-font-mono);
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: var(--oc-tracking-label);
   text-transform: uppercase;
 }
 
@@ -162,31 +253,39 @@
 }
 
 .coven-docs-status[data-docs-stability='experimental'] .coven-docs-status-badge {
-  border-color: color-mix(in srgb, var(--coven-docs-ember) 60%, transparent);
+  border-color: color-mix(in oklab, var(--coven-docs-ember) 55%, transparent);
+  background: color-mix(in oklab, var(--coven-docs-ember) 9%, transparent);
   color: var(--coven-docs-ember);
-}
-
-.coven-docs-status-section {
-  color: var(--coven-docs-ink);
-  font-weight: 700;
-}
-
-.coven-docs-status-separator {
-  color: var(--coven-docs-rule-strong);
 }
 
 .coven-docs-status-source {
   display: inline-flex;
   align-items: center;
-  gap: 0.25rem;
+  gap: 0.375rem;
+  border-left: 1px solid var(--coven-docs-rule);
+  padding-left: 0.875rem;
   color: var(--coven-docs-muted);
-  text-decoration-color: var(--coven-docs-rule-strong);
-  text-underline-offset: 4px;
+  font-family: var(--oc-font-mono);
+  font-size: 0.6875rem;
+  text-decoration: none;
+  transition: color 150ms ease;
+}
+
+.coven-docs-status-label {
+  font-size: 0.5625rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  opacity: 0.8;
+  text-transform: uppercase;
 }
 
 .coven-docs-status-source:hover {
   color: var(--coven-docs-violet);
 }
+
+/* ─────────────────────────────────────────
+   Body
+───────────────────────────────────────── */
 
 [data-docs-body] {
   color: var(--coven-docs-ink);
@@ -194,21 +293,25 @@
   line-height: 1.8;
 }
 
-[data-docs-body] > h2 {
-  margin-top: 3.5rem;
-  border-top: 1px solid var(--coven-docs-rule);
-  padding-top: 2.15rem;
+/* Section headings use the display face, as the canon binds h1–h3 to EB
+ * Garamond. MDX headings are direct children of the article's prose wrapper;
+ * headings nested in components (the portal sections) keep their own styles.
+ * EB Garamond's small x-height reads about a step smaller than Inter, so the
+ * sizes sit one step above Fumadocs' prose defaults (24px and 20px). */
+#nd-page > .prose > :is(h2, h3) {
   color: var(--coven-docs-ink);
-  font-family: 'Iowan Old Style', 'Palatino Linotype', Georgia, serif;
-  font-size: clamp(1.65rem, 3vw, 2.15rem);
+  font-family: var(--oc-font-display);
   font-weight: 600;
-  letter-spacing: -0.015em;
+  letter-spacing: var(--oc-tracking-display);
+  line-height: var(--oc-line-heading);
 }
 
-[data-docs-body] > h3 {
-  margin-top: 2.5rem;
-  color: var(--coven-docs-ink);
-  letter-spacing: -0.01em;
+#nd-page > .prose > h2 {
+  font-size: 1.875rem;
+}
+
+#nd-page > .prose > h3 {
+  font-size: 1.5rem;
 }
 
 [data-docs-body] :is(h2, h3, h4) {
@@ -248,38 +351,28 @@
     display: none;
   }
 
-  .coven-docs-page-header {
-    border-right: 0;
-    border-left: 0;
-    border-radius: 0;
-    margin-right: -1.25rem;
-    margin-left: -1.25rem;
-    padding-right: 1.25rem;
-    padding-left: 1.25rem;
-  }
-
-  .coven-docs-page-toolbar {
-    justify-content: flex-start;
-    overflow-x: auto;
-  }
-
-  .coven-docs-status-separator {
-    display: none;
+  .coven-docs-page-header h1 {
+    margin-top: 1.5rem;
   }
 
   .coven-docs-status-source {
     flex-basis: 100%;
+    border-left: 0;
+    padding-left: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .coven-docs-seal,
+  .coven-docs-seal-line {
+    animation: none;
   }
 }
 
 @media print {
   .coven-docs-page-toolbar,
-  .coven-docs-status-source {
+  .coven-docs-status-source,
+  .coven-docs-seal-rule {
     display: none !important;
-  }
-
-  .coven-docs-page-header {
-    border: 0;
-    padding: 0;
   }
 }

@@ -23,11 +23,40 @@ coven daemon stop
 
 If sessions are still running, let them finish, kill them, or archive them first. Removing the CLI does not clean up a daemon that is already running.
 
+## Find Every Copy First
+
+Machines that have been through more than one install route, or more than one Node version, usually carry more than one `coven`. Uninstalling only the copy you remember leaves the others answering. Ask Doctor before removing anything. In the CLI release that includes OpenCoven/coven#1124, it lists every copy on `PATH`, how each was installed, and the command that removes it. Until then, Doctor still prints the older path-only list; treat the block below as the forthcoming format:
+
+```sh
+coven doctor
+```
+
+```text
+Installs:
+  [OK] ~/.local/bin/coven (active, this process) — npm, prefix ~/.local
+  [!!] ~/.nvm/versions/node/v24.18.1/bin/coven (shadowed) — npm, prefix ~/.nvm/versions/node/v24.18.1
+       remove: npm uninstall -g --prefix ~/.nvm/versions/node/v24.18.1 @opencoven/cli
+```
+
+Copies in a Node version that is not currently active do not appear on `PATH`; switch to that version (`nvm use <version>`), run `npm prefix -g`, and use `npm uninstall -g --prefix <that-prefix> @opencoven/cli` there too if you want them gone.
+
 ## Remove The Install
 
-Remove the CLI using the same method you installed with.
+Remove the CLI using the same method you installed with. Doctor's origin label tells you which one that is.
 
 ### npm global install
+
+A bare `npm uninstall -g` acts on the prefix of the currently active Node, which may not be the prefix that holds the copy you want gone. Name the prefix Doctor reported:
+
+```sh
+npm uninstall -g --prefix <prefix> @opencoven/cli
+```
+
+```powershell
+npm uninstall -g --prefix <prefix> @opencoven/cli
+```
+
+When there is only one install and it is in the active prefix, the short form is equivalent:
 
 ```sh
 npm uninstall -g @opencoven/cli
@@ -48,6 +77,10 @@ If you only ran `cargo build`/`cargo run` from a cloned checkout, nothing was in
 ```sh
 rm -rf coven   # the cloned OpenCoven/coven directory
 ```
+
+### Legacy coven-code installer alias
+
+Older standalone `coven-code` installers wrote a `coven` alias into `~/.coven-code/bin`. Doctor labels it `legacy coven-code installer`; delete that file. The current installer no longer creates it.
 
 ### Native binary
 
