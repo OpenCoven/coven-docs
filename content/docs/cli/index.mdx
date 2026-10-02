@@ -128,7 +128,7 @@ coven config paths --json
 
 `coven reset` is preview-only unless `--apply` is passed. Select one or more registered categories with `--feature`, inspect them with `--list-features`, or use `--all --apply`. Applied resets move selected state to `$COVEN_HOME/reset-backups/`; they do not delete project directories, contact GitHub, or revoke provider credentials. Windows currently supports preview, not `--apply`.
 
-Every command accepts the global `--color auto|always|never` option. `auto` honors `NO_COLOR` and `CLICOLOR_FORCE`.
+Every command accepts the global `--color auto|always|never` option. `auto` honors `NO_COLOR` and `CLICOLOR_FORCE`. The separate `--theme auto|light|dark` option selects the terminal palette; `auto` honors `COVEN_THEME`, then the final field of `COLORFGBG`, and otherwise uses the dark palette.
 
 ## What owns what
 

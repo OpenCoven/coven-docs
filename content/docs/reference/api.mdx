@@ -79,9 +79,16 @@ and the generated [API Reference](/docs/openapi). For every other route, use
 capability discovery and the owning first-party client's contract instead of
 copying an implementation detail into an external integration.
 
+The separately negotiated `coven.session-policy.v1` contract is refusal-only:
+it does not enable a supported profile or grant permission to launch a session.
+Capability discovery is not an authorization grant, and this contract is
+intentionally outside the generated stable API surface.
+
 ## Version and privacy rules
 
 `GET /api/v1/health` advertises the named `coven.daemon.v1` contract.
+Its `covenVersion` field identifies the daemon build; it is not the API
+compatibility signal.
 `GET /api/v1/api-version` is a legacy route-family diagnostic; its literal
 `v1` value is not sufficient proof that every named-contract capability exists.
 
