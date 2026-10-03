@@ -29,6 +29,21 @@ checkpoints, returns HTTP `403` with error code `AUTHORITY_REQUIRED` before the
 daemon opens its store. `origin`, `intentId`, and other caller-supplied
 identity fields never grant access.
 
+`AUTHORITY_REQUIRED` sets `retryable: false`. Refusal happens before reserving
+an adoption key, replaying a saved result, emitting an action event, or
+dispatching runtime work. A refused request does not consume the adoption key;
+a later owner-local request can use that key, subject to normal validation.
+
+Clients should stop and report the transport error. Have the owner explicitly
+configure a supported owner-local connection. Do not silently retry through a
+more privileged connection or expose the IPC endpoint through an unauthenticated
+bridge. Passing this transport check does not provide a trusted Runtime
+Authority adapter or enable a refused execution command or SDK mutation phase.
+
+Capability discovery alone does not prove that an older installed daemon
+enforces this boundary. Check its [build identity](/docs/reference/api#version-and-privacy-rules)
+and release evidence before relying on TCP refusal.
+
 ## Safety defaults
 
 - `coven.automations.import` creates legacy routines as `PAUSED` and `coven.automations.legacy.import.v1` creates them as drafts; import never opts them into execution.
@@ -97,8 +112,9 @@ for example `VALIDATION_FAILED` (`400`), `AUTHORITY_REQUIRED` (`403`),
 `NOT_FOUND` (`404`), `REVISION_CONFLICT` and `ADOPTION_REPLAY_MISMATCH`
 (`409`), `GONE_TOMBSTONED` and `CURSOR_EXPIRED` (`410`), and
 `CAPABILITY_UNSUPPORTED` or `ILLEGAL_TRANSITION` (`422`). Branch on
-`error.code`, not `reason`. Malformed bodies, missing required fields, and
-unknown action ids fail closed with HTTP `400`.
+`error.code`, not `reason`. Malformed JSON and missing action ids return
+`400`. An unknown `coven.automations.*` action over TCP is refused with `403`
+before action validation; other unknown action ids return `400`.
 
 `accepted: true` on `coven.automations.run` means Coven started or scheduled
 the run, not that it finished; see [Manual runs and health](#manual-runs-and-health).
