@@ -99,6 +99,9 @@ for (const section of manifest.sections ?? []) {
         fail(`section ${label} meta contains a non-string page entry`);
         continue;
       }
+      // Fumadocs separators (`---Label---`, or a bare `---`) are sidebar
+      // headings, not pages. Every other entry must still resolve.
+      if (/^---(?:\[[^\]]+])?.+---$|^---$/.test(page)) continue;
       if (!pageExists(sectionRoot, page)) {
         fail(`section ${label} meta references missing page or folder: ${page}`);
       }
