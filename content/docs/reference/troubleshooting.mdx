@@ -132,12 +132,16 @@ A session record can still say `running` after its harness is gone. Coven
 moves it to `orphaned` in two ways:
 
 - **While the daemon runs.** About every 30 seconds, the daemon checks the
-  sessions it launched. A session whose harness has been gone for two minutes
-  without a recorded exit becomes `orphaned`, and the daemon notes its id in
-  the [recovery log](/docs/daemon/observability#logs).
-- **On the next daemon start.** Records that a stopped daemon left `running`
-  become `orphaned` when it starts again. This also covers sessions started
-  with `coven run`, which the running daemon does not check.
+  sessions it launched. A session loses its harness once the daemon no longer
+  tracks it as live or, on macOS and Linux, once the harness's process group
+  is gone. After two minutes of that without a recorded exit, the session
+  becomes `orphaned`, and the daemon notes its id in the
+  [recovery log](/docs/daemon/observability#logs). Windows has no
+  process-group check, so a dead harness whose session is still tracked as
+  live stays `running` until the next start.
+- **On the next daemon start.** Every record left `running` becomes
+  `orphaned`, except externally registered sessions. This includes sessions
+  started with `coven run`, which the running daemon does not check.
 
 Externally registered sessions keep the status their owner reports. If a
 harness reports its exit late, the record takes that outcome instead of
