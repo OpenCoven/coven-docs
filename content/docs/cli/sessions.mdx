@@ -1,7 +1,7 @@
 ---
 title: "Sessions"
-summary: "List, browse, attach, archive, summon, and delete Coven sessions."
-description: "Reference for coven sessions, attach, summon, archive, and sacrifice commands."
+summary: "List, browse, attach, stop, archive, summon, and delete Coven sessions."
+description: "Reference for coven sessions, attach, kill, summon, archive, and sacrifice commands."
 read_when:
   - You need to find or rejoin Coven work
   - You need plain or JSON session output for scripts and clients
@@ -81,6 +81,24 @@ coven attach <session-id>
 ```
 
 For live daemon sessions, attach can also forward input to the running harness.
+
+## Kill
+
+Stop a running session's harness process while keeping its event log:
+
+```bash
+coven kill <session-id>
+```
+
+Use a full session id or a unique prefix. The command requires a running session
+and sends the kill request to the daemon, which owns the process. It does not
+archive or delete the session. After it stops, use `coven archive <session-id>`
+when you want to hide the retained record.
+
+`kill` currently works on Unix-like systems. If the store says a session is
+running but the daemon has no live process, the command reports stale state
+instead of claiming success. Inspect `coven daemon status` and `coven sessions`,
+then follow [Recovery and upgrades](/docs/daemon/recovery-upgrades).
 
 ## Archive
 

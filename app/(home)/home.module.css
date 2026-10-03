@@ -12,7 +12,7 @@
  *  - `--home-violet-soft`  → tinted background fills
  *  - `--home-ember`        → candle gold; ONLY on "record" marks (sigil core,
  *                            live tick). Never a second general accent.
- *  - `--home-display`      → Eczar, loaded in app/(home)/layout.tsx; headings
+ *  - `--home-display`      → EB Garamond, bundled in app/layout.tsx; headings
  *                            and the editorial line only.
  */
 

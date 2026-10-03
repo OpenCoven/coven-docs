@@ -28,6 +28,7 @@ if (failures.length > 0) {
 const regressions = spawnSync(process.execPath, [
   '--test',
   'scripts/check-source-drift.test.mjs',
+  'scripts/check-cli-help-contract.test.mjs',
   'scripts/docs-release-gate.test.mjs',
   'scripts/api-reference-contract.test.mjs',
 ], { cwd: root, stdio: 'inherit' });
