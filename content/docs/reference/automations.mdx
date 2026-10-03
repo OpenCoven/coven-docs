@@ -237,6 +237,24 @@ The envelope also refuses `run.cancel.v1` and payload fields it does not
 implement with `CAPABILITY_UNSUPPORTED`; send cancellation as the flat
 `coven.automations.run.cancel.v1` action.
 
+For a richly authored revision, definition lifecycle events, occurrence
+list/history/get projections, `coven.automations.run.get.v1`, and Runtime
+Authority execution bindings publish the recorded document's `integrity`
+digest. The compatibility `coven.automations.runs` and
+`coven.automations.run.history.v1` projections do not expose a digest.
+Receipts produced from those bindings carry the published digest.
+Scheduling and dispatch continue to fence execution with the digest
+of the projected routine JSON; these two digests serve different purposes.
+Revisions without a rich document publish the routine digest. Historical rows
+without a stored digest remain unattributed.
+
+This behavior is present in source beginning with
+[`eb3273e`](https://github.com/OpenCoven/coven/commit/eb3273e19670d2ab5bf1374783d96c11a50b0be2).
+Existing events are immutable: v0.4.7 events retain their original routine
+digest. Receipts from older execution bindings may also name the routine
+digest of the same revision; the signed binding still determines the exact
+value to verify.
+
 ## Definition shape
 
 A create or update request supplies a top-level `definition` object:
