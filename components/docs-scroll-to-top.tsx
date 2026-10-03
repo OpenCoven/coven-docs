@@ -6,11 +6,11 @@ import { useEffect, useRef } from 'react';
 export function DocsScrollToTop() {
   const pathname = usePathname();
   const previousPathname = useRef(pathname);
-  const historyNavigation = useRef(false);
+  const historyPathname = useRef<string | null>(null);
 
   useEffect(() => {
     const onPopState = () => {
-      historyNavigation.current = window.location.pathname !== previousPathname.current;
+      historyPathname.current = window.location.pathname;
     };
     window.addEventListener('popstate', onPopState);
     return () => window.removeEventListener('popstate', onPopState);
@@ -20,10 +20,9 @@ export function DocsScrollToTop() {
     if (previousPathname.current === pathname) return;
     previousPathname.current = pathname;
 
-    if (historyNavigation.current) {
-      historyNavigation.current = false;
-      return;
-    }
+    const restoringHistory = historyPathname.current === pathname;
+    historyPathname.current = null;
+    if (restoringHistory) return;
 
     // Let Next.js position cross-page heading links at their target.
     if (window.location.hash) return;

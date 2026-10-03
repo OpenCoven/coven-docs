@@ -376,9 +376,14 @@ try {
 
     await page.goBack({ waitUntil: 'domcontentloaded' });
     await page.waitForFunction(
-      () => location.pathname === '/docs/guide/install' && window.scrollY > 100,
+      () => location.pathname === '/docs/guide/install' &&
+        document.querySelector('h1')?.textContent === 'Install Coven' && window.scrollY > 100,
       { timeout: 10_000 },
     );
+    await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+    if (await page.evaluate(() => window.scrollY <= 100)) {
+      throw new Error(`Back navigation lost its restored scroll position at ${width}px`);
+    }
 
     await gotoAndReady('/docs/guide/getting-started', 'Run a first session');
     await page.click('a[href="/docs/reference/troubleshooting#daemon-unavailable"]');
