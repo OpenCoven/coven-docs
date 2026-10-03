@@ -4,6 +4,7 @@ import { Icon } from '@iconify/react';
 import type { ReactNode } from 'react';
 import { baseOptions } from '@/app/layout.config';
 import { SidebarRail } from '@/components/sidebar-rail';
+import { DocsScrollToTop } from '@/components/docs-scroll-to-top';
 import { source } from '@/lib/source';
 
 // The docs sidebar renders text links as rows above the page tree, where
@@ -30,6 +31,7 @@ export default function Layout({ children }: { children: ReactNode }) {
       nav={{ ...baseOptions.nav, url: '/docs' }}
       links={docsLinks}
     >
+      <DocsScrollToTop />
       <SidebarRail />
       {children}
     </DocsLayout>
