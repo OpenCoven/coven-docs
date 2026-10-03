@@ -1,5 +1,6 @@
 import { readFileSync, readdirSync } from 'node:fs';
 import { collectAnchors, stripCodeFences } from './mdx-anchors.mjs';
+import { docsRoute } from './docs-nav.mjs';
 import { extname, join, relative, resolve } from 'node:path';
 
 const root = process.cwd();
@@ -13,17 +14,9 @@ function walk(directory) {
   });
 }
 
-function routeForFile(file) {
-  // Route-group folders such as `(memory)` add no URL segment. Without this,
-  // fragment links into grouped pages would map to no route and be skipped.
-  const segments = relative(docsRoot, file)
-    .replaceAll('\\', '/')
-    .replace(/\.mdx$/, '')
-    .split('/')
-    .filter((segment) => !/^\(.+\)$/.test(segment));
-  if (segments.at(-1) === 'index') segments.pop();
-  return segments.length === 0 ? '/docs' : `/docs/${segments.join('/')}`;
-}
+// Route-group folders such as `(memory)` add no URL segment; without the
+// shared helper, fragment links into grouped pages would be skipped.
+const routeForFile = (file) => docsRoute(docsRoot, file);
 
 function normalizeTargetPath(sourceRoute, hrefPath) {
   if (hrefPath.startsWith('/')) return hrefPath.replace(/\/$/, '') || '/';

@@ -5,7 +5,7 @@
 // helpers instead of assuming every page sits directly in the section folder.
 
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { join, relative } from 'node:path';
 
 const ROUTE_GROUP = /^\(.+\)$/;
 
@@ -18,6 +18,26 @@ function routeGroups(dir) {
   return readdirSync(dir, { withFileTypes: true })
     .filter((entry) => entry.isDirectory() && ROUTE_GROUP.test(entry.name))
     .map((entry) => join(dir, entry.name));
+}
+
+/**
+ * URL slug segments for an MDX file under `docsRoot`, as Fumadocs builds them:
+ * route-group folders and a trailing `index` add no segment.
+ */
+export function docsSlug(docsRoot, file) {
+  const segments = relative(docsRoot, file)
+    .replaceAll('\\', '/')
+    .replace(/\.mdx$/, '')
+    .split('/')
+    .filter((segment) => !ROUTE_GROUP.test(segment));
+  if (segments.at(-1) === 'index') segments.pop();
+  return segments;
+}
+
+/** The `/docs/...` route an MDX file under `docsRoot` is served at. */
+export function docsRoute(docsRoot, file) {
+  const slug = docsSlug(docsRoot, file);
+  return slug.length === 0 ? '/docs' : `/docs/${slug.join('/')}`;
 }
 
 /**
