@@ -46,6 +46,10 @@ Confirm the retired AFS route redirects:
 
 ## Automated post-deploy evidence
 
+Only a new push cancels an active production check. Hourly and manually
+dispatched checks wait behind an active check so they do not interrupt a push's
+deployment grace period and report a false stale-deployment incident.
+
 `.github/workflows/docs-live.yml` polls production after a push to `main` and
 then every hour. The release is not healthy until its artifact reports:
 
