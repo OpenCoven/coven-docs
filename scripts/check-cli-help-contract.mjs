@@ -110,14 +110,18 @@ export function checkCliHelpContract({ rawContract, provenance, sourceLock, redi
     .split(/^##[ \t]+/m);
   const commandMaps = sections.filter((section) => /^Command map[ \t]*(?:\n|$)/.test(section));
   assert.equal(commandMaps.length, 1, 'CLI index must contain exactly one Command map section');
-  const indexLinks = [...commandMaps[0].matchAll(
-    /^\|\s*\[`coven ([a-z0-9-]+)(?: [^`]+)?`\]\(([^)\s]+)\)\s*\|/gm,
-  )].map(([, name, href]) => ({ name, href: resolveHref(href) }));
+  const indexRows = [...commandMaps[0].matchAll(/^[ \t]*\|([^|\r\n]+)\|/gm)]
+    .map(([, cell]) => cell.trim())
+    .filter((cell) => cell !== 'Command' && !/^:?-{3,}:?$/.test(cell));
+  const indexLinks = indexRows.flatMap((cell) => {
+    const match = cell.match(/^\[`coven(?: ([a-z0-9-]+)(?: [^`]+)?)?`\]\(([^)\s]+)\)$/);
+    return match ? [{ name: match[1] ?? '', href: resolveHref(match[2]) }] : [];
+  });
   exactKeys(contract, ['schemaVersion', 'groups'], 'Help contract');
   assert.equal(contract.schemaVersion, 1, 'Unsupported help schema');
   assert(Array.isArray(contract.groups) && contract.groups.length > 0, 'Help groups must be nonempty');
   const groups = new Set();
-  const commands = new Set();
+  const commands = new Map();
   for (const group of contract.groups) {
     exactKeys(group, ['id', 'title', 'commands'], 'Help group');
     assert(typeof group.id === 'string' && namePattern.test(group.id) && !groups.has(group.id), 'Invalid or duplicate help group');
@@ -128,15 +132,22 @@ export function checkCliHelpContract({ rawContract, provenance, sourceLock, redi
       exactKeys(command, ['name', 'summary', 'docsUrl'], 'Help command');
       assert(typeof command.name === 'string' && namePattern.test(command.name) && !commands.has(command.name), 'Invalid or duplicate command');
       assert(!['process-supervisor', 'serve'].includes(command.name), `Hidden command leaked: ${command.name}`);
-      commands.add(command.name);
       text(command.summary, `${command.name} summary`);
       assert(typeof command.docsUrl === 'string' && command.docsUrl.startsWith(`${docsOrigin}/docs/`), `${command.name} needs an absolute canonical docs URL`);
       const canonical = resolveHref(command.docsUrl);
       checkDestination(canonical, command.name);
       const preferred = resolveHref(preferredIndexHrefs[command.name] ?? canonical);
+      commands.set(command.name, preferred);
       checkDestination(preferred, `${command.name} index link`);
       assert(indexLinks.some(({ name, href }) => name === command.name && href === preferred), `CLI command map must link coven ${command.name} to ${preferred}`);
     }
+  }
+  assert.equal(indexLinks.length, indexRows.length, 'Every command-map row must contain a linked coven command');
+  for (const { name, href } of indexLinks) {
+    assert(name === '' || commands.has(name), `Unknown command-map verb: ${name}`);
+    const preferred = name === '' ? resolveHref('/docs/cli/interactive') : commands.get(name);
+    assert.equal(href, preferred, `Every coven${name ? ` ${name}` : ''} row must link to ${preferred}`);
+    checkDestination(href, `coven ${name} index link`);
   }
   assert.equal(groups.size, provenance.groupCount, 'Capture group count differs');
   assert.equal(commands.size, provenance.commandCount, 'Capture command count differs');

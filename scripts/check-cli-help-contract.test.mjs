@@ -103,6 +103,48 @@ test('command-prefix lookalikes and wrong targets cannot satisfy the command map
   assert.throws(() => checkCliHelpContract(other), /must link coven kill to/);
 });
 
+test('every repeated command row must use its preferred destination', () => {
+  for (const name of ['setup', 'daemon', 'sessions', 'run']) {
+    const inputs = loadRepoCliHelpInputs();
+    const row = new RegExp(`(\\[\`coven ${name}(?: [^\`]+)?\`\\]\\()([^)]+)(\\))`, 'g');
+    assert([...inputs.cliIndexSource.matchAll(row)].length > 1, `${name} must have multiple real rows`);
+    let changed = false;
+    inputs.cliIndexSource = inputs.cliIndexSource.replace(row, (link, start, href, end) => {
+      if (changed) return link;
+      changed = true;
+      return `${start}/docs/cli/doctor${end}`;
+    });
+    assert.throws(() => checkCliHelpContract(inputs), new RegExp(`Every coven ${name} row must link to`));
+  }
+});
+
+test('stale or hidden command-map rows cannot survive a newly recorded capture', () => {
+  const removed = loadRepoCliHelpInputs();
+  changeCapture(removed, (c) => {
+    for (const group of c.groups) group.commands = group.commands.filter(({ name }) => name !== 'device');
+  }, true);
+  removed.provenance.commandCount -= 1;
+  assert.throws(() => checkCliHelpContract(removed), /Unknown command-map verb: device/);
+  for (const name of ['retired-command', 'serve']) {
+    const inputs = loadRepoCliHelpInputs();
+    inputs.cliIndexSource = inputs.cliIndexSource.replace('## Command map',
+      `## Command map\n\n| [\`coven ${name}\`](/docs/cli/doctor) | stale row |\n`);
+    assert.throws(() => checkCliHelpContract(inputs), new RegExp(`Unknown command-map verb: ${name}`));
+  }
+});
+
+test('unlinked extra rows and a misdirected root command are rejected', () => {
+  for (const label of ['coven daemon status', 'coven retired-command']) {
+    const inputs = loadRepoCliHelpInputs();
+    inputs.cliIndexSource = inputs.cliIndexSource.replace('## Command map',
+      `## Command map\n\n| \`${label}\` | unlinked row |\n`);
+    assert.throws(() => checkCliHelpContract(inputs), /Every command-map row must contain a linked coven command/);
+  }
+  const inputs = loadRepoCliHelpInputs();
+  inputs.cliIndexSource = inputs.cliIndexSource.replace('[`coven`](/docs/cli/interactive)', '[`coven`](/docs/cli/doctor)');
+  assert.throws(() => checkCliHelpContract(inputs), /Every coven row must link to/);
+});
+
 test('canonical routes and both canonical and preferred fragments remain valid', () => {
   const missingRoute = loadRepoCliHelpInputs();
   missingRoute.routeIndex.delete('/docs/memory-models');
