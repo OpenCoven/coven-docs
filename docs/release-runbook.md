@@ -9,6 +9,58 @@
 - No unresolved production-freshness, source-drift, security, or accuracy
   blocker is attached to the release.
 
+## Main branch release rules
+
+Configure an active `main documentation release integrity` ruleset for
+`refs/heads/main`. Its release contract requires:
+
+- a pull request with all review conversations resolved;
+- the `Verify documentation release` check from GitHub Actions (app ID `15368`);
+- the `Vercel` deployment status from Vercel (app ID `8329`);
+- an up-to-date branch before merge;
+- no force pushes or branch deletion.
+
+GitHub displays the Actions workflow as `Docs`; the required check context is
+`Verify documentation release`, without a `Docs /` prefix. Bind both checks to
+their producing apps so another integration cannot satisfy them by name alone.
+Use squash merge for documentation releases. New commits dismiss stale
+approvals. Enable CODEOWNERS approval for governance, source-lock, workflows,
+OpenAPI, proxy, and verification changes when a second qualified maintainer is
+available; do not invent that coverage for a sole-maintainer repository.
+
+Leave the standing bypass list empty. Administrators follow the same pull-request
+and check requirements during ordinary work. Confirm the active configuration
+in [repository rulesets](https://github.com/OpenCoven/coven-docs/settings/rules)
+and the effective rules on `main` before relying on this policy:
+
+```bash
+gh api repos/OpenCoven/coven-docs/branches/main --jq .protected
+gh api repos/OpenCoven/coven-docs/rules/branches/main
+```
+
+Configuration readback proves which rules are active. It does not substitute
+for recorded enforcement evidence or prove that every delivery check passed.
+
+## Incident-only recovery bypass
+
+Prefer a verified revert pull request or restoration of a previously verified
+Vercel deployment. Keep a deployment/commit mismatch incident open until the
+source and deployed commit agree again.
+
+If repository checks themselves prevent urgent recovery, an administrator may
+temporarily add the repository administrator role to this ruleset with
+**For pull requests only** bypass. Record the incident, the exact recovery PR
+head, affected check, administrator, reason, manual verification, and removal
+condition before using it. The recovery must still go through a pull request;
+do not use the incident path for direct pushes, force pushes, branch deletion,
+unreviewed changes, or bypassing a known source/contract/link defect.
+
+Remove the bypass immediately after the recovery merge. Read back the ruleset
+and effective `main` rules, verify the exact production commit, and attach the
+check, deployment, and bypass-removal evidence to the incident. A check outage
+is not evidence that the recovery build passed; retain any unresolved proof
+gap until a successful run verifies it.
+
 ## Release verification
 
 Record the target commit SHA, then verify:
