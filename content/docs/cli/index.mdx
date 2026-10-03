@@ -43,7 +43,7 @@ Every row below is a real top-level `coven` verb. Grouped reference pages cover 
 | [`coven setup codex`](/docs/cli/setup) | Run Codex's provider-owned login with explicit consent and direct terminal access. |
 | [`coven setup claude --verify`](/docs/cli/setup) | Run Claude Code login, then separately request consent for bounded provider verification. |
 | [`coven setup copilot --verify-only`](/docs/cli/setup) | Skip login and run only the consented Copilot verification turn. |
-| [`coven config paths --json`](/docs/daemon/configuration) | Report resolved state, settings, engine, and local IPC paths without creating profile state. |
+| [`coven config paths --json`](/docs/cli#configuration-paths-reset-and-color) | Report resolved state, settings, engine, and local IPC paths without creating profile state. |
 | `coven completions <shell>` | Generate shell completions (bash, zsh, fish, elvish, powershell). |
 | [`coven daemon start`](/docs/cli/daemon) | Start the local daemon process. |
 | [`coven daemon status`](/docs/cli/daemon) | Inspect daemon pid, socket, and health state. |
@@ -60,7 +60,7 @@ Every row below is a real top-level `coven` verb. Grouped reference pages cover 
 | [`coven summon <session-id>`](/docs/cli/sessions#summon) | Restore an archived session, then attach. |
 | [`coven archive <session-id>`](/docs/cli/sessions#archive) | Hide a completed session while preserving events. |
 | [`coven sacrifice <session-id> --yes`](/docs/cli/sessions#sacrifice) | Permanently delete a non-running session and its event log. |
-| [`coven kill <session-id>`](/docs/cli/sessions) | Kill a running session's process; its event log is kept. |
+| `coven kill <session-id>` | Kill a running session's process; its event log is kept. |
 | [`coven patch openclaw`](/docs/cli/patch-openclaw) | Launch the guided repair flow for a registered repo. |
 
 Use [Provider setup](/docs/cli/setup) for consent, verification, and report semantics.
