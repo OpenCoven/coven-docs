@@ -1,0 +1,76 @@
+---
+title: Support
+description: Collect diagnostics, redact private data, and choose the right support route for Coven docs or runtime issues.
+read_when:
+  - Troubleshooting did not resolve your problem
+  - You need to share diagnostics or report an issue
+---
+
+Collect a small, redacted evidence packet when [Troubleshooting](/docs/reference/troubleshooting) does not resolve your problem.
+
+## Collect diagnostics
+
+Start with the smallest useful set:
+
+```sh
+coven doctor
+coven daemon status
+```
+
+For a session or installation-path problem, add the relevant output:
+
+```sh
+coven sessions --plain
+coven config paths --json
+```
+
+If one recorded session is involved, inspect it without attaching:
+
+```sh
+coven sessions show <session-id>
+coven sessions log <session-id>
+coven sessions events <session-id> --limit 100
+```
+
+Replace `<session-id>` with that session's id. For machine pressure on macOS, add:
+
+```sh
+coven pc status
+```
+
+## Redact before you share
+
+Do not paste any of the following into public issues, chat, or screenshots:
+
+- provider credentials, tokens, cookies, or shell history that contains them;
+- full prompt or log content if it includes private code, customer data, or secrets;
+- raw session artifacts you do not intend to make public;
+- private filesystem paths, repo names, or usernames when a placeholder is enough.
+
+Prefer replacements such as `<repo>`, `<session-id>`, `<path>`, and `<redacted>`.
+Review the output before sharing it, including output described as redacted.
+
+## Open the right issue
+
+| Problem | Best route |
+| --- | --- |
+| Docs page is wrong, unclear, or has a broken link | Open an issue or PR in [OpenCoven/coven-docs](https://github.com/OpenCoven/coven-docs/issues). |
+| Coven CLI, daemon, session handling, or harness orchestration is broken | Open an issue in [OpenCoven/coven](https://github.com/OpenCoven/coven/issues). |
+| You found a security vulnerability | Report it privately using the [security policy](https://github.com/OpenCoven/coven-docs/blob/main/SECURITY.md). Runtime vulnerabilities belong to the repository that owns the affected contract; if ownership is unclear, maintainers can route a private report. |
+| You are not sure whether it is a bug yet | Start with the community route below and bring your redacted diagnostics. |
+
+## What to include
+
+- the exact command you ran;
+- what you expected to happen;
+- what happened instead;
+- your OS, install route, and whether you use `COVEN_HOME`;
+- the installed Coven version;
+- redacted `coven doctor` output and any session or daemon command output that makes the problem reproducible.
+
+## Community routes
+
+- Discord: [discord.gg/opencoven](https://discord.gg/opencoven)
+- Troubleshooting page: [doctor-first decision tree](/docs/reference/troubleshooting)
+
+For a vulnerability, use a private GitHub Security Advisory or ask the official Discord maintainers for a private security channel. Share vulnerability details only through the private route. An inaccurate documentation claim can use a normal docs issue unless it creates an exploitable condition or exposes sensitive data.

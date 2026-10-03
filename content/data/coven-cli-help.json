@@ -1,0 +1,251 @@
+{
+  "schemaVersion": 1,
+  "groups": [
+    {
+      "id": "start-and-launch",
+      "title": "Start and launch",
+      "commands": [
+        {
+          "name": "doctor",
+          "summary": "Check local setup and print next steps (exits 1 when a blocking problem is found)",
+          "docsUrl": "https://docs.opencoven.ai/docs/cli/doctor"
+        },
+        {
+          "name": "setup",
+          "summary": "Run provider-owned login with explicit consent and direct terminal access",
+          "docsUrl": "https://docs.opencoven.ai/docs/reference/cli-setup"
+        },
+        {
+          "name": "run",
+          "summary": "Launch a project-scoped harness session",
+          "docsUrl": "https://docs.opencoven.ai/docs/cli/run"
+        },
+        {
+          "name": "sessions",
+          "summary": "List or search recent Coven sessions",
+          "docsUrl": "https://docs.opencoven.ai/docs/cli/sessions"
+        },
+        {
+          "name": "attach",
+          "summary": "Replay/follow a session and forward input to live daemon sessions",
+          "docsUrl": "https://docs.opencoven.ai/docs/cli/sessions#attach"
+        },
+        {
+          "name": "daemon",
+          "summary": "Manage the local Coven daemon",
+          "docsUrl": "https://docs.opencoven.ai/docs/cli/daemon"
+        },
+        {
+          "name": "status",
+          "summary": "Show what's happening across your coven: daemon, sessions, familiars, skills, research, hub",
+          "docsUrl": "https://docs.opencoven.ai/docs/cli/observe"
+        },
+        {
+          "name": "chat",
+          "summary": "Open the interactive Coven UI (requires coven-code)",
+          "docsUrl": "https://docs.opencoven.ai/docs/cli/interactive"
+        },
+        {
+          "name": "tui",
+          "summary": "Open the interactive Coven UI (same as `coven chat`)",
+          "docsUrl": "https://docs.opencoven.ai/docs/cli/interactive"
+        },
+        {
+          "name": "help",
+          "summary": "Show concise help, every public command, or help for one command",
+          "docsUrl": "https://docs.opencoven.ai/docs/cli/interactive"
+        }
+      ]
+    },
+    {
+      "id": "configure-and-extend",
+      "title": "Configure and extend",
+      "commands": [
+        {
+          "name": "config",
+          "summary": "Report resolved configuration and state paths",
+          "docsUrl": "https://docs.opencoven.ai/docs/daemon/configuration"
+        },
+        {
+          "name": "completions",
+          "summary": "Generate shell completions (bash, zsh, fish, elvish, powershell)",
+          "docsUrl": "https://docs.opencoven.ai/docs/cli"
+        },
+        {
+          "name": "adapter",
+          "summary": "List and diagnose harness adapters",
+          "docsUrl": "https://docs.opencoven.ai/docs/cli/repo-workflow"
+        },
+        {
+          "name": "engine",
+          "summary": "Manage the Coven engine (the interactive agent runtime)",
+          "docsUrl": "https://docs.opencoven.ai/docs/cli/engine-auth"
+        },
+        {
+          "name": "auth",
+          "summary": "Manage model provider credentials (Anthropic, Codex) — runs in the Coven engine",
+          "docsUrl": "https://docs.opencoven.ai/docs/cli/engine-auth"
+        },
+        {
+          "name": "models",
+          "summary": "List available models — runs in the Coven engine",
+          "docsUrl": "https://docs.opencoven.ai/docs/cli/engine-auth"
+        },
+        {
+          "name": "acp",
+          "summary": "Start the Agent Client Protocol server (stdio JSON-RPC) — runs in the Coven engine",
+          "docsUrl": "https://docs.opencoven.ai/docs/cli/engine-auth"
+        },
+        {
+          "name": "code",
+          "summary": "Run any Coven engine subcommand directly",
+          "docsUrl": "https://docs.opencoven.ai/docs/cli/engine-auth"
+        }
+      ]
+    },
+    {
+      "id": "session-lifecycle",
+      "title": "Manage session lifecycle",
+      "commands": [
+        {
+          "name": "summon",
+          "summary": "Summon an archived session back, then replay/follow it",
+          "docsUrl": "https://docs.opencoven.ai/docs/cli/sessions#summon"
+        },
+        {
+          "name": "archive",
+          "summary": "Archive a completed session without deleting its events",
+          "docsUrl": "https://docs.opencoven.ai/docs/cli/sessions#archive"
+        },
+        {
+          "name": "sacrifice",
+          "summary": "Permanently delete an eligible non-running session and its events; adopted or reserved sessions are retained",
+          "docsUrl": "https://docs.opencoven.ai/docs/cli/sessions#sacrifice"
+        },
+        {
+          "name": "kill",
+          "summary": "Kill a running session's process (its event log is kept)",
+          "docsUrl": "https://docs.opencoven.ai/docs/cli/sessions"
+        }
+      ]
+    },
+    {
+      "id": "observe-your-coven",
+      "title": "Observe your coven",
+      "commands": [
+        {
+          "name": "familiars",
+          "summary": "List the familiar roster from ~/.coven/familiars.toml",
+          "docsUrl": "https://docs.opencoven.ai/docs/cli/observe"
+        },
+        {
+          "name": "skills",
+          "summary": "List installed skills from ~/.coven/skills/",
+          "docsUrl": "https://docs.opencoven.ai/docs/cli/observe"
+        },
+        {
+          "name": "memory",
+          "summary": "List familiar memory or open its private local dashboard",
+          "docsUrl": "https://docs.opencoven.ai/docs/memory-models"
+        },
+        {
+          "name": "research",
+          "summary": "Show the research loop log from ~/.coven/research/",
+          "docsUrl": "https://docs.opencoven.ai/docs/cli/observe"
+        },
+        {
+          "name": "calls",
+          "summary": "Show the Coven Calls delegation ledger",
+          "docsUrl": "https://docs.opencoven.ai/docs/cli/observe"
+        },
+        {
+          "name": "hub",
+          "summary": "Inspect hub status, nodes, jobs, and routing (read-only)",
+          "docsUrl": "https://docs.opencoven.ai/docs/cli/hub-scheduler"
+        },
+        {
+          "name": "scheduler",
+          "summary": "Inspect multi-host scheduler decisions and loop recovery (read-only)",
+          "docsUrl": "https://docs.opencoven.ai/docs/cli/hub-scheduler"
+        },
+        {
+          "name": "travel",
+          "summary": "Inspect travel-mode handoff state (read-only)",
+          "docsUrl": "https://docs.opencoven.ai/docs/cli/hub-scheduler"
+        }
+      ]
+    },
+    {
+      "id": "coordinate-parallel-work",
+      "title": "Coordinate parallel work",
+      "commands": [
+        {
+          "name": "wt",
+          "summary": "Create, list, diagnose, and prune Coven worktrees",
+          "docsUrl": "https://docs.opencoven.ai/docs/cli/repo-workflow"
+        },
+        {
+          "name": "claim",
+          "summary": "Manage TTL-bounded agent branch claims",
+          "docsUrl": "https://docs.opencoven.ai/docs/cli/repo-workflow"
+        },
+        {
+          "name": "maintenance",
+          "summary": "Acquire and inspect repository maintenance exclusion",
+          "docsUrl": "https://docs.opencoven.ai/docs/cli/repo-workflow"
+        },
+        {
+          "name": "hooks",
+          "summary": "Install Coven Parallel Work Protocol git hooks",
+          "docsUrl": "https://docs.opencoven.ai/docs/cli/repo-workflow"
+        }
+      ]
+    },
+    {
+      "id": "repair-and-administer",
+      "title": "Repair and administer",
+      "commands": [
+        {
+          "name": "device",
+          "summary": "Manage enrolled devices and their grants",
+          "docsUrl": "https://docs.opencoven.ai/docs/cli/device"
+        },
+        {
+          "name": "logs",
+          "summary": "Manage local log retention",
+          "docsUrl": "https://docs.opencoven.ai/docs/cli/observe"
+        },
+        {
+          "name": "vacuum",
+          "summary": "Repair and compact the local Coven session store",
+          "docsUrl": "https://docs.opencoven.ai/docs/cli/observe"
+        },
+        {
+          "name": "reset",
+          "summary": "Preview or recoverably reset selected local Coven state",
+          "docsUrl": "https://docs.opencoven.ai/docs/cli"
+        },
+        {
+          "name": "patch",
+          "summary": "Guided repair flow for a registered repo",
+          "docsUrl": "https://docs.opencoven.ai/docs/cli/patch-openclaw"
+        },
+        {
+          "name": "pc",
+          "summary": "Diagnose and relieve macOS system pressure",
+          "docsUrl": "https://docs.opencoven.ai/docs/cli/pc"
+        },
+        {
+          "name": "ward",
+          "summary": "Inspect and decide Ward proposals or migrate configuration",
+          "docsUrl": "https://docs.opencoven.ai/docs/cli/repo-workflow"
+        },
+        {
+          "name": "executor",
+          "summary": "Run Coven jobs on this machine for a remote hub",
+          "docsUrl": "https://docs.opencoven.ai/docs/cli/hub-scheduler"
+        }
+      ]
+    }
+  ]
+}

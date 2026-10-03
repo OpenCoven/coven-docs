@@ -145,6 +145,11 @@
       "source": "/docs/coven-codes/:path*",
       "destination": "/docs/coven-code/:path*",
       "permanent": true
+    },
+    {
+      "source": "/docs/reference/cli-setup",
+      "destination": "/docs/cli/setup",
+      "permanent": true
     }
   ],
   "retiredReferencePrefixes": [

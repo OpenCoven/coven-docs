@@ -41,3 +41,8 @@ scripts/_local-*
 # (with injected x-codeSamples) is not.
 openapi/coven.daemon.v1.built.yaml
 /.superpowers
+
+# Agent-rule files that `next dev` (Next.js 16) writes to the repo root on
+# every start. Root-anchored so nested docs with these names stay tracked.
+/AGENTS.md
+/CLAUDE.md

@@ -12,7 +12,7 @@
  *  - `--home-violet-soft`  → tinted background fills
  *  - `--home-ember`        → candle gold; ONLY on "record" marks (sigil core,
  *                            live tick). Never a second general accent.
- *  - `--home-display`      → Eczar, loaded in app/(home)/layout.tsx; headings
+ *  - `--home-display`      → EB Garamond, bundled in app/layout.tsx; headings
  *                            and the editorial line only.
  */
 
@@ -42,8 +42,8 @@
   --home-success:       #B4AAEB;
   --home-terminal-fg:   #b4b4bd;
 
-  --home-display: var(--font-home-display), 'Iowan Old Style', Georgia, serif;
-  --home-mono: 'Monaco', 'Menlo', ui-monospace, monospace;
+  --home-display: var(--oc-font-display);
+  --home-mono: var(--oc-font-mono);
 
   width: 100%;
   max-width: 96rem; /* = Tailwind max-w-screen-2xl (1536px) */
@@ -168,24 +168,28 @@
   align-items: center;
 }
 
+/* OpenCoven button style: 5px corners, uppercase mono label. */
 .heroButtonPrimary,
 .heroButtonSecondary {
   min-height: 42px;
-  border-radius: var(--radius-sm);
-  padding: 0.75rem 1.45rem;
+  border-radius: 5px;
+  padding: 0.75rem 1.25rem;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.4rem;
-  font-size: 0.9rem;
+  gap: 0.5rem;
+  font-family: var(--home-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.14em;
   text-decoration: none;
+  text-transform: uppercase;
   transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.15s ease;
 }
 
 .heroButtonPrimary {
   background: var(--home-violet-text);
   color: var(--home-on-violet);
-  font-weight: 750;
+  font-weight: 700;
 }
 
 .heroButtonPrimary:hover {

@@ -33,6 +33,8 @@ Prefer daemon commands over manual file deletion. Manual cleanup can remove evid
 
 An orphaned session is a session record whose harness PTY is no longer attached to a live daemon process. The ledger may still be useful even when the process is gone.
 
+A session becomes orphaned in two ways. When the daemon starts, it marks every record left `running` as orphaned, except externally registered sessions, including sessions started with `coven run`. While it runs, the daemon also checks the sessions it launched. It marks one orphaned after two minutes without a recorded exit once the session is no longer tracked as live or, on macOS and Linux, once the harness's process group is gone. On Windows a dead harness whose session is still tracked as live stays `running` until the next start. If the harness reports its exit late, that outcome replaces `orphaned`.
+
 Clients should treat orphaned or non-live sessions as replay surfaces:
 
 - Show recorded events.
