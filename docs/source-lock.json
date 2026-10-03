@@ -5,8 +5,8 @@
       "id": "coven-runtime-contract",
       "repo": "OpenCoven/coven",
       "ref": "main",
-      "verifiedAt": "2026-10-03T09:06:52Z",
-      "verifiedCommit": "24e4c1f3b904bddc48c6e1f0c83e1aa4b39219c1",
+      "verifiedAt": "2026-10-03T08:39:45Z",
+      "verifiedCommit": "eb3273e19670d2ab5bf1374783d96c11a50b0be2",
       "sections": [
         "guide",
         "cli",
@@ -20,6 +20,7 @@
       ],
       "paths": [
         "crates/coven-cli/src/main.rs",
+        "crates/coven-cli/src/ward_audit_census.rs",
         "crates/coven-cli/src/api.rs",
         "crates/coven-cli/src/harness.rs",
         "crates/coven-cli/src/setup/mod.rs",
@@ -30,7 +31,23 @@
         "crates/coven-cli/src/setup/copilot.rs",
         "docs/API-CONTRACT.md",
         "docs/SAFETY-MODEL.md",
-        "npm/coven/package.json"
+        "npm/coven/package.json",
+        "crates/coven-cli/engine.lock",
+        "crates/coven-cli/src/engine.rs",
+        "crates/coven-cli/src/help.rs",
+        "crates/coven-cli/src/install_conflict.rs",
+        "crates/coven-cli/src/theme.rs",
+        "crates/coven-cli/src/tui/sessions.rs",
+        "crates/coven-cli/src/mobile_memory/device.rs",
+        "crates/coven-cli/src/control_plane.rs",
+        "crates/coven-cli/src/automations/definition.rs",
+        "crates/coven-cli/src/automations/command_envelope.rs",
+        "crates/coven-cli/src/session_policy.rs",
+        "crates/coven-cli/src/chat_context_admission.rs",
+        "crates/coven-cli/src/api_health.rs",
+        "crates/coven-cli/src/store.rs",
+        "docs/architecture/coven-automations-v1.md",
+        "spec/coven-automations/v1/capabilities.json"
       ]
     }
   ]

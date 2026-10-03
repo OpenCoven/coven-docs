@@ -43,7 +43,12 @@ pnpm verify
 6. API simulator tests;
 7. a production Next.js build;
 8. Chromium smoke coverage for primary pages, mobile overflow, exports,
-   canonical metadata, deployment headers, and redirects.
+   canonical metadata, deployment headers, redirects, next-step/support navigation,
+   and self-hosted font families, preloads, and on-demand Unicode subsets.
+
+The site build uses [bundled fonts](app/fonts/README.md) and needs no font
+downloads. Dependency installation and upstream source-freshness checks still
+use the network.
 
 Use narrower commands while iterating:
 
@@ -60,6 +65,7 @@ pnpm test:smoke
 
 - `app/` — Next.js App Router site and export routes
 - `content/docs/` — public MDX documentation and section navigation
+- `content/data/` — captured CLI help and its source provenance
 - `components/` — Fumadocs and interactive documentation components
 - `docs/site-manifest.json` — canonical section order, ownership, stability,
   search classification, redirects, and retired surfaces
@@ -79,6 +85,12 @@ pnpm test:smoke
 subset. `pnpm openapi:build` injects code samples and regenerates endpoint MDX.
 Generated endpoint changes must be committed; `pnpm check:generated` fails when
 the source and committed pages drift.
+
+The [CLI help snapshot](content/data/coven-cli-help.json) records the public
+`coven help --all --json` output. Its [provenance](content/data/coven-cli-help.provenance.json)
+binds the exact capture to the source-lock pin; [the update procedure](content/data/README.md)
+explains how to reconcile it. `pnpm check:cli-docs` checks schema, capture integrity,
+source binding, redirected routes, fragments, and every command's own index link.
 
 Narrative explanations remain authored. Machine generation owns operation
 inventory, signatures, schemas, and examples—not product interpretation.

@@ -35,33 +35,33 @@ Every row below is a real top-level `coven` verb. Grouped reference pages cover 
 
 | Command | Use it for |
 | --- | --- |
-| `coven` | Open the interactive chat/shell when stdin/stdout are a terminal. |
-| `coven help` | Show concise help; add `<command>`, `--all`, or `--all --json` for deeper discovery. |
-| `coven chat` | Open the interactive Coven UI explicitly (requires the coven-code engine). |
-| `coven tui` | Same as `coven chat`. See [Interactive shell](/docs/cli/interactive). |
-| `coven doctor` | Check local setup and print next steps; exits 1 when a blocking problem is found. |
-| `coven setup codex` | Run Codex's provider-owned login with explicit consent and direct terminal access. |
-| `coven setup claude --verify` | Run Claude Code login, then separately request consent for bounded provider verification. |
-| `coven setup copilot --verify-only` | Skip login and run only the consented Copilot verification turn. |
-| `coven config paths --json` | Report resolved state, settings, engine, and local IPC paths without creating profile state. |
-| `coven completions <shell>` | Generate shell completions (bash, zsh, fish, elvish, powershell). |
-| `coven daemon start` | Start the local daemon process. |
-| `coven daemon status` | Inspect daemon pid, socket, and health state. |
-| `coven daemon restart` | Rebind the local socket after changes or stale state. |
-| `coven daemon stop` | Stop the local daemon. |
-| `coven run codex "fix tests"` | Launch a project-scoped Codex harness session. |
-| `coven run claude "polish this UI"` | Launch a project-scoped Claude Code harness session. |
-| `coven sessions` | Browse, attach, view, archive, summon, or sacrifice sessions. |
-| `coven sessions --all` | Include archived sessions. |
-| `coven sessions --manage` | Force the interactive session browser. |
-| `coven sessions --plain` | Print a plain table for scripts or copying. |
-| `coven sessions --json` | Print a JSON `sessions` array for clients. |
-| `coven attach <session-id>` | Replay/follow a session and forward input to live daemon sessions. |
-| `coven summon <session-id>` | Restore an archived session, then attach. |
-| `coven archive <session-id>` | Hide a completed session while preserving events. |
-| `coven sacrifice <session-id> --yes` | Permanently delete a non-running session and its event log. |
-| `coven kill <session-id>` | Kill a running session's process; its event log is kept. |
-| `coven patch openclaw` | Launch the guided repair flow for a registered repo. |
+| [`coven`](/docs/cli/interactive) | Open the interactive chat/shell when stdin/stdout are a terminal. |
+| [`coven help`](/docs/cli#find-the-right-command) | Show concise help; add `<command>`, `--all`, or `--all --json` for deeper discovery. |
+| [`coven chat`](/docs/cli/interactive) | Open the interactive Coven UI explicitly (requires the coven-code engine). |
+| [`coven tui`](/docs/cli/interactive) | Same as `coven chat`. See [Interactive shell](/docs/cli/interactive). |
+| [`coven doctor`](/docs/cli/doctor) | Check local setup and print next steps; exits 1 when a blocking problem is found. |
+| [`coven setup codex`](/docs/cli/setup) | Run Codex's provider-owned login with explicit consent and direct terminal access. |
+| [`coven setup claude --verify`](/docs/cli/setup) | Run Claude Code login, then separately request consent for bounded provider verification. |
+| [`coven setup copilot --verify-only`](/docs/cli/setup) | Skip login and run only the consented Copilot verification turn. |
+| [`coven config paths --json`](/docs/cli#configuration-paths-reset-and-color) | Report resolved state, settings, engine, and local IPC paths without creating profile state. |
+| [`coven completions <shell>`](/docs/cli#shell-completions) | Generate shell completions (bash, zsh, fish, elvish, powershell). |
+| [`coven daemon start`](/docs/cli/daemon) | Start the local daemon process. |
+| [`coven daemon status`](/docs/cli/daemon) | Inspect daemon pid, socket, and health state. |
+| [`coven daemon restart`](/docs/cli/daemon) | Rebind the local socket after changes or stale state. |
+| [`coven daemon stop`](/docs/cli/daemon) | Stop the local daemon. |
+| [`coven run codex "fix tests"`](/docs/cli/run) | Launch a project-scoped Codex harness session. |
+| [`coven run claude "polish this UI"`](/docs/cli/run) | Launch a project-scoped Claude Code harness session. |
+| [`coven sessions`](/docs/cli/sessions) | Browse, attach, view, archive, summon, or sacrifice sessions. |
+| [`coven sessions --all`](/docs/cli/sessions) | Include archived sessions. |
+| [`coven sessions --manage`](/docs/cli/sessions) | Force the interactive session browser. |
+| [`coven sessions --plain`](/docs/cli/sessions) | Print a plain table for scripts or copying. |
+| [`coven sessions --json`](/docs/cli/sessions) | Print a JSON `sessions` array for clients. |
+| [`coven attach <session-id>`](/docs/cli/sessions#attach) | Replay/follow a session and forward input to live daemon sessions. |
+| [`coven summon <session-id>`](/docs/cli/sessions#summon) | Restore an archived session, then attach. |
+| [`coven archive <session-id>`](/docs/cli/sessions#archive) | Hide a completed session while preserving events. |
+| [`coven sacrifice <session-id> --yes`](/docs/cli/sessions#sacrifice) | Permanently delete a non-running session and its event log. |
+| [`coven kill <session-id>`](/docs/cli/sessions#kill) | Kill a running session's process; its event log is kept. |
+| [`coven patch openclaw`](/docs/cli/patch-openclaw) | Launch the guided repair flow for a registered repo. |
 
 Use [Provider setup](/docs/cli/setup) for consent, verification, and report semantics.
 
@@ -69,27 +69,28 @@ Use [Provider setup](/docs/cli/setup) for consent, verification, and report sema
 
 | Command | Use it for |
 | --- | --- |
-| `coven status` | Show what's happening across your coven: daemon, sessions, familiars, skills, research, hub. |
-| `coven familiars` | List the familiar roster from `~/.coven/familiars.toml`. |
-| `coven skills` | List installed skills from `~/.coven/skills/`. |
-| `coven memory` | List familiar memory files from `~/.coven/memory/`. |
-| `coven research` | Show the research loop log from `~/.coven/research/`. |
-| `coven calls` | Show the Coven Calls delegation ledger. |
-| `coven logs prune` | Manage local log retention. |
-| `coven vacuum` | Repair and compact the local Coven session store. |
-| `coven reset` | Preview or recoverably reset selected local state categories; `--apply` moves them into a backup. |
-| `coven pc` | Diagnose and relieve macOS system pressure. See [PC Diagnostics](/docs/cli/pc). |
+| [`coven status`](/docs/cli/observe) | Show what's happening across your coven: daemon, sessions, familiars, skills, research, hub. |
+| [`coven familiars`](/docs/cli/observe) | List the familiar roster from `~/.coven/familiars.toml`. |
+| [`coven skills`](/docs/cli/observe) | List installed skills from `~/.coven/skills/`. |
+| [`coven memory`](/docs/cli/observe#roster-skills-memory-research-calls) | List familiar memory files from `~/.coven/memory/`. |
+| [`coven research`](/docs/cli/observe) | Show the research loop log from `~/.coven/research/`. |
+| [`coven calls`](/docs/cli/observe) | Show the Coven Calls delegation ledger. |
+| [`coven logs prune`](/docs/cli/observe) | Manage local log retention. |
+| [`coven vacuum`](/docs/cli/observe) | Repair and compact the local Coven session store. |
+| [`coven reset`](/docs/cli#configuration-paths-reset-and-color) | Preview or recoverably reset selected local state categories; `--apply` moves them into a backup. |
+| [`coven pc`](/docs/cli/pc) | Diagnose and relieve macOS system pressure. See [PC Diagnostics](/docs/cli/pc). |
+| [`coven device`](/docs/cli/device) | List, inspect, suspend, revoke, and reissue grants for enrolled devices. See [Devices](/docs/cli/device). |
 
-All of these except `coven pc` are covered on [Observability commands](/docs/cli/observe).
+All of these except `coven pc` and `coven device` are covered on [Observability commands](/docs/cli/observe).
 
 ### Hub and scheduling
 
 | Command | Use it for |
 | --- | --- |
-| `coven hub` | Inspect the multi-host hub control plane (read-only). |
-| `coven scheduler` | Inspect multi-host scheduler decisions and loop recovery (read-only). |
-| `coven travel` | Inspect travel-mode handoff state (read-only). |
-| `coven executor` | Stateless executor-node protocol commands, hub-dispatched over SSH or a private network. |
+| [`coven hub`](/docs/cli/hub-scheduler) | Inspect the multi-host hub control plane (read-only). |
+| [`coven scheduler`](/docs/cli/hub-scheduler) | Inspect multi-host scheduler decisions and loop recovery (read-only). |
+| [`coven travel`](/docs/cli/hub-scheduler) | Inspect travel-mode handoff state (read-only). |
+| [`coven executor`](/docs/cli/hub-scheduler) | Stateless executor-node protocol commands, hub-dispatched over SSH or a private network. |
 
 Covered on [Hub and scheduling](/docs/cli/hub-scheduler).
 
@@ -97,11 +98,11 @@ Covered on [Hub and scheduling](/docs/cli/hub-scheduler).
 
 | Command | Use it for |
 | --- | --- |
-| `coven engine` | Manage the Coven engine (the interactive agent runtime). |
-| `coven auth` | Manage model provider credentials (Anthropic, Codex) — runs in the Coven engine. |
-| `coven models` | List available models — runs in the Coven engine. |
-| `coven acp` | Start the Agent Client Protocol server (stdio JSON-RPC) — runs in the Coven engine. |
-| `coven code` | Run any Coven engine subcommand directly (escape hatch). |
+| [`coven engine`](/docs/cli/engine-auth) | Manage the Coven engine (the interactive agent runtime). |
+| [`coven auth`](/docs/cli/engine-auth) | Manage model provider credentials (Anthropic, Codex) — runs in the Coven engine. |
+| [`coven models`](/docs/cli/engine-auth) | List available models — runs in the Coven engine. |
+| [`coven acp`](/docs/cli/engine-auth) | Start the Agent Client Protocol server (stdio JSON-RPC) — runs in the Coven engine. |
+| [`coven code`](/docs/cli/engine-auth) | Run any Coven engine subcommand directly (escape hatch). |
 
 Covered on [Engine and auth](/docs/cli/engine-auth).
 
@@ -109,14 +110,31 @@ Covered on [Engine and auth](/docs/cli/engine-auth).
 
 | Command | Use it for |
 | --- | --- |
-| `coven wt` | Create, list, diagnose, and prune Coven worktrees. |
-| `coven claim` | Manage TTL-bounded agent branch claims. |
-| `coven maintenance` | Fence new Coven writers while maintenance drains existing writers. |
-| `coven hooks install` | Install Coven Parallel Work Protocol git hooks. |
-| `coven ward` | Inspect and migrate Ward configuration. |
-| `coven adapter` | List and diagnose harness adapters. |
+| [`coven wt`](/docs/cli/repo-workflow) | Create, list, diagnose, and prune Coven worktrees. |
+| [`coven claim`](/docs/cli/repo-workflow) | Manage TTL-bounded agent branch claims. |
+| [`coven maintenance`](/docs/cli/repo-workflow) | Fence new Coven writers while maintenance drains existing writers. |
+| [`coven hooks install`](/docs/cli/repo-workflow) | Install Coven Parallel Work Protocol git hooks. |
+| [`coven ward`](/docs/cli/repo-workflow) | Inspect and migrate Ward configuration. |
+| [`coven adapter`](/docs/cli/repo-workflow) | List and diagnose harness adapters. |
 
 Covered on [Repo workflow](/docs/cli/repo-workflow).
+
+## Shell completions
+
+Print a completion script for bash, zsh, fish, elvish, or powershell:
+
+```bash
+coven completions zsh
+```
+
+The command writes the script to standard output. To save it for inspection:
+
+```bash
+coven completions zsh > coven-completions.zsh
+```
+
+Install the generated script using your shell's completion setup. Regenerate it
+after updating Coven so it reflects the installed command surface.
 
 ## Configuration paths, reset, and color
 
@@ -128,7 +146,9 @@ coven config paths --json
 
 `coven reset` is preview-only unless `--apply` is passed. Select one or more registered categories with `--feature`, inspect them with `--list-features`, or use `--all --apply`. Applied resets move selected state to `$COVEN_HOME/reset-backups/`; they do not delete project directories, contact GitHub, or revoke provider credentials. Windows currently supports preview, not `--apply`.
 
-Every command accepts the global `--color auto|always|never` option. `auto` honors `NO_COLOR` and `CLICOLOR_FORCE`. Use `--theme auto|light|dark` to select the terminal-background palette; `auto` honors `COVEN_THEME` and `COLORFGBG`.
+Every command accepts the global `--color auto|always|never` option. `auto` honors `NO_COLOR` and `CLICOLOR_FORCE`.
+
+Every command also accepts the global `--theme auto|light|dark` option, which picks a palette for a light or dark terminal background. `auto` is the default: it uses `COVEN_THEME` when it is set to `light` or `dark`, then the background color in `COLORFGBG`, and otherwise the dark palette. Coven does not query the terminal for its background, so pass `--theme light` or set `COVEN_THEME=light` when a light terminal is not detected.
 
 ## What owns what
 

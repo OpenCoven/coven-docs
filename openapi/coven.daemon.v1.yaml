@@ -14,9 +14,15 @@ info:
     On Unix-like hosts only, the daemon can additionally bind a TCP listener
     with `coven daemon serve --tcp <addr>`, guarded to loopback bind addresses
     and loopback (or explicitly `--allow-host`-listed) `Host` / `Origin`
-    headers. Native Windows currently ignores `--tcp`. There is no TLS and no
-    token-based auth (no Bearer / JWT / API-key / cookie schemes) on the local
-    transports.
+    headers. An `--allow-host` entry admits a browser `Origin` only when it
+    is exactly `https://<host[:port]>`. Native Windows currently ignores
+    `--tcp`. There is no TLS and no token-based auth (no Bearer / JWT /
+    API-key / cookie schemes) on the local transports.
+
+    The TCP listener does not prove that the caller owns the daemon.
+    Owner-only operations, including automation mutations and automation
+    reads that return prompts, run logs, receipts, or event checkpoints,
+    return `403` over TCP; send them over local IPC.
 
     ### Spec scope
 
@@ -124,14 +130,12 @@ paths:
       summary: Daemon health and contract handshake
       description: |
         Required compatibility handshake. Returns the named API contract
-        version (`coven.daemon.v1`), the installed Coven binary version,
+        version (`coven.daemon.v1`), the daemon's build identity (`covenVersion`),
         machine-readable capabilities, and optional daemon metadata.
 
         Clients should treat `apiVersion: "coven.daemon.v1"` as the stable
         contract guard. `covenVersion` is diagnostics-only — do not branch
-        compatibility on a binary version alone. It is the daemon build
-        identity, including any source-build suffix, or `unknown` when no
-        version could be resolved.
+        compatibility on a binary version alone.
 
         When no daemon metadata is available, `daemon` is `null`.
       responses:
@@ -233,6 +237,18 @@ paths:
 
         Provider credentials are NOT part of this request. Codex, Claude Code,
         and future harnesses keep their own local auth flows.
+
+        A top-level `sessionPolicy` member, including `null`, returns
+        `400 invalid_request` before any launch work. Restricted requests use
+        the separately negotiated session-policy contract
+        (`POST /sessions/restricted`); do not retry them here.
+
+        A top-level `contextAdmission` member, including `null`, is refused
+        and never launched as an ordinary session. No context-admission
+        profile is enabled: over local IPC a malformed or mismatched intent
+        returns `400` or `409` and a valid one returns `503` with
+        `accepted: false`; the optional TCP listener returns `403`. Do not
+        remove the member and retry as an ordinary launch.
       requestBody:
         required: true
         content:
@@ -257,11 +273,8 @@ paths:
                   summary: cwd outside project root
                   value:
                     error:
-                      code: project_root_violation
-                      message: cwd must canonicalize inside project root.
-                      details:
-                        projectRoot: /Users/example/project
-                        cwd: /tmp/somewhere-else
+                      code: invalid_request
+                      message: cwd is outside the Coven project root
                 invalidHarness:
                   summary: Unsupported harness id
                   value:
@@ -388,6 +401,9 @@ paths:
         Only `running` sessions accept input. Completed, failed, killed,
         archived, or orphaned sessions are replay/log surfaces — sending input
         to them returns `409 session_not_live`.
+
+        A top-level `contextAdmission` member is refused rather than delivered
+        as input; see `POST /sessions`.
       requestBody:
         required: true
         content:
@@ -825,7 +841,13 @@ components:
           const: coven.daemon.v1
         covenVersion:
           type: string
-          description: Opaque daemon build identity, not a contract version. May include a git-describe suffix or be `unknown`.
+          description: |
+            Daemon build identity: the release tag the binary was stamped with,
+            including any `git describe` distance, commit, or `-dirty` suffix for a
+            source build, or `unknown` when no version could be resolved. Treat it
+            as an opaque build label; negotiate compatibility on `apiVersion` and
+            `capabilities`.
+          examples: [0.4.2]
         capabilities:
           $ref: '#/components/schemas/HealthCapabilities'
         daemon:
@@ -884,14 +906,20 @@ components:
           enum: [sequence]
         structuredErrors:
           type: boolean
-          description: Whether failure responses use the `ErrorEnvelope` shape (always `true` in `coven.daemon.v1`).
+          description: Whether errors use the `ErrorEnvelope` shape (always `true` in `coven.daemon.v1`). The separately negotiated session-policy contract has its own closed refusal shape.
+
         sessionPolicyContracts:
           type: array
-          description: Optional refusal-only admission contracts. Absence on older daemons means unavailable; this advertises no enforcement grant.
+          description: |
+            Optional refusal-only admission contracts. Currently
+            `["coven.session-policy.v1"]` over owner-local IPC and `[]` over TCP.
+            Older daemons may omit this field; absence means unavailable.
+            This is not a supported enforcement profile, identity proof, or grant.
           items:
             type: string
           examples:
             - [coven.session-policy.v1]
+            - []
 
     HubHealth:
       type: object
@@ -1438,13 +1466,15 @@ components:
     ErrorEnvelope:
       type: object
       description: |
-        Standard structured error envelope. All API failures use this shape.
-        Clients should branch on `error.code`, not message text.
+        Standard structured error envelope for API errors. The separately
+        negotiated session-policy contract defines its own closed HTTP 409
+        refusal, and the action router reports rejections in its action-response
+        shape. Clients should branch on `error.code`, not message text.
       required: [error]
       properties:
         error:
           type: object
-          required: [code, message, details]
+          required: [code, message]
           properties:
             code:
               $ref: '#/components/schemas/ErrorCode'
@@ -1453,7 +1483,7 @@ components:
               description: Human-readable diagnostic; do not parse.
             details:
               type: object
-              description: Structured details specific to the error code. May be empty.
+              description: Optional structured details; omitted when the daemon has none.
               additionalProperties: true
       examples:
         - error:
@@ -1470,7 +1500,7 @@ components:
         - `invalid_request` (400/404): Malformed request, unsupported API version, or unknown control action.
         - `session_not_found` (404): Session id does not exist.
         - `session_not_live` (409): Session exists but cannot accept input or kill (not running in this daemon).
-        - `project_root_violation` (400): cwd resolves outside the declared project root.
+        - `project_root_violation` (400): Reserved. A cwd outside the project root currently returns `invalid_request`.
         - `unknown_familiar` (400): `familiarId` does not match a configured familiar.
         - `launch_failed` (500): The harness session could not be launched (missing harness CLI, missing auth, spawn failure); the session row is marked `failed`.
         - `send_input_failed` (500): The runtime failed to forward input to a live session.

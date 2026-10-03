@@ -34,15 +34,16 @@ Explicit subcommands such as `coven run`, `coven daemon`, and `coven sessions` a
 
 ## Terminal appearance
 
-Use the global `--theme auto|light|dark` option to select the palette for the
-terminal background. `auto` uses `COVEN_THEME`, then the terminal's
-`COLORFGBG` hint, and falls back to dark:
+For explicit native CLI commands, `--theme auto|light|dark` selects the palette
+for the terminal background. `auto` uses `COVEN_THEME`, then `COLORFGBG`, and
+falls back to dark without querying the terminal:
 
 ```bash
-coven --theme light
+coven --theme light doctor
 ```
 
-This is separate from `--color`, which controls whether ANSI color is emitted.
+`--color` separately controls ANSI output. See the
+[CLI color and palette rules](/docs/cli#configuration-paths-reset-and-color).
 
 ## Terminal routing
 
