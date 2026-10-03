@@ -128,8 +128,20 @@ lock, or service manager is stale.
 
 ## Stale running sessions
 
-If a daemon stopped while sessions were running, those records may become
-`orphaned` on the next start.
+A session record can still say `running` after its harness is gone. Coven
+moves it to `orphaned` in two ways:
+
+- **While the daemon runs.** About every 30 seconds, the daemon checks the
+  sessions it launched. A session whose harness has been gone for two minutes
+  without a recorded exit becomes `orphaned`, and the daemon notes its id in
+  the [recovery log](/docs/daemon/observability#logs).
+- **On the next daemon start.** Records that a stopped daemon left `running`
+  become `orphaned` when it starts again. This also covers sessions started
+  with `coven run`, which the running daemon does not check.
+
+Externally registered sessions keep the status their owner reports. If a
+harness reports its exit late, the record takes that outcome instead of
+`orphaned`.
 
 ```sh
 coven sessions --all
