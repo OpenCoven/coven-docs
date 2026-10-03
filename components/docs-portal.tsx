@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { Icon } from '@iconify/react';
 import { docsSections, getStabilityLabel } from '@/lib/docs-manifest';
+import { EvidenceSeal } from './evidence-seal';
 import styles from './docs-portal.module.css';
 
 const journey = [
@@ -50,40 +51,6 @@ const sectionIcons: Record<string, string> = {
   experimental: 'ph:flask-duotone',
 };
 
-// 24 squares stepped 3.75° apart: their overlapping edges interfere into a
-// guilloché rosette, the engraving used on certificates of authenticity.
-const ROSETTE_TURNS = Array.from({ length: 24 }, (_, i) => i * 3.75);
-const SEAL_TEXT_RADIUS = 86;
-const SEAL_TEXT_LENGTH = 2 * Math.PI * SEAL_TEXT_RADIUS;
-
-function EvidenceSeal() {
-  return (
-    <svg className={styles.seal} viewBox="-100 -100 200 200" aria-hidden="true" focusable="false">
-      <defs>
-        <path
-          id="docs-seal-text-path"
-          d={`M 0 ${SEAL_TEXT_RADIUS} A ${SEAL_TEXT_RADIUS} ${SEAL_TEXT_RADIUS} 0 1 1 0 -${SEAL_TEXT_RADIUS} A ${SEAL_TEXT_RADIUS} ${SEAL_TEXT_RADIUS} 0 1 1 0 ${SEAL_TEXT_RADIUS}`}
-        />
-      </defs>
-      <circle className={styles.sealRing} r="94" />
-      <circle className={styles.sealRing} r="78" />
-      <text className={styles.sealText}>
-        <textPath href="#docs-seal-text-path" textLength={SEAL_TEXT_LENGTH} lengthAdjust="spacing">
-          LOCAL · DURABLE · AUDITABLE · LOCAL · DURABLE · AUDITABLE ·
-        </textPath>
-      </text>
-      <g className={styles.sealRosette}>
-        {ROSETTE_TURNS.map((turn) => (
-          <rect key={turn} x="-52" y="-52" width="104" height="104" transform={`rotate(${turn})`} />
-        ))}
-      </g>
-      <circle className={styles.sealCore} r="24" />
-      <rect className={styles.sealDiamond} x="-9" y="-9" width="18" height="18" transform="rotate(45)" />
-      <circle className={styles.sealDot} r="2.5" />
-    </svg>
-  );
-}
-
 export function DocsPortal() {
   return (
     <div className={styles.portal} data-docs-portal>
@@ -108,7 +75,7 @@ export function DocsPortal() {
           </div>
         </div>
 
-        <EvidenceSeal />
+        <EvidenceSeal className={styles.seal} />
 
         <div className={styles.sealRule}>
           <span className={styles.sealMark} aria-hidden="true" />
