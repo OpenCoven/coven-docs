@@ -296,6 +296,12 @@
   line-height: 1.8;
 }
 
+/* Keep running text at a readable measure when the page fills a wide column;
+ * tables, code, and components still use the full width. */
+#nd-page > .prose > :is(p, ul, ol, blockquote) {
+  max-width: 80ch;
+}
+
 /* Section headings use the display face, as the canon binds h1–h3 to EB
  * Garamond. MDX headings are direct children of the article's prose wrapper;
  * headings nested in components (the portal sections) keep their own styles.

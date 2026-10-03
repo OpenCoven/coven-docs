@@ -105,9 +105,10 @@ body {
   #nd-page { padding: 1.5rem 1.25rem; }
 }
 
-/* Glassmorphism callouts */
-.dark .nd-callout,
-.dark [data-callout] {
+/* Glassmorphism callouts. Fumadocs renders no class or attribute of its own
+ * on a callout container, but every one carries the inline `--callout-color`
+ * property; matching it also covers MDX pages that import Callout directly. */
+.dark #nd-page [style*='--callout-color'] {
   background: rgba(154, 142, 205, 0.06) !important;
   border: 1px solid rgba(154, 142, 205, 0.15) !important;
   border-radius: var(--radius-md);
