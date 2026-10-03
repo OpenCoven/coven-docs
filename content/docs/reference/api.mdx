@@ -83,7 +83,8 @@ not an enforcement profile, identity proof, or grant.
 
 The action router accepts a top-level `action` string plus optional `origin` and
 `intentId` correlation fields. Action-specific fields are also top-level; there
-is no generic `args` wrapper in the current daemon implementation.
+is no generic `args` wrapper in the current daemon implementation. Correlation
+fields do not grant authority.
 
 ```json
 {
@@ -104,11 +105,12 @@ A successful action returns `ok: true`, `accepted: true`, and
 automation actions, a top-level `result`. A failed action returns `ok: false`,
 `accepted: false`, `status: "rejected"`, and the cause in `reason`; versioned
 automation actions add a typed `error` whose `code` sets the HTTP status.
-Unknown actions, malformed bodies, and missing required top-level fields fail
-closed with HTTP `400`. Automation actions also require the owner-local IPC
-endpoint: over the optional loopback TCP listener, everything except health
-and scheduling diagnostics returns `403` with `AUTHORITY_REQUIRED`. See
-[Coven automations](/docs/reference/automations).
+Malformed JSON and missing action ids return HTTP `400`. Over the optional
+loopback TCP listener, every `coven.automations.*` action outside the
+[diagnostic allowlist](/docs/reference/automations#owner-local-access) returns
+`403` with `AUTHORITY_REQUIRED` before action validation, including unknown
+automation action ids. These actions require the owner-local IPC endpoint.
+Other unknown action ids return `400`.
 
 ## Control-plane surface map
 
