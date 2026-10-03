@@ -43,7 +43,12 @@ pnpm verify
 6. API simulator tests;
 7. a production Next.js build;
 8. Chromium smoke coverage for primary pages, mobile overflow, exports,
-   canonical metadata, deployment headers, redirects, and next-step/support navigation.
+   canonical metadata, deployment headers, redirects, next-step/support navigation,
+   and self-hosted font families, preloads, and on-demand Unicode subsets.
+
+The site build uses [bundled fonts](app/fonts/README.md) and needs no font
+downloads. Dependency installation and upstream source-freshness checks still
+use the network.
 
 Use narrower commands while iterating:
 

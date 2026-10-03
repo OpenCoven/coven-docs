@@ -3,6 +3,7 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import process from 'node:process';
 import puppeteer from 'puppeteer';
+import { smokeFonts } from './smoke-fonts.mjs';
 
 const port = Number(process.env.DOCS_SMOKE_PORT ?? 4173);
 const baseUrl = `http://127.0.0.1:${port}`;
@@ -17,6 +18,7 @@ const report = {
   mobile: [],
   navigation: [],
   followOns: [],
+  fonts: null,
   journeys: {},
   error: null,
 };
@@ -233,6 +235,7 @@ try {
 
   for (const route of routes) {
     const response = await gotoAndReady(route.path, route.expectedText);
+    if (route.path === '/') report.fonts = await smokeFonts(page, baseUrl);
 
     const headers = response.headers();
     if (headers['x-coven-docs-commit'] !== report.buildCommit) {
