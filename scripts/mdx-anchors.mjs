@@ -1,13 +1,20 @@
 export function stripCodeFences(source) {
-  const lines = source.split(/\r?\n/);
-  let inFence = false;
+  const lines = source.split(/\r\n?|\n/);
+  let fence = null;
   return lines
     .map((line) => {
-      if (/^\s*```/.test(line)) {
-        inFence = !inFence;
+      const marker = line.match(/^ {0,3}(`{3,}|~{3,})(.*)$/);
+      if (fence) {
+        if (marker && marker[1][0] === fence[0] && marker[1].length >= fence.length && /^[ \t]*$/.test(marker[2])) {
+          fence = null;
+        }
         return '';
       }
-      return inFence ? '' : line;
+      if (marker && (marker[1][0] === '~' || !marker[2].includes('`'))) {
+        fence = marker[1];
+        return '';
+      }
+      return line;
     })
     .join('\n');
 }

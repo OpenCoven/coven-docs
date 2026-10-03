@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import test from 'node:test';
 import { checkCliHelpContract, loadRepoCliHelpInputs } from './check-cli-help-contract.mjs';
-import { collectAnchors } from './mdx-anchors.mjs';
+import { collectAnchors, stripCodeFences } from './mdx-anchors.mjs';
 
 function changeCapture(inputs, mutate, recordNewHash = false) {
   const contract = JSON.parse(inputs.rawContract);
@@ -161,4 +161,37 @@ test('canonical routes and both canonical and preferred fragments remain valid',
 
 test('shared anchor rules ignore fenced headings and retain duplicate-heading suffixes', () => {
   assert.deepEqual([...collectAnchors('## Attach\n```md\n## Hidden\n```\n## Attach\n## **Kill**\n')], ['attach', 'attach-1', 'kill']);
+});
+
+test('fences require matching markers and sufficient length before exposing headings', () => {
+  for (const marker of ['`', '~']) {
+    const other = marker === '`' ? '~' : '`';
+    for (const indent of ['', ' ', '   ']) {
+      const source = [
+        '## Before', `${indent}${marker.repeat(4)}md`, '## Hidden',
+        other.repeat(4), '## Wrong marker', marker.repeat(3), '## Short closer',
+        `${marker.repeat(4)} still code`, '## Trailing text',
+        `    ${marker.repeat(4)}`, '## Indented closer',
+        `${indent}${marker.repeat(5)}\t`, '## After',
+      ].join('\r\n');
+      assert.deepEqual([...collectAnchors(source)], ['before', 'after']);
+    }
+    assert.deepEqual([...collectAnchors(`## Before\n${marker.repeat(3)}md\n## Unclosed`)], ['before']);
+  }
+  const inline = '```not a fence`\n## Visible';
+  assert.equal(stripCodeFences(inline), inline);
+});
+
+test('code samples cannot replace a command-map row with either fence style', () => {
+  for (const fence of ['~~~', '````']) {
+    const inputs = loadRepoCliHelpInputs();
+    const row = /^\| \[`coven help`\].*$/m;
+    const match = inputs.cliIndexSource.match(row);
+    assert(match, 'mutation must remove the live help row');
+    inputs.cliIndexSource = inputs.cliIndexSource.replace(row, '');
+    const shortCloser = fence === '````' ? '```\n' : '';
+    inputs.cliIndexSource = inputs.cliIndexSource.replace('## Command map',
+      `## Command map\n\n${fence}md\n${shortCloser}${match[0]}\n${fence}\n`);
+    assert.throws(() => checkCliHelpContract(inputs), /must link coven help to/);
+  }
 });
