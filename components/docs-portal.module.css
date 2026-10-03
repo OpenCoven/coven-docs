@@ -159,61 +159,11 @@
   background: var(--portal-panel-soft);
 }
 
-/* ── Evidence seal ── */
+/* ── Evidence seal (components/evidence-seal.tsx) ── */
 
 .seal {
   grid-area: seal;
   width: clamp(15rem, 22vw, 21rem);
-  height: auto;
-  aspect-ratio: 1;
-  overflow: visible;
-  color: var(--portal-violet-readable);
-  animation: sealSet 1200ms var(--coven-ease-out, ease-out) both;
-}
-
-.sealRing {
-  fill: none;
-  stroke: currentColor;
-  stroke-opacity: 0.4;
-  stroke-width: 0.5;
-}
-
-.sealText {
-  fill: currentColor;
-  fill-opacity: 0.7;
-  font-family: var(--portal-mono);
-  font-size: 6.4px;
-}
-
-.sealRosette rect {
-  fill: none;
-  stroke: currentColor;
-  stroke-opacity: 0.5;
-  stroke-width: 0.3;
-}
-
-.sealCore {
-  fill: var(--portal-bg);
-  stroke: currentColor;
-  stroke-opacity: 0.5;
-  stroke-width: 0.5;
-}
-
-.sealDiamond {
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 0.9;
-}
-
-.sealDot {
-  fill: currentColor;
-}
-
-@keyframes sealSet {
-  from {
-    opacity: 0;
-    transform: rotate(-12deg) scale(0.96);
-  }
 }
 
 /* ── Seal rule and hallmarks ── */
@@ -591,7 +541,4 @@
     transition: none;
   }
 
-  .seal {
-    animation: none;
-  }
 }

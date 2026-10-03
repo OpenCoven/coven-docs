@@ -1,0 +1,285 @@
+/* Evidence seal on the docs portal hero: a dial whose ring words are tabs.
+ * Colours come from the portal's tokens (--portal-*) and the OpenCoven type
+ * stacks (--oc-font-*). */
+
+.root {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.svg {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1;
+  overflow: visible;
+  color: var(--portal-violet-readable);
+  animation: sealSet 1200ms var(--coven-ease-out, ease-out) both;
+}
+
+@keyframes sealSet {
+  from {
+    opacity: 0;
+    transform: rotate(-12deg) scale(0.96);
+  }
+}
+
+/* ── Engraving ── */
+
+.ring {
+  fill: none;
+  stroke: currentColor;
+  stroke-opacity: 0.4;
+  stroke-width: 0.5;
+}
+
+.rosette rect,
+.rosetteLit rect {
+  fill: none;
+}
+
+.rosette rect {
+  stroke: currentColor;
+  stroke-opacity: 0.5;
+  stroke-width: 0.3;
+}
+
+.rosetteLit rect {
+  stroke: var(--portal-fg);
+  stroke-opacity: 0.9;
+  stroke-width: 0.45;
+}
+
+/* The light: a narrow wedge in the mask that sweeps across the top of the
+ * engraving each time the dial settles. */
+.glint {
+  opacity: 0;
+  transform-origin: 0 0;
+  animation: glintSweep 1500ms 350ms ease-in-out both;
+}
+
+@keyframes glintSweep {
+  0% {
+    opacity: 0;
+    transform: rotate(-70deg);
+  }
+  25%,
+  75% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: rotate(70deg);
+  }
+}
+
+.core {
+  fill: var(--portal-bg);
+  stroke: currentColor;
+  stroke-opacity: 0.5;
+  stroke-width: 0.5;
+}
+
+.diamond {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 0.9;
+}
+
+.dot,
+.separator {
+  fill: currentColor;
+}
+
+.separator {
+  fill-opacity: 0.55;
+}
+
+/* Fixed index mark at 12 o'clock. */
+.index {
+  fill: var(--portal-accent);
+}
+
+/* ── Dial ── */
+
+.dial {
+  transition: transform 1100ms cubic-bezier(0.7, 0, 0.2, 1);
+}
+
+.tab {
+  cursor: pointer;
+  outline: none;
+}
+
+/* A wide invisible stroke along each word's arc makes the whole segment
+ * clickable, not just the glyphs. */
+.hit {
+  fill: none;
+  stroke: transparent;
+  stroke-width: 16;
+  pointer-events: stroke;
+}
+
+.segment {
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-opacity: 0.25;
+  stroke-width: 0.6;
+  transition:
+    stroke-opacity 300ms ease,
+    stroke-width 300ms ease;
+}
+
+.word {
+  fill: currentColor;
+  fill-opacity: 0.6;
+  font-family: var(--portal-mono);
+  font-size: 7px;
+  font-weight: 700;
+  letter-spacing: 2.4px;
+  transition: fill-opacity 300ms ease;
+}
+
+.tab:hover .word {
+  fill-opacity: 0.95;
+}
+
+.tab:hover .segment {
+  stroke-opacity: 0.55;
+}
+
+.tab[data-active='true'] .word {
+  fill: var(--portal-fg);
+  fill-opacity: 1;
+}
+
+.tab[data-active='true'] .segment {
+  stroke: var(--portal-accent);
+  stroke-opacity: 1;
+  stroke-width: 1.4;
+}
+
+.tab:focus-visible .segment {
+  stroke: var(--portal-accent);
+  stroke-dasharray: 2.5 1.5;
+  stroke-opacity: 1;
+  stroke-width: 2.2;
+}
+
+/* ── Caption ── */
+
+.panel {
+  width: 100%;
+  max-width: 19rem;
+  text-align: center;
+}
+
+.stack {
+  display: grid;
+}
+
+.panelBody {
+  grid-area: 1 / 1;
+  opacity: 0;
+  transform: translateY(4px);
+  visibility: hidden;
+  transition:
+    opacity 250ms ease,
+    transform 250ms ease,
+    visibility 0s 250ms;
+}
+
+.panelBody[data-active='true'] {
+  opacity: 1;
+  transform: none;
+  visibility: visible;
+  transition:
+    opacity 400ms 200ms ease,
+    transform 400ms 200ms var(--coven-ease-out, ease-out),
+    visibility 0s;
+}
+
+.panelTitle {
+  margin: 0;
+  color: var(--portal-fg);
+  font-family: var(--oc-font-display);
+  font-size: 1.375rem;
+  font-style: italic;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.panelText {
+  margin: 0.5rem 0 0;
+  color: var(--portal-muted);
+  font-size: 0.875rem;
+  line-height: 1.55;
+  text-wrap: pretty;
+}
+
+.panelLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  margin-top: 0.75rem;
+  color: var(--portal-violet-readable);
+  font-family: var(--portal-mono);
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+/* Restated so the site-wide a:hover lavender does not win. */
+.panelLink:hover {
+  color: var(--portal-fg);
+}
+
+.panelLink:focus-visible {
+  border-radius: 2px;
+  outline: 2px solid var(--portal-violet);
+  outline-offset: 3px;
+}
+
+.markers {
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.marker {
+  width: 7px;
+  height: 7px;
+  border: 1px solid var(--portal-violet-readable);
+  cursor: pointer;
+  opacity: 0.6;
+  rotate: 45deg;
+  transition:
+    background-color 300ms ease,
+    opacity 300ms ease;
+}
+
+.marker[data-active='true'] {
+  background: var(--portal-violet-readable);
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .svg,
+  .glint {
+    animation: none;
+  }
+
+  .dial,
+  .segment,
+  .word,
+  .panelBody,
+  .panelBody[data-active='true'],
+  .marker {
+    transition: none;
+  }
+}
