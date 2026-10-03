@@ -67,10 +67,11 @@ Daemon and API failures use a structured error envelope. Branch on
 | You see | Start here |
 | --- | --- |
 | `not_found` | Verify the route and [API version](#api-version-rejected). |
-| `invalid_request` | Compare the body with the [local API contract](/docs/reference/api) and check ids and field casing. |
+| `invalid_request` | Compare the body with the [local API contract](/docs/reference/api) and check ids and field casing. If the message says `cwd` is outside the project root, see [`cwd` rejected](#cwd-rejected). |
 | `session_not_found` | Run `coven sessions --all`; the id may be stale, deleted, or stored under another `COVEN_HOME`. |
 | `session_not_live` | See [Session does not accept input](#session-does-not-accept-input). |
-| `project_root_violation` | See [`cwd` rejected](#cwd-rejected). |
+| `project_root_violation` | Reserved. Current daemons report a `cwd` outside the project root as `invalid_request`; see [`cwd` rejected](#cwd-rejected). |
+| `forbidden` or `AUTHORITY_REQUIRED` (`403`) | Send the request over the local IPC endpoint, not the optional TCP listener. See [Optional loopback TCP](/docs/daemon/security#optional-loopback-tcp). |
 | `pty_spawn_failed` | See [Harness missing](#harness-missing). |
 | `runtime_unavailable` | See [Daemon unavailable](#daemon-unavailable). |
 | `internal_error` | Restart the daemon, preserve relevant logs, and report a reproducible case. |
@@ -127,8 +128,24 @@ lock, or service manager is stale.
 
 ## Stale running sessions
 
-If a daemon stopped while sessions were running, those records may become
-`orphaned` on the next start.
+A session record can still say `running` after its harness is gone. Coven
+moves it to `orphaned` in two ways:
+
+- **While the daemon runs.** About every 30 seconds, the daemon checks the
+  sessions it launched. A session loses its harness once the daemon no longer
+  tracks it as live or, on macOS and Linux, once the harness's process group
+  is gone. After two minutes of that without a recorded exit, the session
+  becomes `orphaned`, and the daemon notes its id in the
+  [recovery log](/docs/daemon/observability#logs). Windows has no
+  process-group check, so a dead harness whose session is still tracked as
+  live stays `running` until the next start.
+- **On the next daemon start.** Every record left `running` becomes
+  `orphaned`, except externally registered sessions. This includes sessions
+  started with `coven run`, which the running daemon does not check.
+
+Externally registered sessions keep the status their owner reports. If a
+harness reports its exit late, the record takes that outcome instead of
+`orphaned`.
 
 ```sh
 coven sessions --all

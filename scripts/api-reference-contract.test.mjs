@@ -4,7 +4,7 @@ import { resolve } from 'node:path';
 import test from 'node:test';
 
 // Documentation regression checks, not runtime conformance. Reviewed against
-// OpenCoven/coven@801e9f219b1d50336ad4111ca92ce2a3a1eafa3c/docs/API-CONTRACT.md:
+// OpenCoven/coven@eb3273e19670d2ab5bf1374783d96c11a50b0be2/docs/API-CONTRACT.md:
 // reusable client, structured errors, and stable error codes.
 const page = readFileSync(
   resolve(import.meta.dirname, '../content/docs/reference/api.mdx'),
@@ -43,12 +43,16 @@ function requirePeerRecovery(source) {
 }
 
 function requirePolicyRefusal(source) {
-  const refusal = section(source, 'Session-policy admission refusals').replace(/\s+/gu, ' ');
+  const refusal = section(source, 'Session-policy admission').replace(/\s+/gu, ' ');
   assert.ok(refusal.includes('separately negotiated'));
   assert.ok(refusal.includes('HTTP `409`'));
-  assert.ok(refusal.includes('not a launch success'));
-  assert.ok(refusal.includes('must not retry the request as an unrestricted launch'));
+  assert.ok(refusal.includes('never a launch success'));
+  assert.ok(refusal.includes('Never retry a restricted request as an ordinary launch'));
   assert.ok(refusal.includes('availability, not authorization'));
+  assert.ok(refusal.includes('refusal-only'));
+  assert.ok(refusal.includes('`"enforcement": "unavailable"`'));
+  assert.ok(refusal.includes('`"admission": "not_started"`'));
+  assert.ok(refusal.includes('do not infer `not_started` from a timeout'));
 }
 
 test('the published error example uses the emitted code, not its reserved successor', () => {
@@ -78,13 +82,13 @@ for (const [name, mutate] of [
 }
 
 test('removing the no-auto-replay qualification is detected', () => {
-  const mutated = page.replace('never replays a mutation automatically', 'replays a mutation automatically');
+  const mutated = page.replace(/never replays a mutation\s+automatically/u, 'replays a mutation automatically');
   assert.notEqual(mutated, page);
   assert.throws(() => requirePeerRecovery(mutated));
 });
 
 test('removing the unrestricted-fallback prohibition is detected', () => {
-  const mutated = page.replace('must not retry the request as an unrestricted launch', 'may retry the request as an unrestricted launch');
+  const mutated = page.replace('Never retry a restricted request as an ordinary launch', 'Retry a restricted request as an ordinary launch');
   assert.notEqual(mutated, page);
   assert.throws(() => requirePolicyRefusal(mutated));
 });

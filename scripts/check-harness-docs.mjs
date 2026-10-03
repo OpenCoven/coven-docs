@@ -129,9 +129,9 @@ if (!readFileSync(join(harnessRoot, 'troubleshooting.mdx'), 'utf8').includes('/d
 // Keep the load-time prompt safety contract on the adapter page itself;
 // a mention in an unrelated harness page does not document migration.
 const customAdapter = readFileSync(join(harnessRoot, 'custom-adapters.mdx'), 'utf8');
-const safety = customAdapter.split('## Prompt safety and migration\n')[1]?.split('\n## ')[0] ?? '';
+const safety = customAdapter.split('## Prompt safety\n')[1]?.split('\n## ')[0] ?? '';
 const safetyMentions = [
-  "interpreter executable names",
+  "shell or language interpreter",
   "case-insensitively",
   ".exe",
   "interactive_prompt_prefix_args",

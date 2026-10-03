@@ -65,10 +65,14 @@ The focused suite executes the detector CLI with fixture-controlled GitHub
 responses, not live network or deployed data. The gate suite exercises every
 pairing of seven job outcomes and verifies the workflow dependency graph.
 
-## Remaining source review
+## Source review remains a separate requirement
 
-This repair does **not** advance `docs/source-lock.json`, change `verifiedAt` or
-`verifiedCommit`, review all outstanding upstream contracts, or certify a live
-site. Retain #89 until its source-to-page review, affected public-page changes,
-full verification, and truthful source-lock update are complete. Do not disable
-the canonical gate to land a freshness-only metadata bump.
+A successful comparison proves only that the watched paths match the reviewed
+source lock. It does not establish that the public pages were reviewed correctly
+or that an installed release contains the source changes. Review affected source
+and public pages before advancing `verifiedCommit` or `verifiedAt`; retain the
+release qualification on those pages.
+
+The source review originally tracked by #89 was reconciled on main, including
+#109 and #115. This workflow change preserves that reviewed lock and does not
+waive future drift or certify a live deployment.
