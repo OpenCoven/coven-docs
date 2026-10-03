@@ -79,6 +79,21 @@ limits, and digest rules are in the
 A contract name in health establishes availability, not authorization. It is
 not an enforcement profile, identity proof, or grant.
 
+## Ordinary-chat context admission
+
+Ordinary-chat context admission is not enabled. Owner-local
+`POST /api/v1/sessions` and `POST /api/v1/sessions/{sessionId}/input` validate
+an explicit `contextAdmission` intent and refuse execution while trusted
+embodiment verification and native context-profile qualification are absent.
+Valid unverified requests receive `503` with `accepted: false` and
+`receiptIssued: false`; other mutations reject the member rather than dispatching
+an unbound session. Requests without it keep their existing behavior.
+
+Do not remove a refused `contextAdmission` member and retry as an ordinary
+launch or input. This intent is separate from session-policy admission,
+`executionBinding`, and `requestAdoption`; it advertises no new capability.
+See the [ordinary-chat context contract](https://github.com/OpenCoven/coven/blob/main/docs/API-CONTRACT.md#ordinary-chat-context-intent-not-enabled).
+
 ## Action router
 
 The action router accepts a top-level `action` string plus optional `origin` and
@@ -128,8 +143,10 @@ copying an implementation detail into an external integration.
 ## Version and privacy rules
 
 `GET /api/v1/health` advertises the named `coven.daemon.v1` contract.
-Its `covenVersion` field identifies the daemon build; it is not the API
-compatibility signal.
+Its `covenVersion` field is an opaque daemon build identity. Source builds may
+include a `git describe` distance, commit, or `-dirty` suffix; an unresolved
+version is `unknown`. Negotiate compatibility using `apiVersion` and the
+capabilities required for the operation.
 `GET /api/v1/api-version` is a legacy route-family diagnostic; its literal
 `v1` value is not sufficient proof that every named-contract capability exists.
 

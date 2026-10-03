@@ -20,6 +20,7 @@
       ],
       "paths": [
         "crates/coven-cli/src/main.rs",
+        "crates/coven-cli/src/ward_audit_census.rs",
         "crates/coven-cli/src/api.rs",
         "crates/coven-cli/src/harness.rs",
         "crates/coven-cli/src/setup/mod.rs",

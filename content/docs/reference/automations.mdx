@@ -15,6 +15,11 @@ versioned `POST /api/v1/actions` router. Always call
 daemon. This page describes the current source contract; an older installed
 daemon advertises fewer actions.
 
+The `coven.automations` capability may include an optional `variantNegotiation`
+object describing supported, experimental, and refused contract variants.
+This is negotiation metadata; it does not authorize a refused variant. See
+[versioned definition commands](#versioned-definition-commands).
+
 ## Owner-local access
 
 Send automation actions to the owner-local IPC endpoint: the Unix socket or

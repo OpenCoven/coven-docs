@@ -871,6 +871,7 @@ components:
             executorDispatch: true
             eventCursor: sequence
             structuredErrors: true
+            sessionPolicyContracts: [coven.session-policy.v1]
           daemon:
             pid: 12345
             startedAt: 2026-05-09T12:00:00Z
@@ -906,6 +907,19 @@ components:
         structuredErrors:
           type: boolean
           description: Whether errors use the `ErrorEnvelope` shape (always `true` in `coven.daemon.v1`). The separately negotiated session-policy contract has its own closed refusal shape.
+
+        sessionPolicyContracts:
+          type: array
+          description: |
+            Optional refusal-only admission contracts. Currently
+            `["coven.session-policy.v1"]` over owner-local IPC and `[]` over TCP.
+            Older daemons may omit this field; absence means unavailable.
+            This is not a supported enforcement profile, identity proof, or grant.
+          items:
+            type: string
+          examples:
+            - [coven.session-policy.v1]
+            - []
 
     HubHealth:
       type: object
