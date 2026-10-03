@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { Icon } from '@iconify/react';
 import { docsSections, getStabilityLabel } from '@/lib/docs-manifest';
+import { EvidenceSeal } from './evidence-seal';
 import styles from './docs-portal.module.css';
 
 const journey = [
@@ -53,12 +54,12 @@ const sectionIcons: Record<string, string> = {
 export function DocsPortal() {
   return (
     <div className={styles.portal} data-docs-portal>
-      <section className={styles.hero} aria-labelledby="docs-portal-title">
+      <section className={`${styles.hero} not-prose`} aria-labelledby="docs-portal-title">
         <div className={styles.heroCopy}>
           <p className={styles.eyebrow}>Canonical Coven runtime manual</p>
-          <h2 id="docs-portal-title" className={styles.heroTitle}>
-            From install to evidence.
-          </h2>
+          <h1 id="docs-portal-title" className={styles.heroTitle}>
+            From install to <em>evidence.</em>
+          </h1>
           <p className={styles.heroLead}>
             Start with one recorded coding-agent session, then move outward into the CLI,
             daemon, harness, memory, and local API contracts that make the work durable.
@@ -66,7 +67,7 @@ export function DocsPortal() {
           <div className={styles.heroActions}>
             <Link href="/docs/guide/getting-started" className={styles.primaryAction}>
               Run a first session
-              <Icon icon="ph:arrow-right-bold" width={15} aria-hidden="true" />
+              <Icon icon="ph:arrow-right" width={15} aria-hidden="true" />
             </Link>
             <Link href="/docs/guide/architecture" className={styles.secondaryAction}>
               Understand the boundary
@@ -74,19 +75,22 @@ export function DocsPortal() {
           </div>
         </div>
 
-        <div className={styles.proof} aria-label="Documentation release signals">
-          <div className={styles.proofItem}>
-            <strong>{docsSections.length}</strong>
-            <span>governed sections</span>
-          </div>
-          <div className={styles.proofItem}>
-            <strong>Hourly</strong>
-            <span>production checks</span>
-          </div>
-          <div className={styles.proofItem}>
-            <strong>Daily</strong>
-            <span>source-drift checks</span>
-          </div>
+        <EvidenceSeal className={styles.seal} />
+
+        <div className={styles.sealRule}>
+          <span className={styles.sealMark} aria-hidden="true" />
+          <span className={styles.sealLine} aria-hidden="true" />
+          <ul className={styles.hallmarks} aria-label="Documentation release signals">
+            <li>
+              <strong>{docsSections.length}</strong> governed sections
+            </li>
+            <li>
+              <strong>Hourly</strong> production checks
+            </li>
+            <li>
+              <strong>Daily</strong> source-drift checks
+            </li>
+          </ul>
         </div>
       </section>
 

@@ -84,8 +84,16 @@ the drain exception.
 coven ward pending                    # staged proposals awaiting the principal
 coven ward pending <proposal-id>      # one proposal in full
 coven ward pending --json             # exact daemon body
+coven ward audit-census               # bounded, read-only audit-history inventory
+coven ward audit-census --json        # machine-readable audit-only census
 coven ward migrate --fingerprint <FPR> --apply   # migrate v0.1 ward.toml to Phase-2 WardConfig
 ```
+
+`audit-census` reads an existing Coven store without repairing state, migrating
+its schema, or granting authorization. It fails instead of truncating when the
+relevant audit history exceeds `--max-audit-rows` (default 10,000; range
+1–100,000) or the 32 MiB decoding budget. Pending artifacts are non-atomic,
+unverified observations, not proof that a proposal can be applied.
 
 `migrate` is a dry-run report unless `--apply` is passed; `--familiar <id>` limits it to one familiar. A familiar's *declared* Ward surface is read with `coven familiars <id>` — see [Observability commands](/docs/cli/observe).
 

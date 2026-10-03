@@ -20,12 +20,12 @@ project detection, daemon/socket status, and supported harness CLIs.
 
 | Area | What to look for |
 | --- | --- |
-| Installed binary | In the CLI release that includes OpenCoven/coven#1124, the `Install` / `Installs` output lists every `coven` executable visible on `PATH` in resolution order, with how each was installed (npm and its prefix, `cargo install`, source build, legacy coven-code installer) and which entry is the running process. Until then, Doctor prints the older path-only list. When more than one exists, each shadowed copy gets its exact removal command, and Doctor reports where `npm install -g` currently writes. JSON only reports `install:conflicts` status and does not include install paths, origins, or removal commands. This check appears first because every later diagnostic must describe the binary you intended to run. |
+| Installed binary | In the CLI release that includes OpenCoven/coven#1124, the `Install` / `Installs` output lists every `coven` executable visible on `PATH` in resolution order, with how each was installed (npm and its prefix, `cargo install`, source build, legacy coven-code installer) and which entry is the running process. Until then, Doctor prints the older path-only list. When more than one exists, each shadowed copy gets its exact removal command, and when one of them is an npm install Doctor reports where `npm install -g` currently writes. In that release, JSON reports `install:conflicts` with the copy count and each copy's origin kind (for example `active: npm; shadowed: npm, cargo install`), but no paths, npm prefixes, or removal commands. This check appears first because every later diagnostic must describe the binary you intended to run. |
 | Store | The path Coven will use for local state. Defaults to `~/.coven` unless `COVEN_HOME` is set. |
 | Project | Whether the current directory resolves to a git/project root. |
 | Daemon | Whether the daemon is running, stale, or stopped, and which local IPC endpoint it owns. |
 | Harnesses | Whether Codex, Claude Code, GitHub Copilot CLI, or the managed Coven Code engine is available. |
-| Engine | Which `coven-code` Coven will run and whether it meets the minimum version. An advisory `engine:path` line names a `coven-code` that is first on `PATH` but is not the engine Coven runs. |
+| Engine | Which `coven-code` Coven will run and whether it meets the minimum version. In the CLI release that includes OpenCoven/coven#1124, an advisory `[--]` line names a `coven-code` that is first on `PATH` but is not the engine Coven runs; JSON reports the same condition as the path-free `engine:path` warning. |
 | Next steps | A provider-specific install, `coven setup <provider>`, or `coven run <harness> "..."` command. |
 
 `doctor` does not inspect provider credential stores and does not silently run a
@@ -61,7 +61,7 @@ coven --version
 coven doctor
 ```
 
-In the CLI release that includes OpenCoven/coven#1124, Doctor can also print an npm-prefix advisory (outside `Installs:`) when `npm install -g` writes to a shadowed copy. In that case, the documented upgrade command never touches the binary your shell runs. Use this prefix-explicit upgrade until the extra copies are gone:
+In the CLI release that includes OpenCoven/coven#1124, when copies conflict and at least one is an npm install, Doctor also asks npm where `npm install -g` writes and prints the answer as the last line of the `Installs:` block. A `[!!]` line means that prefix holds a shadowed copy or no `coven` on `PATH` at all, so the documented upgrade command never touches the binary your shell runs; the line ends with the upgrade command for the active copy. If npm is missing or does not answer within five seconds, Doctor leaves the line out. For an npm active copy, use this prefix-explicit upgrade until the extra copies are gone:
 
 ```sh
 npm install -g --prefix <active-prefix> @opencoven/cli@latest
@@ -115,9 +115,9 @@ provider turn after login. See [Provider setup](/docs/cli/setup).
 
 ## Support evidence
 
-For support reports, include:
+Before sharing output, follow [Support](/docs/reference/support) to redact private data and choose the right reporting route. Include:
 
-- The exact `coven doctor` output, including `install:conflicts`.
+- Redacted `coven doctor` output, including `install:conflicts`.
 - The command you expected to work.
 - The current working directory, if it is not private.
 - Whether you use custom `COVEN_HOME`.

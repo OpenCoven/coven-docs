@@ -32,6 +32,19 @@ Set `COVEN_LEGACY_TUI=1` only when you temporarily need the older in-process sla
 
 Explicit subcommands such as `coven run`, `coven daemon`, and `coven sessions` are never redirected — only the interactive entry point hands off. See [Core concepts](/docs/guide/concepts) for the ownership boundary.
 
+## Terminal appearance
+
+For explicit native CLI commands, `--theme auto|light|dark` selects the palette
+for the terminal background. `auto` uses `COVEN_THEME`, then `COLORFGBG`, and
+falls back to dark without querying the terminal:
+
+```bash
+coven --theme light doctor
+```
+
+`--color` separately controls ANSI output. See the
+[CLI color and palette rules](/docs/cli#configuration-paths-reset-and-color).
+
 ## Terminal routing
 
 When stdin and stdout are both terminals, `coven` opens the managed interactive UI. When you pass a bare prompt, Coven routes the text as a Cast prompt instead of opening the interactive surface:

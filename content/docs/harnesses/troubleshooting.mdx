@@ -21,6 +21,7 @@ The doctor output tells you whether Coven can see the store, project, daemon, so
 | --- | --- | --- |
 | Harness is `missing` | Binary is not on daemon `PATH` | Install it, restart daemon, rerun `coven doctor`. |
 | `unsupported harness` | Harness id is not registered | Use a built-in id (`codex`, `claude`, `coven-code`, `copilot`) or install an adapter recipe (`coven adapter install grok`). |
+| `declares interpreter executable` or `prompt-evaluating flag` | An external adapter manifest names a shell or interpreter, or puts a flag such as `-c` in a prompt-prefix list | Fix or remove the manifest the error names; see [Prompt safety](/docs/harnesses/custom-adapters#prompt-safety). |
 | Provider login prompt or auth error | Harness credentials are missing or expired | Run `codex login`, `claude doctor`, or `copilot login`. |
 | cwd validation error | Working directory escapes project root | Use a cwd inside the project. |
 | Session exits immediately | Harness CLI failed before work began | Attach or inspect events, then run the harness directly once. |

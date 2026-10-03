@@ -26,7 +26,10 @@ export async function GET(req: NextRequest) {
         <div
           style={{
             position: 'absolute',
-            inset: 0,
+            top: 0,
+            right: 0,
+            bottom: 0,
+            left: 0,
             backgroundImage:
               'linear-gradient(rgba(142,61,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(142,61,255,0.05) 1px, transparent 1px)',
             backgroundSize: '60px 60px',
@@ -37,7 +40,10 @@ export async function GET(req: NextRequest) {
         <div
           style={{
             position: 'absolute',
-            inset: 0,
+            top: 0,
+            right: 0,
+            bottom: 0,
+            left: 0,
             background:
               'radial-gradient(ellipse 70% 60% at 25% 55%, rgba(142,61,255,0.13) 0%, transparent 65%)',
           }}
@@ -47,7 +53,10 @@ export async function GET(req: NextRequest) {
         <div
           style={{
             position: 'absolute',
-            inset: '20px',
+            top: '20px',
+            right: '20px',
+            bottom: '20px',
+            left: '20px',
             border: '1px solid rgba(142,61,255,0.18)',
             borderRadius: '16px',
           }}
@@ -58,9 +67,9 @@ export async function GET(req: NextRequest) {
           style={{
             position: 'absolute',
             top: '20px',
+            bottom: '20px',
             left: '20px',
             width: '3px',
-            height: 'calc(100% - 40px)',
             background: '#8E3DFF',
             borderRadius: '3px 0 0 3px',
           }}
@@ -89,11 +98,11 @@ export async function GET(req: NextRequest) {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                fontSize: '22px',
-                color: '#C9A7FF',
               }}
             >
-              ✦
+              <svg width="22" height="22" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2 14.8 9.2 22 12 14.8 14.8 12 22 9.2 14.8 2 12 9.2 9.2Z" fill="#C9A7FF" />
+              </svg>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
               <span

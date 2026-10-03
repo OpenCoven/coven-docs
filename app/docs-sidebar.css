@@ -1,0 +1,393 @@
+/* ─────────────────────────────────────────
+   Docs sidebar
+   A quiet list: muted labels with no per-row chrome, one violet tint on the
+   current page, hairline controls. Fumadocs builds the sidebar from Tailwind
+   utilities inside @layer, so these unlayered rules win without !important
+   except where another !important rule is in the way.
+   #nd-sidebar is the desktop aside; #nd-sidebar-mobile is the drawer.
+───────────────────────────────────────── */
+
+:is(#nd-sidebar, #nd-sidebar-mobile) {
+  --coven-sidebar-rule: color-mix(in oklab, var(--color-fd-foreground) 9%, transparent);
+  --coven-sidebar-hover: color-mix(in oklab, var(--color-fd-foreground) 5%, transparent);
+  --coven-sidebar-active: color-mix(in oklab, var(--coven-docs-violet) 13%, transparent);
+
+  /* Re-point Fumadocs tokens so its own borders, folder guide lines, and the
+   * nested active bar pick up the hairline and the brand violet. */
+  --color-fd-border: var(--coven-sidebar-rule);
+  --color-fd-primary: var(--coven-docs-violet);
+}
+
+/* Same surface as the page; a hairline carries the edge. */
+#nd-sidebar {
+  background: var(--color-fd-background);
+}
+
+/* ── Search: a hairline field rather than a filled box ── */
+
+:is(#nd-sidebar, #nd-sidebar-mobile) [data-search-full] {
+  height: 2.25rem;
+  border-radius: 8px;
+  background: transparent;
+  padding-inline: 0.625rem 0.4375rem;
+  font-size: 0.8125rem;
+}
+
+:is(#nd-sidebar, #nd-sidebar-mobile) [data-search-full]:hover {
+  background: var(--coven-sidebar-hover);
+  color: var(--color-fd-foreground);
+}
+
+:is(#nd-sidebar, #nd-sidebar-mobile) [data-search-full] kbd {
+  display: inline-grid;
+  min-width: 1.25rem;
+  height: 1.25rem;
+  place-items: center;
+  border: 0;
+  border-radius: 4px;
+  background: var(--coven-sidebar-hover);
+  padding: 0 0.25rem;
+  font-family: var(--oc-font-mono);
+  font-size: 0.6875rem;
+}
+
+/* ── Section switcher: one row of icon, title, chevrons ──
+ * Fumadocs hides the description from md up; the popover still shows it. */
+
+:is(#nd-sidebar, #nd-sidebar-mobile) button[aria-haspopup="dialog"] {
+  gap: 0.625rem;
+  border-radius: 8px;
+  background: transparent;
+  padding: 0.4375rem 0.5rem 0.4375rem 0.625rem;
+  color: var(--color-fd-foreground);
+}
+
+:is(#nd-sidebar, #nd-sidebar-mobile) button[aria-haspopup="dialog"]:is(:hover, [data-state="open"]) {
+  background: var(--coven-sidebar-hover);
+  color: var(--color-fd-foreground);
+}
+
+:is(#nd-sidebar, #nd-sidebar-mobile) button[aria-haspopup="dialog"] > div {
+  min-width: 0;
+}
+
+@media (min-width: 768px) {
+  #nd-sidebar button[aria-haspopup="dialog"] > div:first-child {
+    width: 1rem;
+    height: 1rem;
+    color: var(--coven-docs-violet);
+  }
+}
+
+/* Popover rows (portaled to body): keep each description on one line. */
+[data-radix-popper-content-wrapper] a[class*="rounded-lg"][class*="p-1.5"] > div {
+  min-width: 0;
+}
+
+/* The site-wide a:hover lavender is unreadable on the light accent fill. */
+[data-radix-popper-content-wrapper] a[class*="rounded-lg"][class*="p-1.5"]:hover {
+  color: var(--color-fd-accent-foreground);
+}
+
+[data-radix-popper-content-wrapper] a[class*="rounded-lg"][class*="p-1.5"] p.text-fd-muted-foreground {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── Page tree ── */
+
+/* Fumadocs pads the viewport by 1rem on every side; the header above already
+ * ends in its own padding, so trim the top. */
+:is(#nd-sidebar, #nd-sidebar-mobile) [data-radix-scroll-area-viewport] {
+  padding-top: 0.5rem;
+}
+
+:is(#nd-sidebar, #nd-sidebar-mobile) [data-radix-scroll-area-viewport] :is(a[data-active], button[aria-expanded]) {
+  min-width: 0;
+  border-radius: 6px;
+  padding-block: 0.375rem;
+  padding-inline-end: 0.5rem;
+  color: var(--color-fd-muted-foreground);
+  line-height: 1.35;
+  transition:
+    background-color 150ms ease,
+    color 150ms ease;
+}
+
+/* Instant on the way in, eased on the way out. */
+:is(#nd-sidebar, #nd-sidebar-mobile) [data-radix-scroll-area-viewport] :is(a[data-active], button[aria-expanded]):hover {
+  background: var(--coven-sidebar-hover);
+  color: var(--color-fd-foreground);
+  transition-duration: 0ms;
+}
+
+/* !important to outrank the site-wide active-link colour in globals.css. */
+:is(#nd-sidebar, #nd-sidebar-mobile) [data-radix-scroll-area-viewport] a[data-active="true"] {
+  background: var(--coven-sidebar-active);
+  color: var(--coven-docs-violet) !important;
+  font-weight: 500;
+}
+
+/* Folder headings read a step stronger than the pages inside them. */
+:is(#nd-sidebar, #nd-sidebar-mobile) [data-radix-scroll-area-viewport] button[aria-expanded] {
+  color: var(--color-fd-foreground);
+  font-weight: 500;
+}
+
+/* Folder chevrons; Fumadocs marks them with data-icon. */
+:is(#nd-sidebar, #nd-sidebar-mobile) [data-radix-scroll-area-viewport] :is(a, button) > svg[data-icon] {
+  width: 0.875rem;
+  height: 0.875rem;
+  color: var(--color-fd-muted-foreground);
+}
+
+/* API method badges: pinned to the first line so long labels can wrap. */
+:is(#nd-sidebar, #nd-sidebar-mobile) [data-radix-scroll-area-viewport] a[data-active] > span.font-mono {
+  align-self: flex-start;
+  font-size: 0.625rem;
+  letter-spacing: 0.04em;
+  line-height: 1.1875rem;
+  opacity: 0.85;
+}
+
+:is(#nd-sidebar, #nd-sidebar-mobile) :is(a, button):focus-visible {
+  outline: 2px solid var(--coven-docs-violet);
+  outline-offset: -2px;
+}
+
+/* ── Footer: icon links and the theme toggle on one bare row ── */
+
+#nd-sidebar > div:has(> div > [data-theme-toggle]) {
+  border-top: 1px solid var(--coven-sidebar-rule);
+  padding-block: 0.75rem;
+}
+
+#nd-sidebar div:has(> [data-theme-toggle]) {
+  gap: 0.125rem;
+  border: 0;
+  background: transparent;
+  padding: 0;
+}
+
+#nd-sidebar div:has(> [data-theme-toggle]) > a {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 6px;
+  color: var(--color-fd-muted-foreground);
+}
+
+#nd-sidebar div:has(> [data-theme-toggle]) > a:hover {
+  background: var(--coven-sidebar-hover);
+  color: var(--color-fd-foreground);
+}
+
+#nd-sidebar [data-theme-toggle] {
+  gap: 0.125rem;
+  border: 1px solid var(--coven-sidebar-rule);
+  border-radius: 999px;
+  padding: 0.125rem;
+}
+
+#nd-sidebar [data-theme-toggle] > svg {
+  width: 1.625rem;
+  height: 1.625rem;
+  border-radius: 999px;
+}
+
+/* ─────────────────────────────────────────
+   Collapse rail (components/sidebar-rail.tsx)
+   A full-height strip centred on the sidebar's edge. Hover lights the edge
+   and raises a handle; click or ⌘\ toggles. Collapsed, the rail parks on the
+   left edge with its handle showing, so the way back is always visible.
+───────────────────────────────────────── */
+
+/* The rail replaces Fumadocs' collapse buttons (sidebar header and the
+ * floating panel shown while collapsed) and its hover-to-peek strip. */
+#nd-sidebar button[data-collapsed],
+[data-sidebar-panel] button[data-collapsed],
+[data-sidebar-placeholder] > div:not(#nd-sidebar) {
+  display: none;
+}
+
+/* What is left of the floating panel is a search button; keep it quiet and
+ * clear of the collapsed rail. */
+[data-sidebar-panel] {
+  inset-inline-start: 1.75rem;
+  border-color: color-mix(in oklab, var(--color-fd-foreground) 10%, transparent);
+  background: var(--color-fd-background);
+  box-shadow: none;
+}
+
+.coven-sidebar-rail {
+  --rail-width: 1rem;
+  --rail-ease: cubic-bezier(0.4, 0, 0.2, 1); /* matches the sidebar slide */
+
+  position: fixed;
+  z-index: 25;
+  inset-block: 0;
+  inset-inline-start: calc(var(--fd-sidebar-col, 0px) - var(--rail-width) / 2);
+  width: var(--rail-width);
+  border: 0;
+  background: transparent;
+  padding: 0;
+  cursor: w-resize;
+  transition: inset-inline-start 250ms var(--rail-ease);
+}
+
+/* Collapsed: a 1.25rem strip on the left edge. The handle hangs past the
+ * strip's right side so it stays whole; it is still part of the button. */
+.coven-sidebar-rail[data-collapsed='true'] {
+  --rail-width: 1.25rem;
+  inset-inline-start: 0;
+  cursor: e-resize;
+}
+
+/* The lit edge. */
+.coven-sidebar-rail::before {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: calc(50% - 1px);
+  width: 2px;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    var(--coven-docs-violet) 25%,
+    var(--coven-docs-violet) 75%,
+    transparent
+  );
+  content: '';
+  opacity: 0;
+  transition: opacity 150ms ease;
+}
+
+.coven-sidebar-rail[data-collapsed='true']::before {
+  inset-inline-start: 0;
+}
+
+.coven-sidebar-rail-handle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: grid;
+  width: 1.5rem;
+  height: 1.5rem;
+  place-items: center;
+  border: 1px solid color-mix(in oklab, var(--color-fd-foreground) 12%, transparent);
+  border-radius: 999px;
+  background: var(--color-fd-background);
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.12);
+  color: var(--color-fd-muted-foreground);
+  opacity: 0;
+  translate: -50% -50%;
+  transition:
+    opacity 150ms ease,
+    color 150ms ease;
+}
+
+.coven-sidebar-rail-handle svg {
+  width: 0.875rem;
+  height: 0.875rem;
+  transition: rotate 250ms var(--rail-ease);
+}
+
+.coven-sidebar-rail[data-collapsed='true'] .coven-sidebar-rail-handle {
+  left: 0.25rem;
+  opacity: 1;
+  translate: 0 -50%;
+}
+
+.coven-sidebar-rail[data-collapsed='true'] .coven-sidebar-rail-tip {
+  left: 2.25rem;
+}
+
+.coven-sidebar-rail[data-collapsed='true'] .coven-sidebar-rail-handle svg {
+  rotate: 180deg;
+}
+
+.coven-sidebar-rail-tip {
+  position: absolute;
+  top: 50%;
+  left: calc(50% + 1.125rem);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: 1px solid color-mix(in oklab, var(--color-fd-foreground) 10%, transparent);
+  border-radius: 6px;
+  background: var(--color-fd-popover);
+  box-shadow: 0 6px 16px rgb(0 0 0 / 0.14);
+  padding: 0.25rem 0.375rem 0.25rem 0.5rem;
+  color: var(--color-fd-popover-foreground);
+  font-size: 0.75rem;
+  opacity: 0;
+  pointer-events: none;
+  translate: -4px -50%;
+  white-space: nowrap;
+  transition:
+    opacity 150ms ease,
+    translate 150ms ease;
+}
+
+.coven-sidebar-rail-tip kbd {
+  border-radius: 4px;
+  background: color-mix(in oklab, var(--color-fd-foreground) 7%, transparent);
+  padding: 0 0.3rem;
+  color: var(--color-fd-muted-foreground);
+  font-family: var(--oc-font-mono);
+  font-size: 0.6875rem;
+}
+
+/* A short delay on the way in keeps the edge quiet when the pointer only
+ * passes over it; leaving is immediate. */
+.coven-sidebar-rail:is(:hover, :focus-visible)::before {
+  opacity: 0.6;
+  transition-delay: 100ms;
+}
+
+.coven-sidebar-rail:is(:hover, :focus-visible) .coven-sidebar-rail-handle {
+  color: var(--color-fd-foreground);
+  opacity: 1;
+  transition-delay: 100ms;
+}
+
+.coven-sidebar-rail:hover .coven-sidebar-rail-tip {
+  opacity: 1;
+  translate: 0 -50%;
+  transition-delay: 500ms;
+}
+
+.coven-sidebar-rail:focus-visible {
+  outline: none;
+}
+
+.coven-sidebar-rail:focus-visible .coven-sidebar-rail-handle {
+  outline: 2px solid var(--coven-docs-violet);
+  outline-offset: 2px;
+}
+
+.coven-sidebar-rail:focus-visible .coven-sidebar-rail-tip {
+  opacity: 1;
+  translate: 0 -50%;
+}
+
+@media (max-width: 767px) {
+  .coven-sidebar-rail {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .coven-sidebar-rail,
+  .coven-sidebar-rail::before,
+  .coven-sidebar-rail-handle,
+  .coven-sidebar-rail-handle svg,
+  .coven-sidebar-rail-tip {
+    transition: none;
+  }
+}
+
+@media print {
+  .coven-sidebar-rail {
+    display: none;
+  }
+}

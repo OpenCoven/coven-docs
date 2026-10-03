@@ -94,6 +94,7 @@ export default async function Page({ params }: { params: Promise<{ slug?: string
   if (!page) notFound();
 
   const MDX = page.data.body;
+  const isPortal = page.slugs.length === 0;
   const githubUrl = `https://github.com/${REPO}/blob/main/content/docs/${page.path}`;
   const issueUrl = buildIssueUrl(page);
   const feedbackUrl = buildFeedbackUrl(page);
@@ -108,33 +109,39 @@ export default async function Page({ params }: { params: Promise<{ slug?: string
         toc={page.data.toc}
         full={page.data.full}
         tableOfContent={{ style: 'clerk' }}
-        breadcrumb={{ includePage: true, includeRoot: true }}
+        breadcrumb={{ enabled: !isPortal, includePage: true, includeRoot: true }}
         slots={{ footer: PageNavFooter }}
       >
-        <header className="coven-docs-page-header">
-          <div className="coven-docs-page-toolbar not-prose">
-            <a
-              href={issueUrl}
-              target="_blank"
-              rel="noreferrer noopener"
-              aria-label="Report an issue with this page on GitHub"
-              className={`${buttonVariants({ color: 'secondary', size: 'sm' })} gap-1.5`}
-            >
-              <Icon icon="ph:bug-duotone" width={14} aria-hidden="true" />
-              Report issue
-            </a>
-            <ViewOptionsPopover githubUrl={githubUrl} />
-          </div>
-          <DocsStatus sectionSlug={page.slugs[0]} />
-          <DocsTitle>{page.data.title}</DocsTitle>
-          <DocsDescription>{page.data.description}</DocsDescription>
-          {readingMinutes !== null && (
-            <p className="coven-docs-reading-time not-prose">
-              <Icon icon="ph:clock-duotone" width={13} aria-hidden="true" />
-              {readingMinutes} min read
-            </p>
-          )}
-        </header>
+        {/* The docs root renders its own hero (DocsPortal). */}
+        {!isPortal && (
+          <header className="coven-docs-page-header">
+            <div className="coven-docs-page-meta not-prose">
+              <DocsStatus sectionSlug={page.slugs[0]} />
+              <div className="coven-docs-page-toolbar">
+                <a
+                  href={issueUrl}
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  aria-label="Report an issue with this page on GitHub"
+                  className={`${buttonVariants({ color: 'secondary', size: 'sm' })} gap-1.5`}
+                >
+                  <Icon icon="ph:bug-duotone" width={14} aria-hidden="true" />
+                  Report issue
+                </a>
+                <ViewOptionsPopover githubUrl={githubUrl} />
+              </div>
+            </div>
+            <DocsTitle>{page.data.title}</DocsTitle>
+            <DocsDescription>{page.data.description}</DocsDescription>
+            <div className="coven-docs-seal-rule not-prose">
+              <span className="coven-docs-seal" aria-hidden="true" />
+              <span className="coven-docs-seal-line" aria-hidden="true" />
+              {readingMinutes !== null && (
+                <p className="coven-docs-reading-time">{readingMinutes} min read</p>
+              )}
+            </div>
+          </header>
+        )}
         <DocsBody>
           <MDX components={getMDXComponents()} />
         </DocsBody>

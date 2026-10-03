@@ -33,15 +33,14 @@ export function DocsStatus({ sectionSlug }: DocsStatusProps) {
         />
         {getStabilityLabel(section.stability)}
       </span>
-      <span className="coven-docs-status-section">{section.title}</span>
-      <span className="coven-docs-status-separator" aria-hidden="true">/</span>
       <a
         href={`https://github.com/${section.sourceRepo}`}
         target="_blank"
         rel="noreferrer noopener"
         className="coven-docs-status-source"
       >
-        Contract · {section.sourceRepo}
+        <span className="coven-docs-status-label">Contract</span>
+        {section.sourceRepo}
         <Icon icon="ph:arrow-up-right" width={12} aria-hidden="true" />
       </a>
     </div>

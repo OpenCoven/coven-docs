@@ -3,8 +3,9 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import process from 'node:process';
 import puppeteer from 'puppeteer';
+import { smokeFonts } from './smoke-fonts.mjs';
+import { assertOgRenderLogs, smokeOg } from './smoke-og.mjs';
 
-const pnpm = process.platform === 'win32' ? 'pnpm.cmd' : 'pnpm';
 const port = Number(process.env.DOCS_SMOKE_PORT ?? 4173);
 const baseUrl = `http://127.0.0.1:${port}`;
 const evidenceDir = resolve(process.env.DOCS_SMOKE_OUTPUT ?? 'output/docs-smoke');
@@ -16,6 +17,10 @@ const report = {
   buildCommit: null,
   routes: [],
   mobile: [],
+  navigation: [],
+  followOns: [],
+  fonts: null,
+  ogImages: [],
   journeys: {},
   error: null,
 };
@@ -24,7 +29,7 @@ const requiredJourneys = ['start', 'troubleshoot', 'reference', 'integration'];
 
 await mkdir(evidenceDir, { recursive: true });
 
-const server = spawn(pnpm, ['exec', 'next', 'start', '-p', String(port)], {
+const server = spawn(process.execPath, [resolve('node_modules/next/dist/bin/next'), 'start', '-p', String(port)], {
   cwd: process.cwd(),
   env: {
     ...process.env,
@@ -130,6 +135,9 @@ try {
   await page.setCacheEnabled(false);
   await page.setViewport({ width: 1440, height: 1000 });
 
+  report.ogImages = await smokeOg(page, baseUrl, evidenceDir);
+  assertOgRenderLogs(output);
+
   const pageErrors = [];
   page.on('pageerror', (error) => pageErrors.push(error.message));
 
@@ -160,7 +168,7 @@ try {
   }
 
   const routes = [
-    { path: '/', expectedText: 'Start a session', screenshot: 'home-desktop.png' },
+    { path: '/', expectedText: 'Choose the harness.', screenshot: 'home-desktop.png' },
     {
       path: '/docs',
       expectedText: 'From install to evidence.',
@@ -172,6 +180,13 @@ try {
       expectedText: 'Run a first session',
       stability: 'stable',
       journey: 'start',
+    },
+    {
+      path: '/docs/guide/next-steps',
+      expectedText: 'Choose your next step',
+      stability: 'stable',
+      journey: 'start',
+      screenshot: 'next-steps-desktop.png',
     },
     {
       path: '/docs/cli/setup',
@@ -190,6 +205,13 @@ try {
       expectedText: 'Troubleshooting',
       stability: 'stable',
       journey: 'troubleshoot',
+    },
+    {
+      path: '/docs/reference/support',
+      expectedText: 'Redact before you share',
+      stability: 'stable',
+      journey: 'troubleshoot',
+      screenshot: 'support-desktop.png',
     },
     {
       path: '/docs/harnesses',
@@ -218,6 +240,7 @@ try {
 
   for (const route of routes) {
     const response = await gotoAndReady(route.path, route.expectedText);
+    if (route.path === '/') report.fonts = await smokeFonts(page, baseUrl);
 
     const headers = response.headers();
     if (headers['x-coven-docs-commit'] !== report.buildCommit) {
@@ -315,7 +338,7 @@ try {
 
   await page.setViewport({ width: 390, height: 844 });
   const mobileRoutes = [
-    { path: '/', expectedText: 'Start a session', screenshot: 'home-mobile.png' },
+    { path: '/', expectedText: 'Choose the harness.', screenshot: 'home-mobile.png' },
     {
       path: '/docs',
       expectedText: 'From install to evidence.',
@@ -325,6 +348,16 @@ try {
       path: '/docs/guide/getting-started',
       expectedText: 'Run a first session',
       screenshot: 'getting-started-mobile.png',
+    },
+    {
+      path: '/docs/guide/next-steps',
+      expectedText: 'Choose your next step',
+      screenshot: 'next-steps-mobile.png',
+    },
+    {
+      path: '/docs/reference/support',
+      expectedText: 'Redact before you share',
+      screenshot: 'support-mobile.png',
     },
   ];
 
@@ -343,13 +376,127 @@ try {
     report.mobile.push({ path: route.path, width: 390, overflow });
   }
 
+  await page.setViewport({ width: 1440, height: 1000 });
+  const followOnLinks = [
+    ...[
+      ['/docs/guide/install', 'Install Coven'],
+      ['/docs/guide/getting-started', 'Getting started'],
+      ['/docs/cli/sessions', 'Sessions'],
+      ['/docs/reference/troubleshooting', 'Troubleshooting'],
+    ].map(([href, title]) => [
+      '/docs', 'From install to evidence.', href, title,
+      `main section[aria-labelledby="first-session-path"] a[href="${href}"]`,
+    ]),
+    ['/docs/guide/getting-started', 'Run a first session', '/docs/guide/next-steps', 'Next steps', 'main a#next-steps-entry'],
+    ['/docs/reference/troubleshooting', 'Troubleshooting', '/docs/reference/support', 'Support', 'main a#support-entry'],
+    ...[
+      ['/docs/cli/sessions', 'Sessions'],
+      ['/docs/cli', 'CLI Reference'],
+      ['/docs/reference/troubleshooting', 'Troubleshooting'],
+      ['/docs/cli/interactive', 'Interactive Shell and TUI'],
+      ['/docs/reference/api', 'Coven local API'],
+      ['/docs/guide/deployments', 'Deployments'],
+      ['/docs/reference/support', 'Support'],
+    ].map(([href, title]) => [
+      '/docs/guide/next-steps', 'Choose your next step', href, title,
+      `main #next-step-destinations a[href="${href}"]`,
+    ]),
+  ];
+  for (const [from, text, href, title, selector] of followOnLinks) {
+    await gotoAndReady(from, text);
+    const matches = await page.$$eval(selector, (links) => links.length);
+    if (matches !== 1) throw new Error(`${from}: expected one journey link for ${selector}, found ${matches}`);
+    await page.click(selector);
+    await page.waitForFunction(
+      (path, heading) => location.pathname === path && document.querySelector('h1')?.textContent === heading,
+      { timeout: 10_000 },
+      href,
+      title,
+    );
+    report.followOns.push({ from, to: href, title, selector });
+  }
+
+  for (const width of [320, 390, 768, 1280, 1920]) {
+    await page.setViewport({ width, height: 844 });
+    await gotoAndReady('/docs/guide/next-steps', 'Choose your next step');
+    await page.evaluate(() => history.pushState(history.state, '', '#scroll-regression'));
+    await page.goBack({ waitUntil: 'domcontentloaded' });
+    await page.waitForFunction(() => location.pathname === '/docs/guide/next-steps' && location.hash === '');
+
+    async function expectPageTop(path, title) {
+      await page.waitForFunction(
+        (expectedPath, expectedTitle) =>
+          location.pathname === expectedPath && document.querySelector('h1')?.textContent === expectedTitle,
+        { timeout: 10_000 },
+        path,
+        title,
+      );
+      await page.waitForFunction(() => window.scrollY <= 2, { timeout: 3_000 });
+      await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+      const { scrollY, overflow } = await page.evaluate(() => ({
+        scrollY: window.scrollY,
+        overflow: document.documentElement.scrollWidth > document.documentElement.clientWidth,
+      }));
+      if (overflow) throw new Error(`${path} has horizontal overflow at ${width}px`);
+      if (scrollY > 2) throw new Error(`${path} opened at scrollY=${scrollY} at ${width}px`);
+    }
+
+    await page.click('nav[aria-label="Page navigation"] a[href="/docs/guide/install"]');
+    await expectPageTop('/docs/guide/install', 'Install Coven');
+
+    await page.click('nav[aria-label="Page navigation"] a[href="/docs/guide/next-steps"]');
+    await expectPageTop('/docs/guide/next-steps', 'Next steps');
+
+    await page.goBack({ waitUntil: 'domcontentloaded' });
+    await page.waitForFunction(
+      () => location.pathname === '/docs/guide/install' &&
+        document.querySelector('h1')?.textContent === 'Install Coven' && window.scrollY > 100,
+      { timeout: 10_000 },
+    );
+    await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+    if (await page.evaluate(() => window.scrollY <= 100)) {
+      throw new Error(`Back navigation lost its restored scroll position at ${width}px`);
+    }
+
+    await gotoAndReady('/docs/guide/getting-started', 'Run a first session');
+    await page.click('a[href="/docs/reference/troubleshooting#daemon-unavailable"]');
+    await page.waitForFunction(() => {
+      const heading = document.getElementById('daemon-unavailable');
+      const top = heading?.getBoundingClientRect().top;
+      return location.hash === '#daemon-unavailable' && window.scrollY > 100 &&
+        top !== undefined && top >= 0 && top < innerHeight;
+    }, { timeout: 10_000 });
+
+    await gotoAndReady('/docs/guide/getting-started', 'Run a first session');
+    await page.evaluate(() => window.scrollTo({ top: document.scrollingElement.scrollHeight, behavior: 'instant' }));
+    if (width < 768) {
+      await page.click('button[aria-label="Open Sidebar"]');
+    }
+    const sectionButton = `${width < 768 ? '#nd-sidebar-mobile' : '#nd-sidebar'} button[aria-haspopup="dialog"]`;
+    await page.waitForFunction(
+      (selector) => {
+        const rect = document.querySelector(selector)?.getBoundingClientRect();
+        return rect && rect.left >= 0 && rect.right <= innerWidth && rect.top >= 0 && rect.bottom <= innerHeight;
+      },
+      { timeout: 5_000 },
+      sectionButton,
+    );
+    await page.click(sectionButton);
+    await page.waitForSelector('[role="dialog"] a[href="/docs/cli"]', { visible: true });
+    await page.click('[role="dialog"] a[href="/docs/cli"]');
+    await expectPageTop('/docs/cli', 'CLI Reference');
+
+    report.navigation.push({ width, footerNext: true, footerPrevious: true, history: true, heading: true, section: true });
+  }
+
+  assertOgRenderLogs(output);
   if (pageErrors.length > 0) {
     throw new Error(`Browser page errors:\n- ${pageErrors.join('\n- ')}`);
   }
 
   report.ok = true;
   console.log(
-    `Docs smoke passed for ${report.routes.length} rendered pages covering the ${requiredJourneys.join(', ')} journeys plus exports, redirects, and ${report.mobile.length} mobile views.`,
+    `Docs smoke passed for ${report.routes.length} rendered pages covering the ${requiredJourneys.join(', ')} journeys plus exports, redirects, ${report.followOns.length} journey links, ${report.mobile.length} mobile views, ${report.navigation.length} navigation widths, and ${report.ogImages.length} OG images.`,
   );
 } catch (error) {
   report.error = error instanceof Error ? error.message : String(error);
