@@ -126,6 +126,8 @@ copying an implementation detail into an external integration.
 ## Version and privacy rules
 
 `GET /api/v1/health` advertises the named `coven.daemon.v1` contract.
+Its `covenVersion` field identifies the daemon build; it is not the API
+compatibility signal.
 `GET /api/v1/api-version` is a legacy route-family diagnostic; its literal
 `v1` value is not sufficient proof that every named-contract capability exists.
 
