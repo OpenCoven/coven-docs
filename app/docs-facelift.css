@@ -285,12 +285,21 @@
 
 /* ─────────────────────────────────────────
    Body
+   Fumadocs v16 renders page content as `article#nd-page > div.prose`; MDX
+   output is the prose wrapper's direct children. (These rules once targeted
+   a `[data-docs-body]` attribute that v16 never renders, so none applied.)
 ───────────────────────────────────────── */
 
-[data-docs-body] {
+#nd-page > .prose {
   color: var(--coven-docs-ink);
   font-size: 1rem;
   line-height: 1.8;
+}
+
+/* Keep running text at a readable measure when the page fills a wide column;
+ * tables, code, and components still use the full width. */
+#nd-page > .prose > :is(p, ul, ol, blockquote) {
+  max-width: 80ch;
 }
 
 /* Section headings use the display face, as the canon binds h1–h3 to EB
@@ -314,29 +323,26 @@
   font-size: 1.5rem;
 }
 
-[data-docs-body] :is(h2, h3, h4) {
-  scroll-margin-top: 6rem;
-}
-
-[data-docs-body] > blockquote {
+#nd-page > .prose > blockquote {
   border-left-color: var(--coven-docs-violet);
   background: var(--coven-docs-panel-soft);
   color: var(--coven-docs-muted);
   padding: 0.9rem 1.1rem;
 }
 
-[data-docs-body] table {
+/* Tables sit inside a scroll wrapper, so these match descendants. */
+#nd-page > .prose table {
   overflow: hidden;
   border: 1px solid var(--coven-docs-rule);
   border-radius: 8px;
 }
 
-[data-docs-body] th {
+#nd-page > .prose th {
   background: var(--coven-docs-panel-soft);
   color: var(--coven-docs-ink);
 }
 
-[data-docs-body] :is(th, td) {
+#nd-page > .prose :is(th, td) {
   border-color: var(--coven-docs-rule) !important;
 }
 
