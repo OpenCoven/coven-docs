@@ -7,8 +7,10 @@ paths:
     post:
       description: |
         Accepts a top-level action id plus optional correlation fields and
-        action-specific top-level fields. The daemon routes only known action
-        ids; unknown actions fail closed before an adapter can run.
+        action-specific fields. Legacy action fields are top-level; the
+        versioned `coven.automations.command.v1` action carries its command
+        object in `envelope`. The daemon routes only known action ids; unknown
+        actions fail closed before an adapter can run.
 
         A successful action returns `ok: true`, `accepted: true`, and
         `status: completed`. Unversioned actions and automation reads return
@@ -30,8 +32,13 @@ paths:
         `coven.automations.*` id returns `403` with `AUTHORITY_REQUIRED`
         before the daemon opens the store.
 
-        Known action ids are discovered from `GET /capabilities`. The current
-        daemon advertises `coven.capabilities.refresh` and:
+        Known action ids are discovered from `GET /capabilities`. Automation
+        mutation and sensitive-read actions require owner-local IPC; TCP remains
+        limited to scheduling and health diagnostics. Versioned command clients
+        should read the advertised variant-negotiation profile and refuse
+        unsupported variants rather than silently downgrading.
+
+        The current daemon advertises `coven.capabilities.refresh` and:
         - `coven.automations.list`
         - `coven.automations.get`
         - `coven.automations.create`
@@ -99,7 +106,7 @@ paths:
                     name: Daily notes
                     status: PAUSED
                     rrule: FREQ=DAILY;BYHOUR=9
-                    timezone: local
+                    timezone: utc
                     misfire: latest
                     overlap: forbid
                     timeoutMinutes: 30
@@ -273,6 +280,9 @@ components:
         definition:
           type: object
           description: Required routine definition for create, update, and the versioned create and revise commands.
+        envelope:
+          type: object
+          description: Versioned `coven.automations.v1` command envelope for `coven.automations.command.v1`.
           additionalProperties: true
         adoptionKey:
           type: string

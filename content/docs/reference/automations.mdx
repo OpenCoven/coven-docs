@@ -239,7 +239,7 @@ implement with `CAPABILITY_UNSUPPORTED`; send cancellation as the flat
 
 ## Definition shape
 
-A create or update request supplies a top-level `definition` object:
+The legacy flat create/update action supplies a top-level `definition` object:
 
 ```json
 {
@@ -251,7 +251,7 @@ A create or update request supplies a top-level `definition` object:
     "name": "Daily notes",
     "status": "PAUSED",
     "rrule": "FREQ=DAILY;BYHOUR=9",
-    "timezone": "local",
+    "timezone": "utc",
     "misfire": "latest",
     "overlap": "forbid",
     "timeoutMinutes": 30,
@@ -264,7 +264,7 @@ A create or update request supplies a top-level `definition` object:
 }
 ```
 
-The v1 implementation validates:
+The legacy flat action validates:
 
 - `schemaVersion` is exactly `1`;
 - `id` is 1–96 ASCII letters, digits, `.`, `_`, or `-`;

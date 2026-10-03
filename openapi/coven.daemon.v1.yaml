@@ -871,6 +871,7 @@ components:
             executorDispatch: true
             eventCursor: sequence
             structuredErrors: true
+            sessionPolicyContracts: [coven.session-policy.v1]
           daemon:
             pid: 12345
             startedAt: 2026-05-09T12:00:00Z
@@ -906,6 +907,12 @@ components:
         structuredErrors:
           type: boolean
           description: Whether errors use the `ErrorEnvelope` shape (always `true` in `coven.daemon.v1`). The separately negotiated session-policy contract has its own closed refusal shape.
+        sessionPolicyContracts:
+          type: array
+          description: Optional refusal-only admission contracts. Missing means unavailable; owner-local IPC may advertise `coven.session-policy.v1`, while loopback TCP advertises an empty array. This is not a supported enforcement profile, identity proof, or grant.
+          items:
+            type: string
+            enum: [coven.session-policy.v1]
 
     HubHealth:
       type: object
@@ -1003,7 +1010,7 @@ components:
 
     ActionRequest:
       type: object
-      required: [action, origin, args]
+      required: [action]
       properties:
         action:
           type: string
@@ -1011,12 +1018,8 @@ components:
           examples: [coven.capabilities.refresh]
         origin:
           type: string
-          description: Caller identifier, for audit and event correlation.
+          description: Optional caller identifier for audit and event correlation.
           examples: [coven-client]
-        args:
-          type: object
-          description: Action-specific arguments. May be empty.
-          additionalProperties: true
       examples:
         - action: coven.capabilities.refresh
           origin: coven-client

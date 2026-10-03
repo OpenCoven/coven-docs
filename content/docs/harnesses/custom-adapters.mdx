@@ -77,7 +77,6 @@ Other fields are not checked for these flags, so `model_arg_template: "-c model=
 A rejected adapter fails the whole manifest load. Until you fix it, `coven run` (for every harness, built-ins included), `coven doctor`, `coven adapter list`, and `coven adapter doctor` exit with an error that names the manifest path, the adapter id, and the rejected executable or field.
 
 To fix it, point `executable` at the real harness CLI on the daemon's `PATH` and let it take the prompt as data. Do not work around the check with `sh -c`, an interpreter wrapper script, or by moving the flag to another field. Coven re-reads manifest files on every launch; if you changed `COVEN_HARNESS_ADAPTER_MANIFEST` or `COVEN_HARNESS_ADAPTER_DIRS`, run `coven daemon restart` so the daemon sees the new value. Then run `coven adapter doctor <id>`.
-
 These checks block known interpreter names; they are not a sandbox. Review the manifest and the binary its `executable` resolves to, because external adapters run with your user's authority.
 
 ## Review checklist

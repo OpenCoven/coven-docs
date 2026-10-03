@@ -82,8 +82,9 @@ not an enforcement profile, identity proof, or grant.
 ## Action router
 
 The action router accepts a top-level `action` string plus optional `origin` and
-`intentId` correlation fields. Action-specific fields are also top-level; there
-is no generic `args` wrapper in the current daemon implementation.
+`intentId` correlation fields. Legacy action-specific fields are top-level; the
+versioned `coven.automations.command.v1` action instead carries its command
+object in `envelope`.
 
 ```json
 {
@@ -134,6 +135,20 @@ are available only through the narrow
 `GET /api/v1/sessions/{sessionId}/artifacts/{artifactId}?raw=1` route when raw
 artifact persistence is explicitly enabled. Otherwise the daemon returns a
 structured `raw_artifact_requires_raw_flag` or `raw_artifacts_disabled` error.
+
+## Session-policy discovery
+
+`GET /api/v1/session-policy` and `POST /api/v1/sessions/restricted` are a
+separately negotiated `coven.session-policy.v1` surface, not part of the stable
+OpenAPI subset above. The health response may advertise
+`capabilities.sessionPolicyContracts`; it contains
+`["coven.session-policy.v1"]` over owner-local IPC and an empty array over
+loopback TCP. Missing capability data means the contract is unavailable.
+
+This contract is refusal-only: no production harness has a verified
+enforcement backend, and a valid restricted request is refused before store or
+runtime access. Discovery is not permission or proof of enforcement. Do not
+retry a restricted request through `POST /api/v1/sessions`.
 
 ## Rust client and peer replacement
 
