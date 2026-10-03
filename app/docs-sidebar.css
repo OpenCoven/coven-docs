@@ -135,6 +135,14 @@
   font-weight: 500;
 }
 
+/* A group whose header is also a page (a route group with a `pagesIndex`)
+ * renders as a link with a chevron; give it the same weight as the other
+ * folder headings. The current page keeps its active colour. */
+:is(#nd-sidebar, #nd-sidebar-mobile) [data-radix-scroll-area-viewport] a[data-active='false']:has(> svg[data-icon]) {
+  color: var(--color-fd-foreground);
+  font-weight: 500;
+}
+
 /* Folder chevrons; Fumadocs marks them with data-icon. */
 :is(#nd-sidebar, #nd-sidebar-mobile) [data-radix-scroll-area-viewport] :is(a, button) > svg[data-icon] {
   width: 0.875rem;

@@ -1,0 +1,10 @@
+{
+  "title": "Models",
+  "pagesIndex": "models",
+  "pages": [
+    "provider-boundary",
+    "openai",
+    "anthropic",
+    "local-models"
+  ]
+}
