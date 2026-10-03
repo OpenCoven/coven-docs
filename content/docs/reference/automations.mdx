@@ -12,16 +12,34 @@ home directory.
 Automations are exposed through the `coven.automations` capability and the
 versioned `POST /api/v1/actions` router. Always call
 `GET /api/v1/capabilities` first and use only action ids advertised by the live
-daemon.
+daemon. This page describes the current source contract; an older installed
+daemon advertises fewer actions.
+
+## Owner-local access
+
+Send automation actions to the owner-local IPC endpoint: the Unix socket or
+the Windows named pipe. If you run the optional loopback TCP listener, only
+these diagnostic reads answer over it: `coven.automations.health`,
+`coven.automations.definition.health.v1`,
+`coven.automations.scheduler.status.v1`,
+`coven.automations.occurrence.list.v1`, and
+`coven.automations.occurrence.history.v1`. Every other `coven.automations.*`
+action, including reads that return prompts, run logs, receipts, or event
+checkpoints, returns HTTP `403` with error code `AUTHORITY_REQUIRED` before the
+daemon opens its store. `origin`, `intentId`, and other caller-supplied
+identity fields never grant access.
 
 ## Safety defaults
 
-- Imported legacy routines are created as `PAUSED`; import never opts them into execution.
+- `coven.automations.import` creates legacy routines as `PAUSED` and `coven.automations.legacy.import.v1` creates them as drafts; import never opts them into execution.
 - Unsupported recurrence values fail validation rather than being approximated.
 - Overlap policy is `forbid` and misfire recovery is `latest` in the v1 definition shape.
 - A run without an explicit `cwd` fails instead of guessing a project.
 - Scheduled and manual runs use the same validated session-launch path.
-- The daemon processes the scheduler on a 60-second cadence and records occurrence and run state durably.
+- The daemon runs a scheduler pass every 60 seconds and right after a successful definition change, manual run, `tick`, or `unquarantine`. It records occurrence and run state durably.
+- One scheduler at a time claims and dispatches work for a `COVEN_HOME`, fenced by `$COVEN_HOME/automations-scheduler.lock` and a generation stored in SQLite. Keep the lock file and the SQLite store on one local filesystem; network filesystems are not supported.
+- `outputTarget` is refused until atomic delivery is certified.
+- A routine that exhausts its retry policy is quarantined: it stops planning and refuses manual runs until you call `coven.automations.unquarantine`.
 
 Review a definition before changing its status to `ACTIVE`. Provider credentials
 remain owned by the selected runtime or harness and must not be embedded in the
@@ -30,7 +48,12 @@ automation definition or action envelope.
 ## Action envelope
 
 Automation arguments are top-level fields in the action request. `origin` and
-`intentId` are optional correlation fields.
+`intentId` are optional correlation fields. On `coven.automations.create`,
+`.update`, and `.delete`, `intentId` is also an idempotency key: repeating the
+same request with the same `intentId` returns the first result, and a different
+request with a reused `intentId` is rejected. Use a new `intentId` for each
+intended change. `coven.automations.run.cancel.v1` accepts only its own fields,
+so leave `origin` and `intentId` off that request.
 
 ```json
 {
@@ -64,13 +87,31 @@ action:
 }
 ```
 
-`accepted: true` proves that the router accepted the known action. It does not
-by itself prove that the requested automation operation succeeded. Inspect
-`event.payload.error` and action-specific result fields before reporting
-success. Malformed envelopes, missing required fields, and unknown action ids
-fail closed with HTTP `400`.
+A successful action returns `ok: true`, `accepted: true`, and
+`status: "completed"`. A failed action returns `ok: false`, `accepted: false`,
+`status: "rejected"`, and the cause in `reason`. Unversioned actions report
+failures with HTTP `400`. Versioned actions (ids ending in `.v1`) and the
+owner-local check also return a typed `error` with `code`, `httpStatus`,
+`message`, and `retryable`, and the HTTP status matches `error.httpStatus`:
+for example `VALIDATION_FAILED` (`400`), `AUTHORITY_REQUIRED` (`403`),
+`NOT_FOUND` (`404`), `REVISION_CONFLICT` and `ADOPTION_REPLAY_MISMATCH`
+(`409`), `GONE_TOMBSTONED` and `CURSOR_EXPIRED` (`410`), and
+`CAPABILITY_UNSUPPORTED` or `ILLEGAL_TRANSITION` (`422`). Branch on
+`error.code`, not `reason`. Malformed bodies, missing required fields, and
+unknown action ids fail closed with HTTP `400`.
+
+`accepted: true` on `coven.automations.run` means Coven started or scheduled
+the run, not that it finished; see [Manual runs and health](#manual-runs-and-health).
 
 ## Supported actions
+
+The daemon advertises 32 `coven.automations.*` action ids. Unversioned actions
+and the definition, run, occurrence, health, and scheduler reads return their
+data in `event.payload`. Versioned commands, event pages, and receipt reads
+return it in a top-level `result`; a versioned command that commits also
+returns an event.
+
+### Unversioned actions
 
 | Action | Required fields | Result |
 | --- | --- | --- |
@@ -79,11 +120,140 @@ fail closed with HTTP `400`.
 | `coven.automations.create` | `definition` | created routine and timestamp |
 | `coven.automations.update` | `definition` | updated routine and timestamp |
 | `coven.automations.delete` | `id` | `id` and `deleted` |
-| `coven.automations.tick` | none | planning, recovery, claim, and failure report |
-| `coven.automations.runs` | `id`; optional `limit` | recent run records; default limit `20` |
-| `coven.automations.run` | `id` | immediate run id, status, session id, and error |
+| `coven.automations.tick` | none | planning report; it plans due slots and wakes the scheduler but never claims or recovers work, so `recovered` is `0` and `claimed` is empty |
+| `coven.automations.runs` | `id`; optional `limit` | recent runs with their attempts and any cancellation; default limit `20` |
+| `coven.automations.run` | `id` | run id, status, session id, and error |
 | `coven.automations.import` | none | imported, skipped, and failure lists |
-| `coven.automations.health` | `id` | next due time, recent outcomes, lease, and staleness state |
+| `coven.automations.health` | `id` | next due time, recent outcomes, lease, retry, quarantine, and staleness state |
+| `coven.automations.unquarantine` | `id` | `automationId` and `released` |
+
+### Versioned commands
+
+| Action | Required fields | Result |
+| --- | --- | --- |
+| `coven.automations.definition.create.v1` | `definition`, `adoptionKey` | `outcome`, `revision`, and the routine |
+| `coven.automations.definition.revise.v1` | `definition`, `adoptionKey`, `expectedRevision` | `outcome`, `revision`, and the routine |
+| `coven.automations.definition.activate.v1` | `id`, `adoptionKey`, `expectedRevision`; optional `reason` | `paused` to `active` as a new revision |
+| `coven.automations.definition.pause.v1` | `id`, `adoptionKey`, `expectedRevision`; optional `reason` | `active` to `paused` as a new revision |
+| `coven.automations.definition.disable.v1` | `id`, `adoptionKey`, `expectedRevision`; optional `reason` | `disabled` as a new revision |
+| `coven.automations.definition.tombstone.v1` | `id`, `adoptionKey`, `expectedRevision` | tombstone revision; history is kept |
+| `coven.automations.legacy.import.v1` | `adoptionKey`, `source: "codex-automation-toml"`; optional `dryRun` | imported, skipped, and failure lists |
+| `coven.automations.run.cancel.v1` | `adoptionKey`, `runId`, `attemptId`, `runtimeCorrelation.sessionId`, `scope: "run"`, `reason`, `requestedBy.principalId` | cancellation record |
+| `coven.automations.command.v1` | `envelope` | a `coven.automations.v1` command response |
+
+### Reads, history, and events
+
+| Action | Required fields | Result |
+| --- | --- | --- |
+| `coven.automations.definition.list.v1` | none; optional `includeTombstoned` | `routines`, `revisionById`, and `tombstonedAtById` |
+| `coven.automations.definition.get.v1` | `id` | `routine` or `null`, `revision`, `tombstonedAt`, and the rich `definition` when one was authored through `command.v1` |
+| `coven.automations.definition.health.v1` | `id` | the same `health` as `coven.automations.health`; typed `NOT_FOUND` or `GONE_TOMBSTONED` |
+| `coven.automations.run.history.v1` | `automationId`; optional `occurrenceId`, `limit`, `cursor` | runs newest first and a `cursor` |
+| `coven.automations.run.get.v1` | `id` | one `run` with its attempts, or `null` |
+| `coven.automations.occurrence.list.v1` | `view`; optional `automationId`, `limit` | `occurrences` |
+| `coven.automations.occurrence.get.v1` | `id` | one `occurrence` with up to 20 runs, or `null` |
+| `coven.automations.occurrence.history.v1` | `automationId`; optional `limit`, `cursor` | occurrences in every state, newest first, and a `cursor` |
+| `coven.automations.scheduler.status.v1` | none | scheduler owner, generation, last pass, and queue counts |
+| `coven.automations.receipt.get.v1` | `id` | `receipt` and `verification` |
+| `coven.automations.events.read.v1` | `stream`; optional `after` or `from`, `limit` | an event page with `nextAfter` and a `checkpoint` |
+| `coven.automations.events.subscribe.v1` | `stream`; optional `after` or `checkpoint` | up to 100 events and a new `checkpoint` |
+
+`view` is `due`, `eligible`, `claimed`, `running`, or `recovery_required`.
+`due` lists every planned slot whose time has arrived; `eligible` applies the
+scheduler's own claim rules. History and occurrence reads accept `limit` from
+1 to 100 (default 20). Pass the previous page's `cursor.next` as `cursor`
+until `cursor.hasMore` is `false`. These reads never renew leases or change
+state.
+
+`stream` is an object with `kind` (`automation`, `occurrence`, `run`, or
+`feed`) and `id`; use `feed` with id `all` for every automation event in commit
+order. `events.read.v1` takes an exclusive sequence in `after` or a UTC
+timestamp in `from`, and `limit` from 1 to 1,000 (default 100). Checkpoints
+expire after 24 hours and then return `CURSOR_EXPIRED` instead of rewinding.
+
+Occurrence, run, and attempt state changes publish `occurrence.transitioned`,
+`run.transitioned`, and `attempt.transitioned` events in the same transaction
+as the change: occurrence events on the `occurrence` stream, run and attempt
+events on the `run` stream. Creating a row publishes `from: "none"`. History
+from before these events existed is not backfilled, so a stream can begin
+mid-lifecycle; treat its first prior state as unknown.
+
+`coven.automations.receipt.get.v1` returns the stored receipt with a
+`verification` summary. Current builds cannot authenticate the receipt
+producer, so `verification.status` is `unverifiable`; treat a receipt as
+integrity-checked, not as proof of what ran.
+
+## Versioned definition commands
+
+Versioned mutations take an `adoptionKey`: 8 to 200 characters, starting with
+a letter or digit, then letters, digits, `.`, `_`, `:`, or `-`. Coven stores
+the first outcome for each key in the same transaction as the change.
+Repeating the exact request returns the stored result with
+`outcome: "replayed"` and no second event. Reusing a key for a different
+request returns `ADOPTION_REPLAY_MISMATCH`. Rejections are stored too, so use a
+new key after you fix a rejected request.
+
+Revise, activate, pause, disable, and tombstone also take `expectedRevision`.
+Read the current value from `coven.automations.definition.get.v1`. A stale
+value returns `REVISION_CONFLICT` with `currentRevision` and changes nothing.
+
+```json
+{
+  "action": "coven.automations.definition.activate.v1",
+  "id": "daily-notes",
+  "adoptionKey": "activate-daily-notes-0001",
+  "expectedRevision": 1,
+  "reason": "Reviewed prompt, cwd, and schedule."
+}
+```
+
+- Activate moves a `paused` definition to `active` and re-validates it; pause
+  moves `active` to `paused`. Any other starting state is `ILLEGAL_TRANSITION`.
+- A disabled definition cannot be activated, revised, or updated.
+- A draft from `legacy.import.v1`, or an invalid definition, can only be
+  revised to `status: "PAUSED"` before you activate it.
+- `create.v1` and `revise.v1` reject unknown definition fields, and refuse any
+  variant that the `variantNegotiation` object on the `coven.automations`
+  capability does not list as supported, such as `outputTarget`, with
+  `CAPABILITY_UNSUPPORTED` naming the variant.
+- After any versioned mutation, `coven.automations.update` refuses the
+  definition and `coven.automations.delete` returns `deleted: false` and leaves
+  it in place. Use `definition.tombstone.v1` instead.
+- Versioned command names this daemon does not implement, such as
+  `coven.automations.attempt.retry.v1`, are not advertised and return
+  `CAPABILITY_UNSUPPORTED`.
+
+`coven.automations.command.v1` accepts a `coven.automations.v1` command
+envelope in `envelope` and answers with a command response in `result`.
+Envelope `definition.create.v1` and `definition.revise.v1` commands carry a
+rich `AutomationDefinition` with its JCS `integrity` digest. Create must be
+`revision: 1` in `lifecycleState: "draft"`; revise must be
+`expectedRevision + 1`. Coven runs the rich body through the same validation
+and transactions as a routine body, keeps the rich form, and returns it as
+`definition` from `coven.automations.definition.get.v1`. Delivery policies and
+activation windows are refused with `CAPABILITY_UNSUPPORTED` rather than
+dropped, and a rich request and a routine request never share an adoption key.
+The envelope also refuses `run.cancel.v1` and payload fields it does not
+implement with `CAPABILITY_UNSUPPORTED`; send cancellation as the flat
+`coven.automations.run.cancel.v1` action.
+
+For a richly authored revision, definition lifecycle events, occurrence
+list/history/get projections, `coven.automations.run.get.v1`, and Runtime
+Authority execution bindings publish the recorded document's `integrity`
+digest. The compatibility `coven.automations.runs` and
+`coven.automations.run.history.v1` projections do not expose a digest.
+Receipts produced from those bindings carry the published digest.
+Scheduling and dispatch continue to fence execution with the digest
+of the projected routine JSON; these two digests serve different purposes.
+Revisions without a rich document publish the routine digest. Historical rows
+without a stored digest remain unattributed.
+
+This behavior is present in source beginning with
+[`eb3273e`](https://github.com/OpenCoven/coven/commit/eb3273e19670d2ab5bf1374783d96c11a50b0be2).
+Existing events are immutable: v0.4.7 events retain their original routine
+digest. Receipts from older execution bindings may also name the routine
+digest of the same revision; the signed binding still determines the exact
+value to verify.
 
 ## Definition shape
 
@@ -117,18 +287,22 @@ The v1 implementation validates:
 - `schemaVersion` is exactly `1`;
 - `id` is 1–96 ASCII letters, digits, `.`, `_`, or `-`;
 - `name` is 1–160 characters;
-- `status` is `ACTIVE` or `PAUSED`;
-- `rrule` uses the supported daily/weekly recurrence subset with supported `BYHOUR` and `BYDAY` values;
-- `timezone` is `local` or `utc`;
+- `status` is `ACTIVE` or `PAUSED`; reads can also return `DISABLED` after `coven.automations.definition.disable.v1`;
+- `rrule` uses `FREQ=DAILY` or `FREQ=WEEKLY` with supported `BYHOUR` values, and `BYDAY` only for weekly rules; empty or repeated parts and repeated weekdays fail;
+- `timezone` is `utc` or an exact IANA zone name such as `America/New_York`; `local` is accepted as input only, and Coven resolves it to the host's IANA zone before storing the definition or refuses the request (on Unix, a `TZ` override must itself be `utc` or an IANA name);
 - `misfire` is `latest` and `overlap` is `forbid`;
 - `timeoutMinutes` is 1–44,640;
+- optional `retry` sets `maxAttempts` (1–10), `backoffPolicy` (`none`, `fixed`, or `exponential`), `backoffSeconds` (1–86,400, required for `fixed`), and `retryableClasses` from `transient_dispatch`, `lease_expired`, and `runtime_unavailable`;
 - `runtime` is non-empty and at most 64 characters;
 - `prompt` is non-empty;
 - optional `familiarId` is non-empty and at most 64 characters.
 
-Optional fields also include `model`, `outputTarget`, and `tags`. Treat all
-filesystem paths as host-local values. Do not copy a definition between hosts
-without reviewing its `cwd` and output target.
+Optional fields also include `model` and `tags`. `outputTarget` fails
+validation until atomic delivery is certified. In an IANA zone, a wall-clock
+slot removed by a spring-forward change does not run, and a slot repeated by a
+fall-back change runs once, at the earlier instant. Treat all filesystem paths
+as host-local values. Do not copy a definition between hosts without reviewing
+its `cwd` and `timezone`.
 
 ## Manual runs and health
 
@@ -145,18 +319,43 @@ A successful dispatch returns a run id and session id with status `running`.
 That status proves durable correlation and runtime ownership, not completion.
 The automation run remains nonterminal until the correlated session ledger
 contains authoritative terminal evidence. Launch acknowledgement, process
-output, or a dropped client connection must not be reported as success.
+output, or a dropped client connection must not be reported as success. If a
+`running` response also carries `error`, Coven kept runtime ownership but could
+not confirm the launch; treat that run as unresolved.
 
-A missing routine, missing `cwd`, or launch rejection is represented in the
-action payload as a failed result. Deadline and restart recovery settle
+If the launch fails before any process starts and the failure class is in the
+routine's `retry.retryableClasses`, the response has status `retry_scheduled`,
+a run id, no session id, and the launch error. The scheduler starts the next
+attempt after its backoff.
+
+A missing routine, missing `cwd`, quarantined routine, unsettled earlier run,
+or launch refusal returns a rejected response: HTTP `400`, `accepted: false`,
+and the cause in `reason`. Deadline and restart recovery settle
 conservatively: timeout handling requires strict process-tree containment, and
 an interrupted run stays nonterminal until Coven can prove a terminal
 disposition.
 
+Automatic retries cover only `transient_dispatch`, `lease_expired`, and
+`runtime_unavailable` failures with evidence that no process started. Each
+retry is a new attempt inside the same run and its original timeout. Backoff
+`none` retries immediately, `fixed` waits `backoffSeconds`, and `exponential`
+uses deterministic jitter capped at one day. When a routine exhausts
+`maxAttempts`, Coven fails the run and quarantines the routine until you call
+`coven.automations.unquarantine`.
+
+To cancel a run, send `coven.automations.run.cancel.v1` with the run id, the
+current attempt id from the run's `attempts`, and its session id.
+Cancellation stays a request until Coven confirms the session stopped; read
+the run's `cancellation` record for its state.
+
 Use `coven.automations.health` for the next due time, recent planning and run
-timestamps, consecutive failure count, live lease owner/expiry, and a staleness
-reason. Use `coven.automations.runs` for persisted run history rather than
-inferring completion from process output.
+timestamps, consecutive failure count, live lease owner/expiry, the current
+retry attempt (`currentAttempt`, `maxAttempts`, `retryNotBefore`), quarantine
+state (`quarantinedAt`, `quarantineFailureClass`, `quarantineReason`,
+`consecutiveExhaustions`), and a staleness reason. `nextDueAt` is `null` while
+a routine is quarantined. Use `coven.automations.runs`, or
+`coven.automations.run.history.v1` to page by cursor, for persisted run history
+rather than inferring completion from process output.
 
 See [Coven local API](/docs/reference/api) for transport and trust rules and
 [Safety](/docs/reference/safety) for the broader authority model.

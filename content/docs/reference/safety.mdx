@@ -12,11 +12,14 @@ Coven is a local authority boundary, not a prompt wrapper. It validates sensitiv
 - A harness id must be supported or explicitly registered.
 - Input and kill requests apply only to a verified live session.
 - Archive is reversible; sacrifice is explicit and refuses live sessions.
+- Clients may improve the user experience, but the daemon revalidates sensitive requests and fails closed on unknowns.
+- Capability discovery advertises available behavior; it does not grant permission.
 
 ## What stays outside Coven
 
 - Provider credentials and provider policy remain with the harness.
 - A local client cannot grant itself wider project or session authority.
 - The local socket is not a public network service.
+- External actions that affect other services require explicit approval or host-level policy.
 
 Use [Daemon security](/docs/daemon/security) for operational controls and [the API error envelope](/docs/reference/api#error-envelope) to handle rejections correctly.

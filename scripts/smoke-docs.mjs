@@ -4,7 +4,6 @@ import { resolve } from 'node:path';
 import process from 'node:process';
 import puppeteer from 'puppeteer';
 
-const pnpm = process.platform === 'win32' ? 'pnpm.cmd' : 'pnpm';
 const port = Number(process.env.DOCS_SMOKE_PORT ?? 4173);
 const baseUrl = `http://127.0.0.1:${port}`;
 const evidenceDir = resolve(process.env.DOCS_SMOKE_OUTPUT ?? 'output/docs-smoke');
@@ -16,6 +15,7 @@ const report = {
   buildCommit: null,
   routes: [],
   mobile: [],
+  navigation: [],
   journeys: {},
   error: null,
 };
@@ -24,7 +24,7 @@ const requiredJourneys = ['start', 'troubleshoot', 'reference', 'integration'];
 
 await mkdir(evidenceDir, { recursive: true });
 
-const server = spawn(pnpm, ['exec', 'next', 'start', '-p', String(port)], {
+const server = spawn(process.execPath, [resolve('node_modules/next/dist/bin/next'), 'start', '-p', String(port)], {
   cwd: process.cwd(),
   env: {
     ...process.env,
@@ -160,7 +160,7 @@ try {
   }
 
   const routes = [
-    { path: '/', expectedText: 'Start a session', screenshot: 'home-desktop.png' },
+    { path: '/', expectedText: 'Choose the harness.', screenshot: 'home-desktop.png' },
     {
       path: '/docs',
       expectedText: 'From install to evidence.',
@@ -315,7 +315,7 @@ try {
 
   await page.setViewport({ width: 390, height: 844 });
   const mobileRoutes = [
-    { path: '/', expectedText: 'Start a session', screenshot: 'home-mobile.png' },
+    { path: '/', expectedText: 'Choose the harness.', screenshot: 'home-mobile.png' },
     {
       path: '/docs',
       expectedText: 'From install to evidence.',
@@ -343,13 +343,86 @@ try {
     report.mobile.push({ path: route.path, width: 390, overflow });
   }
 
+  for (const width of [320, 390, 768, 1280, 1920]) {
+    await page.setViewport({ width, height: 844 });
+    await gotoAndReady('/docs/guide/getting-started', 'Run a first session');
+    await page.evaluate(() => history.pushState(history.state, '', '#scroll-regression'));
+    await page.goBack({ waitUntil: 'domcontentloaded' });
+    await page.waitForFunction(() => location.pathname === '/docs/guide/getting-started' && location.hash === '');
+
+    async function expectPageTop(path, title) {
+      await page.waitForFunction(
+        (expectedPath, expectedTitle) =>
+          location.pathname === expectedPath && document.querySelector('h1')?.textContent === expectedTitle,
+        { timeout: 10_000 },
+        path,
+        title,
+      );
+      await page.waitForFunction(() => window.scrollY <= 2, { timeout: 3_000 });
+      await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+      const { scrollY, overflow } = await page.evaluate(() => ({
+        scrollY: window.scrollY,
+        overflow: document.documentElement.scrollWidth > document.documentElement.clientWidth,
+      }));
+      if (overflow) throw new Error(`${path} has horizontal overflow at ${width}px`);
+      if (scrollY > 2) throw new Error(`${path} opened at scrollY=${scrollY} at ${width}px`);
+    }
+
+    await page.click('nav[aria-label="Page navigation"] a[href="/docs/guide/install"]');
+    await expectPageTop('/docs/guide/install', 'Install Coven');
+
+    await page.click('nav[aria-label="Page navigation"] a[href="/docs/guide/getting-started"]');
+    await expectPageTop('/docs/guide/getting-started', 'Getting started');
+
+    await page.goBack({ waitUntil: 'domcontentloaded' });
+    await page.waitForFunction(
+      () => location.pathname === '/docs/guide/install' &&
+        document.querySelector('h1')?.textContent === 'Install Coven' && window.scrollY > 100,
+      { timeout: 10_000 },
+    );
+    await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+    if (await page.evaluate(() => window.scrollY <= 100)) {
+      throw new Error(`Back navigation lost its restored scroll position at ${width}px`);
+    }
+
+    await gotoAndReady('/docs/guide/getting-started', 'Run a first session');
+    await page.click('a[href="/docs/reference/troubleshooting#daemon-unavailable"]');
+    await page.waitForFunction(() => {
+      const heading = document.getElementById('daemon-unavailable');
+      const top = heading?.getBoundingClientRect().top;
+      return location.hash === '#daemon-unavailable' && window.scrollY > 100 &&
+        top !== undefined && top >= 0 && top < innerHeight;
+    }, { timeout: 10_000 });
+
+    await gotoAndReady('/docs/guide/getting-started', 'Run a first session');
+    await page.evaluate(() => window.scrollTo({ top: document.scrollingElement.scrollHeight, behavior: 'instant' }));
+    if (width < 768) {
+      await page.click('button[aria-label="Open Sidebar"]');
+    }
+    const sectionButton = `${width < 768 ? '#nd-sidebar-mobile' : '#nd-sidebar'} button[aria-haspopup="dialog"]`;
+    await page.waitForFunction(
+      (selector) => {
+        const rect = document.querySelector(selector)?.getBoundingClientRect();
+        return rect && rect.left >= 0 && rect.right <= innerWidth && rect.top >= 0 && rect.bottom <= innerHeight;
+      },
+      { timeout: 5_000 },
+      sectionButton,
+    );
+    await page.click(sectionButton);
+    await page.waitForSelector('[role="dialog"] a[href="/docs/cli"]', { visible: true });
+    await page.click('[role="dialog"] a[href="/docs/cli"]');
+    await expectPageTop('/docs/cli', 'CLI Reference');
+
+    report.navigation.push({ width, footerNext: true, footerPrevious: true, history: true, heading: true, section: true });
+  }
+
   if (pageErrors.length > 0) {
     throw new Error(`Browser page errors:\n- ${pageErrors.join('\n- ')}`);
   }
 
   report.ok = true;
   console.log(
-    `Docs smoke passed for ${report.routes.length} rendered pages covering the ${requiredJourneys.join(', ')} journeys plus exports, redirects, and ${report.mobile.length} mobile views.`,
+    `Docs smoke passed for ${report.routes.length} rendered pages covering the ${requiredJourneys.join(', ')} journeys plus exports, redirects, ${report.mobile.length} mobile views, and ${report.navigation.length} navigation widths.`,
   );
 } catch (error) {
   report.error = error instanceof Error ? error.message : String(error);
