@@ -16,6 +16,7 @@ const report = {
   routes: [],
   mobile: [],
   navigation: [],
+  followOns: [],
   journeys: {},
   error: null,
 };
@@ -174,6 +175,13 @@ try {
       journey: 'start',
     },
     {
+      path: '/docs/guide/next-steps',
+      expectedText: 'Choose your next step',
+      stability: 'stable',
+      journey: 'start',
+      screenshot: 'next-steps-desktop.png',
+    },
+    {
       path: '/docs/cli/setup',
       expectedText: 'Optional verification',
       stability: 'stable',
@@ -190,6 +198,13 @@ try {
       expectedText: 'Troubleshooting',
       stability: 'stable',
       journey: 'troubleshoot',
+    },
+    {
+      path: '/docs/reference/support',
+      expectedText: 'Redact before you share',
+      stability: 'stable',
+      journey: 'troubleshoot',
+      screenshot: 'support-desktop.png',
     },
     {
       path: '/docs/harnesses',
@@ -326,6 +341,16 @@ try {
       expectedText: 'Run a first session',
       screenshot: 'getting-started-mobile.png',
     },
+    {
+      path: '/docs/guide/next-steps',
+      expectedText: 'Choose your next step',
+      screenshot: 'next-steps-mobile.png',
+    },
+    {
+      path: '/docs/reference/support',
+      expectedText: 'Redact before you share',
+      screenshot: 'support-mobile.png',
+    },
   ];
 
   for (const route of mobileRoutes) {
@@ -343,12 +368,52 @@ try {
     report.mobile.push({ path: route.path, width: 390, overflow });
   }
 
+  await page.setViewport({ width: 1440, height: 1000 });
+  const followOnLinks = [
+    ...[
+      ['/docs/guide/install', 'Install Coven'],
+      ['/docs/guide/getting-started', 'Getting started'],
+      ['/docs/cli/sessions', 'Sessions'],
+      ['/docs/reference/troubleshooting', 'Troubleshooting'],
+    ].map(([href, title]) => [
+      '/docs', 'From install to evidence.', href, title,
+      `main section[aria-labelledby="first-session-path"] a[href="${href}"]`,
+    ]),
+    ['/docs/guide/getting-started', 'Run a first session', '/docs/guide/next-steps', 'Next steps', 'main a#next-steps-entry'],
+    ['/docs/reference/troubleshooting', 'Troubleshooting', '/docs/reference/support', 'Support', 'main a#support-entry'],
+    ...[
+      ['/docs/cli/sessions', 'Sessions'],
+      ['/docs/cli', 'CLI Reference'],
+      ['/docs/reference/troubleshooting', 'Troubleshooting'],
+      ['/docs/cli/interactive', 'Interactive Shell and TUI'],
+      ['/docs/reference/api', 'Coven local API'],
+      ['/docs/guide/deployments', 'Deployments'],
+      ['/docs/reference/support', 'Support'],
+    ].map(([href, title]) => [
+      '/docs/guide/next-steps', 'Choose your next step', href, title,
+      `main #next-step-destinations a[href="${href}"]`,
+    ]),
+  ];
+  for (const [from, text, href, title, selector] of followOnLinks) {
+    await gotoAndReady(from, text);
+    const matches = await page.$$eval(selector, (links) => links.length);
+    if (matches !== 1) throw new Error(`${from}: expected one journey link for ${selector}, found ${matches}`);
+    await page.click(selector);
+    await page.waitForFunction(
+      (path, heading) => location.pathname === path && document.querySelector('h1')?.textContent === heading,
+      { timeout: 10_000 },
+      href,
+      title,
+    );
+    report.followOns.push({ from, to: href, title, selector });
+  }
+
   for (const width of [320, 390, 768, 1280, 1920]) {
     await page.setViewport({ width, height: 844 });
-    await gotoAndReady('/docs/guide/getting-started', 'Run a first session');
+    await gotoAndReady('/docs/guide/next-steps', 'Choose your next step');
     await page.evaluate(() => history.pushState(history.state, '', '#scroll-regression'));
     await page.goBack({ waitUntil: 'domcontentloaded' });
-    await page.waitForFunction(() => location.pathname === '/docs/guide/getting-started' && location.hash === '');
+    await page.waitForFunction(() => location.pathname === '/docs/guide/next-steps' && location.hash === '');
 
     async function expectPageTop(path, title) {
       await page.waitForFunction(
@@ -371,8 +436,8 @@ try {
     await page.click('nav[aria-label="Page navigation"] a[href="/docs/guide/install"]');
     await expectPageTop('/docs/guide/install', 'Install Coven');
 
-    await page.click('nav[aria-label="Page navigation"] a[href="/docs/guide/getting-started"]');
-    await expectPageTop('/docs/guide/getting-started', 'Getting started');
+    await page.click('nav[aria-label="Page navigation"] a[href="/docs/guide/next-steps"]');
+    await expectPageTop('/docs/guide/next-steps', 'Next steps');
 
     await page.goBack({ waitUntil: 'domcontentloaded' });
     await page.waitForFunction(
@@ -422,7 +487,7 @@ try {
 
   report.ok = true;
   console.log(
-    `Docs smoke passed for ${report.routes.length} rendered pages covering the ${requiredJourneys.join(', ')} journeys plus exports, redirects, ${report.mobile.length} mobile views, and ${report.navigation.length} navigation widths.`,
+    `Docs smoke passed for ${report.routes.length} rendered pages covering the ${requiredJourneys.join(', ')} journeys plus exports, redirects, ${report.followOns.length} journey links, ${report.mobile.length} mobile views, and ${report.navigation.length} navigation widths.`,
   );
 } catch (error) {
   report.error = error instanceof Error ? error.message : String(error);
