@@ -15,8 +15,42 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  verify:
-    name: Verify documentation release
+  freshness:
+    name: Verify upstream documentation source
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Test freshness and release-gate invariants
+        run: node --test scripts/check-source-drift.test.mjs scripts/docs-release-gate.test.mjs
+
+      - name: Validate source lock
+        run: node scripts/check-source-lock.mjs
+
+      - name: Verify upstream source freshness
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          DOCS_DRIFT_REPORT_PATH: output/docs-source-drift.json
+        run: node scripts/check-source-drift.mjs
+
+      - name: Upload source-drift evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: docs-source-drift-${{ github.run_id }}
+          path: output/docs-source-drift.json
+          if-no-files-found: warn
+          retention-days: 30
+
+  browser:
+    name: Certify documentation build and browser behavior
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
@@ -43,12 +77,6 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Verify upstream source freshness
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-          DOCS_DRIFT_REPORT_PATH: output/docs-source-drift.json
-        run: pnpm check:source-drift
-
       - name: Install Chrome for browser certification
         run: pnpm exec puppeteer browsers install chrome
 
@@ -70,8 +98,28 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: docs-certification-${{ github.run_id }}
-          path: |
-            output/docs-smoke/
-            output/docs-source-drift.json
+          path: output/docs-smoke/
           if-no-files-found: warn
           retention-days: 30
+
+  verify:
+    # Preserve the canonical required-check name while collecting both lanes.
+    name: Verify documentation release
+    needs: [freshness, browser]
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Require both evidence jobs to succeed
+        env:
+          DOCS_FRESHNESS_RESULT: ${{ needs.freshness.result }}
+          DOCS_BROWSER_RESULT: ${{ needs.browser.result }}
+        run: node scripts/docs-release-gate.mjs
