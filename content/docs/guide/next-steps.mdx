@@ -1,0 +1,30 @@
+---
+title: Next steps
+description: Choose a deeper Coven guide after your first recorded session.
+read_when:
+  - You finished the first-session loop and need the right deeper page by intent
+  - You want to branch into inspection, automation, recovery, the API, or contribution
+---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+
+Choose your next step after you can inspect your [first recorded session](/docs/guide/getting-started). Each card leads to the reference for that task.
+
+<Cards>
+  <Card title="Inspect or revisit a session" href="/docs/cli/sessions" description="Read logs and events, attach to live work, or restore an archived record." />
+  <Card title="Automate or pull JSON" href="/docs/cli" description="Find commands and structured output for scripts and local clients." />
+  <Card title="Recover from a broken local state" href="/docs/reference/troubleshooting" description="Follow the doctor-first recovery tree, then use Support when you need to escalate safely." />
+  <Card title="Use the interactive engine" href="/docs/cli/interactive" description="Learn how Coven opens the managed Coven Code UI and how explicit commands differ." />
+  <Card title="Build against the API" href="/docs/reference/api" description="Start with the narrative local API guide, then jump into the generated endpoint reference." />
+  <Card title="Run Coven remotely or on headless hosts" href="/docs/guide/deployments" description="Keep the same local daemon contract while operating over SSH, service managers, or containers." />
+  <Card title="Contribute or report docs issues" href="/docs/reference/support" description="Collect safe diagnostics, open the right issue, or jump to the community." />
+</Cards>
+
+## Go deeper
+
+- For daemon restart and orphaned sessions, read [Daemon lifecycle](/docs/daemon/lifecycle). Restoring an archived record does not rerun its work.
+- For scripted launches and structured output, use [Run](/docs/cli/run) and [Sessions](/docs/cli/sessions).
+- For provider and model controls in the interactive UI, read [Coven Code](/docs/coven-code), a preview surface.
+- For endpoint schemas and examples, use the generated [API Reference](/docs/openapi).
+- Before operating across hosts, read [Daemon security](/docs/daemon/security) for the local IPC and transport boundaries.
+- To contribute a documentation change, follow the [contributing guide](https://github.com/OpenCoven/coven-docs/blob/main/CONTRIBUTING.md) in the [coven-docs repository](https://github.com/OpenCoven/coven-docs).

@@ -43,7 +43,7 @@ pnpm verify
 6. API simulator tests;
 7. a production Next.js build;
 8. Chromium smoke coverage for primary pages, mobile overflow, exports,
-   canonical metadata, deployment headers, and redirects.
+   canonical metadata, deployment headers, redirects, and next-step/support navigation.
 
 Use narrower commands while iterating:
 
