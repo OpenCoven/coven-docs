@@ -1,5 +1,6 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { navPages, pagePath } from './docs-nav.mjs';
 
 const root = process.cwd();
 const docsRoot = join(root, 'content', 'docs');
@@ -79,7 +80,7 @@ if (meta.description !== 'Memory Layers and Providers') {
   fail('content/docs/memory-models/meta.json description must describe the memory and models section.');
 }
 
-const actualPages = Array.isArray(meta.pages) ? meta.pages : [];
+const actualPages = navPages(sectionRoot);
 const missingPages = requiredPages.filter((page) => !actualPages.includes(page));
 if (missingPages.length > 0) {
   fail(`content/docs/memory-models/meta.json is missing pages: ${missingPages.join(', ')}.`);
@@ -87,7 +88,7 @@ if (missingPages.length > 0) {
 
 const sources = [];
 for (const page of requiredPages) {
-  const file = join(sectionRoot, `${page}.mdx`);
+  const file = pagePath(sectionRoot, page);
   if (!existsSync(file)) {
     fail(`missing Memory + Models doc page: content/docs/memory-models/${page}.mdx.`);
   }
@@ -114,11 +115,11 @@ if (!joined.includes('/docs/cli/sessions') || !joined.includes('/docs/harnesses/
   fail('Memory + Models docs must cross-link session management and harness provider-auth docs.');
 }
 
-if (!readFileSync(join(sectionRoot, 'models.mdx'), 'utf8').includes('/docs/harnesses/codex')) {
+if (!readFileSync(pagePath(sectionRoot, 'models'), 'utf8').includes('/docs/harnesses/codex')) {
   fail('models page must link to the Codex harness page.');
 }
 
-if (!readFileSync(join(sectionRoot, 'provider-boundary.mdx'), 'utf8').includes('/docs/reference/auth')) {
+if (!readFileSync(pagePath(sectionRoot, 'provider-boundary'), 'utf8').includes('/docs/reference/auth')) {
   fail('provider-boundary page must link to the authentication reference.');
 }
 

@@ -5,16 +5,7 @@
   "icon": "LuBrainCircuit",
   "pages": [
     "index",
-    "memory",
-    "working-memory",
-    "persistent-memory",
-    "episodic-memory",
-    "semantic-memory",
-    "memory-search",
-    "models",
-    "provider-boundary",
-    "openai",
-    "anthropic",
-    "local-models"
+    "(memory)",
+    "(models)"
   ]
 }

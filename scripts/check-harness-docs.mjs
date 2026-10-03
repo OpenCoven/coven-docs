@@ -1,5 +1,6 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { navPages, pagePath } from './docs-nav.mjs';
 
 const root = process.cwd();
 const docsRoot = join(root, 'content', 'docs');
@@ -83,7 +84,7 @@ if (harnessMeta.description !== 'Codex, Claude Code, Coven Code, and Copilot Ada
   fail('content/docs/harnesses/meta.json description must describe the harness deep-dive section.');
 }
 
-const actualPages = Array.isArray(harnessMeta.pages) ? harnessMeta.pages : [];
+const actualPages = navPages(harnessRoot);
 const missingPages = requiredPages.filter((page) => !actualPages.includes(page));
 if (missingPages.length > 0) {
   fail(`content/docs/harnesses/meta.json is missing pages: ${missingPages.join(', ')}.`);
@@ -91,7 +92,7 @@ if (missingPages.length > 0) {
 
 const sources = [];
 for (const page of requiredPages) {
-  const file = join(harnessRoot, `${page}.mdx`);
+  const file = pagePath(harnessRoot, page);
   if (!existsSync(file)) {
     fail(`missing harness doc page: content/docs/harnesses/${page}.mdx.`);
   }
@@ -118,17 +119,17 @@ if (!joined.includes('/docs/cli/run') || !joined.includes('/docs/daemon/security
   fail('Harness docs must cross-link CLI run and daemon security docs.');
 }
 
-if (!readFileSync(join(harnessRoot, 'provider-auth.mdx'), 'utf8').includes('/docs/reference/auth')) {
+if (!readFileSync(pagePath(harnessRoot, 'provider-auth'), 'utf8').includes('/docs/reference/auth')) {
   fail('provider-auth page must link to the authentication reference.');
 }
 
-if (!readFileSync(join(harnessRoot, 'troubleshooting.mdx'), 'utf8').includes('/docs/cli/doctor')) {
+if (!readFileSync(pagePath(harnessRoot, 'troubleshooting'), 'utf8').includes('/docs/cli/doctor')) {
   fail('troubleshooting page must link to CLI doctor docs.');
 }
 
 // Keep the load-time prompt safety contract on the adapter page itself;
 // a mention in an unrelated harness page does not document migration.
-const customAdapter = readFileSync(join(harnessRoot, 'custom-adapters.mdx'), 'utf8');
+const customAdapter = readFileSync(pagePath(harnessRoot, 'custom-adapters'), 'utf8');
 const safety = customAdapter.split('## Prompt safety\n')[1]?.split('\n## ')[0] ?? '';
 const safetyMentions = [
   "shell or language interpreter",
