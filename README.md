@@ -13,7 +13,7 @@ Their owning repositories remain authoritative; the
 
 Requirements:
 
-- Node.js 22.6 or newer
+- Node.js 22.22.2 or newer
 - pnpm 10.33.2
 - Git
 
