@@ -77,8 +77,20 @@ test('every command needs its own table link, including shared destinations and 
       return link;
     });
     assert(removed.length > 0, `${name} mutation must remove a real link`);
-    inputs.cliIndexSource += `\nUnrelated prose: ${removed.join(' ')}\n\n\`\`\`md\n| ${removed[0]} | example |\n\`\`\`\n<!--\n| ${removed[0]} | comment |\n-->\n`;
+    inputs.cliIndexSource = inputs.cliIndexSource.replace('## Command map',
+      `## Command map\n\nUnrelated prose: ${removed.join(' ')}\n\n\`\`\`md\n| ${removed[0]} | example |\n\`\`\`\n<!--\n| ${removed[0]} | comment |\n-->\n{ /*\n| ${removed[0]} | MDX comment |\n*/ }\n`);
+    inputs.cliIndexSource += `\n## Unrelated commands\n\n| Command | Purpose |\n| --- | --- |\n| ${removed[0]} | outside the command map |\n`;
     assert.throws(() => checkCliHelpContract(inputs), new RegExp(`must link coven ${name} to`));
+  }
+});
+
+test('missing or duplicate command-map sections fail instead of broadening the scan', () => {
+  for (const source of ['missing', 'duplicate']) {
+    const inputs = loadRepoCliHelpInputs();
+    inputs.cliIndexSource = source === 'missing'
+      ? inputs.cliIndexSource.replace('## Command map', '## Other commands')
+      : `${inputs.cliIndexSource}\n## Command map\n`;
+    assert.throws(() => checkCliHelpContract(inputs), /exactly one Command map section/);
   }
 });
 

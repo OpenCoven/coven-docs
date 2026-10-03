@@ -105,7 +105,12 @@ export function checkCliHelpContract({ rawContract, provenance, sourceLock, redi
   }
 
   // Require each command's own command-map row, even when destinations are shared.
-  const indexLinks = [...stripCodeFences(cliIndexSource).replace(/<!--[^]*?-->|\{\/\*[^]*?\*\/\}/g, '').matchAll(
+  const sections = stripCodeFences(cliIndexSource)
+    .replace(/<!--[^]*?-->|\{\s*\/\*[^]*?\*\/\s*\}/g, '')
+    .split(/^##[ \t]+/m);
+  const commandMaps = sections.filter((section) => /^Command map[ \t]*(?:\n|$)/.test(section));
+  assert.equal(commandMaps.length, 1, 'CLI index must contain exactly one Command map section');
+  const indexLinks = [...commandMaps[0].matchAll(
     /^\|\s*\[`coven ([a-z0-9-]+)(?: [^`]+)?`\]\(([^)\s]+)\)\s*\|/gm,
   )].map(([, name, href]) => ({ name, href: resolveHref(href) }));
   exactKeys(contract, ['schemaVersion', 'groups'], 'Help contract');
