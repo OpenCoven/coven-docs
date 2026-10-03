@@ -237,10 +237,13 @@ The envelope also refuses `run.cancel.v1` and payload fields it does not
 implement with `CAPABILITY_UNSUPPORTED`; send cancellation as the flat
 `coven.automations.run.cancel.v1` action.
 
-For a richly authored revision, lifecycle events, occurrence and run reads,
-and Runtime Authority execution bindings publish the recorded document's
-`integrity` digest. Receipts produced from those bindings carry the same
-digest. Scheduling and dispatch continue to fence execution with the digest
+For a richly authored revision, definition lifecycle events, occurrence
+list/history/get projections, `coven.automations.run.get.v1`, and Runtime
+Authority execution bindings publish the recorded document's `integrity`
+digest. The compatibility `coven.automations.runs` and
+`coven.automations.run.history.v1` projections do not expose a digest.
+Receipts produced from those bindings carry the published digest.
+Scheduling and dispatch continue to fence execution with the digest
 of the projected routine JSON; these two digests serve different purposes.
 Revisions without a rich document publish the routine digest. Historical rows
 without a stored digest remain unattributed.
