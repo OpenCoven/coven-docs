@@ -377,10 +377,10 @@ try {
       ['/docs/reference/troubleshooting', 'Troubleshooting'],
     ].map(([href, title]) => [
       '/docs', 'From install to evidence.', href, title,
-      'main section[aria-labelledby="first-session-path"]',
+      `main section[aria-labelledby="first-session-path"] a[href="${href}"]`,
     ]),
-    ['/docs/guide/getting-started', 'Run a first session', '/docs/guide/next-steps', 'Next steps'],
-    ['/docs/reference/troubleshooting', 'Troubleshooting', '/docs/reference/support', 'Support'],
+    ['/docs/guide/getting-started', 'Run a first session', '/docs/guide/next-steps', 'Next steps', 'main a#next-steps-entry'],
+    ['/docs/reference/troubleshooting', 'Troubleshooting', '/docs/reference/support', 'Support', 'main a#support-entry'],
     ...[
       ['/docs/cli/sessions', 'Sessions'],
       ['/docs/cli', 'CLI Reference'],
@@ -389,11 +389,15 @@ try {
       ['/docs/reference/api', 'Coven local API'],
       ['/docs/guide/deployments', 'Deployments'],
       ['/docs/reference/support', 'Support'],
-    ].map(([href, title]) => ['/docs/guide/next-steps', 'Choose your next step', href, title]),
+    ].map(([href, title]) => [
+      '/docs/guide/next-steps', 'Choose your next step', href, title,
+      `main #next-step-destinations a[href="${href}"]`,
+    ]),
   ];
-  for (const [from, text, href, title, scope = 'main'] of followOnLinks) {
+  for (const [from, text, href, title, selector] of followOnLinks) {
     await gotoAndReady(from, text);
-    const selector = `${scope} a[href="${href}"]`;
+    const matches = await page.$$eval(selector, (links) => links.length);
+    if (matches !== 1) throw new Error(`${from}: expected one journey link for ${selector}, found ${matches}`);
     await page.click(selector);
     await page.waitForFunction(
       (path, heading) => location.pathname === path && document.querySelector('h1')?.textContent === heading,
