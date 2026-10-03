@@ -4,6 +4,7 @@ import { resolve } from 'node:path';
 import process from 'node:process';
 import puppeteer from 'puppeteer';
 import { smokeFonts } from './smoke-fonts.mjs';
+import { assertOgRenderLogs, smokeOg } from './smoke-og.mjs';
 
 const port = Number(process.env.DOCS_SMOKE_PORT ?? 4173);
 const baseUrl = `http://127.0.0.1:${port}`;
@@ -19,6 +20,7 @@ const report = {
   navigation: [],
   followOns: [],
   fonts: null,
+  ogImages: [],
   journeys: {},
   error: null,
 };
@@ -132,6 +134,9 @@ try {
   const page = await browser.newPage();
   await page.setCacheEnabled(false);
   await page.setViewport({ width: 1440, height: 1000 });
+
+  report.ogImages = await smokeOg(page, baseUrl, evidenceDir);
+  assertOgRenderLogs(output);
 
   const pageErrors = [];
   page.on('pageerror', (error) => pageErrors.push(error.message));
@@ -484,13 +489,14 @@ try {
     report.navigation.push({ width, footerNext: true, footerPrevious: true, history: true, heading: true, section: true });
   }
 
+  assertOgRenderLogs(output);
   if (pageErrors.length > 0) {
     throw new Error(`Browser page errors:\n- ${pageErrors.join('\n- ')}`);
   }
 
   report.ok = true;
   console.log(
-    `Docs smoke passed for ${report.routes.length} rendered pages covering the ${requiredJourneys.join(', ')} journeys plus exports, redirects, ${report.followOns.length} journey links, ${report.mobile.length} mobile views, and ${report.navigation.length} navigation widths.`,
+    `Docs smoke passed for ${report.routes.length} rendered pages covering the ${requiredJourneys.join(', ')} journeys plus exports, redirects, ${report.followOns.length} journey links, ${report.mobile.length} mobile views, ${report.navigation.length} navigation widths, and ${report.ogImages.length} OG images.`,
   );
 } catch (error) {
   report.error = error instanceof Error ? error.message : String(error);
