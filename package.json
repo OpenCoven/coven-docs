@@ -26,7 +26,7 @@
     "check:english-only": "node scripts/check-english-only.mjs",
     "check:no-leading-h1": "node scripts/check-no-leading-h1.mjs",
     "check:daemon-docs": "node scripts/check-daemon-docs.mjs",
-    "check:cli-docs": "node scripts/check-cli-docs.mjs",
+    "check:cli-docs": "node scripts/check-cli-docs.mjs && node scripts/check-cli-help-contract.mjs",
     "check:harness-docs": "node scripts/check-harness-docs.mjs",
     "check:product-scope": "node scripts/check-product-scope.mjs",
     "check:coven-code-docs": "node scripts/check-coven-code-docs.mjs",
