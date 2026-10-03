@@ -5,21 +5,10 @@
   "icon": "LuTerminal",
   "pages": [
     "index",
-    "install",
-    "install-debugging",
-    "uninstall",
-    "interactive",
-    "doctor",
-    "setup",
-    "daemon",
-    "run",
-    "sessions",
-    "observe",
-    "hub-scheduler",
-    "engine-auth",
-    "repo-workflow",
-    "patch-openclaw",
-    "pc",
-    "device"
+    "(install)",
+    "(configure)",
+    "(work)",
+    "(operate)",
+    "(machine)"
   ]
 }

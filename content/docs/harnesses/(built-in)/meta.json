@@ -1,0 +1,9 @@
+{
+  "title": "Built-in harnesses",
+  "pages": [
+    "codex",
+    "claude-code",
+    "copilot",
+    "coven-code"
+  ]
+}

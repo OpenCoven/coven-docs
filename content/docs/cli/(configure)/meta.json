@@ -1,0 +1,8 @@
+{
+  "title": "Configure",
+  "pages": [
+    "setup",
+    "engine-auth",
+    "patch-openclaw"
+  ]
+}

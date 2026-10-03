@@ -1,6 +1,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { printErrors, scanURLs, validateFiles } from 'next-validate-link';
+import { docsSlug } from './docs-nav.mjs';
 
 const root = process.cwd();
 const docsDir = path.join(root, 'content/docs');
@@ -21,17 +22,8 @@ async function walk(dir) {
   return files;
 }
 
-function slugForFile(file) {
-  const relative = path.relative(docsDir, file).replace(/\\/g, '/').replace(/\.mdx$/, '');
-  // Route-group folders such as `(memory)` group pages in the sidebar but add
-  // no URL segment, matching how Fumadocs builds slugs.
-  const segments = relative.split('/').filter((segment) => !/^\(.+\)$/.test(segment));
-  if (segments.at(-1) === 'index') segments.pop();
-  return segments;
-}
-
 async function fileObject(file) {
-  const slug = slugForFile(file);
+  const slug = docsSlug(docsDir, file);
   const url = slug.length === 0 ? '/docs' : `/docs/${slug.join('/')}`;
 
   return {
