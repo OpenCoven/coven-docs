@@ -14,6 +14,15 @@ versioned `POST /api/v1/actions` router. Always call
 `GET /api/v1/capabilities` first and use only action ids advertised by the live
 daemon.
 
+The `coven.automations` capability may include an optional
+`variantNegotiation` object describing supported, experimental, and refused
+contract variants. Treat it as negotiation metadata, not as permission to
+execute a variant that the daemon refuses.
+
+Automation mutations, definition reads, and run-history reads require
+owner-local IPC. Do not use optional loopback TCP for these operations; use the
+daemon-reported local socket or named pipe.
+
 ## Safety defaults
 
 - Imported legacy routines are created as `PAUSED`; import never opts them into execution.

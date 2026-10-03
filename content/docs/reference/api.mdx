@@ -82,6 +82,10 @@ copying an implementation detail into an external integration.
 ## Version and privacy rules
 
 `GET /api/v1/health` advertises the named `coven.daemon.v1` contract.
+Its `covenVersion` field is an opaque build identity, not a compatibility
+version; source builds may include a `git describe` suffix, and unresolved
+versions are reported as `unknown`. Negotiate compatibility using `apiVersion`
+and the capabilities required for your operation.
 `GET /api/v1/api-version` is a legacy route-family diagnostic; its literal
 `v1` value is not sufficient proof that every named-contract capability exists.
 
@@ -90,6 +94,27 @@ are available only through the narrow
 `GET /api/v1/sessions/{sessionId}/artifacts/{artifactId}?raw=1` route when raw
 artifact persistence is explicitly enabled. Otherwise the daemon returns a
 structured `raw_artifact_requires_raw_flag` or `raw_artifacts_disabled` error.
+
+## Session-policy admission
+
+The separately negotiated `coven.session-policy.v1` contract is currently
+refusal-only. `GET /api/v1/health` may advertise it in
+`capabilities.sessionPolicyContracts`; older daemons may omit that field, which
+means the contract is unavailable. The advertisement is not an enforcement
+grant or evidence that a profile is supported.
+
+`GET /api/v1/session-policy` is inert discovery. A valid
+`POST /api/v1/sessions/restricted` request over owner-local IPC receives HTTP
+`409` with a correlated `rejected` / `not_started` decision. It does not launch
+a session. Clients must not infer `not_started` from generic errors or
+automatically retry through the legacy session endpoint. See the
+[normative session-policy contract](https://github.com/OpenCoven/coven/blob/main/docs/API-CONTRACT.md#session-policy-admission-coven-session-policy-v1)
+for the closed request and response shapes.
+
+Ordinary-chat context admission is not enabled. A request carrying
+`contextAdmission` is refused rather than silently falling back to an ordinary
+launch or input request; see the same
+[normative contract](https://github.com/OpenCoven/coven/blob/main/docs/API-CONTRACT.md#ordinary-chat-context-intent-not-enabled).
 
 ## Client rules
 

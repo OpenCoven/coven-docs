@@ -129,7 +129,9 @@ paths:
 
         Clients should treat `apiVersion: "coven.daemon.v1"` as the stable
         contract guard. `covenVersion` is diagnostics-only — do not branch
-        compatibility on a binary version alone.
+        compatibility on a binary version alone. It is the daemon build
+        identity, including any source-build suffix, or `unknown` when no
+        version could be resolved.
 
         When no daemon metadata is available, `daemon` is `null`.
       responses:
@@ -823,7 +825,7 @@ components:
           const: coven.daemon.v1
         covenVersion:
           type: string
-          description: Installed Coven binary version (e.g., `0.0.0`). Diagnostics-only.
+          description: Opaque daemon build identity, not a contract version. May include a git-describe suffix or be `unknown`.
         capabilities:
           $ref: '#/components/schemas/HealthCapabilities'
         daemon:
@@ -837,7 +839,7 @@ components:
       examples:
         - ok: true
           apiVersion: coven.daemon.v1
-          covenVersion: 0.0.0
+          covenVersion: 0.4.2
           capabilities:
             sessions: true
             events: true
@@ -847,6 +849,7 @@ components:
             executorDispatch: true
             eventCursor: sequence
             structuredErrors: true
+            sessionPolicyContracts: [coven.session-policy.v1]
           daemon:
             pid: 12345
             startedAt: 2026-05-09T12:00:00Z
@@ -882,6 +885,13 @@ components:
         structuredErrors:
           type: boolean
           description: Whether failure responses use the `ErrorEnvelope` shape (always `true` in `coven.daemon.v1`).
+        sessionPolicyContracts:
+          type: array
+          description: Optional refusal-only admission contracts. Absence on older daemons means unavailable; this advertises no enforcement grant.
+          items:
+            type: string
+          examples:
+            - [coven.session-policy.v1]
 
     HubHealth:
       type: object
