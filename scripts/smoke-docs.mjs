@@ -370,10 +370,15 @@ try {
 
   await page.setViewport({ width: 1440, height: 1000 });
   const followOnLinks = [
-    ['/docs', 'From install to evidence.', '/docs/guide/getting-started', 'Getting started'],
-    ['/docs', 'From install to evidence.', '/docs/reference/troubleshooting', 'Troubleshooting'],
-    ['/docs', 'From install to evidence.', '/docs/cli', 'CLI Reference'],
-    ['/docs', 'From install to evidence.', '/docs/reference/api', 'Coven local API'],
+    ...[
+      ['/docs/guide/install', 'Install Coven'],
+      ['/docs/guide/getting-started', 'Getting started'],
+      ['/docs/cli/sessions', 'Sessions'],
+      ['/docs/reference/troubleshooting', 'Troubleshooting'],
+    ].map(([href, title]) => [
+      '/docs', 'From install to evidence.', href, title,
+      'main section[aria-labelledby="first-session-path"]',
+    ]),
     ['/docs/guide/getting-started', 'Run a first session', '/docs/guide/next-steps', 'Next steps'],
     ['/docs/reference/troubleshooting', 'Troubleshooting', '/docs/reference/support', 'Support'],
     ...[
@@ -386,16 +391,17 @@ try {
       ['/docs/reference/support', 'Support'],
     ].map(([href, title]) => ['/docs/guide/next-steps', 'Choose your next step', href, title]),
   ];
-  for (const [from, text, href, title] of followOnLinks) {
+  for (const [from, text, href, title, scope = 'main'] of followOnLinks) {
     await gotoAndReady(from, text);
-    await page.click(`main a[href="${href}"]`);
+    const selector = `${scope} a[href="${href}"]`;
+    await page.click(selector);
     await page.waitForFunction(
       (path, heading) => location.pathname === path && document.querySelector('h1')?.textContent === heading,
       { timeout: 10_000 },
       href,
       title,
     );
-    report.followOns.push({ from, to: href, title });
+    report.followOns.push({ from, to: href, title, selector });
   }
 
   for (const width of [320, 390, 768, 1280, 1920]) {
