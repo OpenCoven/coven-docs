@@ -23,9 +23,11 @@ async function walk(dir) {
 
 function slugForFile(file) {
   const relative = path.relative(docsDir, file).replace(/\\/g, '/').replace(/\.mdx$/, '');
-  if (relative === 'index') return [];
-  if (relative.endsWith('/index')) return relative.replace(/\/index$/, '').split('/');
-  return relative.split('/');
+  // Route-group folders such as `(memory)` group pages in the sidebar but add
+  // no URL segment, matching how Fumadocs builds slugs.
+  const segments = relative.split('/').filter((segment) => !/^\(.+\)$/.test(segment));
+  if (segments.at(-1) === 'index') segments.pop();
+  return segments;
 }
 
 async function fileObject(file) {

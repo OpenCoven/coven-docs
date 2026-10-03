@@ -1,5 +1,6 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { navPages, pagePath } from './docs-nav.mjs';
 
 const root = process.cwd();
 const docsRoot = join(root, 'content', 'docs');
@@ -96,7 +97,7 @@ if (meta.description !== 'Agentic Coding TUI') {
   fail('content/docs/coven-code/meta.json description must describe the TUI section.');
 }
 
-const actualPages = Array.isArray(meta.pages) ? meta.pages : [];
+const actualPages = navPages(covenCodeRoot);
 const missingPages = requiredPages.filter((page) => !actualPages.includes(page));
 if (missingPages.length > 0) {
   fail(`content/docs/coven-code/meta.json is missing pages: ${missingPages.join(', ')}.`);
@@ -104,7 +105,7 @@ if (missingPages.length > 0) {
 
 const sources = [];
 for (const page of requiredPages) {
-  const file = join(covenCodeRoot, `${page}.mdx`);
+  const file = pagePath(covenCodeRoot, page);
   if (!existsSync(file)) {
     fail(`missing Coven Code doc page: content/docs/coven-code/${page}.mdx.`);
   }

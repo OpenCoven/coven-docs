@@ -1,5 +1,6 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { navPages, pagePath } from './docs-nav.mjs';
 
 const root = process.cwd();
 const docsRoot = join(root, 'content', 'docs');
@@ -49,14 +50,14 @@ if (daemonMeta.description !== 'Process and Socket API') {
   fail('content/docs/daemon/meta.json description must describe the operational daemon section.');
 }
 
-const actualPages = Array.isArray(daemonMeta.pages) ? daemonMeta.pages : [];
+const actualPages = navPages(daemonRoot);
 const missingPages = requiredPages.filter((page) => !actualPages.includes(page));
 if (missingPages.length > 0) {
   fail(`content/docs/daemon/meta.json is missing pages: ${missingPages.join(', ')}.`);
 }
 
 for (const page of requiredPages) {
-  const file = join(daemonRoot, `${page}.mdx`);
+  const file = pagePath(daemonRoot, page);
   if (!existsSync(file)) {
     fail(`missing daemon doc page: content/docs/daemon/${page}.mdx.`);
   }

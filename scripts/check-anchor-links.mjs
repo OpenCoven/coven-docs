@@ -14,10 +14,15 @@ function walk(directory) {
 }
 
 function routeForFile(file) {
-  const rel = relative(docsRoot, file).replaceAll('\\', '/').replace(/\.mdx$/, '');
-  if (rel === 'index') return '/docs';
-  if (rel.endsWith('/index')) return `/docs/${rel.slice(0, -'/index'.length)}`;
-  return `/docs/${rel}`;
+  // Route-group folders such as `(memory)` add no URL segment. Without this,
+  // fragment links into grouped pages would map to no route and be skipped.
+  const segments = relative(docsRoot, file)
+    .replaceAll('\\', '/')
+    .replace(/\.mdx$/, '')
+    .split('/')
+    .filter((segment) => !/^\(.+\)$/.test(segment));
+  if (segments.at(-1) === 'index') segments.pop();
+  return segments.length === 0 ? '/docs' : `/docs/${segments.join('/')}`;
 }
 
 function normalizeTargetPath(sourceRoute, hrefPath) {
