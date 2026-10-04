@@ -32,7 +32,10 @@ review obligation:
 1. inspect the implementation, tests, or normative contract;
 2. update every affected public page and generated contract;
 3. run `pnpm verify`;
-4. advance `verifiedAt` and `verifiedCommit` only after the review is complete.
+4. advance `verifiedAt` and `verifiedCommit` only after the review is complete;
+5. run `pnpm capture:platform-data`, which re-derives
+   `content/data/platforms.json` from the newly pinned upstream files, then
+   review its diff and run `pnpm check:platform-data`.
 
 This intentionally prefers a visible stale warning over silently assuming that
 old documentation still describes a newer runtime.

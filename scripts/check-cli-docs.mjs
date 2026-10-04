@@ -143,15 +143,9 @@ const requiredCanonicalPlatformMentions = [
   {
     file: pagePath(cliRoot, 'install-debugging'),
     label: 'content/docs/cli/install-debugging.mdx',
-    // One `npm view` line per native package, so no target can silently drop
-    // out of the published-package check.
-    mentions: [
-      'darwin-x64',
-      'npm view @opencoven/cli-macos version',
-      'npm view @opencoven/cli-macos-x64 version',
-      'npm view @opencoven/cli-linux-x64 version',
-      'npm view @opencoven/cli-windows version',
-    ],
+    // Native package names and `npm view` lines are checked against
+    // content/data/platforms.json by scripts/check-platform-data.mjs.
+    mentions: ['darwin-x64'],
   },
 ];
 

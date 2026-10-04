@@ -1,0 +1,94 @@
+{
+  "schemaVersion": 1,
+  "provenance": {
+    "sourceId": "coven-runtime-contract",
+    "repo": "OpenCoven/coven",
+    "verifiedCommit": "b5ea52c77d1cf9cace205bed8e9f73bdb67770de",
+    "sourceBlobs": [
+      {
+        "path": "crates/coven-cli/engine.lock",
+        "blob": "400382eb32ac67d9b2a7fd5dbab82734bb5cfc72"
+      },
+      {
+        "path": "npm/coven/bin/coven.js",
+        "blob": "8e0623b5360e338686f705f8d4c580d0133ab867"
+      },
+      {
+        "path": "npm/coven/package.json",
+        "blob": "d51192b8ce76827f143da636129f3b0c0ae2f5ac"
+      },
+      {
+        "path": "scripts/publish-npm.mjs",
+        "blob": "a31ab86b5733915462b7daa8d70d5c92f8105835"
+      }
+    ]
+  },
+  "platforms": [
+    {
+      "id": "macos-arm64",
+      "os": "macos",
+      "arch": "arm64",
+      "label": "macOS (Apple Silicon)",
+      "cli": {
+        "package": "@opencoven/cli-macos",
+        "node": "darwin-arm64",
+        "rustTarget": "aarch64-apple-darwin"
+      },
+      "covenCode": {
+        "archive": "coven-code-macos-aarch64.tar.gz"
+      }
+    },
+    {
+      "id": "macos-x64",
+      "os": "macos",
+      "arch": "x64",
+      "label": "macOS (Intel)",
+      "cli": {
+        "package": "@opencoven/cli-macos-x64",
+        "node": "darwin-x64",
+        "rustTarget": "x86_64-apple-darwin"
+      },
+      "covenCode": {
+        "archive": "coven-code-macos-x86_64.tar.gz"
+      }
+    },
+    {
+      "id": "linux-x64",
+      "os": "linux",
+      "arch": "x64",
+      "label": "Linux (x64)",
+      "cli": {
+        "package": "@opencoven/cli-linux-x64",
+        "node": "linux-x64",
+        "rustTarget": "x86_64-unknown-linux-gnu"
+      },
+      "covenCode": {
+        "archive": "coven-code-linux-x86_64.tar.gz"
+      }
+    },
+    {
+      "id": "linux-arm64",
+      "os": "linux",
+      "arch": "arm64",
+      "label": "Linux (arm64)",
+      "cli": null,
+      "covenCode": {
+        "archive": "coven-code-linux-aarch64.tar.gz"
+      }
+    },
+    {
+      "id": "windows-x64",
+      "os": "windows",
+      "arch": "x64",
+      "label": "Windows (x64)",
+      "cli": {
+        "package": "@opencoven/cli-windows",
+        "node": "win32-x64",
+        "rustTarget": "x86_64-pc-windows-msvc"
+      },
+      "covenCode": {
+        "archive": "coven-code-windows-x86_64.zip"
+      }
+    }
+  ]
+}

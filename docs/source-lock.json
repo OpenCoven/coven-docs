@@ -32,6 +32,8 @@
         "docs/API-CONTRACT.md",
         "docs/SAFETY-MODEL.md",
         "npm/coven/package.json",
+        "npm/coven/bin/coven.js",
+        "scripts/publish-npm.mjs",
         "crates/coven-cli/engine.lock",
         "crates/coven-cli/src/engine.rs",
         "crates/coven-cli/src/help.rs",
