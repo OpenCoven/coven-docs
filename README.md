@@ -65,7 +65,7 @@ pnpm test:smoke
 
 - `app/` — Next.js App Router site and export routes
 - `content/docs/` — public MDX documentation and section navigation
-- `content/data/` — captured CLI help and its source provenance
+- `content/data/` — captured CLI help, platform data, and their source provenance
 - `components/` — Fumadocs and interactive documentation components
 - `docs/site-manifest.json` — canonical section order, ownership, stability,
   search classification, redirects, and retired surfaces
@@ -91,6 +91,11 @@ The [CLI help snapshot](content/data/coven-cli-help.json) records the public
 binds the exact capture to the source-lock pin; [the update procedure](content/data/README.md)
 explains how to reconcile it. `pnpm check:cli-docs` checks schema, capture integrity,
 source binding, redirected routes, fragments, and every command's own index link.
+
+The [platform data](content/data/platforms.json) lists every shipped OS/CPU target with its
+native npm package and Coven Code archive. It is derived from upstream release metadata at the
+source-lock pin by `pnpm capture:platform-data`; `pnpm check:platform-data` keeps the install
+pages' package and archive tables in step with it. See [the platform data notes](content/data/README.md#platform-data).
 
 Narrative explanations remain authored. Machine generation owns operation
 inventory, signatures, schemas, and examples—not product interpretation.

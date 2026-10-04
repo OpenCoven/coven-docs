@@ -46,3 +46,34 @@ Some index links are intentionally more specific than the help catalog:
 `completions` and `kill` to their own examples, and `memory` to the command's
 observability reference. Both the unchanged upstream URL and the preferred
 index destination must resolve. The setup URL retains its existing redirect.
+
+# Platform data
+
+`platforms.json` lists the platforms Coven ships for, derived from upstream
+release metadata at the `docs/source-lock.json` pin rather than written by hand:
+
+- `scripts/publish-npm.mjs`: the native npm packages, with each package's OS,
+  CPU, and Rust target;
+- `npm/coven/bin/coven.js` and `npm/coven/package.json`: the launcher's
+  platform-to-package map and the wrapper's optional dependencies, which must
+  agree with the release script;
+- `crates/coven-cli/engine.lock`: the Coven Code engine archives, which also
+  cover Linux arm64, where no native CLI package ships.
+
+The docs own only each platform's label and display order (`PLATFORM_LABELS` in
+`scripts/platform-data.mjs`). The provenance records the pin and the Git blob of
+each source file, and all four paths stay in the source-lock watch.
+
+## Update the platform data
+
+Run `pnpm capture:platform-data` after advancing the source lock. It reads the
+pinned files through the GitHub API (set `GITHUB_TOKEN` to raise the rate limit),
+refuses to write if the upstream files disagree with each other, and rewrites
+the file. Review the diff like any other upstream change. A platform upstream
+adds fails capture until it has a label.
+
+`pnpm check:platform-data` runs offline. It checks the schema, labels, order,
+the source pin and watched paths, and that the install-debugging package table,
+its `npm view` checks, and the Coven Code archive table name exactly the
+packages and archives upstream ships. The hosted freshness job re-runs the
+capture without `--write` and fails if the committed file is stale.

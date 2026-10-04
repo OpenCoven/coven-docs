@@ -40,6 +40,11 @@ jobs:
           DOCS_DRIFT_REPORT_PATH: output/docs-source-drift.json
         run: node scripts/check-source-drift.mjs
 
+      - name: Verify platform data against upstream
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node scripts/capture-platform-data.mjs
+
       - name: Upload source-drift evidence
         if: always()
         uses: actions/upload-artifact@v7
