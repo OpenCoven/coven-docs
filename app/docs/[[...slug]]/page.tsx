@@ -104,11 +104,13 @@ export default async function Page({ params }: { params: Promise<{ slug?: string
   ]);
 
   return (
-    <main className="contents">
+    <>
       <DocsPage
         toc={page.data.toc}
         full={page.data.full}
-        tableOfContent={{ style: 'clerk' }}
+        // Pages without headings (the generated API reference) drop the TOC
+        // column and take its width. Fumadocs 16.16 otherwise reserves it.
+        tableOfContent={{ style: 'clerk', enabled: !page.data.full && page.data.toc.length > 0 }}
         breadcrumb={{ enabled: !isPortal, includePage: true, includeRoot: true }}
         slots={{ footer: PageNavFooter }}
       >
@@ -148,7 +150,7 @@ export default async function Page({ params }: { params: Promise<{ slug?: string
         <PageFeedback feedbackIssueUrl={feedbackUrl} pagePath={page.url} />
         {lastModifiedTime && <PageLastUpdate date={lastModifiedTime} />}
       </DocsPage>
-    </main>
+    </>
   );
 }
 
