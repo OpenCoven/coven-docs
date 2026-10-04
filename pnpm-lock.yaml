@@ -91,8 +91,8 @@ importers:
         specifier: ^19
         version: 19.3.0(@types/react@19.3.0)
       js-yaml:
-        specifier: ^4.1.1
-        version: 4.1.1
+        specifier: ^5.4.2
+        version: 5.4.2
       jsdom:
         specifier: ^29.1.1
         version: 29.1.1
@@ -2337,6 +2337,10 @@ packages:
 
   js-yaml@4.1.1:
     resolution: {integrity: sha512-qQKT4zQxXl8lLwBtHMWwaTcGfFOZviOJet3Oy/xmGk2gZH677CJM9EvtfdSkgWcATZhj/55JZ0rmy3myCT5lsA==}
+    hasBin: true
+
+  js-yaml@5.4.2:
+    resolution: {integrity: sha512-m+aqu+LwO1O6sIopafj8HUVl5aawITwZQe/yHpMCKjaWBaA/d07B/QdMb3529REftiU+RMMHL3Vlsw3hON7vWg==}
     hasBin: true
 
   jsdom@29.1.1:
@@ -5371,6 +5375,10 @@ snapshots:
   js-tokens@4.0.0: {}
 
   js-yaml@4.1.1:
+    dependencies:
+      argparse: 2.0.1
+
+  js-yaml@5.4.2:
     dependencies:
       argparse: 2.0.1
 
