@@ -7,11 +7,15 @@
    #nd-sidebar is the desktop aside; #nd-sidebar-mobile is the drawer.
 ───────────────────────────────────────── */
 
-:is(#nd-sidebar, #nd-sidebar-mobile) {
+/* On :root rather than the sidebar: the section rail and the platform menu's
+ * popover sit outside #nd-sidebar and use the same hover and active tints. */
+:root {
   --coven-sidebar-rule: color-mix(in oklab, var(--color-fd-foreground) 9%, transparent);
   --coven-sidebar-hover: color-mix(in oklab, var(--color-fd-foreground) 5%, transparent);
   --coven-sidebar-active: color-mix(in oklab, var(--coven-docs-violet) 13%, transparent);
+}
 
+:is(#nd-sidebar, #nd-sidebar-mobile) {
   /* Re-point Fumadocs tokens so its own borders, folder guide lines, and the
    * nested active bar pick up the hairline and the brand violet. */
   --color-fd-border: var(--coven-sidebar-rule);
