@@ -4,7 +4,9 @@ import { Icon } from '@iconify/react';
 import type { ReactNode } from 'react';
 import { baseOptions } from '@/app/layout.config';
 import { SidebarRail } from '@/components/sidebar-rail';
+import { SectionRail } from '@/components/section-rail';
 import { DocsScrollToTop } from '@/components/docs-scroll-to-top';
+import { docsSections } from '@/lib/docs-manifest';
 import { source } from '@/lib/source';
 
 // The docs sidebar renders text links as rows above the page tree, where
@@ -23,6 +25,9 @@ const docsLinks: LinkItemType[] = [
   ...(baseOptions.links ?? []).filter((link) => link.type === 'icon'),
 ];
 
+// Only what the collapsed rail needs, so the manifest stays on the server.
+const railSections = docsSections.map(({ slug, title }) => ({ slug, title }));
+
 export default function Layout({ children }: { children: ReactNode }) {
   return (
     <DocsLayout
@@ -33,6 +38,7 @@ export default function Layout({ children }: { children: ReactNode }) {
     >
       <DocsScrollToTop />
       <SidebarRail />
+      <SectionRail sections={railSections} />
       {children}
     </DocsLayout>
   );

@@ -2,20 +2,19 @@
 
 import { useSidebar } from 'fumadocs-ui/layouts/docs/slots/sidebar';
 import { ChevronLeft } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
+import { useModifierKey } from '@/lib/use-modifier-key';
 
 /**
  * Full-height collapse control on the sidebar's edge. When the sidebar is
- * collapsed the rail stays on the left edge, so there is always a visible way
- * back. Toggles with ⌘\ (Ctrl+\ elsewhere).
+ * collapsed it moves to the edge of the section icon rail (SectionRail),
+ * which also carries an expand button. Toggles with ⌘\ (Ctrl+\ elsewhere).
  */
 export function SidebarRail() {
   const { collapsed, setCollapsed, mode } = useSidebar();
-  const [modifier, setModifier] = useState('⌘');
+  const modifier = useModifierKey();
 
   useEffect(() => {
-    if (!/Mac|iPhone|iPad/.test(navigator.userAgent)) setModifier('Ctrl');
-
     function onKeyDown(event: KeyboardEvent) {
       if (event.key !== '\\' || !(event.metaKey || event.ctrlKey)) return;
       if (event.altKey || event.shiftKey) return;
