@@ -1,14 +1,14 @@
 import { source } from '@/lib/source';
 import { llms } from 'fumadocs-core/source/llms';
+import { BASE_URL } from '@/lib/llms';
 
 export const revalidate = false;
 export const dynamic = 'force-static';
 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? 'https://docs.opencoven.ai';
-
-export function GET(): Response {
-  const gen = llms(source);
-  const index = gen.index();
+export async function GET(): Promise<Response> {
+  // index() is async since Fumadocs 16.16; concatenating it unawaited
+  // published "[object Promise]" in place of the page list.
+  const index = await llms(source).index();
 
   const header = [
     '# Coven',

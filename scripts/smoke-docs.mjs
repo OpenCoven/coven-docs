@@ -80,6 +80,17 @@ async function assertRoute(path, expectedText) {
   }
 }
 
+async function assertMarkdownRoute(path, expectedText) {
+  const { response, body } = await readRoute(path);
+  const contentType = response.headers.get('content-type') ?? '';
+  if (!contentType.startsWith('text/markdown')) {
+    throw new Error(`${path} returned ${contentType || 'no content type'}, expected text/markdown`);
+  }
+  if (!body.startsWith(expectedText)) {
+    throw new Error(`${path} did not start with expected text: ${expectedText}`);
+  }
+}
+
 async function assertRedirect(path, destination) {
   const response = await fetch(`${baseUrl}${path}`, { redirect: 'manual' });
   if (![301, 302, 307, 308].includes(response.status)) {
@@ -119,7 +130,13 @@ try {
   report.buildCommit = build.commit;
 
   await assertRoute('/llms.txt', '# Coven');
+  // The index must list pages, not just the header: an unawaited async
+  // index() once shipped "[object Promise]" here.
+  await assertRoute('/llms.txt', '](/docs/guide/getting-started)');
   await assertRoute('/llms-full.txt', '# Coven — Full Documentation');
+  await assertMarkdownRoute('/docs.md', '# Coven');
+  await assertMarkdownRoute('/docs/guide/getting-started.md', '# Getting started');
+  await assertMarkdownRoute('/docs/memory-models/working-memory.md', '# Working Memory');
   await assertRoute('/robots.txt', 'Sitemap:');
   await assertRoute('/sitemap.xml', '/docs/guide/getting-started');
   await assertRedirect(
