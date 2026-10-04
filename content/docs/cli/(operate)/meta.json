@@ -1,0 +1,9 @@
+{
+  "title": "Operate",
+  "pages": [
+    "doctor",
+    "daemon",
+    "observe",
+    "hub-scheduler"
+  ]
+}

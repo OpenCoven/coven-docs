@@ -1,0 +1,235 @@
+/* Search dialog: scope bar, scope menu, result label, empty state, and key
+ * hints. Styled here rather than with Tailwind utilities: the site ships
+ * Fumadocs' prebuilt stylesheet, so a utility class Fumadocs itself doesn't
+ * use (text-left, shadow-xl, aria-selected:…) never compiles. */
+
+.scope {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.5rem 0.75rem;
+}
+
+.scopeLabel,
+.listLabel {
+  color: var(--color-fd-muted-foreground);
+  font-family: var(--oc-font-mono);
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: var(--oc-tracking-label);
+  text-transform: uppercase;
+}
+
+.trigger {
+  display: inline-flex;
+  height: 1.875rem;
+  max-width: 100%;
+  align-items: center;
+  gap: 0.5rem;
+  border: 1px solid var(--color-fd-border);
+  border-radius: 6px;
+  background: transparent;
+  padding: 0 0.5rem 0 0.5625rem;
+  color: var(--color-fd-foreground);
+  cursor: pointer;
+  font-size: 0.8125rem;
+  transition:
+    border-color 150ms ease,
+    background-color 150ms ease;
+}
+
+.trigger:is(:hover, [aria-expanded='true']) {
+  background: var(--color-fd-accent);
+}
+
+/* A narrowed search reads as such at a glance. */
+.trigger[data-scoped='true'] {
+  border-color: color-mix(in oklab, var(--coven-docs-violet) 55%, transparent);
+  color: var(--coven-docs-violet);
+}
+
+.trigger:focus-visible {
+  outline: 2px solid var(--coven-docs-violet);
+  outline-offset: 2px;
+}
+
+.triggerName {
+  overflow: hidden;
+  min-width: 0;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.caret {
+  flex: none;
+  color: var(--color-fd-muted-foreground);
+}
+
+/* Fumadocs clips the dialog (overflow: hidden); let the scope menu float
+ * past its edge, like a native select, instead of being cropped. */
+.content {
+  overflow: visible;
+}
+
+/* ── Scope menu: anchored under the trigger, over the results ── */
+
+.listbox {
+  position: absolute;
+  z-index: 10;
+  top: calc(100% - 0.125rem);
+  left: 0.75rem;
+  width: min(23rem, calc(100% - 1.5rem));
+  max-height: min(22rem, 55vh);
+  overflow-y: auto;
+  border: 1px solid var(--color-fd-border);
+  border-radius: 8px;
+  background: var(--color-fd-popover);
+  box-shadow: 0 12px 32px rgb(0 0 0 / 0.28);
+  outline: none;
+  padding: 0.25rem;
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  border-radius: 6px;
+  cursor: pointer;
+  padding: 0.4375rem 0.5rem;
+}
+
+.option[data-highlighted='true'] {
+  background: var(--color-fd-accent);
+}
+
+.optionIcon {
+  flex: none;
+  color: var(--color-fd-muted-foreground);
+}
+
+.optionText {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.0625rem;
+}
+
+.optionName {
+  color: var(--color-fd-foreground);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+.optionDescription {
+  overflow: hidden;
+  color: var(--color-fd-muted-foreground);
+  font-size: 0.75rem;
+  line-height: 1.35;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.option[aria-selected='true'] :is(.optionIcon, .optionName),
+.optionCheck {
+  color: var(--coven-docs-violet);
+}
+
+.optionCheck {
+  flex: none;
+}
+
+/* ── Results ── */
+
+.listLabel {
+  margin: 0;
+  padding: 0.75rem 0.875rem 0.125rem;
+}
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1.5rem 1rem 1.25rem;
+  color: var(--color-fd-muted-foreground);
+  font-size: 0.875rem;
+  text-align: center;
+}
+
+.empty p {
+  margin: 0;
+}
+
+.empty strong {
+  color: var(--color-fd-foreground);
+  font-weight: 500;
+}
+
+.emptyAction {
+  border: 1px solid var(--color-fd-border);
+  border-radius: 5px;
+  background: transparent;
+  padding: 0.3125rem 0.625rem;
+  color: var(--color-fd-foreground);
+  cursor: pointer;
+  font-family: var(--oc-font-mono);
+  font-size: 0.65625rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  transition: background-color 150ms ease;
+}
+
+.emptyAction:hover {
+  background: var(--color-fd-accent);
+}
+
+.emptyAction:focus-visible {
+  outline: 2px solid var(--coven-docs-violet);
+  outline-offset: 2px;
+}
+
+/* ── Key hints ── */
+
+.hints {
+  display: flex;
+  gap: 1rem;
+  padding: 0.5rem 0.875rem;
+  color: var(--color-fd-muted-foreground);
+  font-size: 0.6875rem;
+}
+
+.hints span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.hints kbd {
+  display: inline-grid;
+  min-width: 1.125rem;
+  height: 1.125rem;
+  place-items: center;
+  border: 1px solid var(--color-fd-border);
+  border-radius: 4px;
+  padding: 0 0.25rem;
+  font-family: var(--oc-font-mono);
+  font-size: 0.625rem;
+}
+
+/* Touch screens have no keys to hint at. */
+@media (max-width: 640px) {
+  .hints {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .trigger,
+  .emptyAction {
+    transition: none;
+  }
+}

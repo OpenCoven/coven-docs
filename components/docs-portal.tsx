@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { Icon } from '@iconify/react';
 import { docsSections, getStabilityLabel } from '@/lib/docs-manifest';
+import { fallbackSectionIcon, sectionIcons } from '@/lib/section-icons';
 import { EvidenceSeal } from './evidence-seal';
 import styles from './docs-portal.module.css';
 
@@ -38,18 +39,6 @@ const journey = [
     icon: 'ph:lifebuoy-duotone',
   },
 ] as const;
-
-const sectionIcons: Record<string, string> = {
-  guide: 'ph:compass-duotone',
-  cli: 'ph:terminal-window-duotone',
-  harnesses: 'ph:plugs-connected-duotone',
-  daemon: 'ph:cpu-duotone',
-  'memory-models': 'ph:brain-duotone',
-  'coven-code': 'ph:code-duotone',
-  openapi: 'ph:brackets-curly-duotone',
-  reference: 'ph:book-open-text-duotone',
-  experimental: 'ph:flask-duotone',
-};
 
 export function DocsPortal() {
   return (
@@ -147,7 +136,7 @@ export function DocsPortal() {
               <div className={styles.catalogTopline}>
                 <span className={styles.catalogIcon}>
                   <Icon
-                    icon={sectionIcons[section.slug] ?? 'ph:file-text-duotone'}
+                    icon={sectionIcons[section.slug] ?? fallbackSectionIcon}
                     width={20}
                     aria-hidden="true"
                   />

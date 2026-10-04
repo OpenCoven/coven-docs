@@ -1,0 +1,8 @@
+{
+  "title": "Install",
+  "pagesIndex": "install",
+  "pages": [
+    "install-debugging",
+    "uninstall"
+  ]
+}

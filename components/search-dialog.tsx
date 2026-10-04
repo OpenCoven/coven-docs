@@ -1,8 +1,9 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { type KeyboardEvent, useEffect, useId, useMemo, useRef, useState } from 'react';
 import { useDocsSearch } from 'fumadocs-core/search/client';
 import { track } from '@vercel/analytics';
+import { Icon } from '@iconify/react';
 import type { SearchLink, SharedProps } from 'fumadocs-ui/contexts/search';
 import {
   SearchDialog,
@@ -15,15 +16,18 @@ import {
   SearchDialogOverlay,
 } from 'fumadocs-ui/components/dialog/search';
 import { docsSections } from '@/lib/docs-manifest';
+import { fallbackSectionIcon, sectionIcons } from '@/lib/section-icons';
+import styles from './search-dialog.module.css';
 
 const filters = [
-  { name: 'All', value: undefined, description: 'Search every Coven doc' },
+  { name: 'All', value: undefined, description: 'Search every Coven doc', icon: 'ph:books-duotone' },
   ...docsSections
     .filter((section) => section.searchable)
     .map((section) => ({
       name: section.title,
       value: section.slug,
       description: section.searchDescription,
+      icon: sectionIcons[section.slug] ?? fallbackSectionIcon,
     })),
 ];
 
@@ -33,7 +37,13 @@ export function CovenSearchDialog({
 }: SharedProps & { links?: SearchLink[] }) {
   const [tag, setTag] = useState<string | undefined>();
   const [filterOpen, setFilterOpen] = useState(false);
+  const [highlight, setHighlight] = useState(0);
   const lastTrackedEmptySearch = useRef<string | null>(null);
+  const scopeRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const listboxRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const listboxId = useId();
   const { search, setSearch, query } = useDocsSearch({
     type: 'fetch',
     tag,
@@ -49,7 +59,18 @@ export function CovenSearchDialog({
       url: link,
     }));
   }, [links]);
-  const activeFilter = filters.find((filter) => filter.value === tag) ?? filters[0];
+  const activeIndex = Math.max(0, filters.findIndex((filter) => filter.value === tag));
+  const activeFilter = filters[activeIndex];
+  const searching = search.trim().length > 0;
+  // Label what is on screen: suggestions show until a query's results arrive.
+  const showingResults = query.data !== 'empty';
+  const listLabel = showingResults
+    ? tag
+      ? `Results in ${activeFilter.name}`
+      : 'Results'
+    : searching
+      ? 'Searching…'
+      : 'Suggested';
 
   useEffect(() => {
     const normalized = search.trim();
@@ -65,6 +86,85 @@ export function CovenSearchDialog({
     });
   }, [query.data, search, tag]);
 
+  // Close the scope menu on a pointer press anywhere outside it.
+  useEffect(() => {
+    if (!filterOpen) return;
+    const onPointerDown = (event: PointerEvent) => {
+      if (!scopeRef.current?.contains(event.target as Node)) setFilterOpen(false);
+    };
+    document.addEventListener('pointerdown', onPointerDown);
+    return () => document.removeEventListener('pointerdown', onPointerDown);
+  }, [filterOpen]);
+
+  // Opening the menu moves focus into it, starting on the current scope.
+  useEffect(() => {
+    if (!filterOpen) return;
+    setHighlight(activeIndex);
+    // preventScroll: focusing must not scroll the dialog's own content.
+    listboxRef.current?.focus({ preventScroll: true });
+  }, [filterOpen, activeIndex]);
+
+  // Keep the highlighted option in view by scrolling the menu itself only.
+  function keepVisible(index: number) {
+    const listbox = listboxRef.current;
+    const option = document.getElementById(`${listboxId}-${index}`);
+    if (!listbox || !option) return;
+    if (option.offsetTop < listbox.scrollTop) listbox.scrollTop = option.offsetTop;
+    else if (option.offsetTop + option.offsetHeight > listbox.scrollTop + listbox.clientHeight)
+      listbox.scrollTop = option.offsetTop + option.offsetHeight - listbox.clientHeight;
+  }
+
+  function closeFilter(returnFocusTo: 'trigger' | 'input' = 'trigger') {
+    setFilterOpen(false);
+    (returnFocusTo === 'input' ? inputRef.current : triggerRef.current)?.focus();
+  }
+
+  function choose(index: number) {
+    setTag(filters[index].value);
+    closeFilter('input');
+  }
+
+  function onListboxKeyDown(event: KeyboardEvent<HTMLDivElement>) {
+    const last = filters.length - 1;
+    const moves: Record<string, number> = {
+      ArrowDown: Math.min(highlight + 1, last),
+      ArrowUp: Math.max(highlight - 1, 0),
+      Home: 0,
+      End: last,
+    };
+    // The result list also listens for arrows and Enter further up; keep
+    // these keys inside the scope menu so Enter picks a scope rather than
+    // opening the highlighted result.
+    if (event.key in moves) {
+      event.preventDefault();
+      event.stopPropagation();
+      setHighlight(moves[event.key]);
+      keepVisible(moves[event.key]);
+    } else if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      event.stopPropagation();
+      choose(highlight);
+    } else if (event.key === 'Tab') {
+      setFilterOpen(false);
+    }
+  }
+
+  function Empty() {
+    return (
+      <div className={styles.empty}>
+        <p>
+          No results for <strong>“{search.trim()}”</strong>
+          {tag ? <> in {activeFilter.name}</> : null}.
+        </p>
+        {tag ? (
+          <button type="button" className={styles.emptyAction} onClick={() => setTag(undefined)}>
+            Search all docs
+          </button>
+        ) : null}
+      </div>
+    );
+  }
+
   return (
     <SearchDialog
       search={search}
@@ -73,55 +173,107 @@ export function CovenSearchDialog({
       {...props}
     >
       <SearchDialogOverlay />
-      <SearchDialogContent>
+      <SearchDialogContent
+        className={styles.content}
+        onEscapeKeyDown={(event) => {
+          // Escape closes the scope menu first, then the dialog.
+          if (!filterOpen) return;
+          event.preventDefault();
+          closeFilter();
+        }}
+      >
         <SearchDialogHeader>
           <SearchDialogIcon />
-          <SearchDialogInput />
+          <SearchDialogInput ref={inputRef} />
           <SearchDialogClose />
         </SearchDialogHeader>
-        <div className="border-b px-3 py-2 text-sm">
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="shrink-0 text-fd-muted-foreground">Filter</span>
-            <button
-              type="button"
-              aria-haspopup="listbox"
-              aria-expanded={filterOpen}
-              className="inline-flex min-w-40 max-w-full items-center justify-between gap-2 rounded-md border bg-fd-background px-2.5 py-1.5 text-left text-fd-foreground transition-colors hover:bg-fd-accent"
-              onClick={() => setFilterOpen((open) => !open)}
-            >
-              <span className="min-w-0 truncate">{activeFilter.name}</span>
-              <span aria-hidden="true" className="text-xs text-fd-muted-foreground">⌄</span>
-            </button>
-          </div>
+
+        <div ref={scopeRef} className={styles.scope}>
+          <span className={styles.scopeLabel}>Filter</span>
+          <button
+            ref={triggerRef}
+            type="button"
+            aria-haspopup="listbox"
+            aria-expanded={filterOpen}
+            aria-controls={listboxId}
+            className={styles.trigger}
+            data-scoped={tag !== undefined}
+            onClick={() => setFilterOpen((open) => !open)}
+            onKeyDown={(event) => {
+              if (event.key === 'ArrowDown' && !filterOpen) {
+                event.preventDefault();
+                event.stopPropagation();
+                setFilterOpen(true);
+              }
+            }}
+          >
+            <Icon icon={activeFilter.icon} width={15} aria-hidden="true" />
+            <span className={styles.triggerName}>{activeFilter.name}</span>
+            <Icon icon="ph:caret-up-down" width={13} aria-hidden="true" className={styles.caret} />
+          </button>
+
           {filterOpen && (
             <div
+              ref={listboxRef}
+              id={listboxId}
               role="listbox"
-              className="mt-2 grid w-full min-w-0 gap-1 rounded-lg border bg-fd-popover p-1 shadow-xl"
+              aria-label="Search scope"
+              aria-activedescendant={`${listboxId}-${highlight}`}
+              tabIndex={-1}
+              className={styles.listbox}
+              onKeyDown={onListboxKeyDown}
             >
-              {filters.map((filter) => {
-                const active = filter.value === tag;
+              {filters.map((filter, index) => {
+                const selected = filter.value === tag;
 
                 return (
-                  <button
+                  <div
                     key={filter.name}
-                    type="button"
+                    id={`${listboxId}-${index}`}
                     role="option"
-                    aria-selected={active}
-                    className="rounded-md px-2.5 py-2 text-left text-sm transition-colors hover:bg-fd-accent aria-selected:bg-fd-accent"
-                    onClick={() => {
-                      setTag(filter.value);
-                      setFilterOpen(false);
-                    }}
+                    aria-selected={selected}
+                    data-highlighted={index === highlight}
+                    className={styles.option}
+                    onPointerMove={() => setHighlight(index)}
+                    onClick={() => choose(index)}
                   >
-                    <span className="block font-medium text-fd-foreground">{filter.name}</span>
-                    <span className="block text-xs leading-relaxed text-fd-muted-foreground">{filter.description}</span>
-                  </button>
+                    <Icon icon={filter.icon} width={16} aria-hidden="true" className={styles.optionIcon} />
+                    <span className={styles.optionText}>
+                      <span className={styles.optionName}>{filter.name}</span>
+                      <span className={styles.optionDescription}>{filter.description}</span>
+                    </span>
+                    {selected ? (
+                      <Icon icon="ph:check-bold" width={13} aria-hidden="true" className={styles.optionCheck} />
+                    ) : null}
+                  </div>
                 );
               })}
             </div>
           )}
         </div>
-        <SearchDialogList items={query.data !== 'empty' ? query.data : defaultItems} />
+
+        {/* One wrapper, so the dialog's per-child divider sits under the list
+            rather than between the label and its results. */}
+        <div className={styles.results}>
+          <p className={styles.listLabel}>{listLabel}</p>
+          <SearchDialogList
+            items={query.data !== 'empty' ? query.data : defaultItems}
+            Empty={Empty}
+          />
+        </div>
+
+        <div className={styles.hints} aria-hidden="true">
+          <span>
+            <kbd>↑</kbd>
+            <kbd>↓</kbd> Navigate
+          </span>
+          <span>
+            <kbd>↵</kbd> Open
+          </span>
+          <span>
+            <kbd>Esc</kbd> Close
+          </span>
+        </div>
       </SearchDialogContent>
     </SearchDialog>
   );

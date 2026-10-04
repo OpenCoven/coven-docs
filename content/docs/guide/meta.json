@@ -4,11 +4,13 @@
   "root": true,
   "icon": "LuBookOpen",
   "pages": [
+    "---Start---",
     "getting-started",
     "next-steps",
     "install",
     "platforms",
     "deployments",
+    "---Understand---",
     "concepts",
     "architecture",
     "ecosystem"

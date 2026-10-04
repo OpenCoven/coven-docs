@@ -135,6 +135,31 @@
   font-weight: 500;
 }
 
+/* A group whose header is also a page (a route group with a `pagesIndex`)
+ * renders as a link with a chevron; give it the same weight as the other
+ * folder headings. The current page keeps its active colour. */
+:is(#nd-sidebar, #nd-sidebar-mobile) [data-radix-scroll-area-viewport] a[data-active='false']:has(> svg[data-icon]) {
+  color: var(--color-fd-foreground);
+  font-weight: 500;
+}
+
+/* Plain section headings inside a list (`---Label---` in meta.json), set as
+ * OpenCoven labels. Fumadocs renders them as bare paragraphs. */
+:is(#nd-sidebar, #nd-sidebar-mobile) [data-radix-scroll-area-viewport] p {
+  margin-top: 1.25rem;
+  margin-bottom: 0.25rem;
+  color: var(--color-fd-muted-foreground);
+  font-family: var(--oc-font-mono);
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: var(--oc-tracking-label);
+  text-transform: uppercase;
+}
+
+:is(#nd-sidebar, #nd-sidebar-mobile) [data-radix-scroll-area-viewport] p:first-child {
+  margin-top: 0.25rem;
+}
+
 /* Folder chevrons; Fumadocs marks them with data-icon. */
 :is(#nd-sidebar, #nd-sidebar-mobile) [data-radix-scroll-area-viewport] :is(a, button) > svg[data-icon] {
   width: 0.875rem;

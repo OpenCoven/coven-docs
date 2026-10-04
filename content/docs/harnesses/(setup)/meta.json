@@ -1,0 +1,9 @@
+{
+  "title": "Setup",
+  "pages": [
+    "installing",
+    "provider-auth",
+    "project-roots",
+    "working-directories"
+  ]
+}

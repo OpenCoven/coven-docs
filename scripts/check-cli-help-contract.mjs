@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { readFileSync, readdirSync } from 'node:fs';
-import { join, relative, resolve } from 'node:path';
+import { join, resolve } from 'node:path';
+import { docsRoute } from './docs-nav.mjs';
 import { pathToFileURL } from 'node:url';
 import { collectAnchors, stripCodeFences } from './mdx-anchors.mjs';
 
@@ -39,8 +40,7 @@ export function loadRepoCliHelpInputs() {
       const file = join(directory, entry.name);
       if (entry.isDirectory()) walk(file);
       else if (entry.isFile() && file.endsWith('.mdx')) {
-        const slug = relative(docsRoot, file).replaceAll('\\', '/').replace(/\.mdx$/, '').replace(/(^|\/)index$/, '');
-        routeIndex.set(`/docs/${slug}`.replace(/\/$/, ''), collectAnchors(readFileSync(file, 'utf8')));
+        routeIndex.set(docsRoute(docsRoot, file), collectAnchors(readFileSync(file, 'utf8')));
       }
     }
   }

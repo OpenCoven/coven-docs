@@ -1,5 +1,6 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { navPages, pagePath } from './docs-nav.mjs';
 
 const root = process.cwd();
 const docsRoot = join(root, 'content', 'docs');
@@ -130,17 +131,17 @@ const requiredCommandMentions = [
 
 const requiredCanonicalPlatformMentions = [
   {
-    file: join(cliRoot, 'install.mdx'),
+    file: pagePath(cliRoot, 'install'),
     label: 'content/docs/cli/install.mdx',
     mentions: ['macOS Apple Silicon / arm64', 'macOS Intel / x64', 'darwin-x64'],
   },
   {
-    file: join(guideRoot, 'platforms.mdx'),
+    file: pagePath(guideRoot, 'platforms'),
     label: 'content/docs/guide/platforms.mdx',
     mentions: ['macOS Intel', 'darwin-x64'],
   },
   {
-    file: join(cliRoot, 'install-debugging.mdx'),
+    file: pagePath(cliRoot, 'install-debugging'),
     label: 'content/docs/cli/install-debugging.mdx',
     mentions: ['@opencoven/cli-macos-x64', 'darwin-x64'],
   },
@@ -256,7 +257,7 @@ if (cliMeta.description !== 'Command-Line Reference') {
   fail('content/docs/cli/meta.json description must describe the command reference section.');
 }
 
-const actualPages = Array.isArray(cliMeta.pages) ? cliMeta.pages : [];
+const actualPages = navPages(cliRoot);
 const missingPages = requiredPages.filter((page) => !actualPages.includes(page));
 if (missingPages.length > 0) {
   fail(`content/docs/cli/meta.json is missing pages: ${missingPages.join(', ')}.`);
@@ -268,7 +269,7 @@ if (!existsSync(guideMetaPath)) {
 }
 
 const guideMeta = readJson(guideMetaPath);
-const actualGuidePages = Array.isArray(guideMeta.pages) ? guideMeta.pages : [];
+const actualGuidePages = navPages(guideRoot);
 const missingGuideNavPages = requiredGuidePages.filter(
   (page) => !actualGuidePages.includes(page),
 );
@@ -279,7 +280,7 @@ if (missingGuideNavPages.length > 0) {
 }
 
 const missingGuidePages = requiredGuidePages
-  .map((page) => join(guideRoot, `${page}.mdx`))
+  .map((page) => pagePath(guideRoot, page))
   .filter((file) => !existsSync(file));
 if (missingGuidePages.length > 0) {
   fail(`missing guide doc pages: ${missingGuidePages.map((file) => file.replace(`${root}/`, '')).join(', ')}.`);
@@ -287,7 +288,7 @@ if (missingGuidePages.length > 0) {
 
 const guideSource = [];
 for (const page of requiredGuidePages) {
-  const file = join(guideRoot, `${page}.mdx`);
+  const file = pagePath(guideRoot, page);
   const source = readFileSync(file, 'utf8');
   guideSource.push(source);
 
@@ -300,7 +301,7 @@ for (const page of requiredGuidePages) {
   }
 }
 
-const gettingStartedSource = readFileSync(join(guideRoot, 'getting-started.mdx'), 'utf8');
+const gettingStartedSource = readFileSync(pagePath(guideRoot, 'getting-started'), 'utf8');
 const missingGettingStartedMentions = requiredGettingStartedMentions.filter(
   (mention) => !gettingStartedSource.includes(mention),
 );
@@ -312,7 +313,7 @@ if (missingGettingStartedMentions.length > 0) {
 
 const allSource = [];
 
-const setupSource = readFileSync(join(cliRoot, 'setup.mdx'), 'utf8');
+const setupSource = readFileSync(pagePath(cliRoot, 'setup'), 'utf8');
 const missingSetupMentions = requiredSetupMentions.filter(
   (mention) => !setupSource.includes(mention),
 );
@@ -322,7 +323,7 @@ if (missingSetupMentions.length > 0) {
   );
 }
 
-const interactiveSource = readFileSync(join(cliRoot, 'interactive.mdx'), 'utf8');
+const interactiveSource = readFileSync(pagePath(cliRoot, 'interactive'), 'utf8');
 const missingInteractiveMentions = requiredInteractiveMentions.filter(
   (mention) => !interactiveSource.includes(mention),
 );
@@ -332,7 +333,7 @@ if (missingInteractiveMentions.length > 0) {
   );
 }
 
-const installDebuggingSource = readFileSync(join(cliRoot, 'install-debugging.mdx'), 'utf8');
+const installDebuggingSource = readFileSync(pagePath(cliRoot, 'install-debugging'), 'utf8');
 const missingInstallDebuggingMentions = requiredInstallDebuggingMentions.filter(
   (mention) => !installDebuggingSource.includes(mention),
 );
@@ -342,7 +343,7 @@ if (missingInstallDebuggingMentions.length > 0) {
   );
 }
 
-const uninstallSource = readFileSync(join(cliRoot, 'uninstall.mdx'), 'utf8');
+const uninstallSource = readFileSync(pagePath(cliRoot, 'uninstall'), 'utf8');
 const missingUninstallMentions = requiredUninstallMentions.filter(
   (mention) => !uninstallSource.includes(mention),
 );
@@ -353,7 +354,7 @@ if (missingUninstallMentions.length > 0) {
 }
 
 for (const page of requiredPages) {
-  const file = join(cliRoot, `${page}.mdx`);
+  const file = pagePath(cliRoot, page);
   if (!existsSync(file)) {
     fail(`missing CLI doc page: content/docs/cli/${page}.mdx.`);
   }
@@ -380,11 +381,11 @@ if (!joined.includes('/docs/daemon') || !joined.includes('/docs/cli/sessions')) 
   fail('CLI docs must cross-link daemon and session management docs.');
 }
 
-if (!readFileSync(join(cliRoot, 'daemon.mdx'), 'utf8').includes('/docs/daemon/lifecycle')) {
+if (!readFileSync(pagePath(cliRoot, 'daemon'), 'utf8').includes('/docs/daemon/lifecycle')) {
   fail('CLI daemon page must link to daemon lifecycle docs.');
 }
 
-if (!readFileSync(join(cliRoot, 'sessions.mdx'), 'utf8').includes('/docs/daemon/lifecycle')) {
+if (!readFileSync(pagePath(cliRoot, 'sessions'), 'utf8').includes('/docs/daemon/lifecycle')) {
   fail('CLI sessions page must link to daemon lifecycle docs.');
 }
 

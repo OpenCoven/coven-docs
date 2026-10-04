@@ -6,14 +6,8 @@
   "pages": [
     "index",
     "what-is-a-harness",
-    "installing",
-    "provider-auth",
-    "project-roots",
-    "working-directories",
-    "codex",
-    "claude-code",
-    "copilot",
-    "coven-code",
+    "(setup)",
+    "(built-in)",
     "custom-adapters",
     "troubleshooting"
   ]

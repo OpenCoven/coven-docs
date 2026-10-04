@@ -1,5 +1,6 @@
 import { readFileSync, readdirSync } from 'node:fs';
 import { collectAnchors, stripCodeFences } from './mdx-anchors.mjs';
+import { docsRoute } from './docs-nav.mjs';
 import { extname, join, relative, resolve } from 'node:path';
 
 const root = process.cwd();
@@ -13,12 +14,9 @@ function walk(directory) {
   });
 }
 
-function routeForFile(file) {
-  const rel = relative(docsRoot, file).replaceAll('\\', '/').replace(/\.mdx$/, '');
-  if (rel === 'index') return '/docs';
-  if (rel.endsWith('/index')) return `/docs/${rel.slice(0, -'/index'.length)}`;
-  return `/docs/${rel}`;
-}
+// Route-group folders such as `(memory)` add no URL segment; without the
+// shared helper, fragment links into grouped pages would be skipped.
+const routeForFile = (file) => docsRoute(docsRoot, file);
 
 function normalizeTargetPath(sourceRoute, hrefPath) {
   if (hrefPath.startsWith('/')) return hrefPath.replace(/\/$/, '') || '/';
