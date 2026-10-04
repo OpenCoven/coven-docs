@@ -27,6 +27,14 @@ const nextConfig = {
   async redirects() {
     return siteManifest.redirects;
   },
+  // Markdown views of docs pages, as advertised in /llms.txt. The array form
+  // runs before dynamic routes, so docs/[[...slug]] never sees the `.md` URL.
+  async rewrites() {
+    return [
+      { source: '/docs.md', destination: '/llms.md/docs' },
+      { source: '/docs/:path*.md', destination: '/llms.md/docs/:path*' },
+    ];
+  },
   async headers() {
     return [
       {
