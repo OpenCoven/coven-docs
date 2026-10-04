@@ -104,7 +104,7 @@ export default async function Page({ params }: { params: Promise<{ slug?: string
   ]);
 
   return (
-    <main className="contents">
+    <>
       <DocsPage
         toc={page.data.toc}
         full={page.data.full}
@@ -148,7 +148,7 @@ export default async function Page({ params }: { params: Promise<{ slug?: string
         <PageFeedback feedbackIssueUrl={feedbackUrl} pagePath={page.url} />
         {lastModifiedTime && <PageLastUpdate date={lastModifiedTime} />}
       </DocsPage>
-    </main>
+    </>
   );
 }
 
