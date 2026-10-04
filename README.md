@@ -97,6 +97,34 @@ native npm package and Coven Code archive. It is derived from upstream release m
 source-lock pin by `pnpm capture:platform-data`; `pnpm check:platform-data` keeps the install
 pages' package and archive tables in step with it. See [the platform data notes](content/data/README.md#platform-data).
 
+### Platform-specific content
+
+Readers pick a platform once, from the sidebar or a page's platform notice, and
+pages show the steps for it. Wrap content that applies to some platforms only:
+
+```mdx
+<Platform only="macos linux">
+
+(sh commands)
+
+</Platform>
+
+<Platform only="windows">
+
+(PowerShell commands)
+
+</Platform>
+```
+
+`only` takes OS families (`macos`, `linux`, `windows`) and exact platforms
+(`macos-arm64`, `linux-x64`, …) from `content/data/platforms.json`. The server
+always renders every block, and CSS hides the others before first paint, so
+search, print, and the Markdown exports keep all platforms. Leave shared steps
+and one-line asides ("on Windows, …") outside blocks, keep headings out of them,
+and collapse commands that are identical in every shell into one block.
+`pnpm check:platform-data` enforces the tokens and structure, and keeps
+`guide/platforms` unfiltered as the reference.
+
 Narrative explanations remain authored. Machine generation owns operation
 inventory, signatures, schemas, and examples—not product interpretation.
 

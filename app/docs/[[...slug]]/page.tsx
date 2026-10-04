@@ -18,6 +18,7 @@ import { getMDXComponents } from '@/components/mdx-components';
 import { PageFeedback } from '@/components/page-feedback';
 import { PageNavFooter } from '@/components/page-nav-footer';
 import { DocsStatus } from '@/components/docs-status';
+import { PlatformNotice } from '@/components/platform-notice';
 
 const REPO = 'OpenCoven/coven-docs';
 const SITE = 'https://docs.opencoven.ai';
@@ -53,22 +54,26 @@ function buildFeedbackUrl(page: PageRef) {
   return `https://github.com/${REPO}/issues/new?${params.toString()}`;
 }
 
-async function getReadingTimeMinutes(path: string): Promise<number | null> {
+async function readPageSource(path: string): Promise<string | null> {
   try {
-    const content = await readFile(join(process.cwd(), 'content', 'docs', path), 'utf-8');
-    const text = content
-      .replace(/^---\n[\s\S]*?\n---\n/, '')
-      .replace(/```[\s\S]*?```/g, '')
-      .replace(/<[^>]+>/g, '')
-      .replace(/[#*`_>\-[\](){}!|]/g, ' ')
-      .replace(/\s+/g, ' ')
-      .trim();
-    const words = text ? text.split(' ').filter(Boolean).length : 0;
-    if (words === 0) return null;
-    return Math.max(1, Math.round(words / 220));
+    return await readFile(join(process.cwd(), 'content', 'docs', path), 'utf-8');
   } catch {
     return null;
   }
+}
+
+function getReadingTimeMinutes(content: string | null): number | null {
+  if (!content) return null;
+  const text = content
+    .replace(/^---\n[\s\S]*?\n---\n/, '')
+    .replace(/```[\s\S]*?```/g, '')
+    .replace(/<[^>]+>/g, '')
+    .replace(/[#*`_>\-[\](){}!|]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+  const words = text ? text.split(' ').filter(Boolean).length : 0;
+  if (words === 0) return null;
+  return Math.max(1, Math.round(words / 220));
 }
 
 async function getLastModifiedTime(path: string) {
@@ -98,10 +103,13 @@ export default async function Page({ params }: { params: Promise<{ slug?: string
   const githubUrl = `https://github.com/${REPO}/blob/main/content/docs/${page.path}`;
   const issueUrl = buildIssueUrl(page);
   const feedbackUrl = buildFeedbackUrl(page);
-  const [readingMinutes, lastModifiedTime] = await Promise.all([
-    getReadingTimeMinutes(page.path),
+  const [pageSource, lastModifiedTime] = await Promise.all([
+    readPageSource(page.path),
     getLastModifiedTime(page.path),
   ]);
+  const readingMinutes = getReadingTimeMinutes(pageSource);
+  // Pages with <Platform> blocks say how they are filtered and let the reader change it.
+  const hasPlatformBlocks = /<Platform\b/.test(pageSource ?? '');
 
   return (
     <>
@@ -144,6 +152,7 @@ export default async function Page({ params }: { params: Promise<{ slug?: string
             </div>
           </header>
         )}
+        {hasPlatformBlocks && <PlatformNotice />}
         <DocsBody>
           <MDX components={getMDXComponents()} />
         </DocsBody>

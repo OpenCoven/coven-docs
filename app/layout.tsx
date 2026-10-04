@@ -7,6 +7,7 @@ import type { ReactNode } from 'react';
 import { Analytics } from '@vercel/analytics/next';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import { CovenSearchDialog } from '@/components/search-dialog';
+import { platformHeadScript, platformHeadStyle } from '@/lib/platforms';
 import './globals.css';
 import './docs-facelift.css';
 import './docs-sidebar.css';
@@ -119,6 +120,10 @@ export default function Layout({ children }: { children: ReactNode }) {
       <head>
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        {/* Platform filter: mark <html> with the reader's platform before first
+            paint, so platform blocks never flash (see lib/platform-filter.mjs). */}
+        <style dangerouslySetInnerHTML={{ __html: platformHeadStyle }} />
+        <script dangerouslySetInnerHTML={{ __html: platformHeadScript }} />
       </head>
       <body style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
         <RootProvider

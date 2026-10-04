@@ -1,12 +1,19 @@
 // Offline check for content/data/platforms.json: its shape and provenance,
-// and that the docs pages listing native packages and Coven Code archives
-// name exactly what upstream ships. Upstream bytes are compared by
-// scripts/capture-platform-data.mjs, which needs the network.
+// that the docs pages listing native packages and Coven Code archives name
+// exactly what upstream ships, and that every <Platform> block is well formed.
+// Upstream bytes are compared by scripts/capture-platform-data.mjs, which
+// needs the network.
 
-import { readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { readFileSync, readdirSync } from 'node:fs';
+import { join, relative, resolve } from 'node:path';
 import { pagePath } from './docs-nav.mjs';
-import { PLATFORM_DATA_PATH, validatePlatformData } from './platform-data.mjs';
+import { stripCodeFences } from './mdx-anchors.mjs';
+import {
+  PLATFORM_DATA_PATH,
+  platformBlockProblems,
+  platformTokensFor,
+  validatePlatformData,
+} from './platform-data.mjs';
 
 const root = resolve(import.meta.dirname, '..');
 const read = (path) => readFileSync(resolve(root, path), 'utf8');
@@ -51,11 +58,35 @@ if (failures.length === 0) {
   );
 }
 
+// <Platform> blocks: well formed everywhere, and absent from the platform
+// reference, which must always show every platform.
+const knownTokens = platformTokensFor(data.platforms ?? []);
+const docsRoot = resolve(root, 'content/docs');
+const referencePage = pagePath(resolve(docsRoot, 'guide'), 'platforms');
+let blockCount = 0;
+function walk(directory) {
+  for (const entry of readdirSync(directory, { withFileTypes: true })) {
+    const file = join(directory, entry.name);
+    if (entry.isDirectory()) walk(file);
+    else if (file.endsWith('.mdx')) {
+      const source = readFileSync(file, 'utf8');
+      const label = relative(root, file);
+      const blocks = (stripCodeFences(source).match(/<Platform\b/g) ?? []).length;
+      blockCount += blocks;
+      if (file === referencePage && blocks > 0) {
+        failures.push(`${label} is the platform reference; it must not filter content with <Platform>`);
+      }
+      for (const problem of platformBlockProblems(source, knownTokens)) failures.push(`${label} ${problem}`);
+    }
+  }
+}
+walk(docsRoot);
+
 if (failures.length > 0) {
   console.error(`Platform data check failed:\n- ${failures.join('\n- ')}`);
   process.exit(1);
 }
 
 console.log(
-  `Platform data check passed for ${data.platforms.length} platforms at ${data.provenance.verifiedCommit.slice(0, 7)}.`,
+  `Platform data check passed for ${data.platforms.length} platforms at ${data.provenance.verifiedCommit.slice(0, 7)} and ${blockCount} <Platform> blocks.`,
 );
