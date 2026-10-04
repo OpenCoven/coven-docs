@@ -14,6 +14,11 @@
   display: flex;
   flex-direction: column;
   gap: clamp(3rem, 7vw, 5.5rem);
+  /* The overview fills the column up to a readable width, then centres, so
+   * wide screens get margins instead of a hero split by dead space. */
+  width: 100%;
+  max-width: 88rem;
+  margin-inline: auto;
   padding: 0.5rem 0 2rem;
 }
 
@@ -33,7 +38,9 @@
   grid-template-areas:
     'copy seal'
     'rule rule';
-  grid-template-columns: minmax(0, 1fr) auto;
+  /* Balanced columns: the seal sits centred in its own half rather than
+   * pinned to the far edge. */
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
   align-items: center;
   column-gap: clamp(2rem, 5vw, 5rem);
   padding-top: clamp(1rem, 3vw, 2.5rem);
@@ -163,7 +170,8 @@
 
 .seal {
   grid-area: seal;
-  width: clamp(15rem, 22vw, 21rem);
+  justify-self: center;
+  width: min(100%, clamp(16rem, 24vw, 27rem));
 }
 
 /* ── Seal rule and hallmarks ── */
@@ -463,6 +471,18 @@
 
   .catalogGrid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Narrower desktops: the headline needs the room more than the balance, so
+ * the seal goes back to sizing itself. */
+@media (max-width: 1279px) {
+  .hero {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .seal {
+    width: clamp(15rem, 22vw, 21rem);
   }
 }
 
