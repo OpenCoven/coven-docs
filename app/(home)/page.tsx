@@ -89,7 +89,8 @@ export default function HomePage() {
               Start a session <Icon icon="ph:arrow-right-bold" width={14} />
             </Link>
             <Link href="https://github.com/OpenCoven/coven" target="_blank" className={s.heroButtonSecondary}>
-              <Icon icon="ph:github-logo-duotone" width={16} /> GitHub
+              <Icon icon="ph:github-logo-duotone" width={16} aria-hidden="true" />
+              <span className={s.compactLabel}>GitHub</span>
             </Link>
           </div>
           <div className={s.install}>
@@ -104,7 +105,7 @@ export default function HomePage() {
               {supportedOses.map((os) => (
                 <span key={os} className={s.platform}>
                   <Icon icon={osLabels[os].icon} width={13} aria-hidden="true" />
-                  {osLabels[os].label}
+                  <span className={s.compactLabel}>{osLabels[os].label}</span>
                 </span>
               ))}
             </p>

@@ -45,6 +45,12 @@
   --home-glow:          rgba(154,142,205,0.2);
   --home-grain:         0.07;
   --home-hero-bg-top:   #0C0C12;
+  --home-card-top:      rgba(24,23,34,0.86);
+  --home-card-bottom:   rgba(12,12,18,0.86);
+  --home-card-border:   rgba(154,142,205,0.17);
+  --home-card-highlight:rgba(255,255,255,0.06);
+  --home-card-shadow:   0 30px 70px -34px rgb(0 0 0 / 0.75);
+  --home-well:          rgba(4,4,7,0.65);
 
   --home-display: var(--oc-font-display);
   --home-mono: var(--oc-font-mono);
@@ -98,6 +104,12 @@
   --home-glow:          rgba(108,90,200,0.14);
   --home-grain:         0.05;
   --home-hero-bg-top:   #FFFFFF;
+  --home-card-top:      rgba(255,255,255,0.92);
+  --home-card-bottom:   rgba(249,247,255,0.92);
+  --home-card-border:   rgba(108,90,200,0.18);
+  --home-card-highlight:rgba(255,255,255,1);
+  --home-card-shadow:   0 30px 70px -36px rgb(40 30 90 / 0.28);
+  --home-well:          rgba(108,90,200,0.05);
 }
 
 /* Visible keyboard focus everywhere on the page */
@@ -138,7 +150,7 @@
   background:
     radial-gradient(70% 90% at 82% 45%, var(--home-hero-tint), transparent 62%),
     linear-gradient(180deg, var(--home-hero-bg-top), var(--home-hero-bg));
-  padding: clamp(1.25rem, 5svh, 3.5rem) clamp(1.25rem, 4.5vw, 4.5rem);
+  padding: clamp(0.875rem, 3.6svh, 2.5rem) clamp(0.875rem, 3vw, 3rem);
   isolation: isolate;
 }
 
@@ -198,9 +210,19 @@
   50%      { opacity: 1;   scale: 1.04; }
 }
 
+/* The thesis sits on a card. Backgrounds, borders, and shadows only: a
+ * position, filter, or backdrop-filter here would make the card the
+ * containing block for the "What Coven owns" panel instead of the stage. */
 .stageText {
   min-width: 0;
   max-width: 640px;
+  border: 1px solid var(--home-card-border);
+  border-radius: 14px;
+  background: linear-gradient(180deg, var(--home-card-top), var(--home-card-bottom));
+  box-shadow:
+    inset 0 1px 0 var(--home-card-highlight),
+    var(--home-card-shadow);
+  padding: clamp(1.1rem, 4svh, 2.5rem) clamp(1.1rem, 2.8vw, 2.5rem);
 }
 
 /* Staggered focus-in on load. `backwards`, not `both`: holding the end frame
@@ -228,7 +250,7 @@
   display: flex;
   align-items: center;
   gap: 0.875rem;
-  margin: 0 0 clamp(0.875rem, 3svh, 1.75rem);
+  margin: 0 0 clamp(0.75rem, 2.6svh, 1.5rem);
   color: var(--home-violet-text);
   font-family: var(--home-mono);
   font-size: 0.6875rem;
@@ -246,10 +268,10 @@
 }
 
 .heroTitle {
-  margin: 0 0 clamp(0.875rem, 3svh, 1.75rem);
+  margin: 0 0 clamp(0.75rem, 2.6svh, 1.5rem);
   color: var(--home-fg-strong);
   font-family: var(--home-display);
-  font-size: clamp(2.3rem, min(5.3vw, 9svh), 5.6rem);
+  font-size: clamp(2.2rem, min(4.9vw, 8.2svh), 5.1rem);
   font-weight: 500;
   letter-spacing: -0.022em;
   line-height: 1;
@@ -273,7 +295,7 @@
 
 .heroLead {
   max-width: 32rem;
-  margin: 0 0 clamp(1.1rem, 3.6svh, 2.25rem);
+  margin: 0 0 clamp(1rem, 3.2svh, 2rem);
   color: var(--home-fg-muted);
   font-size: clamp(0.9375rem, 1.95svh, 1.0625rem);
   font-weight: 400;
@@ -343,10 +365,12 @@
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  max-width: 32rem;
-  margin-top: clamp(0.875rem, 3svh, 1.75rem);
-  border-bottom: 1px solid var(--home-border);
-  padding-block: 0.5rem;
+  margin-top: clamp(0.75rem, 2.6svh, 1.5rem);
+  border: 1px solid var(--home-hairline);
+  border-radius: 9px;
+  background: var(--home-well);
+  box-shadow: inset 0 1px 2px rgb(0 0 0 / 0.18);
+  padding: 0.3rem 0.3rem 0.3rem 0.9rem;
 }
 
 .installPrompt {
@@ -397,7 +421,6 @@
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem 1.5rem;
-  max-width: 32rem;
   margin-top: clamp(0.75rem, 2.4svh, 1.25rem);
 }
 
@@ -859,6 +882,18 @@ details[open] > summary .revealIcon {
 }
 
 @media (max-width: 640px) {
+  .stage {
+    padding: 0.625rem;
+  }
+
+  .stageText {
+    padding: clamp(1rem, 3svh, 1.5rem) 1.1rem;
+  }
+
+  .heroTitle {
+    font-size: clamp(1.75rem, 8.6vw, 2.6rem);
+  }
+
   .band {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -921,8 +956,25 @@ details[open] > summary .revealIcon {
   }
 }
 
-/* The narrowest phones: the eyebrow drops its hairline to stay on one line. */
+/* Narrow phones: trim the outer frames so the card keeps its measure. */
 @media (max-width: 400px) {
+  .homeMain {
+    --home-pad-x: 0.625rem;
+  }
+
+  .stage {
+    padding: 0.5rem;
+  }
+
+  .stageText {
+    padding-inline: 0.95rem;
+  }
+
+  .heroLead {
+    font-size: 0.9rem;
+    line-height: 1.55;
+  }
+
   .heroEyebrow {
     font-size: 0.625rem;
     letter-spacing: 0.12em;
@@ -933,12 +985,47 @@ details[open] > summary .revealIcon {
   }
 
   .heroMeta {
-    gap: 0.5rem 1rem;
+    gap: 0.5rem 0.75rem;
+  }
+
+  .platformsLabel,
+  .whySummary {
+    letter-spacing: 0.08em;
+  }
+}
+
+/* The narrowest phones: the GitHub button and the platform names collapse to
+ * their icons (the text stays for screen readers) so each row fits on one line. */
+@media (max-width: 379px) {
+  .compactLabel {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .heroButtonSecondary {
+    padding-inline: 0.85rem;
+  }
+
+  .platforms {
+    gap: 0.35rem 0.7rem;
+  }
+
+  .platform svg {
+    width: 15px;
+    height: 15px;
   }
 }
 
 /* Short screens: tighten the vertical rhythm before anything has to scroll. */
 @media (max-height: 700px) {
+  .homeMain {
+    padding-bottom: 0.5rem;
+  }
+
   .stage {
     padding-block: clamp(0.875rem, 3svh, 1.75rem);
   }
