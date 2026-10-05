@@ -296,6 +296,31 @@
   max-width: 80ch;
 }
 
+/* A link that is only inline code (the CLI command maps, API field links)
+ * reads as its chip, not as underlined text. Prose links underline their
+ * contents, and that line ran under the chip's own border. The chip shows the
+ * link instead: its border turns violet on hover and focus. Links in running
+ * text keep their underline. */
+#nd-page a:has(> code:only-child) {
+  text-decoration: none;
+}
+
+#nd-page a:has(> code:only-child) > code {
+  transition: border-color 150ms ease;
+}
+
+#nd-page a:has(> code:only-child):is(:hover, :focus-visible) > code {
+  border-color: var(--coven-docs-violet);
+}
+
+/* Commands in a table's first column stay on one line: a long command widens
+ * its column rather than breaking a flag in two. Narrow screens scroll the
+ * table's own wrapper, not the page. */
+#nd-page table td:first-child > code,
+#nd-page table td:first-child > a > code {
+  white-space: nowrap;
+}
+
 /* Section headings use the display face, as the canon binds h1–h3 to EB
  * Garamond. MDX headings are direct children of the article's prose wrapper;
  * headings nested in components (the portal sections) keep their own styles.
