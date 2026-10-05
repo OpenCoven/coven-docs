@@ -16,6 +16,21 @@
  *                            and the editorial line only.
  */
 
+/* The landing page spans the window. The nav and the page share one gutter,
+ * so the logo lines up with the stage's left edge and the nav's icons with
+ * its right. Fumadocs caps the home nav at --fd-layout-width; lift that here. */
+.shell {
+  --home-gutter: clamp(1rem, 2vw, 1.5rem);
+}
+
+.shell :global(#nd-nav) > div > * {
+  max-width: none;
+}
+
+.shell :global(#nd-nav) nav {
+  padding-inline: var(--home-gutter);
+}
+
 .homeMain {
   /* Dark defaults */
   --home-surface:       #0A0A0E;
@@ -62,12 +77,11 @@
    * content scrolls rather than clipping it. */
   --home-nav: 3.5rem;
   --home-gap: clamp(0.5rem, 1.6svh, 1rem);
-  --home-pad-x: clamp(1rem, 2vw, 1.5rem);
+  --home-pad-x: var(--home-gutter, clamp(1rem, 2vw, 1.5rem));
 
   box-sizing: border-box;
   display: grid;
   width: 100%;
-  max-width: 96rem; /* = Tailwind max-w-screen-2xl (1536px) */
   min-height: calc(100svh - var(--home-nav));
   grid-template-rows: minmax(0, 1fr) auto;
   gap: var(--home-gap);
@@ -215,7 +229,7 @@
  * containing block for the "What Coven owns" panel instead of the stage. */
 .stageText {
   min-width: 0;
-  max-width: 640px;
+  max-width: 48rem;
   border: 1px solid var(--home-card-border);
   border-radius: 14px;
   background: linear-gradient(180deg, var(--home-card-top), var(--home-card-bottom));
@@ -465,7 +479,7 @@
 .sigil {
   width: 100%;
   /* As large as the stage allows in either direction. */
-  max-width: min(480px, 58svh);
+  max-width: min(600px, 58svh);
   height: auto;
 }
 
@@ -870,7 +884,7 @@ details[open] > summary .revealIcon {
   }
 
   .stageText {
-    max-width: 640px;
+    max-width: 48rem;
   }
 
   /* With one column, the panel covers the whole stage. */
@@ -956,10 +970,19 @@ details[open] > summary .revealIcon {
   }
 }
 
+/* Phones too narrow for the whole install command: fade its right edge so it
+ * reads as continuing (it scrolls, and the copy button copies all of it). */
+@media (max-width: 460px) {
+  .installCommand {
+    -webkit-mask-image: linear-gradient(to right, #000 78%, transparent);
+    mask-image: linear-gradient(to right, #000 78%, transparent);
+  }
+}
+
 /* Narrow phones: trim the outer frames so the card keeps its measure. */
 @media (max-width: 400px) {
-  .homeMain {
-    --home-pad-x: 0.625rem;
+  .shell {
+    --home-gutter: 0.625rem;
   }
 
   .stage {

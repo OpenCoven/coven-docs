@@ -313,6 +313,18 @@
   border-color: var(--coven-docs-violet);
 }
 
+/* Inline code in the table of contents reads as monospace text, not a boxed
+ * chip: in the narrow TOC column, chips broke across lines. It takes the
+ * link's colour so the active entry stays violet. (!important only to
+ * outrank the site-wide dark inline-code rule in globals.css.) */
+:is(#nd-toc, [data-toc-popover-content]) code {
+  border: 0;
+  background: none !important;
+  padding: 0;
+  color: inherit !important;
+  font-size: 0.92em;
+}
+
 /* Commands in a table's first column stay on one line: a long command widens
  * its column rather than breaking a flag in two. Narrow screens scroll the
  * table's own wrapper, not the page. */
