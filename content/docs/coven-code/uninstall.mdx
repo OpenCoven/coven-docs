@@ -32,21 +32,36 @@ npm uninstall -g @opencoven/cli
 
 Then verify what remains on `PATH`:
 
+<Platform only="macos linux">
+
 ```sh
 which coven-code
 which coven
 ```
 
-On Windows, use `where coven-code` and `where coven`.
+</Platform>
+
+<Platform only="windows">
+
+```powershell
+Get-Command -All coven-code
+Get-Command -All coven
+```
+
+</Platform>
 
 ## Remove Manual Binaries
 
 If you installed from a release archive, remove the binary from wherever you placed it:
 
+<Platform only="macos linux">
+
 ```sh
 sudo rm /usr/local/bin/coven-code
 rm ~/.local/bin/coven-code
 ```
+
+</Platform>
 
 If you installed into another directory, remove that copy instead. Check `which coven-code` first so you do not remove the wrong binary.
 

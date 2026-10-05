@@ -29,13 +29,9 @@ The npm route installs into npm's *global prefix*, and that prefix follows the N
 - Node version managers (nvm, fnm, volta, nvm-windows) give **every Node version its own prefix**, each with its own `bin` directory.
 - A system or Homebrew Node has another prefix, and `npm config set prefix` or `NPM_CONFIG_PREFIX` can point at a third.
 
-Each `npm install -g @opencoven/cli` writes into whichever prefix is active at that moment. Switch Node versions, or change the prefix, and the next install creates a second copy instead of upgrading the first. Check where npm will write before you install or upgrade:
+Each `npm install -g @opencoven/cli` writes into whichever prefix is active at that moment. Switch Node versions, or change the prefix, and the next install creates a second copy instead of upgrading the first. Check where npm will write before you install or upgrade. The command is the same in every shell:
 
 ```sh
-npm prefix -g
-```
-
-```powershell
 npm prefix -g
 ```
 

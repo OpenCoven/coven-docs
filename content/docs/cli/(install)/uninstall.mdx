@@ -48,11 +48,9 @@ Remove the CLI using the same method you installed with. Doctor's origin label t
 
 A bare `npm uninstall -g` acts on the prefix of the currently active Node, which may not be the prefix that holds the copy you want gone. Name the prefix Doctor reported:
 
-```sh
-npm uninstall -g --prefix <prefix> @opencoven/cli
-```
+The command is the same in every shell:
 
-```powershell
+```sh
 npm uninstall -g --prefix <prefix> @opencoven/cli
 ```
 
@@ -92,17 +90,21 @@ which -a coven
 
 ## Verify Removal
 
-### Unix-like shells
+<Platform only="macos linux">
 
 ```sh
 which -a coven
 ```
 
-### PowerShell
+</Platform>
+
+<Platform only="windows">
 
 ```powershell
 Get-Command -All coven -ErrorAction SilentlyContinue
 ```
+
+</Platform>
 
 No output means PowerShell can no longer resolve the command. If a path or command record still prints, another install is still present — remove it with the matching method above.
 

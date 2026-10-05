@@ -1,5 +1,5 @@
 import data from '@/content/data/platforms.json';
-import { parsePlatformTokens, platformBootScript, platformCss } from '@/lib/platform-filter.mjs';
+import { parsePlatformTokens, platformBootScript, platformCss, platformHighlightCss } from '@/lib/platform-filter.mjs';
 
 // The platforms readers can filter by, from content/data/platforms.json
 // (derived from upstream; see content/data/README.md).
@@ -34,7 +34,7 @@ export const platformConfig = {
 };
 
 export const platformHeadScript = platformBootScript(platformConfig);
-export const platformHeadStyle = platformCss(platformIds);
+export const platformHeadStyle = platformCss(platformIds) + platformHighlightCss(platformIds);
 
 export function platformTokens(only: string): string[] {
   return parsePlatformTokens(only, platformIds);

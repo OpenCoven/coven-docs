@@ -40,10 +40,13 @@ if (failures.length === 0) {
     new Set(debugging.match(/@opencoven\/cli-[a-z0-9-]+/g) ?? []),
     new Set(cliPlatforms.map(({ cli }) => cli.package)),
   );
+  // <PlatformMatrix /> renders the package table from this data, so only a
+  // hand-written table needs its rows checked.
+  const debuggingMatrix = /<PlatformMatrix\s*\/>/.test(debugging);
   const tableRows = debugging.split('\n').filter((line) => line.trimStart().startsWith('|'));
   for (const { cli } of cliPlatforms) {
-    if (!tableRows.some((row) => row.includes(`\`${cli.node}\``) && row.includes(`\`${cli.package}\``))) {
-      failures.push(`${debuggingLabel} needs a table row pairing \`${cli.node}\` with \`${cli.package}\``);
+    if (!debuggingMatrix && !tableRows.some((row) => row.includes(`\`${cli.node}\``) && row.includes(`\`${cli.package}\``))) {
+      failures.push(`${debuggingLabel} needs <PlatformMatrix /> or a table row pairing \`${cli.node}\` with \`${cli.package}\``);
     }
     if (!debugging.includes(`npm view ${cli.package} version`)) {
       failures.push(`${debuggingLabel} needs \`npm view ${cli.package} version\` in its published-package check`);
@@ -51,11 +54,14 @@ if (failures.length === 0) {
   }
 
   const codeInstallLabel = 'content/docs/coven-code/install.mdx';
-  sameNames(
-    `${codeInstallLabel} release archives`,
-    new Set(read(codeInstallLabel).match(/coven-code-[a-z]+-[a-z0-9_]+\.(?:tar\.gz|zip)/g) ?? []),
-    new Set(enginePlatforms.map(({ covenCode }) => covenCode.archive)),
-  );
+  const codeInstall = read(codeInstallLabel);
+  if (!/<PlatformMatrix\s+product="coven-code"\s*\/>/.test(codeInstall)) {
+    sameNames(
+      `${codeInstallLabel} release archives`,
+      new Set(codeInstall.match(/coven-code-[a-z]+-[a-z0-9_]+\.(?:tar\.gz|zip)/g) ?? []),
+      new Set(enginePlatforms.map(({ covenCode }) => covenCode.archive)),
+    );
+  }
 }
 
 // <Platform> blocks: well formed everywhere, and absent from the platform

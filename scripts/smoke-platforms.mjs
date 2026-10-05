@@ -114,5 +114,27 @@ export async function smokePlatforms(browser, baseUrl) {
   });
   expect('show all', widened, { saved: 'all', windows: true, unix: true });
 
+  // A platform matrix highlights the reader's row and hides none.
+  const matrixHtml = await (await fetch(`${baseUrl}/docs/guide/platforms`)).text();
+  const matrixRows = matrixHtml.split('data-platform-row=').length - 1;
+  if (matrixRows !== 4) throw new Error(`/docs/guide/platforms server HTML has ${matrixRows} matrix rows, expected 4`);
+  {
+    const context = await browser.createBrowserContext();
+    try {
+      const page = await context.newPage();
+      await page.evaluateOnNewDocument((key) => localStorage.setItem(key, 'windows-x64'), storageKey);
+      await page.goto(`${baseUrl}/docs/guide/platforms`, { waitUntil: 'networkidle0', timeout: 30_000 });
+      const lit = await page.evaluate(() =>
+        [...document.querySelectorAll('[data-platform-row]')]
+          .filter((row) => getComputedStyle(row).backgroundColor !== 'rgba(0, 0, 0, 0)')
+          .map((row) => row.dataset.platformRow.split(' ')[0]),
+      );
+      if (lit.join() !== 'windows-x64') throw new Error(`Platform matrix highlighted [${lit}], expected [windows-x64]`);
+      report.push({ name: 'matrix highlight', highlighted: lit });
+    } finally {
+      await context.close();
+    }
+  }
+
   return report;
 }
