@@ -47,25 +47,19 @@
   letter-spacing: -0.01em;
 }
 
-.coven-docs-brand-symbol {
-  position: relative;
-  display: inline-flex;
-  width: 1.35rem;
-  height: 1.35rem;
+/* The approved OpenCoven logo (white crown on a black square). 24px is the
+ * brand's minimum size; the square stays black in both themes. */
+.coven-docs-brand-logo {
+  display: block;
+  width: 1.5rem;
+  height: 1.5rem;
   flex: 0 0 auto;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid var(--coven-docs-rule-strong);
   border-radius: 5px;
-  transform: rotate(45deg);
 }
 
-.coven-docs-brand-symbol::before {
-  width: 0.36rem;
-  height: 0.36rem;
-  border-radius: 50%;
-  background: var(--coven-docs-violet);
-  content: '';
+:root:not(.light) .coven-docs-brand-logo {
+  /* A hairline keeps the black square's edge visible on the dark nav. */
+  box-shadow: 0 0 0 1px var(--coven-docs-rule);
 }
 
 .coven-docs-brand-product {
