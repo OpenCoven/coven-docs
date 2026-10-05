@@ -970,6 +970,15 @@ details[open] > summary .revealIcon {
   }
 }
 
+/* Phones too narrow for the whole install command: fade its right edge so it
+ * reads as continuing (it scrolls, and the copy button copies all of it). */
+@media (max-width: 460px) {
+  .installCommand {
+    -webkit-mask-image: linear-gradient(to right, #000 78%, transparent);
+    mask-image: linear-gradient(to right, #000 78%, transparent);
+  }
+}
+
 /* Narrow phones: trim the outer frames so the card keeps its measure. */
 @media (max-width: 400px) {
   .shell {
