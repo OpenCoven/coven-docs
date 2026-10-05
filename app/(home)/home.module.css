@@ -39,16 +39,29 @@
   --home-sigil-dim:     rgba(154,142,205,0.22);
   --home-sigil-knockout:#08080B;
   --home-on-violet:     #07070A;
-  --home-success:       #B4AAEB;
-  --home-terminal-fg:   #b4b4bd;
+  --home-reveal-shadow: 0 18px 48px rgb(0 0 0 / 0.5);
 
   --home-display: var(--oc-font-display);
   --home-mono: var(--oc-font-mono);
 
+  /* Layout. The page is one screen: everything below the 3.5rem Fumadocs
+   * nav. Sizes scale with the small viewport height (svh, which assumes
+   * mobile browser bars are showing) so the page fits as the window
+   * changes. It is a minimum, not a clamp: a window too short for the
+   * content scrolls rather than clipping it. */
+  --home-nav: 3.5rem;
+  --home-gap: clamp(0.5rem, 1.6svh, 1rem);
+  --home-pad-x: clamp(1rem, 2vw, 1.5rem);
+
+  box-sizing: border-box;
+  display: grid;
   width: 100%;
   max-width: 96rem; /* = Tailwind max-w-screen-2xl (1536px) */
+  min-height: calc(100svh - var(--home-nav));
+  grid-template-rows: minmax(0, 1fr) auto;
+  gap: var(--home-gap);
   margin: 0 auto;
-  padding: 1rem 1.5rem 1.5rem;
+  padding: var(--home-gap) var(--home-pad-x) clamp(0.75rem, 2svh, 1.5rem);
   color: var(--home-fg);
 }
 
@@ -74,63 +87,52 @@
   --home-sigil-dim:     rgba(108,90,200,0.26);
   --home-sigil-knockout:#FBF9FF;
   --home-on-violet:     #FFFFFF;
-  /* terminal stays dark-themed even in light mode — like a code block */
+  --home-reveal-shadow: 0 18px 48px rgb(40 30 90 / 0.16);
 }
 
 /* Visible keyboard focus everywhere on the page */
 .homeMain a:focus-visible,
-.homeMain button:focus-visible {
+.homeMain button:focus-visible,
+.homeMain summary:focus-visible {
   outline: 2px solid var(--home-violet);
   outline-offset: 3px;
   border-radius: 4px;
 }
 
-/* ─── Hero: thesis left, Boundary Sigil right ─────────────────────────────── */
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
 
-.heroPanel {
+/* ─── Stage: thesis left, Boundary Sigil right ────────────────────────────── */
+
+.stage {
   position: relative;
   display: grid;
+  min-height: 0;
   grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
   align-items: center;
-  gap: 2rem;
-  min-height: 560px;
+  gap: clamp(1rem, 3vw, 2.5rem);
   border: 1px solid var(--home-border);
   border-radius: var(--radius-md);
-  overflow: hidden;
   background:
     radial-gradient(ellipse 60% 80% at 78% 50%, var(--home-hero-tint), transparent 70%),
     var(--home-hero-bg);
-  padding: 3.5rem 3rem;
-  margin-bottom: 1rem;
+  padding: clamp(1.25rem, 5svh, 3.5rem) clamp(1.25rem, 4vw, 3.5rem);
   isolation: isolate;
 }
 
-/* Subpage variant (covenant, archives): single-column hero, no sigil */
-.heroPanelSolo {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  min-height: 420px;
-}
-
-.heroGridBg {
-  position: absolute;
-  inset: 0;
-  opacity: 0.028;
-  background-image:
-    linear-gradient(var(--home-violet) 1px, transparent 1px),
-    linear-gradient(90deg, var(--home-violet) 1px, transparent 1px);
-  background-size: 48px 48px;
-  pointer-events: none;
-  z-index: -1;
-}
-
-.heroText {
+.stageText {
+  min-width: 0;
   max-width: 620px;
 }
 
 .heroEyebrow {
-  margin: 0 0 1.5rem;
+  margin: 0 0 clamp(0.75rem, 2.6svh, 1.5rem);
   color: var(--home-violet-text);
   font-family: var(--home-mono);
   font-size: 0.7rem;
@@ -140,13 +142,13 @@
 }
 
 .heroTitle {
-  margin: 0 0 1.5rem;
+  margin: 0 0 clamp(0.75rem, 2.6svh, 1.5rem);
   color: var(--home-fg-strong);
   font-family: var(--home-display);
-  font-size: clamp(2.5rem, 4.6vw, 4.1rem);
+  font-size: clamp(2.1rem, min(4.6vw, 8.4svh), 4.6rem);
   font-weight: 600;
   letter-spacing: -0.012em;
-  line-height: 1.06;
+  line-height: 1.04;
 }
 
 .heroTitleAccent {
@@ -155,10 +157,10 @@
 
 .heroLead {
   max-width: 540px;
-  margin: 0 0 2.25rem;
+  margin: 0 0 clamp(1rem, 3.4svh, 2.25rem);
   color: var(--home-fg-muted);
-  font-size: 1.06rem;
-  line-height: 1.7;
+  font-size: clamp(0.9375rem, 1.9svh, 1.0625rem);
+  line-height: 1.65;
 }
 
 .heroActions {
@@ -212,18 +214,87 @@
   transform: translateY(-1px);
 }
 
-/* ─── Boundary Sigil ──────────────────────────────────────────────────────── */
+/* ─── Install ─────────────────────────────────────────────────────────────── */
 
-.heroSigil {
+.installBar {
+  display: flex;
+  align-items: stretch;
+  width: 100%;
+  margin-top: clamp(0.75rem, 2.6svh, 1.5rem);
+  border: 1px solid var(--home-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--home-surface);
+}
+
+.installBadge,
+.installCommand {
+  min-height: clamp(40px, 5.4svh, 46px);
   display: flex;
   align-items: center;
-  justify-content: center;
+}
+
+.installBadge {
+  flex-shrink: 0;
+  gap: 0.4rem;
+  padding: 0 1rem;
+  border-right: 1px solid var(--home-border);
+  background: var(--home-violet-soft);
+  color: var(--home-violet-text);
+  font-family: var(--home-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.installCommand {
+  flex: 1;
   min-width: 0;
+  padding: 0 1.1rem;
+  color: var(--home-fg);
+  cursor: text;
+  font-family: var(--home-mono);
+  font-size: 0.85rem;
+  user-select: all;
+  white-space: nowrap;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.pkgCopy {
+  display: flex;
+  align-items: center;
+  align-self: stretch;
+  border: none;
+  background: none;
+  padding: 0 0.9rem;
+  color: var(--home-violet-text);
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity 0.15s ease, background 0.15s ease;
+}
+
+.pkgCopy:hover,
+.pkgCopy:focus-visible {
+  background: var(--home-violet-softer);
+  opacity: 1;
+}
+
+/* ─── Boundary Sigil ──────────────────────────────────────────────────────── */
+
+.stageSigil {
+  display: flex;
+  min-width: 0;
+  min-height: 0;
+  align-items: center;
+  justify-content: center;
 }
 
 .sigil {
   width: 100%;
-  max-width: 480px;
+  /* As large as the stage allows in either direction. */
+  max-width: min(480px, 58svh);
   height: auto;
 }
 
@@ -321,637 +392,393 @@
   100% { opacity: 0; }
 }
 
-/* ─── The record: editorial + install beside the session terminal ─────────── */
-
-.introSection {
-  display: grid;
-  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
-  gap: 2.5rem;
-  align-items: center;
-  width: 100%;
-  padding: 2.5rem 0.25rem;
-}
-
-/* Subpage variant: plain block, keeps the section padding only */
-.introSectionSolo {
-  display: block;
-}
-
-.introText {
-  min-width: 0;
-}
-
-.introCopy {
-  margin: 0 0 1.75rem;
-  color: var(--home-fg-muted);
-  font-family: var(--home-display);
-  font-size: 1.5rem;
-  font-weight: 500;
-  letter-spacing: 0;
-  line-height: 1.55;
-}
-
-.introCopy span {
-  color: var(--home-violet-text);
-}
-
-.installBar {
-  display: flex;
-  align-items: stretch;
-  width: 100%;
-  max-width: none;
-  border: 1px solid var(--home-border);
-  border-radius: var(--radius-md);
-  overflow: hidden;
-  background: var(--home-surface);
-}
-
-.installBadge,
-.installCommand,
-.installGuide {
-  min-height: 46px;
-  display: flex;
-  align-items: center;
-}
-
-.installBadge {
-  flex-shrink: 0;
-  gap: 0.4rem;
-  padding: 0 1rem;
-  border-right: 1px solid var(--home-border);
-  background: var(--home-violet-soft);
-  color: var(--home-violet-text);
-  font-family: var(--home-mono);
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0;
-  text-transform: uppercase;
-  white-space: nowrap;
-}
-
-.installCommand {
-  flex: 1;
-  min-width: 0;
-  padding: 0.85rem 1.1rem;
-  color: var(--home-fg);
-  cursor: text;
-  font-family: var(--home-mono);
-  font-size: 0.88rem;
-  letter-spacing: 0;
-  user-select: all;
-  white-space: nowrap;
-  overflow-x: auto;
-}
-
-.installGuide {
-  flex-shrink: 0;
-  gap: 0.3rem;
-  padding: 0 1.1rem;
-  border-left: 1px solid var(--home-border);
-  color: var(--home-violet-text);
-  font-size: 0.8rem;
-  font-weight: 700;
-  text-decoration: none;
-  white-space: nowrap;
-}
-
-.installGuide:hover {
-  color: var(--home-violet);
-  background: var(--home-violet-softer);
-}
-
-/* ─── Section headers ─────────────────────────────────────────────────────── */
-
-.featureSection {
-  margin-bottom: 0.75rem;
-}
-
-.sectionHead {
-  padding: 1.5rem 0.25rem 1rem;
-}
-
-.sectionTitle {
-  margin: 0 0 0.45rem;
-  color: var(--home-fg-strong);
-  font-family: var(--home-display);
-  font-size: 1.8rem;
-  font-weight: 600;
-  letter-spacing: 0;
-}
-
-.sectionLead {
-  max-width: 560px;
-  margin: 0;
-  color: var(--home-fg-muted);
-  font-size: 0.95rem;
-  line-height: 1.6;
-}
-
-/* ─── Feature entries ─────────────────────────────────────────────────────── */
-
-.fg {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 1px;
-  background: var(--home-border);
-  border: 1px solid var(--home-border);
-  border-radius: var(--radius-md);
-  overflow: hidden;
-}
-@media (max-width: 1100px) {
-  .fg { grid-template-columns: repeat(2, 1fr); }
-}
-@media (max-width: 560px) {
-  .fg { grid-template-columns: 1fr; }
-}
-
-.fc {
-  display: block;
-  padding: 1.6rem 1.75rem 1.75rem;
-  background: var(--home-surface);
-  text-decoration: none;
-  color: inherit;
-  transition: background 0.18s ease;
-}
-.fc:hover {
-  background: var(--home-surface-elev);
-}
-
-.fcEyebrow {
-  display: block;
-  margin-bottom: 0.9rem;
-  color: var(--home-violet-text);
-  font-family: var(--home-mono);
-  font-size: 0.68rem;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-}
-
-.fcTitleRow {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 0.45rem;
-}
-
-.fcTitle {
-  color: var(--home-fg);
-  font-size: 0.97rem;
-  font-weight: 650;
-}
-
-.fcArrow {
-  opacity: 0;
-  transform: translateX(-4px);
-  transition: opacity 0.15s, transform 0.15s;
-}
-.fc:hover .fcArrow {
-  opacity: 1;
-  transform: translateX(0);
-}
-
-.fcDesc {
-  margin: 0;
-  color: var(--home-fg-muted);
-  font-size: 0.85rem;
-  line-height: 1.65;
-}
-
-/* ─── Architecture cards ──────────────────────────────────────────────────── */
-
-.archSection {
-  margin-bottom: 1.5rem;
-}
-
-.archGrid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1.5rem;
-}
-@media (max-width: 720px) {
-  .archGrid { grid-template-columns: 1fr; }
-}
-
-.archCard {
-  border: 1px solid var(--home-border);
-  border-radius: var(--radius-md);
-  padding: 1.75rem;
-  background: var(--home-surface);
-}
-
-.archCardHead {
-  margin-bottom: 1.5rem;
-}
-
-.cardEyebrow {
-  display: block;
-  margin-bottom: 0.35rem;
-  color: var(--home-violet-text);
-  font-family: var(--home-mono);
-  font-size: 0.68rem;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-}
-
-.cardTitle {
-  color: var(--home-fg);
-  font-size: 0.95rem;
-  font-weight: 650;
-}
-
-.stackRow {
-  transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
-  cursor: pointer;
-  text-decoration: none;
-  color: inherit;
-}
-.stackRow:hover {
-  border-color: var(--home-border-strong) !important;
-  transform: translateX(3px);
-}
-
-.lsStep {
-  transition: background 0.14s ease, border-color 0.14s ease;
-  cursor: pointer;
-  text-align: left;
-}
-.lsStep:hover {
-  background: var(--home-violet-softer) !important;
-  border-color: var(--home-border-strong) !important;
-}
-.lsStepActive {
-  background: var(--home-violet-soft) !important;
-  border-color: var(--home-border-strong) !important;
-}
-
-/* ─── Package register ────────────────────────────────────────────────────── */
-
-.registerSection {
-  border: 1px solid var(--home-border);
-  border-radius: var(--radius-md);
-  overflow: hidden;
-  background: var(--home-surface);
-  margin-bottom: 1.5rem;
-}
-
-.registerHead {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 1rem;
-  padding: 2rem 2rem 1.5rem;
-  border-bottom: 1px solid var(--home-border);
-}
-
-.registerLead {
-  max-width: 520px;
-  margin: 0.6rem 0 0;
-  color: var(--home-fg-subtle);
-  font-size: 0.84rem;
-  line-height: 1.55;
-}
-
-.registerInstall {
-  padding: 0.4rem 0.75rem;
-  border: 1px solid var(--home-border);
-  border-radius: 6px;
-  background: var(--home-surface-soft);
-  color: var(--home-fg-muted);
-  font-family: var(--home-mono);
-  font-size: 0.78rem;
-}
-
-.registerInstall span {
-  color: var(--home-violet-text);
-}
-
-.registerList {
-  display: flex;
-  flex-direction: column;
-}
-
-.registerRow {
-  display: flex;
-  align-items: baseline;
-  gap: 1.25rem;
-  padding: 1rem 2rem;
-  transition: background 0.16s ease;
-}
-.registerRow + .registerRow {
-  border-top: 1px solid var(--home-border);
-}
-.registerRow:hover {
-  background: var(--home-violet-softer);
-}
-
-.registerTag {
-  flex-shrink: 0;
-  width: 4.5rem;
-  color: var(--home-fg-subtle);
-  font-family: var(--home-mono);
-  font-size: 0.72rem;
-}
-
-.registerBody {
-  flex: 1;
-  min-width: 0;
-}
-
-.registerName {
-  margin-bottom: 0.15rem;
-  color: var(--home-violet-text);
-  font-family: var(--home-mono);
-  font-size: 0.84rem;
-  font-weight: 600;
-}
-
-.registerDesc {
-  color: var(--home-fg-muted);
-  font-size: 0.8rem;
-  line-height: 1.5;
-}
-
-.pkgCopy {
-  opacity: 0;
-  align-self: center;
-  transition: opacity 0.15s ease;
-  cursor: pointer;
-  background: none;
-  border: none;
-  padding: 0;
-  color: var(--home-violet-text);
-  display: flex;
-  align-items: center;
-}
-.registerRow:hover .pkgCopy,
-.pkgCopy:focus-visible {
-  opacity: 1;
-}
-@media (hover: none) {
-  .pkgCopy { opacity: 1; }
-}
-
-/* ─── CTA ─────────────────────────────────────────────────────────────────── */
-
-.ctaSection {
-  display: grid;
-  grid-template-areas:
-    'title actions'
-    'lead actions';
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: center;
-  column-gap: 3rem;
-  border-top: 1px solid var(--home-border);
-  padding: 2rem 0.25rem 2.25rem;
-  text-align: left;
-}
-
-.ctaTitle {
-  grid-area: title;
-  margin: 0 0 0.35rem;
-  color: var(--home-fg-strong);
-  font-family: var(--home-display);
-  font-size: 1.7rem;
-  font-weight: 600;
-  letter-spacing: 0;
-  line-height: 1.25;
-}
-
-.ctaLead {
-  grid-area: lead;
-  max-width: 42rem;
-  margin: 0;
-  color: var(--home-fg-muted);
-  font-size: 0.95rem;
-  line-height: 1.6;
-}
-
-.ctaActions {
-  grid-area: actions;
-  display: flex;
-  gap: 1.1rem;
-  justify-content: flex-end;
-  flex-wrap: wrap;
-}
-
-@media (max-width: 720px) {
-  .ctaSection {
-    grid-template-areas:
-      'title'
-      'lead'
-      'actions';
-    grid-template-columns: 1fr;
-    padding: 2rem 0.25rem 2.25rem;
-    text-align: center;
-  }
-
-  .ctaLead {
-    margin: 0 auto 1.25rem;
-  }
-
-  .ctaActions {
-    justify-content: center;
-  }
-}
-
-.ctaPrimary,
-.ctaSecondary {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  font-size: 0.92rem;
-  text-decoration: none;
-  transition: color 0.15s ease, opacity 0.15s ease, transform 0.15s ease;
-}
-
-.ctaPrimary {
-  color: var(--home-violet-text);
-  font-weight: 650;
-}
-.ctaPrimary:hover {
-  opacity: 0.88;
-  transform: translateY(-1px);
-}
-
-.ctaSecondary {
-  color: var(--home-fg-muted);
-  font-weight: 500;
-}
-.ctaSecondary:hover {
-  color: var(--home-fg-strong);
-  transform: translateY(-1px);
-}
-
-/* ─── Session terminal ────────────────────────────────────────────────────── */
+/* ─── Reveals ─────────────────────────────────────────────────────────────── */
 /*
- * The terminal stays dark-themed in both modes so it reads as an embedded
- * terminal screenshot (same convention as code blocks). Colors are intentionally
- * not tokenized.
+ * Detail opens as a panel laid over the page at a higher z-index, never by
+ * pushing content down, so the page stays one screen. Each reveal is a
+ * native <details>: its summary stays in place and its panel is positioned
+ * over the stage. Closing simply uncovers what was underneath.
  */
 
-.heroTerminal {
-  width: 100%;
-  border: 1px solid rgba(154, 142, 205, 0.24);
+.why > summary,
+.tile > summary {
+  list-style: none;
+  cursor: pointer;
+}
+
+.why > summary::-webkit-details-marker,
+.tile > summary::-webkit-details-marker {
+  display: none;
+}
+
+.revealIcon {
+  flex: none;
+  transition: rotate 0.2s ease;
+}
+
+details[open] > summary .revealIcon {
+  rotate: 45deg;
+}
+
+.reveal {
+  position: absolute;
+  z-index: 30;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border: 1px solid var(--home-border-strong);
   border-radius: var(--radius-md);
-  background: rgba(8, 8, 12, 0.94);
-  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.28);
-  overflow: hidden;
+  background: color-mix(in oklab, var(--home-surface-elev) 94%, transparent);
+  box-shadow: var(--home-reveal-shadow);
+  padding: clamp(1rem, 3svh, 1.75rem) clamp(1rem, 2.4vw, 1.75rem);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  animation: revealIn 0.24s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+@keyframes revealIn {
+  from {
+    opacity: 0;
+    clip-path: inset(0 0 35% 0 round var(--radius-md));
+    translate: 0 8px;
+  }
+}
+
+.revealClose {
+  position: absolute;
+  top: 0.625rem;
+  right: 0.625rem;
+  display: grid;
+  width: 2rem;
+  height: 2rem;
+  place-items: center;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--home-fg-subtle);
+  cursor: pointer;
+}
+
+.revealClose:hover {
+  background: var(--home-violet-softer);
+  color: var(--home-fg-strong);
+}
+
+.revealEyebrow {
+  margin: 0 0 0.75rem;
+  color: var(--home-violet-text);
   font-family: var(--home-mono);
-  font-size: 0.82rem;
-  line-height: 1.7;
-}
-
-.heroTerminalBar {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.6rem 0.9rem;
-  border-bottom: 1px solid rgba(154, 142, 205, 0.1);
-  background: rgba(154, 142, 205, 0.06);
-}
-
-.termDot {
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-}
-
-.heroTerminalBody {
-  min-height: 200px;
-  padding: 1rem 1.1rem;
-  color: #b4b4bd;
-}
-
-.termPrompt {
-  color: rgba(154, 142, 205, 0.8);
-}
-
-.termOut {
-  color: #B4AAEB;
-}
-
-.termMuted {
-  color: #77727f;
-}
-
-/* The "● live" tick is the terminal's single ember mark — it is recording */
-.termLive {
-  margin-left: auto;
-  color: var(--home-ember);
-  font-size: 0.65rem;
-  font-weight: 600;
-  letter-spacing: 0.06em;
+  font-size: 0.68rem;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
 }
 
-@keyframes blink {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: 0; }
+.revealTitle {
+  margin: 0 0 0.6rem;
+  color: var(--home-fg-strong);
+  font-family: var(--home-display);
+  font-size: clamp(1.35rem, 3svh, 1.75rem);
+  font-weight: 600;
+  line-height: 1.15;
 }
 
-.cursor {
-  display: inline-block;
-  width: 7px;
-  height: 13px;
-  background: rgba(154, 142, 205, 0.8);
-  border-radius: 1px;
-  vertical-align: text-bottom;
-  animation: blink 1.1s step-end infinite;
+.revealText {
+  margin: 0 0 1rem;
+  color: var(--home-fg-muted);
+  font-size: 0.95rem;
+  line-height: 1.6;
 }
 
-@keyframes fadeSlideIn {
-  from { opacity: 0; transform: translateY(6px); }
-  to   { opacity: 1; transform: translateY(0); }
+.revealLinks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.25rem;
 }
 
-.termLine {
-  animation: fadeSlideIn 0.3s ease both;
+.revealLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--home-violet-text);
+  font-family: var(--home-mono);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-decoration: none;
+  text-transform: uppercase;
 }
 
-/* ─── Responsive ──────────────────────────────────────────────────────────── */
+.revealLink:hover {
+  color: var(--home-fg-strong);
+}
 
-@media (max-width: 1080px) {
-  .heroPanel {
-    grid-template-columns: 1fr;
-    min-height: auto;
-    padding: 3rem 2.5rem;
+/* "What Coven owns": a quiet text control under the install bar whose panel
+ * covers the sigil half of the stage. */
+
+.why {
+  margin-top: clamp(0.5rem, 2svh, 1.25rem);
+}
+
+.whySummary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: var(--home-fg-subtle);
+  font-family: var(--home-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  transition: color 0.15s ease;
+}
+
+.whySummary:hover,
+.why[open] > .whySummary {
+  color: var(--home-violet-text);
+}
+
+.whyPanel {
+  /* Sized to its content and centred in the stage, never taller than it. */
+  --why-inset: clamp(0.75rem, 3svh, 1.5rem);
+  inset-block: var(--why-inset);
+  right: clamp(0.75rem, 2vw, 1.5rem);
+  width: min(46%, 34rem);
+  height: fit-content;
+  max-height: calc(100% - 2 * var(--why-inset));
+  margin-block: auto;
+}
+
+.whyCopy {
+  margin: 0 0 1rem;
+  color: var(--home-fg);
+  font-family: var(--home-display);
+  font-size: clamp(1.2rem, 2.8svh, 1.6rem);
+  line-height: 1.35;
+}
+
+.whyCopy span {
+  color: var(--home-violet-text);
+}
+
+.whyPanel .revealTitle {
+  margin-top: clamp(0.75rem, 2.4svh, 1.5rem);
+  font-size: clamp(1.1rem, 2.4svh, 1.35rem);
+}
+
+/* ─── Band: four capabilities ─────────────────────────────────────────────── */
+
+.band {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  border: 1px solid var(--home-border);
+  border-radius: var(--radius-md);
+  background: var(--home-surface);
+}
+
+/* Each tile anchors its own panel, which rises over the stage above it. */
+.tile {
+  position: relative;
+  min-width: 0;
+}
+
+.tile + .tile {
+  border-left: 1px solid var(--home-border);
+}
+
+.tileSummary {
+  display: grid;
+  height: 100%;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    'tag icon'
+    'title icon';
+  align-items: center;
+  column-gap: 0.75rem;
+  row-gap: 0.2rem;
+  padding: clamp(0.625rem, 1.8svh, 1.1rem) clamp(0.875rem, 1.6vw, 1.25rem);
+  transition: background 0.15s ease;
+}
+
+/* The band's first child is its hidden heading, so count tiles by type. */
+.tile:first-of-type > .tileSummary {
+  border-radius: var(--radius-md) 0 0 var(--radius-md);
+}
+
+.tile:last-of-type > .tileSummary {
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+}
+
+.tileSummary:hover {
+  background: var(--home-violet-softer);
+}
+
+.tile[open] > .tileSummary {
+  background: var(--home-violet-soft);
+  box-shadow: inset 0 2px 0 var(--home-violet);
+}
+
+.tileTag {
+  grid-area: tag;
+  color: var(--home-violet-text);
+  font-family: var(--home-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.tileTitle {
+  grid-area: title;
+  overflow: hidden;
+  color: var(--home-fg-strong);
+  font-size: clamp(0.875rem, 1.9svh, 1rem);
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tileSummary > .revealIcon {
+  grid-area: icon;
+  color: var(--home-fg-subtle);
+}
+
+.tilePanel {
+  bottom: calc(100% + var(--home-gap));
+  left: 0;
+  width: min(26rem, calc(200% + 1px));
+  max-height: calc(100svh - var(--home-nav) - 8rem);
+}
+
+/* The last tile opens toward the centre so its panel stays on screen. */
+.tile:last-of-type > .tilePanel {
+  right: 0;
+  left: auto;
+}
+
+/* ─── Narrow: one column, the sigil as a watermark behind the thesis ─────── */
+
+@media (max-width: 900px) {
+  .stage {
+    grid-template-columns: minmax(0, 1fr);
+    overflow: hidden;
   }
 
-  .heroSigil {
-    order: -1;
-    margin-bottom: 0.5rem;
+  .stageSigil {
+    position: absolute;
+    z-index: -1;
+    top: 50%;
+    right: -12%;
+    width: min(70vw, 52svh);
+    opacity: 0.32;
+    pointer-events: none;
+    translate: 0 -50%;
   }
 
   .sigil {
-    max-width: 340px;
+    max-width: none;
   }
 
-  .introSection {
-    grid-template-columns: 1fr;
-    gap: 2rem;
+  .stageText {
+    max-width: 640px;
+  }
+
+  /* With one column, the panel covers the whole stage. */
+  .whyPanel {
+    --why-inset: clamp(0.5rem, 2svh, 1rem);
+    inset-inline: var(--why-inset);
+    width: auto;
   }
 }
 
 @media (max-width: 640px) {
-  .homeMain {
-    padding: 0.75rem;
+  .band {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .heroPanel {
-    padding: 2rem 1.25rem;
-  }
-
-  .sigil {
-    max-width: 280px;
-  }
-
-  .heroLead {
-    font-size: 1rem;
-  }
-
-  .heroActions,
-  .heroButtonPrimary,
-  .heroButtonSecondary,
-  .installBar,
-  .installGuide {
-    width: 100%;
-  }
-
-  .introSection {
-    padding: 1.8rem 0 1.5rem;
-  }
-
-  .introCopy {
-    font-size: 1.22rem;
-  }
-
-  .installBar {
-    flex-wrap: wrap;
-  }
-
-  .installCommand {
-    flex-basis: calc(100% - 78px);
-  }
-
-  .installGuide {
-    justify-content: center;
-    border-top: 1px solid var(--home-border);
+  .tile + .tile {
     border-left: 0;
   }
 
-  .registerHead,
-  .registerRow {
-    padding-left: 1.25rem;
-    padding-right: 1.25rem;
+  .tile:nth-of-type(even) {
+    border-left: 1px solid var(--home-border);
   }
 
-  .registerTag {
-    width: 3.4rem;
+  .tile:nth-of-type(n + 3) {
+    border-top: 1px solid var(--home-border);
+  }
+
+  .tile:first-of-type > .tileSummary,
+  .tile:last-of-type > .tileSummary {
+    border-radius: 0;
+  }
+
+  /* Panels span the band instead of hanging off a half-width tile. */
+  .tile {
+    position: static;
+  }
+
+  .tilePanel,
+  .tile:last-of-type > .tilePanel {
+    right: 0;
+    left: 0;
+    width: auto;
+  }
+
+  .installBadge {
+    padding: 0 0.75rem;
+  }
+
+  .installCommand {
+    padding: 0 0.75rem;
+    font-size: 0.78rem;
+  }
+
+  .heroButtonPrimary,
+  .heroButtonSecondary {
+    min-height: 40px;
+    padding: 0.65rem 0.85rem;
+    letter-spacing: 0.1em;
+  }
+
+  .heroEyebrow {
+    letter-spacing: 0.16em;
+  }
+
+  /* Half-width tiles: the icon moves up beside the tag so the title gets
+   * the full width instead of truncating. */
+  .tileSummary {
+    grid-template-areas:
+      'tag icon'
+      'title title';
+    padding-inline: 0.875rem;
+  }
+
+  .tileTitle {
+    white-space: normal;
   }
 }
 
-/* ─── Reduced motion: everything lands in its final state, nothing moves ──── */
+/* Short screens: tighten the vertical rhythm before anything has to scroll. */
+@media (max-height: 700px) {
+  .stage {
+    padding-block: clamp(1rem, 3.5svh, 1.75rem);
+  }
+
+  .heroEyebrow,
+  .heroTitle {
+    margin-bottom: clamp(0.5rem, 1.8svh, 1rem);
+  }
+
+  .heroLead {
+    margin-bottom: clamp(0.75rem, 2.4svh, 1.25rem);
+    font-size: 0.9375rem;
+    line-height: 1.55;
+  }
+
+  .installBar {
+    margin-top: clamp(0.5rem, 1.8svh, 1rem);
+  }
+}
+
+/* ─── Motion ──────────────────────────────────────────────────────────────── */
 
 @media (prefers-reduced-motion: reduce) {
   .sigilBoundary,
@@ -976,28 +803,21 @@
     opacity: 0;
   }
 
-  .termLine {
+  .reveal {
     animation: none;
   }
 
-  .cursor {
-    animation: none;
+  .revealIcon {
+    transition: none;
   }
 
   .heroButtonPrimary,
-  .heroButtonSecondary,
-  .ctaPrimary,
-  .ctaSecondary,
-  .stackRow {
+  .heroButtonSecondary {
     transition-property: background, border-color, color, opacity;
   }
+
   .heroButtonPrimary:hover,
-  .heroButtonSecondary:hover,
-  .ctaPrimary:hover,
-  .ctaSecondary:hover {
-    transform: none;
-  }
-  .stackRow:hover {
+  .heroButtonSecondary:hover {
     transform: none;
   }
 }
