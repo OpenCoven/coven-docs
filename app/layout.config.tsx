@@ -8,7 +8,8 @@ export const baseOptions: BaseLayoutProps = {
   nav: {
     title: (
       <span className="coven-docs-brand">
-        <span className="coven-docs-brand-symbol" aria-hidden="true" />
+        {/* The approved OpenCoven logo; the name beside it is the accessible label. */}
+        <img className="coven-docs-brand-logo" src="/opencoven-logo.svg" alt="" width={24} height={24} />
         <span className="coven-docs-brand-product">Coven</span>
         <span className="coven-docs-brand-label">Docs</span>
       </span>

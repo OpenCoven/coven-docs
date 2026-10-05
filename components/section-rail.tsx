@@ -40,7 +40,7 @@ export function SectionRail({ sections }: { sections: RailSection[] }) {
         aria-current={pathname === '/docs' ? 'page' : undefined}
         data-active={pathname === '/docs'}
       >
-        <span className="coven-docs-brand-symbol" aria-hidden="true" />
+        <img className="coven-docs-brand-logo" src="/opencoven-logo.svg" alt="" width={24} height={24} />
         <span className="coven-section-rail-tip" aria-hidden="true">
           Docs overview
         </span>

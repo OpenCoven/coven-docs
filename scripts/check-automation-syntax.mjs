@@ -31,6 +31,7 @@ const regressions = spawnSync(process.execPath, [
   'scripts/check-cli-help-contract.test.mjs',
   'scripts/docs-release-gate.test.mjs',
   'scripts/api-reference-contract.test.mjs',
+  'scripts/brand-logo.test.mjs',
   'scripts/platform-data.test.mjs',
   'scripts/platform-filter.test.mjs',
 ], { cwd: root, stdio: 'inherit' });
