@@ -1,5 +1,6 @@
 import { ImageResponse } from '@vercel/og';
 import type { NextRequest } from 'next/server';
+import { OPENCOVEN_LOGO_PATH, OPENCOVEN_LOGO_SIZE } from '@/lib/opencoven-logo';
 
 export const runtime = 'edge';
 
@@ -88,22 +89,17 @@ export async function GET(req: NextRequest) {
         >
           {/* Top: logo mark + wordmark + section */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-            <div
-              style={{
-                width: '44px',
-                height: '44px',
-                background: 'rgba(142,61,255,0.12)',
-                border: '1px solid rgba(142,61,255,0.25)',
-                borderRadius: '10px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
+            {/* The approved OpenCoven logo: white crown on a black square. */}
+            <svg
+              width="44"
+              height="44"
+              viewBox={`0 0 ${OPENCOVEN_LOGO_SIZE} ${OPENCOVEN_LOGO_SIZE}`}
+              xmlns="http://www.w3.org/2000/svg"
+              style={{ borderRadius: '10px', boxShadow: '0 0 0 1px rgba(201,167,255,0.22)' }}
             >
-              <svg width="22" height="22" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 2 14.8 9.2 22 12 14.8 14.8 12 22 9.2 14.8 2 12 9.2 9.2Z" fill="#C9A7FF" />
-              </svg>
-            </div>
+              <rect width={OPENCOVEN_LOGO_SIZE} height={OPENCOVEN_LOGO_SIZE} fill="#000000" />
+              <path d={OPENCOVEN_LOGO_PATH} fill="#ffffff" fillRule="evenodd" clipRule="evenodd" />
+            </svg>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
               <span
                 style={{
