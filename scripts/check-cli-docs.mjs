@@ -133,7 +133,8 @@ const requiredCanonicalPlatformMentions = [
   {
     file: pagePath(cliRoot, 'install'),
     label: 'content/docs/cli/install.mdx',
-    mentions: ['macOS Apple Silicon / arm64', 'macOS Intel / x64', 'darwin-x64'],
+    // The published targets render from content/data/platforms.json.
+    mentions: ['<PlatformMatrix />'],
   },
   {
     file: pagePath(guideRoot, 'platforms'),

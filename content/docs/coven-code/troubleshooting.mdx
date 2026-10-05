@@ -28,6 +28,8 @@ flowchart LR
 
 ## Fast Checks
 
+<Platform only="macos linux">
+
 ```sh
 coven-code --version
 which coven-code
@@ -35,7 +37,18 @@ coven doctor
 coven daemon status
 ```
 
-On Windows, use `where coven-code` instead of `which coven-code`.
+</Platform>
+
+<Platform only="windows">
+
+```powershell
+coven-code --version
+Get-Command -All coven-code
+coven doctor
+coven daemon status
+```
+
+</Platform>
 
 | Symptom | Likely cause | Fix |
 | --- | --- | --- |
@@ -58,17 +71,25 @@ which coven-code
 
 If several installs exist, keep one channel per binary. Coven Code ships as `@opencoven/coven-code`; the bare `coven` daemon CLI ships as `@opencoven/cli`. Installing a stale or unofficial package that also claims the `coven` bin makes the command depend on install order.
 
+<Platform only="macos linux">
+
 For archive installs, confirm the binary is executable:
 
 ```sh
 chmod +x /path/to/coven-code
 ```
 
-On macOS, clear quarantine only for a release you trust:
+</Platform>
+
+<Platform only="macos">
+
+Clear the quarantine flag only for a release you trust:
 
 ```sh
 xattr -rd com.apple.quarantine /path/to/coven-code
 ```
+
+</Platform>
 
 ## Provider Auth Problems
 

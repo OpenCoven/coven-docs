@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import vm from 'node:vm';
 import { JSDOM } from 'jsdom';
-import { parsePlatformTokens, platformBootScript, platformCss } from '../lib/platform-filter.mjs';
+import { parsePlatformTokens, platformBootScript, platformCss, platformHighlightCss } from '../lib/platform-filter.mjs';
 
 const ids = ['macos-arm64', 'macos-x64', 'linux-x64', 'linux-arm64', 'windows-x64'];
 const config = {
@@ -142,4 +142,29 @@ test('<Platform only> accepts known tokens and rejects the rest', () => {
   assert.deepEqual(parsePlatformTokens(' macos  linux macos ', ids), ['macos', 'linux']);
   assert.throws(() => parsePlatformTokens('macOS', ids), /Unknown platform "macOS"/);
   assert.throws(() => parsePlatformTokens('', ids), /needs an `only` attribute/);
+});
+
+// Which <PlatformMatrix> rows the highlight CSS marks for a given <html> state.
+function highlighted(htmlAttributes) {
+  const css = platformHighlightCss(ids);
+  assert.match(css, /^@media screen \{/);
+  const selectors = css.slice(css.indexOf('{') + 1, css.indexOf(' {\n  background')).split(',').map((s) => s.trim());
+  const rows = ids.map((id) => `<tr data-platform-row="${id} ${id.split('-')[0]}"><td>${id}</td></tr>`).join('');
+  const attrs = Object.entries(htmlAttributes).map(([name, value]) => `${name}="${value}"`).join(' ');
+  const { document } = new JSDOM(`<html ${attrs}><body><table><tbody>${rows}</tbody></table></body></html>`).window;
+  const matched = new Set(selectors.flatMap((selector) => [...document.querySelectorAll(selector)]));
+  return [...document.querySelectorAll('tr')].filter((row) => matched.has(row)).map((row) => row.textContent);
+}
+
+test('matrix highlight marks nothing when no platform is chosen', () => {
+  assert.deepEqual(highlighted({}), []);
+});
+
+test('matrix highlight marks every row for an OS until the CPU is known', () => {
+  assert.deepEqual(highlighted({ 'data-platform-os': 'macos' }), ['macos-arm64', 'macos-x64']);
+});
+
+test('matrix highlight marks only the exact platform once it is known', () => {
+  assert.deepEqual(highlighted({ 'data-platform-os': 'macos', 'data-platform': 'macos-x64' }), ['macos-x64']);
+  assert.deepEqual(highlighted({ 'data-platform-os': 'windows', 'data-platform': 'windows-x64' }), ['windows-x64']);
 });

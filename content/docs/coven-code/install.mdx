@@ -45,20 +45,14 @@ coven tui
 Install it when you want daemon workflows (`coven daemon`, `coven sessions`, `/coven` from the TUI); Coven Code itself does not require it.
 
 <Callout type="warn" title="Prefer one install channel per binary">
-Avoid keeping stale copies from several install paths on `PATH`. If `which coven-code` or `where coven-code` points somewhere unexpected, uninstall the old channel before debugging provider or daemon behavior.
+Avoid keeping stale copies from several install paths on `PATH`. If `which coven-code` (or `Get-Command -All coven-code` in PowerShell) points somewhere unexpected, uninstall the old channel before debugging provider or daemon behavior.
 </Callout>
 
 ## Manual Release Archives
 
 Prebuilt archives ship from [`OpenCoven/coven-code` releases](https://github.com/OpenCoven/coven-code/releases). Download the archive that matches your OS and CPU:
 
-| Platform | Archive |
-| --- | --- |
-| Windows x86_64 | `coven-code-windows-x86_64.zip` |
-| Linux x86_64 | `coven-code-linux-x86_64.tar.gz` |
-| Linux aarch64 | `coven-code-linux-aarch64.tar.gz` |
-| macOS Intel | `coven-code-macos-x86_64.tar.gz` |
-| macOS Apple Silicon | `coven-code-macos-aarch64.tar.gz` |
+<PlatformMatrix product="coven-code" />
 
 Each archive contains `coven-code` or `coven-code.exe`. Put the binary somewhere on `PATH`, then run:
 
@@ -66,11 +60,15 @@ Each archive contains `coven-code` or `coven-code.exe`. Put the binary somewhere
 coven-code --version
 ```
 
-On macOS, a downloaded binary may keep a quarantine flag. If you trust the release you downloaded, clear it with:
+<Platform only="macos">
+
+A downloaded binary may keep a quarantine flag. If you trust the release you downloaded, clear it with:
 
 ```sh
 xattr -rd com.apple.quarantine /path/to/coven-code
 ```
+
+</Platform>
 
 ## Build From Source
 
