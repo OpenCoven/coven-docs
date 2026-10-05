@@ -5,6 +5,7 @@ import type { ReactNode } from 'react';
 import { baseOptions } from '@/app/layout.config';
 import { SidebarRail } from '@/components/sidebar-rail';
 import { SectionRail } from '@/components/section-rail';
+import { PlatformMenu } from '@/components/platform-menu';
 import { DocsScrollToTop } from '@/components/docs-scroll-to-top';
 import { docsSections } from '@/lib/docs-manifest';
 import { source } from '@/lib/source';
@@ -35,6 +36,8 @@ export default function Layout({ children }: { children: ReactNode }) {
       {...baseOptions}
       nav={{ ...baseOptions.nav, url: '/docs' }}
       links={docsLinks}
+      // Fumadocs renders the footer inside a list, so it needs a key.
+      sidebar={{ footer: <PlatformMenu key="platform-menu" variant="sidebar" /> }}
     >
       <DocsScrollToTop />
       <SidebarRail />

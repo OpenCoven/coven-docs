@@ -5,6 +5,8 @@
 // content/data/platforms.json is written by scripts/capture-platform-data.mjs
 // and checked offline by scripts/check-platform-data.mjs.
 
+import { stripCodeFences } from './mdx-anchors.mjs';
+
 export const PLATFORM_DATA_PATH = 'content/data/platforms.json';
 export const PLATFORM_SOURCE_ID = 'coven-runtime-contract';
 
@@ -251,4 +253,50 @@ export function validatePlatformData(data, sourceLock) {
   }
 
   return failures;
+}
+
+/** Tokens a <Platform only> attribute may use: each platform id and OS family. */
+export function platformTokensFor(platforms) {
+  return new Set(platforms.flatMap(({ id, os }) => [id, os]));
+}
+
+/**
+ * Problems with <Platform> blocks in one MDX source: missing or unknown
+ * tokens, self-closing or nested blocks, unbalanced tags, and headings inside
+ * a block (a hidden heading would still sit in the table of contents).
+ */
+export function platformBlockProblems(source, knownTokens) {
+  const problems = [];
+  const text = stripCodeFences(source);
+  const lineAt = (index) => text.slice(0, index).split('\n').length;
+  let open = null;
+
+  for (const match of text.matchAll(/<Platform\b([^>]*)>|<\/Platform\s*>/g)) {
+    const line = lineAt(match.index);
+    if (match[0].startsWith('</')) {
+      if (!open) {
+        problems.push(`line ${line}: </Platform> has no opening tag`);
+        continue;
+      }
+      if (/^ {0,3}#{1,6}[ \t]/m.test(text.slice(open.end, match.index))) {
+        problems.push(`line ${open.line}: <Platform> contains a heading; keep headings outside platform blocks`);
+      }
+      open = null;
+      continue;
+    }
+
+    if (open) problems.push(`line ${line}: <Platform> is nested in the block opened on line ${open.line}`);
+    const attributes = match[1];
+    if (/\/\s*$/.test(attributes)) problems.push(`line ${line}: <Platform> must wrap content, not self-close`);
+    const only = attributes.match(/\bonly="([^"]*)"/)?.[1];
+    const tokens = (only ?? '').trim().split(/\s+/).filter(Boolean);
+    if (tokens.length === 0) problems.push(`line ${line}: <Platform> needs only="…" naming at least one platform`);
+    for (const token of tokens) {
+      if (!knownTokens.has(token)) problems.push(`line ${line}: unknown platform "${token}"`);
+    }
+    open = { line, end: match.index + match[0].length };
+  }
+
+  if (open) problems.push(`line ${open.line}: <Platform> is never closed`);
+  return problems;
 }

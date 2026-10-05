@@ -5,6 +5,7 @@ import process from 'node:process';
 import puppeteer from 'puppeteer';
 import { smokeFonts } from './smoke-fonts.mjs';
 import { assertOgRenderLogs, smokeOg } from './smoke-og.mjs';
+import { smokePlatforms } from './smoke-platforms.mjs';
 
 const port = Number(process.env.DOCS_SMOKE_PORT ?? 4173);
 const baseUrl = `http://127.0.0.1:${port}`;
@@ -137,6 +138,8 @@ try {
   await assertMarkdownRoute('/docs.md', '# Coven');
   await assertMarkdownRoute('/docs/guide/getting-started.md', '# Getting started');
   await assertMarkdownRoute('/docs/memory-models/working-memory.md', '# Working Memory');
+  // Markdown exports keep every platform block, labelled by its tokens.
+  await assertRoute('/docs/cli/install-debugging.md', '<Platform only="windows">');
   await assertRoute('/robots.txt', 'Sitemap:');
   await assertRoute('/sitemap.xml', '/docs/guide/getting-started');
   await assertRedirect(
@@ -506,6 +509,8 @@ try {
     report.navigation.push({ width, footerNext: true, footerPrevious: true, history: true, heading: true, section: true });
   }
 
+  report.platforms = await smokePlatforms(browser, baseUrl);
+
   assertOgRenderLogs(output);
   if (pageErrors.length > 0) {
     throw new Error(`Browser page errors:\n- ${pageErrors.join('\n- ')}`);
@@ -513,7 +518,7 @@ try {
 
   report.ok = true;
   console.log(
-    `Docs smoke passed for ${report.routes.length} rendered pages covering the ${requiredJourneys.join(', ')} journeys plus exports, redirects, ${report.followOns.length} journey links, ${report.mobile.length} mobile views, ${report.navigation.length} navigation widths, and ${report.ogImages.length} OG images.`,
+    `Docs smoke passed for ${report.routes.length} rendered pages covering the ${requiredJourneys.join(', ')} journeys plus exports, redirects, ${report.followOns.length} journey links, ${report.mobile.length} mobile views, ${report.navigation.length} navigation widths, ${report.platforms.length} platform filter states, and ${report.ogImages.length} OG images.`,
   );
 } catch (error) {
   report.error = error instanceof Error ? error.message : String(error);

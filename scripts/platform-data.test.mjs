@@ -3,6 +3,8 @@ import test from 'node:test';
 import {
   PLATFORM_SOURCE_PATHS,
   derivePlatforms,
+  platformBlockProblems,
+  platformTokensFor,
   serializePlatformData,
   validatePlatformData,
 } from './platform-data.mjs';
@@ -179,4 +181,41 @@ test('rejects a CLI entry whose node key does not match its platform', () => {
   const wrong = data();
   wrong.platforms[1].cli.node = 'darwin-arm64';
   assert.ok(validatePlatformData(wrong, sourceLock).some((message) => message.includes('macos-x64 cli')));
+});
+
+const knownTokens = platformTokensFor(derivePlatforms(sources));
+const fence = '`'.repeat(3);
+
+test('accepts well-formed platform blocks, ignoring fenced code', () => {
+  const source = [
+    '<Platform only="macos linux">',
+    '',
+    `${fence}sh`,
+    '# a shell comment, not a heading',
+    'which -a coven',
+    fence,
+    '',
+    '</Platform>',
+    '',
+    `${fence}mermaid`,
+    'flowchart TD',
+    '  Native --> Platform["<Platform only=nope>"]',
+    fence,
+    '',
+    '<Platform only="windows-x64">',
+    'Run it in PowerShell.',
+    '</Platform>',
+  ].join('\n');
+  assert.deepEqual(platformBlockProblems(source, knownTokens), []);
+});
+
+test('flags headings, nesting, unknown tokens, and unbalanced tags', () => {
+  const problems = (source) => platformBlockProblems(source, knownTokens).join('\n');
+  assert.match(problems('<Platform only="windows">\n\n### PowerShell\n\n</Platform>'), /line 1: .*contains a heading/);
+  assert.match(problems('<Platform only="macos">\n<Platform only="linux">\n</Platform>\n</Platform>'), /line 2: .*nested/);
+  assert.match(problems('<Platform only="macOS">\n</Platform>'), /unknown platform "macOS"/);
+  assert.match(problems('<Platform>\n</Platform>'), /needs only=/);
+  assert.match(problems('<Platform only="linux" />'), /not self-close/);
+  assert.match(problems('<Platform only="linux">\ntext'), /never closed/);
+  assert.match(problems('text\n</Platform>'), /no opening tag/);
 });

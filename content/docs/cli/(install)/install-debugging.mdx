@@ -67,19 +67,23 @@ flowchart LR
 
 In the CLI release that includes OpenCoven/coven#1124, `coven doctor` prints this first as an `Install:` line (one copy, with its origin) or an `Installs:` block (several copies). Until then, Doctor prints the older path-only list. If `coven` does not run at all, list the candidates yourself:
 
-### Unix-like shells
+<Platform only="macos linux">
 
 ```sh
 which -a coven
 coven --version
 ```
 
-### PowerShell
+</Platform>
+
+<Platform only="windows">
 
 ```powershell
 Get-Command -All coven
 coven --version
 ```
+
+</Platform>
 
 Multiple entries mean more than one install is on your search path; continue with the next section before debugging anything else.
 
@@ -125,11 +129,9 @@ npm install -g --prefix <active-prefix> @opencoven/cli@latest
 
 ### Which prefix does `npm install -g` use right now?
 
-```sh
-npm prefix -g
-```
+The command is the same in every shell:
 
-```powershell
+```sh
 npm prefix -g
 ```
 
@@ -171,19 +173,23 @@ If the global install itself failed (for example, permission errors writing to t
 
 If you downloaded a native binary directly, make sure its directory is on `PATH`.
 
-#### Unix-like shells
+<Platform only="macos linux">
 
 ```sh
 which -a coven
 echo "$PATH" | tr ':' '\n'
 ```
 
-#### PowerShell
+</Platform>
+
+<Platform only="windows">
 
 ```powershell
 Get-Command -All coven
 $env:Path -split ';'
 ```
+
+</Platform>
 
 ### Source build
 
