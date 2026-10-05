@@ -3,6 +3,7 @@ import { Icon } from '@iconify/react';
 import { CopyButton } from './CopyButton';
 import { BoundarySigil } from './BoundarySigil';
 import { RevealDismiss } from './RevealDismiss';
+import platformData from '@/content/data/platforms.json';
 import s from './home.module.css';
 
 // One screen, no scroll: the thesis and install command stay in view, and
@@ -45,6 +46,15 @@ const features: Feature[] = [
   },
 ];
 
+// "Runs on …" comes from the platform list derived from upstream release
+// metadata (content/data/platforms.json), never from hand-written copy.
+const osLabels: Record<string, { label: string; icon: string }> = {
+  macos: { label: 'macOS', icon: 'ph:apple-logo' },
+  linux: { label: 'Linux', icon: 'ph:linux-logo' },
+  windows: { label: 'Windows', icon: 'ph:windows-logo' },
+};
+const supportedOses = [...new Set(platformData.platforms.map(({ os }) => os))].filter((os) => os in osLabels);
+
 function CloseButton() {
   return (
     <button type="button" className={s.revealClose} data-reveal-close aria-label="Close">
@@ -61,11 +71,14 @@ export default function HomePage() {
       <RevealDismiss />
 
       <section className={s.stage} aria-labelledby="home-title">
+        <span className={s.stageGlow} aria-hidden="true" />
         <div className={s.stageText}>
           <p className={s.heroEyebrow}>Local infrastructure for coding agents</p>
           <h1 id="home-title" className={s.heroTitle}>
-            Choose the harness.<br />
-            <span className={s.heroTitleAccent}>Keep the record.</span>
+            <span className={s.heroTitleLine}>Choose the harness.</span>
+            <span className={`${s.heroTitleLine} ${s.heroTitleAccent}`}>
+              Keep the record<span className={s.recordMark}>.</span>
+            </span>
           </h1>
           <p className={s.heroLead}>
             Coven is the local runtime around your coding agent: project boundaries,
@@ -79,39 +92,51 @@ export default function HomePage() {
               <Icon icon="ph:github-logo-duotone" width={16} /> GitHub
             </Link>
           </div>
-          <div className={s.installBar}>
-            <div className={s.installBadge}><Icon icon="ph:terminal-window-duotone" width={14} /> npm</div>
-            <div className={s.installCommand}>{installCommand}</div>
+          <div className={s.install}>
+            <span className={s.installPrompt} aria-hidden="true">$</span>
+            <span className={s.installCommand} translate="no">{installCommand}</span>
             <CopyButton text={installCommand} />
           </div>
 
-          <details data-reveal name={REVEAL_GROUP} className={s.why}>
-            <summary className={s.whySummary}>
-              What Coven owns
-              <Icon icon="ph:plus" width={13} className={s.revealIcon} aria-hidden="true" />
-            </summary>
-            <div className={`${s.reveal} ${s.whyPanel}`}>
-              <CloseButton />
-              <p className={s.revealEyebrow}>The layer around the agent</p>
-              <p className={s.whyCopy}>
-                Harnesses own models and provider authentication. Coven owns what should
-                remain consistent around them: <span>scope</span>, <span>lifecycle</span>, and <span>evidence</span>.
-              </p>
-              <p className={s.revealText}>
-                A small, local control plane that makes agent work governable without replacing the agent you choose.
-              </p>
-              <h2 className={s.revealTitle}>Run one session. Keep the evidence.</h2>
-              <p className={s.revealText}>Install Coven, verify a harness, and launch from the project you want to protect.</p>
-              <div className={s.revealLinks}>
-                <Link href="/docs/guide/getting-started" className={s.revealLink}>
-                  Read the guide <Icon icon="ph:arrow-right-bold" width={13} />
-                </Link>
-                <Link href="/docs/guide/ecosystem" className={s.revealLink}>
-                  See the ecosystem <Icon icon="ph:arrow-right-bold" width={13} />
-                </Link>
+          <div className={s.heroMeta}>
+            <p className={s.platforms}>
+              <span className={s.platformsLabel}>Runs on</span>
+              {supportedOses.map((os) => (
+                <span key={os} className={s.platform}>
+                  <Icon icon={osLabels[os].icon} width={13} aria-hidden="true" />
+                  {osLabels[os].label}
+                </span>
+              ))}
+            </p>
+
+            <details data-reveal name={REVEAL_GROUP} className={s.why}>
+              <summary className={s.whySummary}>
+                What Coven owns
+                <Icon icon="ph:plus" width={13} className={s.revealIcon} aria-hidden="true" />
+              </summary>
+              <div className={`${s.reveal} ${s.whyPanel}`}>
+                <CloseButton />
+                <p className={s.revealEyebrow}>The layer around the agent</p>
+                <p className={s.whyCopy}>
+                  Harnesses own models and provider authentication. Coven owns what should
+                  remain consistent around them: <span>scope</span>, <span>lifecycle</span>, and <span>evidence</span>.
+                </p>
+                <p className={s.revealText}>
+                  A small, local control plane that makes agent work governable without replacing the agent you choose.
+                </p>
+                <h2 className={s.revealTitle}>Run one session. Keep the evidence.</h2>
+                <p className={s.revealText}>Install Coven, verify a harness, and launch from the project you want to protect.</p>
+                <div className={s.revealLinks}>
+                  <Link href="/docs/guide/getting-started" className={s.revealLink}>
+                    Read the guide <Icon icon="ph:arrow-right-bold" width={13} />
+                  </Link>
+                  <Link href="/docs/guide/ecosystem" className={s.revealLink}>
+                    See the ecosystem <Icon icon="ph:arrow-right-bold" width={13} />
+                  </Link>
+                </div>
               </div>
-            </div>
-          </details>
+            </details>
+          </div>
         </div>
 
         <div className={s.stageSigil}><BoundarySigil /></div>
