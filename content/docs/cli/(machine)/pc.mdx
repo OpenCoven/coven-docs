@@ -27,7 +27,7 @@ coven pc
 | `coven pc top --verbose` | Include full command-line arguments. |
 | `coven pc disk` | Disk usage breakdown. |
 | `coven pc kill <pid> --confirm` | Terminate one process by pid. |
-| `coven pc cache clear --confirm` | Clear user and system caches. |
+| `coven pc cache clear --confirm` | Clear the macOS user and system caches (`~/Library/Caches` and `/Library/Caches`). |
 
 ## Confirmation boundary
 
@@ -35,8 +35,15 @@ Relief actions require explicit confirmation flags:
 
 ```bash
 coven pc kill 12345 --confirm
+```
+
+<Platform only="macos">
+
+```bash
 coven pc cache clear --confirm
 ```
+
+</Platform>
 
 The diagnostic commands are safe to run for evidence. The kill and cache-clear commands are state-changing and should be used deliberately.
 
