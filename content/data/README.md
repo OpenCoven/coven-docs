@@ -1,17 +1,17 @@
 # CLI help capture
 
 `coven-cli-help.json` is the unedited, pretty-printed output of
-`coven help --all --json`. It records 42 public commands in six groups. The
+`coven help --all --json`. It records 43 public commands in six groups. The
 companion provenance file records its SHA-256, the capture's CLI version and
 source commit, and the reviewed `docs/source-lock.json` pin.
 
-The current capture came from `coven v0.4.7-1-gc8fd9e84`. Its CLI definition and
+The current capture came from `coven v0.4.8-29-g4d59c28c`. Its CLI definition and
 help catalog have identical Git blobs at the captured source commit and the
 reviewed pin:
 
-- [CLI definition and command dispatch](https://github.com/OpenCoven/coven/blob/eb3273e19670d2ab5bf1374783d96c11a50b0be2/crates/coven-cli/src/main.rs)
-- [Help groups and serializer](https://github.com/OpenCoven/coven/blob/eb3273e19670d2ab5bf1374783d96c11a50b0be2/crates/coven-cli/src/help.rs)
-- [Owning help-disclosure tests](https://github.com/OpenCoven/coven/blob/eb3273e19670d2ab5bf1374783d96c11a50b0be2/crates/coven-cli/tests/help_disclosure.rs)
+- [CLI definition and command dispatch](https://github.com/OpenCoven/coven/blob/4d59c28c0329a0697840dce1a9c0a599525671ea/crates/coven-cli/src/main.rs)
+- [Help groups and serializer](https://github.com/OpenCoven/coven/blob/4d59c28c0329a0697840dce1a9c0a599525671ea/crates/coven-cli/src/help.rs)
+- [Owning help-disclosure tests](https://github.com/OpenCoven/coven/blob/4d59c28c0329a0697840dce1a9c0a599525671ea/crates/coven-cli/tests/help_disclosure.rs)
 
 This is a runtime capture checked against source, not a reproducible-build
 attestation. Local checks do not execute an arbitrary installed Coven binary or
@@ -43,8 +43,9 @@ provenance update and review; the hash alone does not prove upstream correctness
 
 Some index links are intentionally more specific than the help catalog:
 `help` links to discovery instructions, `config` and `reset` to their CLI section,
-`completions` and `kill` to their own examples, and `memory` to the command's
-observability reference. Both the unchanged upstream URL and the preferred
+`completions` and `kill` to their own examples, `memory` to the command's
+observability reference, and `familiar-ledger` to its section of the
+repo-workflow page. Both the unchanged upstream URL and the preferred
 index destination must resolve. The setup URL retains its existing redirect.
 
 # Platform data

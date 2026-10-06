@@ -126,6 +126,7 @@ const requiredCommandMentions = [
   'coven claim',
   'coven hooks',
   'coven ward',
+  'coven familiar-ledger',
   'coven adapter',
 ];
 

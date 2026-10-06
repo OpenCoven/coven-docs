@@ -241,6 +241,11 @@
           "docsUrl": "https://docs.opencoven.ai/docs/cli/repo-workflow"
         },
         {
+          "name": "familiar-ledger",
+          "summary": "Record familiar identities in the familiar ledger",
+          "docsUrl": "https://docs.opencoven.ai/docs/cli/repo-workflow"
+        },
+        {
           "name": "executor",
           "summary": "Run Coven jobs on this machine for a remote hub",
           "docsUrl": "https://docs.opencoven.ai/docs/cli/hub-scheduler"

@@ -48,6 +48,7 @@ paths:
         - `coven.automations.definition.tombstone.v1`
         - `coven.automations.run.cancel.v1`
         - `coven.automations.occurrence.recover.v1`
+        - `coven.automations.occurrence.runNow.v1`
         - `coven.automations.events.read.v1`
         - `coven.automations.events.subscribe.v1`
         - `coven.automations.tick`
@@ -196,6 +197,7 @@ components:
                 - coven.automations.definition.tombstone.v1
                 - coven.automations.run.cancel.v1
                 - coven.automations.occurrence.recover.v1
+                - coven.automations.occurrence.runNow.v1
                 - coven.automations.events.read.v1
                 - coven.automations.events.subscribe.v1
                 - coven.automations.tick
