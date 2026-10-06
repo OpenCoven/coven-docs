@@ -59,6 +59,7 @@ and release evidence before relying on TCP refusal.
 - The daemon runs a scheduler pass every 60 seconds and right after a successful definition change, manual run, `tick`, or `unquarantine`. It records occurrence and run state durably.
 - One scheduler at a time claims and dispatches work for a `COVEN_HOME`, fenced by `$COVEN_HOME/automations-scheduler.lock` and a generation stored in SQLite. Keep the lock file and the SQLite store on one local filesystem; network filesystems are not supported.
 - `outputTarget` is refused until atomic delivery is certified.
+- An `authority` declaration is refused until the daemon advertises Runtime Authority.
 - A routine that exhausts its retry policy is quarantined: it stops planning and refuses manual runs until you call `coven.automations.unquarantine`.
 
 Review a definition before changing its status to `ACTIVE`. Provider credentials
@@ -72,8 +73,9 @@ Automation arguments are top-level fields in the action request. `origin` and
 `.update`, and `.delete`, `intentId` is also an idempotency key: repeating the
 same request with the same `intentId` returns the first result, and a different
 request with a reused `intentId` is rejected. Use a new `intentId` for each
-intended change. `coven.automations.run.cancel.v1` and
-`coven.automations.occurrence.recover.v1` accept only their own fields, so leave
+intended change. `coven.automations.run.cancel.v1`,
+`coven.automations.occurrence.recover.v1`, and
+`coven.automations.occurrence.runNow.v1` accept only their own fields, so leave
 `origin` and `intentId` off those requests.
 
 ```json
@@ -127,7 +129,7 @@ the run, not that it finished; see [Manual runs and health](#manual-runs-and-hea
 
 ## Supported actions
 
-The daemon advertises 32 `coven.automations.*` action ids. Unversioned actions
+The daemon advertises 34 `coven.automations.*` action ids. Unversioned actions
 and the definition, run, occurrence, health, and scheduler reads return their
 data in `event.payload`. Versioned commands, event pages, and receipt reads
 return it in a top-level `result`; a versioned command that commits also
@@ -162,6 +164,7 @@ returns an event.
 | `coven.automations.legacy.import.v1` | `adoptionKey`, `source: "codex-automation-toml"`; optional `dryRun` | imported, skipped, and failure lists |
 | `coven.automations.run.cancel.v1` | `adoptionKey`, `runId`, `attemptId`, `runtimeCorrelation.sessionId`, `scope: "run"`, `reason`, `requestedBy.principalId` | cancellation record |
 | `coven.automations.occurrence.recover.v1` | `adoptionKey`, `occurrenceId`, `evidenceDetermination`; optional `statement` | the determination: the occurrence settled `failed`, or planned for a new attempt |
+| `coven.automations.occurrence.runNow.v1` | `adoptionKey`, `automationId`; optional `note`, `bypassEligibility` | the manual occurrence and, once dispatched, its run |
 | `coven.automations.command.v1` | `envelope` | a `coven.automations.v1` command response |
 
 ### Reads, history, and events
@@ -321,7 +324,9 @@ The v1 implementation validates:
 - optional `familiarId` is non-empty and at most 64 characters.
 
 Optional fields also include `model` and `tags`. `outputTarget` fails
-validation until atomic delivery is certified. In an IANA zone, a wall-clock
+validation until atomic delivery is certified, and an `authority` block (a
+Runtime Authority declaration) fails validation until the daemon advertises
+Runtime Authority. In an IANA zone, a wall-clock
 slot removed by a spring-forward change does not run, and a slot repeated by a
 fall-back change runs once, at the earlier instant. Treat all filesystem paths
 as host-local values. Do not copy a definition between hosts without reviewing
@@ -357,6 +362,36 @@ and the cause in `reason`. Deadline and restart recovery settle
 conservatively: timeout handling requires strict process-tree containment, and
 an interrupted run stays nonterminal until Coven can prove a terminal
 disposition.
+
+To run a routine now with replay protection, send
+`coven.automations.occurrence.runNow.v1` instead. It plans a manual occurrence,
+claims it, and dispatches it through the same path as a scheduled one, so the
+routine's timeout, overlap, and retry policies still apply:
+
+```json
+{
+  "action": "coven.automations.occurrence.runNow.v1",
+  "adoptionKey": "run-now-daily-notes-0001",
+  "automationId": "daily-notes",
+  "note": "Rerun after fixing the notes template."
+}
+```
+
+The result has `occurrenceId`, `automationId`, and `occurrenceState`, plus
+`runId`, `status`, and `sessionId` once a run exists, and echoes `note`
+(at most 500 characters). Read `status` as for `coven.automations.run`. If
+dispatch was refused, the result carries `error` and the occurrence is settled
+`failed`. `bypassEligibility` is accepted but changes nothing in v1, which has
+no eligibility conditions.
+
+The occurrence id derives from the `adoptionKey`, and the claim commits before
+the launch, so an exact replay returns the same occurrence and its run with
+`reason: "replayed previously adopted run"` and never launches a second time.
+Reusing the key for a different request returns `ADOPTION_REPLAY_MISMATCH`.
+The command is refused with `NOT_FOUND`, `GONE_TOMBSTONED` for a tombstoned
+routine, `ILLEGAL_TRANSITION` when the routine is not `active` or is
+quarantined, `VALIDATION_FAILED` when it has no `cwd`, and `OVERLAP_FORBIDDEN`
+(`409`) while it already has a nonterminal run.
 
 Automatic retries cover only `transient_dispatch`, `lease_expired`, and
 `runtime_unavailable` failures with evidence that no process started. Each

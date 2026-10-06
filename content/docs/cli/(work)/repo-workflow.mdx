@@ -1,13 +1,14 @@
 ---
 title: "Repo Workflow"
-summary: "Worktrees, branch claims, protocol hooks, Ward configuration, and harness adapters for parallel agent work."
-description: "Reference for coven wt, claim, hooks, ward, and adapter commands."
+summary: "Worktrees, branch claims, protocol hooks, Ward configuration, the familiar ledger, and harness adapters for parallel agent work."
+description: "Reference for coven wt, claim, hooks, ward, familiar-ledger, and adapter commands."
 read_when:
   - You are running parallel agent sessions against one repository
   - You need worktree, claim, hook, Ward, or adapter management
+  - You are registering, adopting, retiring, or revoking a familiar identity
 ---
 
-These commands implement the Coven Parallel Work Protocol around a git repository, plus the Ward and adapter surfaces the sessions depend on.
+These commands implement the Coven Parallel Work Protocol around a git repository, plus the Ward, familiar-ledger, and adapter surfaces the sessions depend on.
 
 ## Worktrees
 
@@ -96,6 +97,67 @@ relevant audit history exceeds `--max-audit-rows` (default 10,000; range
 unverified observations, not proof that a proposal can be applied.
 
 `migrate` is a dry-run report unless `--apply` is passed; `--familiar <id>` limits it to one familiar. A familiar's *declared* Ward surface is read with `coven familiars <id>` — see [Observability commands](/docs/cli/observe).
+
+## Familiar ledger
+
+`coven familiar-ledger` records each familiar's identity in the familiar
+ledger: a stable root per familiar and a revision for every identity it has
+had. A revision keeps the familiar's roster identity fields (`id`, `name`,
+`display_name`, `role`, `pronouns`, `person`, `coven`) and the exact text of its
+`IDENTITY.md`, `SOUL.md`, and, when present, `ward.toml`.
+
+```bash
+coven familiar-ledger register <familiar>        # first identity: a new root at revision 0
+coven familiar-ledger adopt <familiar>           # record changed declarations as the next revision
+coven familiar-ledger history <familiar>         # every root for the familiar id, with revisions
+coven familiar-ledger history <root-id>          # one root (familiar:…)
+coven familiar-ledger retire <familiar>          # retire the live root; history stays readable
+coven familiar-ledger restore <root-id>          # continue a retired root with a new revision
+coven familiar-ledger revoke <revision-id> --reason "…"   # the revision can never be embodied
+```
+
+Every subcommand accepts `--json` to print the ledger's response. Only these
+commands change the ledger: editing a roster entry or declaration file records
+nothing until you adopt it.
+
+Requirements:
+
+- The familiar appears exactly once in `~/.coven/familiars.toml`.
+- Its workspace contains `IDENTITY.md` and `SOUL.md` as UTF-8 text. A
+  `ward.toml`, when present, must parse.
+- The command runs as the owner, in process, against the local Coven store; it
+  does not need a running daemon. Over the daemon API the same actions are
+  `coven.familiars.ledger.*.v1`. They are owner-local IPC only, so a TCP
+  request gets `AUTHORITY_REQUIRED`, and `capabilities` does not advertise
+  them.
+
+How changes are recorded:
+
+- `register` mints an opaque root (`familiar:<hex>`) that never reuses the
+  familiar id. Registering an id that already has a live root is refused.
+- `adopt` compares the current declarations with the head revision and reports
+  `Unchanged` when they match. Otherwise it records the next revision and marks
+  the previous one superseded. Emoji, icon, description, and workspace path are
+  not identity, so changing only those records nothing.
+- `retire` closes the live root and frees the familiar id; registering the id
+  again mints a new root. `restore` instead continues a retired root, as long as
+  no other root holds the id.
+- `revoke` is permanent and requires `--reason`. A revoked head can only be
+  replaced by adopting changed declarations.
+
+Commands that change a familiar's head read the current head first and send it
+as the expected revision, so a concurrent change fails with `REVISION_CONFLICT`
+instead of being overwritten. Errors print the ledger's code and message:
+
+```text
+Error: VALIDATION_FAILED: familiar `sage` has no SOUL.md; add it before recording its identity
+```
+
+The ledger is groundwork for Runtime Authority, which will bind automation runs
+to a familiar revision. This daemon does not advertise Runtime Authority yet and
+refuses routine `authority` declarations, so no run binds to the ledger today.
+To read a familiar's declared Ward surface instead, use `coven familiars <id>`
+(see [Observability commands](/docs/cli/observe)).
 
 ## Adapters
 

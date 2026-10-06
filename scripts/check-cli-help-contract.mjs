@@ -19,6 +19,7 @@ const preferredIndexHrefs = {
   completions: '/docs/cli#shell-completions',
   kill: '/docs/cli/sessions#kill',
   memory: '/docs/cli/observe#roster-skills-memory-research-calls',
+  'familiar-ledger': '/docs/cli/repo-workflow#familiar-ledger',
 };
 
 function exactKeys(value, keys, label) {

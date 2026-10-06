@@ -13,7 +13,7 @@ function changeCapture(inputs, mutate, recordNewHash = false) {
 
 test('current capture covers every public command and resolves the setup redirect', () => {
   const inputs = loadRepoCliHelpInputs();
-  assert.deepEqual(checkCliHelpContract(inputs), { commands: 42, groups: 6 });
+  assert.deepEqual(checkCliHelpContract(inputs), { commands: 43, groups: 6 });
   inputs.rawContract = inputs.rawContract.replace(/\r\n?/g, '\n').replaceAll('\n', '\r\n');
   assert.doesNotThrow(() => checkCliHelpContract(inputs));
   inputs.redirects.delete('/docs/reference/cli-setup');
