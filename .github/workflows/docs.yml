@@ -45,6 +45,11 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         run: node scripts/capture-platform-data.mjs
 
+      - name: Verify upstream snapshots against upstream
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node scripts/capture-upstream-snapshots.mjs
+
       - name: Upload source-drift evidence
         if: always()
         uses: actions/upload-artifact@v7

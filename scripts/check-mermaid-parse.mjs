@@ -14,6 +14,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { JSDOM } from 'jsdom';
+import { STATE_MACHINE_IDS, findStateMachine, stateMachineChart } from '../lib/automation-state-machines.mjs';
 
 const ROOT = path.resolve(fileURLToPath(import.meta.url), '..', '..');
 const DOCS_DIR = path.join(ROOT, 'content', 'docs');
@@ -83,6 +84,17 @@ const failures = [];
 let checked = 0;
 let skipped = 0;
 
+async function check(rel, diagram) {
+  checked++;
+  try {
+    await mermaid.parse(diagram.text);
+  } catch (error) {
+    const message = String(error?.message ?? error).split('\n')[0];
+    const firstLine = diagram.text.trim().split('\n')[0];
+    failures.push({ rel, line: diagram.line, form: diagram.form, firstLine, message });
+  }
+}
+
 for (const file of files) {
   const source = await fs.readFile(file, 'utf8');
   const rel = path.relative(ROOT, file);
@@ -91,15 +103,15 @@ for (const file of files) {
       skipped++;
       continue;
     }
-    checked++;
-    try {
-      await mermaid.parse(diagram.text);
-    } catch (error) {
-      const message = String(error?.message ?? error).split('\n')[0];
-      const firstLine = diagram.text.trim().split('\n')[0];
-      failures.push({ rel, line: diagram.line, form: diagram.form, firstLine, message });
-    }
+    await check(rel, diagram);
   }
+}
+
+// Diagrams a component generates from data rather than reading from MDX.
+const machinesRel = 'content/data/upstream/coven-automations-v1/state-machines.json';
+const machines = JSON.parse(await fs.readFile(path.join(ROOT, machinesRel), 'utf8'));
+for (const id of STATE_MACHINE_IDS) {
+  await check(machinesRel, { text: stateMachineChart(findStateMachine(machines, id)), line: id, form: 'generated' });
 }
 
 if (failures.length > 0) {

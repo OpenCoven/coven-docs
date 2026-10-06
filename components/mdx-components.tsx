@@ -11,6 +11,7 @@ import type { OperationItem, WebhookItem } from 'fumadocs-openapi/ui';
 import { Mermaid } from '@/components/mermaid';
 import { Platform } from '@/components/platform';
 import { PlatformMatrix } from '@/components/platform-matrix';
+import { AutomationInvariants, AutomationStateMachine, AutomationStateMachinesSource } from '@/components/automation-state-machine';
 import { DocsDataTable } from '@/components/docs-data-table';
 import { ApiConsole } from '@/components/api-runner/api-console';
 import { ApiRequest } from '@/components/api-runner/api-request';
@@ -46,6 +47,9 @@ export function getMDXComponents(components?: MDXComponents): MDXComponents {
     APIPage,
     ApiConsole,
     ApiRequest,
+    AutomationInvariants,
+    AutomationStateMachine,
+    AutomationStateMachinesSource,
     DocsDataTable,
     File,
     Files,

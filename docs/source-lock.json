@@ -49,7 +49,16 @@
         "crates/coven-cli/src/api_health.rs",
         "crates/coven-cli/src/store.rs",
         "docs/architecture/coven-automations-v1.md",
-        "spec/coven-automations/v1/capabilities.json"
+        "spec/coven-automations/v1/capabilities.json",
+        "spec/coven-automations/v1/state-machines.json",
+        "crates/coven-cli/src/automations/store.rs",
+        "crates/coven-cli/src/automations/occurrences.rs",
+        "crates/coven-cli/src/automations/runs.rs",
+        "crates/coven-cli/src/automations/runner.rs",
+        "crates/coven-cli/src/automations/recovery.rs",
+        "crates/coven-cli/src/automations/command_matrix.rs",
+        "crates/coven-cli/src/automations/contract/migration.rs",
+        "spec/coven-automations/v1/conformance-manifest.json"
       ]
     }
   ]
