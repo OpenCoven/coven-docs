@@ -152,6 +152,29 @@ try {
     args: process.env.CI ? ['--no-sandbox', '--disable-setuid-sandbox'] : [],
   });
   const page = await browser.newPage();
+  // A timed-out wait says where the page was: an unchanged URL means a click
+  // never navigated, a new URL without the expected heading means the page
+  // was slow to render. (Navigation waits have timed out intermittently on
+  // busy CI runners; 12 quiet local runs all passed.)
+  const waitForFunction = page.waitForFunction.bind(page);
+  page.waitForFunction = async (...args) => {
+    const started = Date.now();
+    try {
+      return await waitForFunction(...args);
+    } catch (error) {
+      const state = await page
+        .evaluate(() => ({
+          url: location.href,
+          h1: document.querySelector('h1')?.textContent ?? null,
+          readyState: document.readyState,
+          scrollY: Math.round(scrollY),
+          width: innerWidth,
+        }))
+        .catch((evaluateError) => ({ unavailable: evaluateError.message }));
+      error.message = `${error.message} after ${Date.now() - started}ms at ${JSON.stringify(state)}`;
+      throw error;
+    }
+  };
   await page.setCacheEnabled(false);
   await page.setViewport({ width: 1440, height: 1000 });
 
