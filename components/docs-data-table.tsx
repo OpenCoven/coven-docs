@@ -116,7 +116,7 @@ export function DocsDataTable(props: Props) {
             {props.rows.map((row, rowIndex) => (
               <tr key={props.columns.map((c) => row[c.key]).join('|') || rowIndex}>
                 {props.columns.map((column) => (
-                  <td data-label={column.label} key={column.key}>{renderInline(row[column.key] ?? '')}</td>
+                  <td data-label={column.label} key={column.key}><span>{renderInline(row[column.key] ?? '')}</span></td>
                 ))}
               </tr>
             ))}
@@ -183,7 +183,7 @@ function InteractiveDocsDataTable({ caption, columns, rows, preserveOrder = fals
             {visibleRows.map((row, rowIndex) => (
               <tr key={columns.map((column) => row[column.key]).join('|') || rowIndex}>
                 {columns.map((column) => (
-                  <td data-label={column.label} key={column.key}>{renderInline(row[column.key] ?? '')}</td>
+                  <td data-label={column.label} key={column.key}><span>{renderInline(row[column.key] ?? '')}</span></td>
                 ))}
               </tr>
             ))}

@@ -124,6 +124,7 @@
   color: var(--dt-td-fg);
   font-size: 0.88rem;
   line-height: 1.55;
+  overflow-wrap: anywhere;
   padding: 0.7rem 1rem;
   transition: background 120ms ease;
 }

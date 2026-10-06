@@ -78,3 +78,28 @@ the source pin and watched paths, and that the install-debugging package table,
 its `npm view` checks, and the Coven Code archive table name exactly the
 packages and archives upstream ships. The hosted freshness job re-runs the
 capture without `--write` and fails if the committed file is stale.
+
+# Upstream snapshots
+
+`upstream/` holds byte-for-byte copies of upstream contract artifacts that
+pages render instead of retyping. `upstream/snapshots.json` records each copy's
+upstream path and Git blob at the `docs/source-lock.json` pin:
+
+- `spec/coven-automations/v1/state-machines.json`, rendered by
+  `<AutomationStateMachine>` and `<AutomationInvariants>` on the
+  Automations lifecycle reference page.
+
+Never edit a copy. Run `pnpm capture:upstream-snapshots` after advancing the
+source lock; it reads the pinned files through the GitHub API (set
+`GITHUB_TOKEN` to raise the rate limit), checks each one decodes to the blob
+GitHub reports, and rewrites the copies and the manifest. Review the diff like
+any other upstream change.
+
+`pnpm check:upstream-snapshots` runs offline. It hashes each copy the way Git
+does and compares it with the recorded blob, requires the manifest's pin to
+equal the source lock's, keeps every upstream path in the source-lock watch,
+and rejects a state-machine file the page cannot render faithfully (an unknown
+field, an undeclared state, a renamed machine). The hosted freshness job
+re-runs the capture without `--write`. The lifecycle page's notes on what the
+daemon records today are hand-written from the daemon source at the pin, and
+the files they cite are in the source-lock watch so a change prompts review.

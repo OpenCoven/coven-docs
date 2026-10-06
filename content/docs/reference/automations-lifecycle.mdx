@@ -1,0 +1,113 @@
+---
+title: Automations lifecycle
+description: The proposed coven.automations.v1 state machines for definitions, occurrences, runs, and attempts, their invariants, and the states the daemon records today.
+---
+
+The `coven.automations.v1` contract defines four state machines, and the
+invariants they preserve, in <AutomationStateMachinesSource />. The diagrams and
+tables on this page render from a byte-for-byte copy of that file at the
+reviewed upstream commit, so they cannot drift from it.
+
+<Callout type="warn" title="Proposed contract, partial implementation">
+The contract is proposed, not certified. Its conformance manifest records
+`releaseState: "proposed"` and `productionReady: false`, and at the reviewed
+commit no upstream test checks the daemon against these machines. The daemon
+records a subset of these states, and in places a different one; each section
+below says which. Branch on the values the daemon returns, described in
+[Coven automations](/docs/reference/automations).
+</Callout>
+
+## Reading the machines
+
+Clients never write state. Command handlers, the scheduler, the dispatcher,
+and workers commit every transition:
+
+- `on` names the cause.
+- `actor` names who may commit the transition.
+- `guard` names the condition that must hold.
+
+Terminal states are drawn in bold, and no transition leaves one. Acceptance,
+dispatch, and success are separate states: an accepted run has not launched
+anything, a dispatched attempt has not proved anything, and only runtime
+evidence settles a run `succeeded`.
+
+## Definition
+
+<AutomationStateMachine id="definition.v1" />
+
+What the daemon records today:
+
+- `lifecycleState` is `draft`, `paused`, `active`, `disabled`, or `invalid`.
+  A definition created with `definition.create.v1`, or imported from a legacy
+  source, starts in `draft`, and `definition.revise.v1` moves it to `paused`.
+- Tombstoning sets `tombstonedAt` instead of a lifecycle value. Events report
+  the change as `tombstoned`.
+- `invalid` comes only from the one-time migration of a stored legacy
+  definition that cannot be digested. No command moves an active definition to
+  `invalid`.
+- No versioned command re-enables a `disabled` definition yet:
+  `definition.activate.v1` requires `paused`.
+
+## Occurrence
+
+<AutomationStateMachine id="occurrence.v1" />
+
+What the daemon records today:
+
+- Occurrences are `planned`, `claimed`, `running`, or `recovery_required`, and
+  settle `succeeded`, `failed`, `cancelled`, or `skipped`. `skipped` marks a
+  slot collapsed by the misfire policy.
+- `eligible` is a read view over due `planned` occurrences
+  (`occurrence.list.v1` with `view: "eligible"`), not a stored state.
+- The daemon does not record `dispatching`, `recovering`, or `timed_out` on an
+  occurrence. A claim moves straight to `running` when the runtime starts, a
+  claim whose lease expires before dispatch settles `failed`, and a timeout
+  settles the occurrence `failed`.
+- `superseded` appears only on occurrences migrated from the legacy store,
+  where every legacy `skipped` row became `superseded`.
+- `occurrence.recover.v1` with `retry_with_new_attempt` returns the occurrence
+  to `planned` for dispatch rather than to `dispatching`.
+
+## Run
+
+<AutomationStateMachine id="run.v1" />
+
+What the daemon records today, in the run's `status` field:
+
+- A run is created `running`. The daemon has no separate `accepted` status.
+- Runs settle `succeeded`, `failed`, or `cancelled`. A timeout settles the run
+  `failed`, and its attempt records `timed_out`.
+- The daemon never records `ambiguous` on a run. Ambiguous evidence either
+  settles the run `failed` or leaves it `running` with an `ambiguous` attempt
+  while its occurrence waits in `recovery_required`; see
+  [Manual runs and health](/docs/reference/automations#manual-runs-and-health).
+
+## Attempt
+
+<AutomationStateMachine id="attempt.v1" />
+
+What the daemon records today:
+
+- All nine attempt states, and a terminal attempt row can be neither updated
+  nor deleted.
+- A few transitions the contract does not list: a dispatch rolled back before
+  launch returns the attempt to `adopted`, and a confirmed cancellation or
+  timeout can settle a `dispatching` or `started` attempt directly.
+
+## Invariants
+
+<AutomationInvariants />
+
+These are the contract's normative statements. Upstream's conformance manifest
+lists a `state-machine-property-tests` suite for them, but that suite does not
+exist at the reviewed commit, so read them as the design target rather than
+verified daemon behavior. Upstream's vector-driven suites cover parts of them: attempt
+terminal immutability, run terminal monotonicity, occurrence fence uniqueness,
+occurrence lease recovery, and definition lifecycle transitions (without
+`draft` or `invalid`).
+
+## Related
+
+- [Coven automations](/docs/reference/automations) for the actions, their
+  results, and recovery.
+- [Coven local API](/docs/reference/api) for transport and trust rules.
