@@ -5,8 +5,8 @@
       "id": "coven-runtime-contract",
       "repo": "OpenCoven/coven",
       "ref": "main",
-      "verifiedAt": "2026-10-06T04:21:20Z",
-      "verifiedCommit": "4d59c28c0329a0697840dce1a9c0a599525671ea",
+      "verifiedAt": "2026-10-07T06:45:27Z",
+      "verifiedCommit": "c72bddb71adf00f9f7e2d3f51a534bd3d6e5d69a",
       "sections": [
         "guide",
         "cli",
