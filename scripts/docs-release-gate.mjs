@@ -7,6 +7,13 @@ if (process.env.GITHUB_JOB === 'verify' && process.env.GITHUB_HEAD_REF ===
   process.exit(1);
 }
 
+// PROBE for #66, never merge: fail the required release check on this branch only.
+if (process.env.GITHUB_JOB === 'verify' && process.env.GITHUB_HEAD_REF ===
+'probe/66-docs-fail') {
+  console.error('Probe #66: failing the required release check on purpose.');
+  process.exit(1);
+}
+
 // Keep the canonical required check red unless BOTH independent evidence jobs
 // succeeded. Missing, skipped, cancelled, and unknown outcomes are not passes.
 const results = [
