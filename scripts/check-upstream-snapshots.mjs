@@ -6,6 +6,7 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { SNAPSHOTS_PATH, snapshotProblems } from './upstream-snapshots.mjs';
 import { stateMachineProblems } from '../lib/automation-state-machines.mjs';
+import { vectorProblems } from '../lib/automation-vectors.mjs';
 
 const root = resolve(import.meta.dirname, '..');
 const read = (path) => readFileSync(resolve(root, path), 'utf8');
@@ -23,8 +24,15 @@ const problems = snapshotProblems(manifest, JSON.parse(read('docs/source-lock.js
 // The pages render these files, so a shape they cannot render fails here
 // rather than at build time.
 if (problems.length === 0) {
-  const machines = manifest.files.find(({ path }) => path.endsWith('/state-machines.json'));
-  problems.push(...stateMachineProblems(JSON.parse(read(machines.local))).map((problem) => `${machines.local}: ${problem}`));
+  for (const { path, local } of manifest.files) {
+    const doc = JSON.parse(read(local));
+    const found = path.endsWith('/state-machines.json')
+      ? stateMachineProblems(doc)
+      : path.endsWith('.vectors.json')
+        ? vectorProblems(path.split('/').pop().replace(/\.vectors\.json$/, ''), doc)
+        : [`no page renders ${path}; add a validator for it`];
+    problems.push(...found.map((problem) => `${local}: ${problem}`));
+  }
 }
 
 if (problems.length > 0) {

@@ -56,7 +56,7 @@ and release evidence before relying on TCP refusal.
 - Overlap policy is `forbid` and misfire recovery is `latest` in the v1 definition shape.
 - A run without an explicit `cwd` fails instead of guessing a project.
 - Scheduled and manual runs use the same validated session-launch path.
-- The daemon runs a scheduler pass every 60 seconds and right after a successful definition change, manual run, `tick`, or `unquarantine`. It records occurrence and run state durably.
+- The daemon runs a scheduler pass at startup, every 60 seconds, and right after most successful definition changes, cancellations, recoveries, manual runs, `tick`, or `unquarantine`. Disabling a definition, a rich `command.v1` change, and imports wait for the next 60-second pass. It records occurrence and run state durably. See [Automations scheduling](/docs/reference/automations-scheduling).
 - One scheduler at a time claims and dispatches work for a `COVEN_HOME`, fenced by `$COVEN_HOME/automations-scheduler.lock` and a generation stored in SQLite. Keep the lock file and the SQLite store on one local filesystem; network filesystems are not supported.
 - `outputTarget` is refused until atomic delivery is certified.
 - An `authority` declaration is refused until the daemon advertises Runtime Authority.
@@ -332,8 +332,10 @@ validation until atomic delivery is certified, and an `authority` block (a
 Runtime Authority declaration) fails validation until the daemon advertises
 Runtime Authority. In an IANA zone, a wall-clock
 slot removed by a spring-forward change does not run, and a slot repeated by a
-fall-back change runs once, at the earlier instant. Treat all filesystem paths
-as host-local values. Do not copy a definition between hosts without reviewing
+fall-back change runs once, at the earlier instant; see
+[Automations scheduling](/docs/reference/automations-scheduling) for the
+recurrence subset, time zones, missed slots, retries, and timeouts with their
+conformance cases. Treat all filesystem paths as host-local values. Do not copy a definition between hosts without reviewing
 its `cwd` and `timezone`.
 
 ## Manual runs and health
@@ -483,5 +485,7 @@ rather than inferring completion from process output.
 
 See [Automations lifecycle](/docs/reference/automations-lifecycle) for the
 contract's state machines and how the daemon's recorded states relate to them,
+[Automations scheduling](/docs/reference/automations-scheduling) for how
+schedules, retries, and timeouts resolve,
 [Coven local API](/docs/reference/api) for transport and trust rules, and
 [Safety](/docs/reference/safety) for the broader authority model.

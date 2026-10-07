@@ -1,0 +1,189 @@
+---
+title: Automations scheduling
+description: How Coven turns a routine's schedule into due slots, including time zones, daylight saving, missed slots after downtime, overlap, leases, retries, quarantine, timeouts, and cancellation, with the conformance cases that pin each rule.
+---
+
+This page covers how the daemon decides when a routine runs and what happens
+when time, downtime, or a failure gets in the way. For the routine fields and
+actions, see [Coven automations](/docs/reference/automations); for the state
+names used below, see [Automations lifecycle](/docs/reference/automations-lifecycle).
+
+<Callout type="info" title="The tables are tested cases">
+Each table renders a byte-for-byte copy of an upstream conformance vector file
+at the reviewed commit. Upstream CI runs every one of these files through the
+daemon's own scheduling code with `coven automations conformance evaluate`,
+and its Rust tests require every case to pass. The conformance target refuses
+a vector file whose cases differ from its built-in scenarios, so these are the
+inputs CI executes. The target uses temporary stores, a pinned clock, and a
+stand-in runtime rather than a live daemon.
+</Callout>
+
+## Schedules
+
+A routine's `rrule` uses a small subset of iCalendar recurrence rules:
+
+- `FREQ` is required and is `DAILY` or `WEEKLY`.
+- `BYHOUR` lists hours from `0` to `23`. Each slot starts on the hour. Without
+  `BYHOUR`, a routine runs at `9`.
+- `BYDAY` lists weekdays as `MO` to `SU` or `MON` to `SUN`, and only with
+  `FREQ=WEEKLY`. Without `BYDAY`, a weekly routine runs on Monday.
+- Keys and values are case-insensitive.
+
+Nothing else is accepted: no other frequency, and no `INTERVAL`, `COUNT`,
+`UNTIL`, `BYMINUTE`, or other key. A repeated key, a repeated hour or weekday
+(including `MO` with `MON`), and an empty part or value are refused too. An
+unsupported rule fails validation rather than being approximated.
+
+<AutomationVectors suite="rrule-vocabulary" />
+
+## Time zones and daylight saving
+
+A routine's `timezone` is `utc` or an IANA time zone name such as
+`America/New_York`. Slots are wall-clock hours in that zone:
+
+- A wall-clock time that does not exist because clocks spring forward is
+  skipped. That day has no run.
+- A wall-clock time that repeats because clocks fall back runs once, at the
+  earlier instant.
+
+A stored routine never keeps `local`. A request that sends `local` has it
+resolved to an exact zone before the routine is stored. On Unix, a `TZ`
+override must itself be `utc` or an IANA name; anything else fails the request
+rather than falling back to the host zone. Without `TZ`, the host's zone is
+used. The rich `coven.automations.command.v1` envelope refuses `local`
+outright. A routine stored as `local` by an older daemon is resolved when the
+store opens, as a new revision recorded with migration
+`local-timezone-normalization-v1`.
+
+<AutomationVectors suite="calendar-schedule-resolution" />
+
+## Missed slots, downtime, and clock changes
+
+The scheduler runs a pass when the daemon starts, before its first wait, and
+then every 60 seconds measured on a monotonic clock. These successful actions
+wake it for an immediate pass:
+
+- `coven.automations.create`, `.update`, `.delete`, `.run`, `.tick`, and
+  `.unquarantine`;
+- `definition.create.v1`, `definition.revise.v1`, `definition.activate.v1`,
+  `definition.pause.v1`, and `definition.tombstone.v1`;
+- `run.cancel.v1`, `occurrence.cancel.v1`, `attempt.cancel.v1`,
+  `occurrence.recover.v1`, and `occurrence.runNow.v1`.
+
+Disabling a routine, a rich `command.v1` change, and imports take effect at the
+next 60-second pass.
+
+Each pass reads the wall clock and applies the misfire policy, which is always
+`latest`:
+
+- After any gap, whether downtime, sleep, or a clock set forward, a pass plans
+  only the most recent due slot. Earlier missed slots never run, and a
+  backfill policy is refused.
+- A routine's still-planned older slots settle `skipped` with the reason
+  `superseded by latest misfire policy`.
+- Each slot is planned once. A later pass that finds it already planned
+  changes nothing.
+- A clock set backward never plans a slot older than one already planned.
+- A paused routine never plans.
+
+The daemon does not detect suspend, resume, or clock jumps separately; reading
+the wall clock on every pass is what covers them.
+
+<AutomationVectors suite="misfire-latest-planning" />
+
+The startup cases below check when the pass that launches due work runs. The
+conformance target's stand-in runtime records the launch and nothing else, so
+these cases do not show how the run ends.
+
+<AutomationVectors suite="startup-reconciliation-wake" />
+
+## Overlap
+
+The overlap policy is always `forbid`. A due slot is not claimed while the same
+routine has another claimed or running occurrence or a running run; it stays
+`planned`. A settled occurrence does not block. A claim takes a 60-minute lease
+for its owner.
+
+<AutomationVectors suite="overlap-forbid-claiming" />
+
+## Leases
+
+A claim whose lease has expired before dispatch, with no runtime evidence,
+settles `failed` with the reason `lease expired`. A lease that expires exactly
+now counts as expired. Once runtime evidence exists or the occurrence is
+running, the lease no longer settles it; only the session's own evidence does.
+
+<AutomationVectors suite="occurrence-lease-recovery" />
+
+## Retries and backoff
+
+A routine's `retry` policy has:
+
+- `maxAttempts`, from `1` to `10`;
+- `backoffPolicy`, one of `none`, `fixed`, or `exponential`;
+- `backoffSeconds`, from `1` to `86400`, required for `fixed`;
+- `retryableClasses`, chosen from `transient_dispatch`, `lease_expired`, and
+  `runtime_unavailable`.
+
+A retry is a new attempt inside the same run and the run's original deadline.
+The wait counts from when the failure was observed:
+
+- `none` retries immediately.
+- `fixed` waits exactly `backoffSeconds`.
+- `exponential` picks a delay between 1 second and a ceiling of
+  `backoffSeconds` × 2<sup>attempt − 2</sup>, capped at one day (86,400
+  seconds). The delay is derived from the run id and attempt number, so the
+  same attempt always waits the same time.
+
+<AutomationVectors suite="retry-backoff-timing" />
+
+## Quarantine
+
+When a run uses up `maxAttempts`, the run fails and the routine is quarantined:
+it stops planning, refuses manual runs, and `coven.automations.health` reports
+`nextDueAt` as `null` with the quarantine's time, failure class, reason, and
+count of consecutive exhaustions. A later exhaustion keeps the latest evidence
+and increases the count. `coven.automations.unquarantine` releases the routine,
+and its next due slot is planned again; releasing a routine that is not
+quarantined changes nothing.
+
+<AutomationVectors suite="retry-quarantine-recovery" />
+
+## Timeouts and cancellation
+
+Every routine has `timeoutMinutes`, from `1` to `44640` (31 days); the rich
+definition shape calls it `perRunMinutes`. A run's deadline is its start plus
+the timeout:
+
+- At the deadline, Coven stops the session and settles the run `failed` and
+  its attempt `timed_out`.
+- If the stop cannot be confirmed, the run stays unresolved instead of being
+  reported finished.
+- A retry still waiting when the deadline passes is settled: the attempt
+  `timed_out`, and the run and occurrence `failed`.
+
+When a cancellation and a timeout race, whichever takes the run's stop fence
+first decides the outcome, and the session is stopped once. For the
+cancellation commands themselves, see
+[Manual runs and health](/docs/reference/automations#manual-runs-and-health).
+
+<AutomationVectors suite="cancellation-timeout-arbitration" />
+
+## Previewing a schedule
+
+The daemon has no preview or dry-run action for schedules. To see how a rule
+resolves, compare it with the calendar cases above; to see an existing
+routine's next run, read `nextDueAt` from `coven.automations.health`.
+
+## Refused vocabulary
+
+The daemon refuses these rather than approximating them:
+
+- recurrence beyond the subset above;
+- misfire `backfill`, and any overlap policy other than `forbid`;
+- a durable `local` time zone;
+- webhook triggers and multi-step pipeline actions;
+- an atomic `outputTarget`.
+
+The daemon's `variantNegotiation` capability metadata lists the refused
+variants; see [Versioned definition commands](/docs/reference/automations#versioned-definition-commands).

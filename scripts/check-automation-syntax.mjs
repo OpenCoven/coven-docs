@@ -35,6 +35,7 @@ const regressions = spawnSync(process.execPath, [
   'scripts/platform-data.test.mjs',
   'scripts/platform-filter.test.mjs',
   'scripts/upstream-snapshots.test.mjs',
+  'scripts/automation-vectors.test.mjs',
 ], { cwd: root, stdio: 'inherit' });
 if (regressions.error || regressions.status !== 0) {
   console.error('Automation regression tests failed.');

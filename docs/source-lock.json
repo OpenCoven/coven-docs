@@ -58,7 +58,22 @@
         "crates/coven-cli/src/automations/recovery.rs",
         "crates/coven-cli/src/automations/command_matrix.rs",
         "crates/coven-cli/src/automations/contract/migration.rs",
-        "spec/coven-automations/v1/conformance-manifest.json"
+        "spec/coven-automations/v1/conformance-manifest.json",
+        "crates/coven-cli/src/automations/rrule.rs",
+        "crates/coven-cli/src/automations/schedule.rs",
+        "crates/coven-cli/src/automations/daemon_tick.rs",
+        "crates/coven-cli/src/automations/capability_negotiation.rs",
+        "crates/coven-cli/src/automations/health.rs",
+        "crates/coven-cli/tests/automations_conformance.rs",
+        "conformance/automations/runner/rrule-vocabulary.vectors.json",
+        "conformance/automations/runner/calendar-schedule-resolution.vectors.json",
+        "conformance/automations/runner/misfire-latest-planning.vectors.json",
+        "conformance/automations/runner/startup-reconciliation-wake.vectors.json",
+        "conformance/automations/runner/overlap-forbid-claiming.vectors.json",
+        "conformance/automations/runner/occurrence-lease-recovery.vectors.json",
+        "conformance/automations/runner/retry-backoff-timing.vectors.json",
+        "conformance/automations/runner/retry-quarantine-recovery.vectors.json",
+        "conformance/automations/runner/cancellation-timeout-arbitration.vectors.json"
       ]
     }
   ]

@@ -8,6 +8,7 @@
 // checks them offline by hashing each local file the way Git does.
 
 import { createHash } from 'node:crypto';
+import { VECTOR_SUITES } from '../lib/automation-vectors.mjs';
 
 export const SNAPSHOTS_PATH = 'content/data/upstream/snapshots.json';
 export const SNAPSHOT_SOURCE_ID = 'coven-runtime-contract';
@@ -19,6 +20,12 @@ export const SNAPSHOT_FILES = [
     path: 'spec/coven-automations/v1/state-machines.json',
     local: 'content/data/upstream/coven-automations-v1/state-machines.json',
   },
+  // Conformance vectors that upstream CI executes against the daemon's
+  // scheduling code; the scheduling page renders its edge cases from them.
+  ...VECTOR_SUITES.map((suite) => ({
+    path: `conformance/automations/runner/${suite}.vectors.json`,
+    local: `content/data/upstream/coven-automations-conformance/${suite}.vectors.json`,
+  })),
 ];
 
 const shaPattern = /^[0-9a-f]{40}$/;
