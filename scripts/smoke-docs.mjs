@@ -501,17 +501,6 @@ try {
       throw new Error(`Back navigation lost its restored scroll position at ${width}px`);
     }
 
-    await gotoAndReady('/docs/guide/getting-started', 'Run a first session');
-    await page.click('a[href="/docs/reference/troubleshooting#daemon-unavailable"]');
-    await page.waitForFunction(() => {
-      const heading = document.getElementById('daemon-unavailable');
-      const top = heading?.getBoundingClientRect().top;
-      return location.hash === '#daemon-unavailable' && window.scrollY > 100 &&
-        top !== undefined && top >= 0 && top < innerHeight;
-    }, { timeout: 10_000 });
-
-    await gotoAndReady('/docs/guide/getting-started', 'Run a first session');
-    await page.evaluate(() => window.scrollTo({ top: document.scrollingElement.scrollHeight, behavior: 'instant' }));
     if (width < 768) {
       await page.click('button[aria-label="Open Sidebar"]');
     }
@@ -528,6 +517,18 @@ try {
     await page.waitForSelector('[role="dialog"] a[href="/docs/cli"]', { visible: true });
     await page.click('[role="dialog"] a[href="/docs/cli"]');
     await expectPageTop('/docs/cli', 'CLI Reference');
+    // Catch a late focus restoration after the section picker closes.
+    await new Promise((resolve) => setTimeout(resolve, 800));
+    await expectPageTop('/docs/cli', 'CLI Reference');
+
+    await gotoAndReady('/docs/guide/getting-started', 'Run a first session');
+    await page.click('a[href="/docs/reference/troubleshooting#daemon-unavailable"]');
+    await page.waitForFunction(() => {
+      const heading = document.getElementById('daemon-unavailable');
+      const top = heading?.getBoundingClientRect().top;
+      return location.hash === '#daemon-unavailable' && window.scrollY > 100 &&
+        top !== undefined && top >= 0 && top < innerHeight;
+    }, { timeout: 10_000 });
 
     report.navigation.push({ width, footerNext: true, footerPrevious: true, history: true, heading: true, section: true });
   }
