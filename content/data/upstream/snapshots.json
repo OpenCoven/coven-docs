@@ -8,6 +8,51 @@
       "path": "spec/coven-automations/v1/state-machines.json",
       "local": "content/data/upstream/coven-automations-v1/state-machines.json",
       "blob": "d3b6e11a9f551dbcd35984a4316a0e29f5ad78c9"
+    },
+    {
+      "path": "conformance/automations/runner/rrule-vocabulary.vectors.json",
+      "local": "content/data/upstream/coven-automations-conformance/rrule-vocabulary.vectors.json",
+      "blob": "b54c47d3fe61122b0b112e740483551ff701ad9f"
+    },
+    {
+      "path": "conformance/automations/runner/calendar-schedule-resolution.vectors.json",
+      "local": "content/data/upstream/coven-automations-conformance/calendar-schedule-resolution.vectors.json",
+      "blob": "0d96442c5545eb0b1d3777f110f3a4ebd38001bd"
+    },
+    {
+      "path": "conformance/automations/runner/misfire-latest-planning.vectors.json",
+      "local": "content/data/upstream/coven-automations-conformance/misfire-latest-planning.vectors.json",
+      "blob": "bb8d56729107bbb6e0687b3f53dc36b8121e63c3"
+    },
+    {
+      "path": "conformance/automations/runner/startup-reconciliation-wake.vectors.json",
+      "local": "content/data/upstream/coven-automations-conformance/startup-reconciliation-wake.vectors.json",
+      "blob": "bf74e4397511359a357c119a4a2adcb75a4a5c8f"
+    },
+    {
+      "path": "conformance/automations/runner/overlap-forbid-claiming.vectors.json",
+      "local": "content/data/upstream/coven-automations-conformance/overlap-forbid-claiming.vectors.json",
+      "blob": "d5d314170c10eb0f5a48fdca7b1d84c38306d57b"
+    },
+    {
+      "path": "conformance/automations/runner/occurrence-lease-recovery.vectors.json",
+      "local": "content/data/upstream/coven-automations-conformance/occurrence-lease-recovery.vectors.json",
+      "blob": "7dc50f0b263dbfa8c653c1b35d84c156463bba48"
+    },
+    {
+      "path": "conformance/automations/runner/retry-backoff-timing.vectors.json",
+      "local": "content/data/upstream/coven-automations-conformance/retry-backoff-timing.vectors.json",
+      "blob": "7cf135d30b51cff1c7c52e6e275eb3e11066277d"
+    },
+    {
+      "path": "conformance/automations/runner/retry-quarantine-recovery.vectors.json",
+      "local": "content/data/upstream/coven-automations-conformance/retry-quarantine-recovery.vectors.json",
+      "blob": "e2977df667e2af50dd7454bef5c24167799d1b73"
+    },
+    {
+      "path": "conformance/automations/runner/cancellation-timeout-arbitration.vectors.json",
+      "local": "content/data/upstream/coven-automations-conformance/cancellation-timeout-arbitration.vectors.json",
+      "blob": "fb6c7628521584e99ef3a1fcaeafe7119ff3dfe2"
     }
   ]
 }

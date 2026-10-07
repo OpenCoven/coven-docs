@@ -25,6 +25,10 @@
 
 .shell {
   margin: 1.5rem 0 2rem;
+  /* Lay rows out as cards whenever the table's own column is too narrow for
+     columns, not only on narrow screens: a docs column is narrower than the
+     window at most desktop widths. */
+  container-type: inline-size;
 }
 
 :global(html.light) .shell,
@@ -56,7 +60,6 @@
 
 .table {
   width: 100%;
-  min-width: 760px;
   border-collapse: separate;
   border-spacing: 0;
 }
@@ -133,6 +136,13 @@
   border-bottom: 0;
 }
 
+/* Keep text columns readable: cells may break long tokens anywhere, which
+   would otherwise let the table squeeze a text column to a character wide. */
+.table td > span {
+  display: block;
+  min-width: 6rem;
+}
+
 .table tbody tr:hover td {
   background: var(--dt-row-hover);
 }
@@ -183,7 +193,7 @@
   margin: 0;
 }
 
-@media (max-width: 720px) {
+@container (max-width: 760px) {
   .scroller {
     overflow-x: visible;
   }
@@ -230,6 +240,10 @@
     overflow-wrap: anywhere;
   }
 
+  .table td > span {
+    min-width: 0;
+  }
+
   .table td::before {
     content: attr(data-label);
     color: var(--dt-th-fg);
@@ -244,7 +258,7 @@
   }
 }
 
-@media (max-width: 460px) {
+@container (max-width: 460px) {
   .table td {
     grid-template-columns: 1fr;
     gap: 0.32rem;

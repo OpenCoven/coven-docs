@@ -88,6 +88,11 @@ upstream path and Git blob at the `docs/source-lock.json` pin:
 - `spec/coven-automations/v1/state-machines.json`, rendered by
   `<AutomationStateMachine>` and `<AutomationInvariants>` on the
   Automations lifecycle reference page.
+- nine `conformance/automations/runner/*.vectors.json` suites, rendered by
+  `<AutomationVectors suite="…">` on the Automations scheduling reference
+  page. Upstream CI executes these exact files against the daemon's scheduling
+  code, and its conformance target refuses edited cases, so each table row is
+  a tested case.
 
 Never edit a copy. Run `pnpm capture:upstream-snapshots` after advancing the
 source lock; it reads the pinned files through the GitHub API (set
@@ -98,8 +103,10 @@ any other upstream change.
 `pnpm check:upstream-snapshots` runs offline. It hashes each copy the way Git
 does and compares it with the recorded blob, requires the manifest's pin to
 equal the source lock's, keeps every upstream path in the source-lock watch,
-and rejects a state-machine file the page cannot render faithfully (an unknown
-field, an undeclared state, a renamed machine). The hosted freshness job
-re-runs the capture without `--write`. The lifecycle page's notes on what the
-daemon records today are hand-written from the daemon source at the pin, and
-the files they cite are in the source-lock watch so a change prompts review.
+and rejects a file its page cannot render faithfully: for state machines, an
+unknown field, an undeclared state, or a renamed machine; for vectors, a new
+case field, an unrecognized expectation, a new schema version, or a routine
+policy other than misfire `latest` and overlap `forbid`. The hosted freshness job
+re-runs the capture without `--write`. The lifecycle and scheduling pages' prose
+is hand-written from the daemon source at the pin, and the files it cites are
+in the source-lock watch so a change prompts review.
