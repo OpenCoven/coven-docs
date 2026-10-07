@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "sourceId": "coven-runtime-contract",
   "repo": "OpenCoven/coven",
-  "verifiedCommit": "4d59c28c0329a0697840dce1a9c0a599525671ea",
+  "verifiedCommit": "c72bddb71adf00f9f7e2d3f51a534bd3d6e5d69a",
   "files": [
     {
       "path": "spec/coven-automations/v1/state-machines.json",
