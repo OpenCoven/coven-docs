@@ -67,6 +67,9 @@ What the daemon records today:
   where every legacy `skipped` row became `superseded`.
 - `occurrence.recover.v1` with `retry_with_new_attempt` returns the occurrence
   to `planned` for dispatch rather than to `dispatching`.
+- `occurrence.cancel.v1` and `attempt.cancel.v1` settle a `planned` or
+  `claimed` occurrence `cancelled` directly, before anything is dispatched, as
+  the contract's `cancel_acknowledged` transitions allow.
 
 ## Run
 
@@ -77,6 +80,8 @@ What the daemon records today, in the run's `status` field:
 - A run is created `running`. The daemon has no separate `accepted` status.
 - Runs settle `succeeded`, `failed`, or `cancelled`. A timeout settles the run
   `failed`, and its attempt records `timed_out`.
+- Cancelling an attempt that is still `adopted` and waiting for its retry
+  settles the attempt and its run `cancelled` with no session to stop.
 - The daemon never records `ambiguous` on a run. Ambiguous evidence either
   settles the run `failed` or leaves it `running` with an `ambiguous` attempt
   while its occurrence waits in `recovery_required`; see
