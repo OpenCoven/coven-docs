@@ -49,6 +49,8 @@ paths:
         - `coven.automations.run.cancel.v1`
         - `coven.automations.occurrence.recover.v1`
         - `coven.automations.occurrence.runNow.v1`
+        - `coven.automations.occurrence.cancel.v1`
+        - `coven.automations.attempt.cancel.v1`
         - `coven.automations.events.read.v1`
         - `coven.automations.events.subscribe.v1`
         - `coven.automations.tick`
@@ -198,6 +200,8 @@ components:
                 - coven.automations.run.cancel.v1
                 - coven.automations.occurrence.recover.v1
                 - coven.automations.occurrence.runNow.v1
+                - coven.automations.occurrence.cancel.v1
+                - coven.automations.attempt.cancel.v1
                 - coven.automations.events.read.v1
                 - coven.automations.events.subscribe.v1
                 - coven.automations.tick
