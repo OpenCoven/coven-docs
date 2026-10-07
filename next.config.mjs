@@ -4,6 +4,11 @@ import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const withMDX = createMDX();
+
+// PROBE for #66, never merge: fail the Vercel build of this branch only.
+if (process.env.VERCEL_GIT_COMMIT_REF === 'probe/66-vercel-fail') {
+  throw new Error('Probe #66: failing the Vercel build on purpose.');
+}
 const root = dirname(fileURLToPath(import.meta.url));
 const siteManifest = JSON.parse(
   readFileSync(fileURLToPath(new URL('./docs/site-manifest.json', import.meta.url)), 'utf8'),
