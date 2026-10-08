@@ -68,7 +68,7 @@ wake it for an immediate pass:
 - `definition.create.v1`, `definition.revise.v1`, `definition.activate.v1`,
   `definition.pause.v1`, and `definition.tombstone.v1`;
 - `run.cancel.v1`, `occurrence.cancel.v1`, `attempt.cancel.v1`,
-  `occurrence.recover.v1`, and `occurrence.runNow.v1`.
+  `attempt.retry.v1`, `occurrence.recover.v1`, and `occurrence.runNow.v1`.
 
 Disabling a routine, a rich `command.v1` change, and imports take effect at the
 next 60-second pass.
@@ -135,12 +135,18 @@ The wait counts from when the failure was observed:
   seconds). The delay is derived from the run id and attempt number, so the
   same attempt always waits the same time.
 
+When no automatic retry applies, an ordinary run is held `running` until its
+deadline so you can open an operator retry; see
+[Operator retry](/docs/reference/automations#operator-retry).
+
 <AutomationVectors suite="retry-backoff-timing" />
 
 ## Quarantine
 
-When a run uses up `maxAttempts`, the run fails and the routine is quarantined:
-it stops planning, refuses manual runs, and `coven.automations.health` reports
+When a run uses up `maxAttempts`, the routine is quarantined and the run is held
+for an operator retry like any other failed ordinary run. A quarantined routine
+stops planning, refuses manual runs and operator retries, and
+`coven.automations.health` reports
 `nextDueAt` as `null` with the quarantine's time, failure class, reason, and
 count of consecutive exhaustions. A later exhaustion keeps the latest evidence
 and increases the count. `coven.automations.unquarantine` releases the routine,
@@ -161,6 +167,9 @@ the timeout:
   reported finished.
 - A retry still waiting when the deadline passes is settled: the attempt
   `timed_out`, and the run and occurrence `failed`.
+- A run held for an operator retry has no live session. If no retry is opened
+  by the deadline, the run and occurrence settle `failed`, and the failed
+  attempt stays `failed`.
 
 When a cancellation and a timeout race, whichever takes the run's stop fence
 first decides the outcome, and the session is stopped once. For the
