@@ -10,10 +10,11 @@ reviewed upstream commit, so they cannot drift from it.
 
 <Callout type="warn" title="Proposed contract, partial implementation">
 The contract is proposed, not certified. Its conformance manifest records
-`releaseState: "proposed"` and `productionReady: false`, and at the reviewed
-commit no upstream test checks the daemon against these machines. The daemon
-records a subset of these states, and in places a different one; each section
-below says which. Branch on the values the daemon returns, described in
+`releaseState: "proposed"` and `productionReady: false`. At the reviewed
+commit, upstream tests compare only the occurrence transitions of an operator
+retry against these machines; nothing checks the rest of the daemon against
+them. The daemon records a subset of these states, and in places a different
+one; each section below says which. Branch on the values the daemon returns, described in
 [Coven automations](/docs/reference/automations).
 </Callout>
 
@@ -70,6 +71,11 @@ What the daemon records today:
 - `occurrence.cancel.v1` and `attempt.cancel.v1` settle a `planned` or
   `claimed` occurrence `cancelled` directly, before anything is dispatched, as
   the contract's `cancel_acknowledged` transitions allow.
+- When an ordinary run is held for an operator retry, its occurrence stays
+  `claimed` (the attempt failed before launch) or `running` (it failed after
+  start). `attempt.retry.v1` returns it to `planned`, the contract's
+  `operator_retry` transitions; if the run's deadline passes first, it settles
+  `failed`.
 
 ## Run
 
@@ -82,6 +88,10 @@ What the daemon records today, in the run's `status` field:
   `failed`, and its attempt records `timed_out`.
 - Cancelling an attempt that is still `adopted` and waiting for its retry
   settles the attempt and its run `cancelled` with no session to stop.
+- An ordinary run whose attempt failed with no automatic retry left stays `running`,
+  held for an operator retry, until its deadline; it then settles `failed`.
+  The failed attempt stays `failed` either way. See
+  [Operator retry](/docs/reference/automations#operator-retry).
 - The daemon never records `ambiguous` on a run. Ambiguous evidence either
   settles the run `failed` or leaves it `running` with an `ambiguous` attempt
   while its occurrence waits in `recovery_required`; see

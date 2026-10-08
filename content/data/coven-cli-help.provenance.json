@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "sourceId": "coven-runtime-contract",
   "repo": "OpenCoven/coven",
-  "verifiedCommit": "07e1d20c0885730e19ad61fd598cea6d4673c838",
+  "verifiedCommit": "9c8498ef92f3c16225d3346e5ead4e1b32f56009",
   "capture": {
     "command": "coven help --all --json",
     "cliVersion": "coven v0.4.8-31-gc72bddb7 (engine coven-code 0.8.0, pinned 0.8.0)",

@@ -56,7 +56,7 @@ and release evidence before relying on TCP refusal.
 - Overlap policy is `forbid` and misfire recovery is `latest` in the v1 definition shape.
 - A run without an explicit `cwd` fails instead of guessing a project.
 - Scheduled and manual runs use the same validated session-launch path.
-- The daemon runs a scheduler pass at startup, every 60 seconds, and right after most successful definition changes, cancellations, recoveries, manual runs, `tick`, or `unquarantine`. Disabling a definition, a rich `command.v1` change, and imports wait for the next 60-second pass. It records occurrence and run state durably. See [Automations scheduling](/docs/reference/automations-scheduling).
+- The daemon runs a scheduler pass at startup, every 60 seconds, and right after most successful definition changes, cancellations, recoveries, retries, manual runs, `tick`, or `unquarantine`. Disabling a definition, a rich `command.v1` change, and imports wait for the next 60-second pass. It records occurrence and run state durably. See [Automations scheduling](/docs/reference/automations-scheduling).
 - One scheduler at a time claims and dispatches work for a `COVEN_HOME`, fenced by `$COVEN_HOME/automations-scheduler.lock` and a generation stored in SQLite. Keep the lock file and the SQLite store on one local filesystem; network filesystems are not supported.
 - `outputTarget` is refused until atomic delivery is certified.
 - An `authority` declaration is refused until the daemon advertises Runtime Authority.
@@ -76,6 +76,7 @@ request with a reused `intentId` is rejected. Use a new `intentId` for each
 intended change. `coven.automations.run.cancel.v1`,
 `coven.automations.occurrence.cancel.v1`,
 `coven.automations.attempt.cancel.v1`,
+`coven.automations.attempt.retry.v1`,
 `coven.automations.occurrence.recover.v1`, and
 `coven.automations.occurrence.runNow.v1` accept only their own fields, so leave
 `origin` and `intentId` off those requests.
@@ -121,7 +122,8 @@ owner-local check also return a typed `error` with `code`, `httpStatus`,
 for example `VALIDATION_FAILED` (`400`), `AUTHORITY_REQUIRED` (`403`),
 `NOT_FOUND` (`404`), `REVISION_CONFLICT` and `ADOPTION_REPLAY_MISMATCH`
 (`409`), `CANCEL_PENDING` (`409`), `GONE_TOMBSTONED` and `CURSOR_EXPIRED` (`410`), and
-`CAPABILITY_UNSUPPORTED` or `ILLEGAL_TRANSITION` (`422`). Branch on
+`CAPABILITY_UNSUPPORTED`, `ILLEGAL_TRANSITION`, `RETRY_DISPOSITION_INVALID`,
+or `AMBIGUOUS_RETRY_FORBIDDEN` (`422`), and `DEADLINE_EXCEEDED` (`504`). Branch on
 `error.code`, not `reason`. Malformed JSON and missing action ids return
 `400`. An unknown `coven.automations.*` action over TCP is refused with `403`
 before action validation; other unknown action ids return `400`.
@@ -131,7 +133,7 @@ the run, not that it finished; see [Manual runs and health](#manual-runs-and-hea
 
 ## Supported actions
 
-The daemon advertises 36 `coven.automations.*` action ids. Unversioned actions
+The daemon advertises 37 `coven.automations.*` action ids. Unversioned actions
 and the definition, run, occurrence, health, and scheduler reads return their
 data in `event.payload`. Versioned commands, event pages, and receipt reads
 return it in a top-level `result`; a versioned command that commits also
@@ -147,7 +149,7 @@ returns an event.
 | `coven.automations.update` | `definition` | updated routine and timestamp |
 | `coven.automations.delete` | `id` | `id` and `deleted` |
 | `coven.automations.tick` | none | planning report; it plans due slots and wakes the scheduler but never claims or recovers work, so `recovered` is `0` and `claimed` is empty |
-| `coven.automations.runs` | `id`; optional `limit` | recent runs with their attempts and any cancellation; default limit `20` |
+| `coven.automations.runs` | `id`; optional `limit` | recent runs with their attempts and the latest attempt's cancellation; default limit `20` |
 | `coven.automations.run` | `id` | run id, status, session id, and error |
 | `coven.automations.import` | none | imported, skipped, and failure lists |
 | `coven.automations.health` | `id` | next due time, recent outcomes, lease, retry, quarantine, and staleness state |
@@ -167,6 +169,7 @@ returns an event.
 | `coven.automations.run.cancel.v1` | `adoptionKey`, `runId`, `attemptId`, `runtimeCorrelation.sessionId`, `scope: "run"`, `reason`, `requestedBy.principalId` | cancellation record |
 | `coven.automations.occurrence.cancel.v1` | `adoptionKey`, `occurrenceId`; optional `reason` | the occurrence cancelled, or the run cancellation it started |
 | `coven.automations.attempt.cancel.v1` | `adoptionKey`, `attemptId`; optional `reason` | the attempt cancelled, or the run cancellation it started |
+| `coven.automations.attempt.retry.v1` | `adoptionKey`, `runId`, `priorAttemptNumber`, `priorDisposition`; optional `note` | the new attempt, with the occurrence `planned` |
 | `coven.automations.occurrence.recover.v1` | `adoptionKey`, `occurrenceId`, `evidenceDetermination`; optional `statement` | the determination: the occurrence settled `failed`, or planned for a new attempt |
 | `coven.automations.occurrence.runNow.v1` | `adoptionKey`, `automationId`; optional `note`, `bypassEligibility` | the manual occurrence and, once dispatched, its run |
 | `coven.automations.command.v1` | `envelope` | a `coven.automations.v1` command response |
@@ -249,9 +252,9 @@ value returns `REVISION_CONFLICT` with `currentRevision` and changes nothing.
 - After any versioned mutation, `coven.automations.update` refuses the
   definition and `coven.automations.delete` returns `deleted: false` and leaves
   it in place. Use `definition.tombstone.v1` instead.
-- Versioned command names this daemon does not implement, such as
-  `coven.automations.attempt.retry.v1`, are not advertised and return
-  `CAPABILITY_UNSUPPORTED`.
+- Every versioned command in the `coven.automations.v1` command envelope is
+  implemented and advertised. A versioned action name the daemon does not
+  advertise returns `CAPABILITY_UNSUPPORTED`.
 
 `coven.automations.command.v1` accepts a `coven.automations.v1` command
 envelope in `envelope` and answers with a command response in `result`.
@@ -264,7 +267,8 @@ and transactions as a routine body, keeps the rich form, and returns it as
 activation windows are refused with `CAPABILITY_UNSUPPORTED` rather than
 dropped, and a rich request and a routine request never share an adoption key.
 The envelope also refuses `run.cancel.v1`, `occurrence.cancel.v1`,
-`attempt.cancel.v1`, and payload fields it does not implement with
+`attempt.cancel.v1`, `attempt.retry.v1`, and payload fields it does not
+implement with
 `CAPABILITY_UNSUPPORTED`; send cancellation as the flat action instead.
 
 For a richly authored revision, definition lifecycle events, occurrence
@@ -364,7 +368,9 @@ attempt after its backoff.
 
 A missing routine, missing `cwd`, quarantined routine, unsettled earlier run,
 or launch refusal returns a rejected response: HTTP `400`, `accepted: false`,
-and the cause in `reason`. Deadline and restart recovery settle
+and the cause in `reason`. A refused launch still leaves its run: an ordinary
+run is held for an [operator retry](#operator-retry) until its deadline
+rather than failed. Deadline and restart recovery settle
 conservatively: timeout handling requires strict process-tree containment, and
 an interrupted run stays nonterminal until Coven can prove a terminal
 disposition.
@@ -385,8 +391,12 @@ routine's timeout, overlap, and retry policies still apply:
 
 The result has `occurrenceId`, `automationId`, and `occurrenceState`, plus
 `runId`, `status`, and `sessionId` once a run exists, and echoes `note`
-(at most 500 characters). Read `status` as for `coven.automations.run`. If
-dispatch was refused, the result carries `error` and the occurrence is settled
+(at most 500 characters). Read `status` as for `coven.automations.run`. If the
+launch is refused before a session starts, the result has no `sessionId`: the
+status is `retry_scheduled` when an automatic retry applies, an ordinary run is
+otherwise held for an [operator retry](#operator-retry) (`occurrenceState:
+"claimed"`, `status: "running"`), and any other refusal settles it `failed`. An
+unexpected dispatch error is returned in `error` and settles the occurrence
 `failed`. `bypassEligibility` is accepted but changes nothing in v1, which has
 no eligibility conditions.
 
@@ -404,8 +414,61 @@ Automatic retries cover only `transient_dispatch`, `lease_expired`, and
 retry is a new attempt inside the same run and its original timeout. Backoff
 `none` retries immediately, `fixed` waits `backoffSeconds`, and `exponential`
 uses deterministic jitter capped at one day. When a routine exhausts
-`maxAttempts`, Coven fails the run and quarantines the routine until you call
-`coven.automations.unquarantine`.
+`maxAttempts`, Coven quarantines the routine until you call
+`coven.automations.unquarantine`, and the run is held for an operator retry
+like any other failed ordinary run.
+
+### Operator retry
+
+When an attempt of an ordinary run fails and no automatic retry follows, Coven
+holds the run `running` until its deadline instead of failing it. The failed
+attempt stays `failed`, the run has no live session, the occurrence stays
+`claimed` (failed before launch) or `running` (failed after start), and its
+failure reason ends with `held for an operator retry until the run's deadline`.
+If no retry is opened by the deadline, the run and occurrence settle `failed`
+with the reason `no operator retry was opened before the run's deadline`.
+Runtime Authority runs are not held.
+
+To retry a held run, name its latest attempt and that attempt's disposition, so
+a retry never lands on an attempt you did not mean:
+
+```json
+{
+  "action": "coven.automations.attempt.retry.v1",
+  "adoptionKey": "retry-daily-notes-0001",
+  "runId": "RUN_ID",
+  "priorAttemptNumber": 1,
+  "priorDisposition": "failed",
+  "note": "Fixed the missing template."
+}
+```
+
+The retry opens the next attempt in the same run, classified
+`operator_retry`, and returns the occurrence to `planned` for the scheduler to
+dispatch. The result has `runId`, `occurrenceId`, `attemptId`,
+`attemptNumber`, `priorDisposition`, `status: "planned"`, and `retriedAt`;
+`note` is optional and at most 500 characters. It is refused with:
+
+- `RETRY_DISPOSITION_INVALID` when the attempt number or disposition does not
+  match the run's latest attempt;
+- `AMBIGUOUS_RETRY_FORBIDDEN` for ambiguous work, which only
+  `coven.automations.occurrence.recover.v1` resolves;
+- `ILLEGAL_TRANSITION` when the run is not held: it is settled, its latest
+  attempt is still in flight, it has used all 10 attempts, or its routine is
+  not active or is still quarantined (call `coven.automations.unquarantine`
+  first);
+- `CANCEL_PENDING` while a cancellation or stop is unresolved;
+- `DEADLINE_EXCEEDED` once the run's deadline has passed;
+- `AUTHORITY_REQUIRED` for a Runtime Authority run.
+
+An exact replay returns `reason: "replayed previously adopted retry"` and opens
+nothing new, and reusing the key for anything else returns
+`ADOPTION_REPLAY_MISMATCH`. To give up on a held run before its deadline, cancel
+its occurrence with `coven.automations.occurrence.cancel.v1`: the run and
+occurrence settle `cancelled` and the failed attempt stays `failed`.
+`attempt.cancel.v1` refuses the held attempt, because it has already settled.
+
+### Cancellation and recovery
 
 To cancel a run, send `coven.automations.run.cancel.v1` with the run id, the
 current attempt id from the run's `attempts`, and its session id.
@@ -431,7 +494,9 @@ and an optional `reason` of at most 500 characters (default
 
 `attempt.cancel.v1` accepts only the current attempt of a running run. Both
 commands refuse an occurrence in `recovery_required` (resolve it with
-`coven.automations.occurrence.recover.v1`), work that has already settled,
+`coven.automations.occurrence.recover.v1`), work that has already settled
+(except that `occurrence.cancel.v1` releases a run held for an
+[operator retry](#operator-retry)),
 and a waiting attempt whose run deadline has passed, with
 `ILLEGAL_TRANSITION`; that last case first settles the attempt `timed_out`.
 An exact replay returns `reason: "replayed previously adopted cancellation"`
@@ -473,6 +538,8 @@ authority-evidenced receipts. The `adoptionKey` works as it does for the
 versioned definition commands: an exact replay returns the first answer, with
 `reason: "replayed previously adopted recovery"` and no second change, and
 reusing the key for anything else returns `ADOPTION_REPLAY_MISMATCH`.
+
+### Health
 
 Use `coven.automations.health` for the next due time, recent planning and run
 timestamps, consecutive failure count, live lease owner/expiry, the current

@@ -2,12 +2,12 @@
   "schemaVersion": 1,
   "sourceId": "coven-runtime-contract",
   "repo": "OpenCoven/coven",
-  "verifiedCommit": "07e1d20c0885730e19ad61fd598cea6d4673c838",
+  "verifiedCommit": "9c8498ef92f3c16225d3346e5ead4e1b32f56009",
   "files": [
     {
       "path": "spec/coven-automations/v1/state-machines.json",
       "local": "content/data/upstream/coven-automations-v1/state-machines.json",
-      "blob": "d3b6e11a9f551dbcd35984a4316a0e29f5ad78c9"
+      "blob": "a559ef34218e37f3a53190563149626787a2e177"
     },
     {
       "path": "conformance/automations/runner/rrule-vocabulary.vectors.json",
