@@ -5,13 +5,13 @@
 companion provenance file records its SHA-256, the capture's CLI version and
 source commit, and the reviewed `docs/source-lock.json` pin.
 
-The current capture came from `coven v0.4.8-31-gc72bddb7`. Its CLI definition and
+The current capture came from `coven v0.4.8-37-gc73bd80b`. Its CLI definition and
 help catalog have identical Git blobs at the captured source commit and the
 reviewed pin:
 
-- [CLI definition and command dispatch](https://github.com/OpenCoven/coven/blob/c72bddb71adf00f9f7e2d3f51a534bd3d6e5d69a/crates/coven-cli/src/main.rs)
-- [Help groups and serializer](https://github.com/OpenCoven/coven/blob/c72bddb71adf00f9f7e2d3f51a534bd3d6e5d69a/crates/coven-cli/src/help.rs)
-- [Owning help-disclosure tests](https://github.com/OpenCoven/coven/blob/c72bddb71adf00f9f7e2d3f51a534bd3d6e5d69a/crates/coven-cli/tests/help_disclosure.rs)
+- [CLI definition and command dispatch](https://github.com/OpenCoven/coven/blob/c73bd80bb9b724dd12dde2a9ac1d3b7adae95449/crates/coven-cli/src/main.rs)
+- [Help groups and serializer](https://github.com/OpenCoven/coven/blob/c73bd80bb9b724dd12dde2a9ac1d3b7adae95449/crates/coven-cli/src/help.rs)
+- [Owning help-disclosure tests](https://github.com/OpenCoven/coven/blob/c73bd80bb9b724dd12dde2a9ac1d3b7adae95449/crates/coven-cli/tests/help_disclosure.rs)
 
 This is a runtime capture checked against source, not a reproducible-build
 attestation. Local checks do not execute an arbitrary installed Coven binary or
