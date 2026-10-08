@@ -76,7 +76,8 @@ The report lists every source it did not import, with the reason:
 | `skipped` | ``<id>: unsupported schedule `<rrule>` `` |
 | `skipped` | `<id>: no prompt` (missing or blank) |
 | `skipped` | `<id>: <validation error>`, for example an id over 96 characters or with characters other than letters, digits, `.`, `_`, and `-` |
-| `skipped` | `<id>: already exists` (`legacy.import.v1` only) |
+| `skipped` | `<id>: already exists`, for an id already in the store (`legacy.import.v1` only) |
+| `skipped` | `<id>: duplicate source id`, for a later file repeating an id this run imported (`legacy.import.v1` only) |
 | `failures` | `<path>: could not read automation.toml: <error>` |
 | `failures` | `<path>: could not parse automation.toml: <error>` |
 | `failures` | `<id>: <error>`, when storing the routine fails |
@@ -103,7 +104,9 @@ The result has `source`, `dryRun`, and `imported`, `skipped`, and `failures`
 lists. Run it again with `dryRun: false` and a new key to import. Each
 routine is created as a draft. An id already in the store is skipped as
 `already exists`, including a tombstoned id, so a second import changes
-nothing. An exact replay of a key returns the stored report without reading
+nothing. Within one run, a later file that repeats an id the run already
+imported is skipped as `duplicate source id`, and a dry run reports the same
+reasons as the real import. An exact replay of a key returns the stored report without reading
 the files again, and reusing a key for a different request, such as flipping
 `dryRun`, returns `ADOPTION_REPLAY_MISMATCH`.
 
