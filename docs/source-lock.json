@@ -80,7 +80,10 @@
         "spec/coven-automations/authority/v1/conformance-manifest.json",
         "spec/coven-automations/authority/v1/protocol-version.json",
         "spec/coven-automations/authority/v1/upstream-artifacts.json",
-        "crates/coven-cli/Cargo.toml"
+        "crates/coven-cli/Cargo.toml",
+        "crates/coven-cli/src/automations/import_legacy.rs",
+        "crates/coven-cli/src/automations/command_adoption.rs",
+        "docs/roadmaps/coven-automations-v1.mapping.json"
       ]
     }
   ]

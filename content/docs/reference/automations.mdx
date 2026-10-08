@@ -51,7 +51,7 @@ and release evidence before relying on TCP refusal.
 
 ## Safety defaults
 
-- `coven.automations.import` creates legacy routines as `PAUSED` and `coven.automations.legacy.import.v1` creates them as drafts; import never opts them into execution.
+- `coven.automations.import` creates legacy routines as `PAUSED` and `coven.automations.legacy.import.v1` creates them as drafts; import never opts them into execution. See [Automations migration](/docs/reference/automations-migration).
 - Unsupported recurrence values fail validation rather than being approximated.
 - Overlap policy is `forbid` and misfire recovery is `latest` in the v1 definition shape.
 - A run without an explicit `cwd` fails instead of guessing a project.
@@ -368,7 +368,9 @@ attempt after its backoff.
 
 A missing routine, missing `cwd`, quarantined routine, unsettled earlier run,
 or launch refusal returns a rejected response: HTTP `400`, `accepted: false`,
-and the cause in `reason`. A refused launch still leaves its run: an ordinary
+and the cause in `reason`. `coven.automations.run` does not check the
+routine's status, so it also runs a paused routine;
+`coven.automations.occurrence.runNow.v1` requires an active one. A refused launch still leaves its run: an ordinary
 run is held for an [operator retry](#operator-retry) until its deadline
 rather than failed. Deadline and restart recovery settle
 conservatively: timeout handling requires strict process-tree containment, and
@@ -556,5 +558,7 @@ contract's state machines and how the daemon's recorded states relate to them,
 schedules, retries, and timeouts resolve,
 [Automations conformance](/docs/reference/automations-conformance) for what the
 contract is tested against and the exact revisions it depends on,
+[Automations migration](/docs/reference/automations-migration) for importing
+Codex automations,
 [Coven local API](/docs/reference/api) for transport and trust rules, and
 [Safety](/docs/reference/safety) for the broader authority model.
