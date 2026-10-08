@@ -27,7 +27,12 @@ export function DocsScrollToTop() {
     // Let Next.js position cross-page heading links at their target.
     if (window.location.hash) return;
 
-    window.scrollTo({ top: 0, behavior: 'instant' });
+    // Closing the section picker restores focus to its trigger. Apply the
+    // destination scroll after those navigation effects have finished.
+    const frame = window.requestAnimationFrame(() => {
+      window.scrollTo({ top: 0, behavior: 'instant' });
+    });
+    return () => window.cancelAnimationFrame(frame);
   }, [pathname]);
 
   return null;
