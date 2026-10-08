@@ -9,6 +9,7 @@
 
 import { createHash } from 'node:crypto';
 import { VECTOR_SUITES } from '../lib/automation-vectors.mjs';
+import { CONFORMANCE_FILES } from '../lib/automation-conformance.mjs';
 
 export const SNAPSHOTS_PATH = 'content/data/upstream/snapshots.json';
 export const SNAPSHOT_SOURCE_ID = 'coven-runtime-contract';
@@ -26,6 +27,8 @@ export const SNAPSHOT_FILES = [
     path: `conformance/automations/runner/${suite}.vectors.json`,
     local: `content/data/upstream/coven-automations-conformance/${suite}.vectors.json`,
   })),
+  // The conformance page's profiles, release states and pinned inputs.
+  ...Object.values(CONFORMANCE_FILES),
 ];
 
 const shaPattern = /^[0-9a-f]{40}$/;

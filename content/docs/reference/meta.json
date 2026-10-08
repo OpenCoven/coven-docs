@@ -8,6 +8,7 @@
     "automations",
     "automations-lifecycle",
     "automations-scheduling",
+    "automations-conformance",
     "auth",
     "safety",
     "troubleshooting",
