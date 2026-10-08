@@ -53,6 +53,46 @@
       "path": "conformance/automations/runner/cancellation-timeout-arbitration.vectors.json",
       "local": "content/data/upstream/coven-automations-conformance/cancellation-timeout-arbitration.vectors.json",
       "blob": "fb6c7628521584e99ef3a1fcaeafe7119ff3dfe2"
+    },
+    {
+      "path": "conformance/automations/runner/inventory.json",
+      "local": "content/data/upstream/coven-automations-conformance/inventory.json",
+      "blob": "4de505dbb333b0c610296950e2ad4143075189fe"
+    },
+    {
+      "path": "spec/coven-automations/v1/conformance-manifest.json",
+      "local": "content/data/upstream/coven-automations-v1/conformance-manifest.json",
+      "blob": "eac5b163cc6de3f3b4a5f08a55e70435d6b39489"
+    },
+    {
+      "path": "spec/coven-automations/v1/protocol-version.json",
+      "local": "content/data/upstream/coven-automations-v1/protocol-version.json",
+      "blob": "da602f61e5dc4f5f1a951f41426113a8d789e7c2"
+    },
+    {
+      "path": "spec/coven-automations/v1/conformance-result.schema.json",
+      "local": "content/data/upstream/coven-automations-v1/conformance-result.schema.json",
+      "blob": "830533bd76b52f2b5d17435193703e3fb41943f1"
+    },
+    {
+      "path": "spec/coven-automations/authority/v1/conformance-manifest.json",
+      "local": "content/data/upstream/coven-automations-authority-v1/conformance-manifest.json",
+      "blob": "d197ed0d627c128b3609896d1291e080546dbe43"
+    },
+    {
+      "path": "spec/coven-automations/authority/v1/protocol-version.json",
+      "local": "content/data/upstream/coven-automations-authority-v1/protocol-version.json",
+      "blob": "4b592e704a9d3814bf014c33bd213413457c0ca0"
+    },
+    {
+      "path": "spec/coven-automations/authority/v1/upstream-artifacts.json",
+      "local": "content/data/upstream/coven-automations-authority-v1/upstream-artifacts.json",
+      "blob": "036c59e97dde51df57771d45383b0ac74eb97a64"
+    },
+    {
+      "path": "crates/coven-cli/Cargo.toml",
+      "local": "content/data/upstream/coven-cli/Cargo.toml",
+      "blob": "9befa8ce9f63fce8cc3370bb0621e20440ac652b"
     }
   ]
 }

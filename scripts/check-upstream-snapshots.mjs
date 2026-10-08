@@ -7,6 +7,7 @@ import { resolve } from 'node:path';
 import { SNAPSHOTS_PATH, snapshotProblems } from './upstream-snapshots.mjs';
 import { stateMachineProblems } from '../lib/automation-state-machines.mjs';
 import { vectorProblems } from '../lib/automation-vectors.mjs';
+import { CONFORMANCE_FILES, conformanceFileProblems, ledgerProblems } from '../lib/automation-conformance.mjs';
 
 const root = resolve(import.meta.dirname, '..');
 const read = (path) => readFileSync(resolve(root, path), 'utf8');
@@ -25,13 +26,23 @@ const problems = snapshotProblems(manifest, JSON.parse(read('docs/source-lock.js
 // rather than at build time.
 if (problems.length === 0) {
   for (const { path, local } of manifest.files) {
-    const doc = JSON.parse(read(local));
-    const found = path.endsWith('/state-machines.json')
-      ? stateMachineProblems(doc)
-      : path.endsWith('.vectors.json')
-        ? vectorProblems(path.split('/').pop().replace(/\.vectors\.json$/, ''), doc)
-        : [`no page renders ${path}; add a validator for it`];
+    const ledgerKey = Object.keys(CONFORMANCE_FILES).find((key) => CONFORMANCE_FILES[key].path === path);
+    const found = ledgerKey
+      ? conformanceFileProblems(ledgerKey, read(local))
+      : path.endsWith('/state-machines.json')
+        ? stateMachineProblems(JSON.parse(read(local)))
+        : path.endsWith('.vectors.json')
+          ? vectorProblems(path.split('/').pop().replace(/\.vectors\.json$/, ''), JSON.parse(read(local)))
+          : [`no page renders ${path}; add a validator for it`];
     problems.push(...found.map((problem) => `${local}: ${problem}`));
+  }
+  if (problems.length === 0) {
+    const docs = Object.fromEntries(
+      Object.entries(CONFORMANCE_FILES)
+        .filter(([key]) => key !== 'cargoToml')
+        .map(([key, { local }]) => [key, JSON.parse(read(local))]),
+    );
+    problems.push(...ledgerProblems(docs).map((problem) => `conformance ledger: ${problem}`));
   }
 }
 

@@ -1,0 +1,109 @@
+---
+title: Automations conformance
+description: What the Coven Automations contract has been tested against, profile by profile, and the exact revisions of every input it depends on. No profile is certified yet.
+---
+
+This page is the compatibility and conformance ledger for Coven Automations.
+It reports each conformance profile separately and names the exact revision
+of every input, so nothing here reads as a single "compatible" claim. The
+tables render from pinned copies of the upstream manifests, audit inventory,
+and dependency pins at the reviewed commit.
+
+<Callout type="warn" title="Nothing is certified">
+Both contract profiles are `proposed` and not production-ready. The upstream
+audit runs with the decision scope `audit_only`: it cannot emit a
+`release_eligibility` result or claim the aggregate `full` profile, and its
+own documentation says passing output is not release certification. No
+conformance result is published, in the repository or on a release. Treat
+the evidence below as what upstream CI exercises, not as a certification.
+</Callout>
+
+## Profiles
+
+A conformance result reports seven profiles separately, each `passed`,
+`failed`, `incomplete`, or `not_applicable`. This table lists them with the
+audit suites upstream maps to each one:
+
+<AutomationProfiles />
+
+- **`structural`** covers the contract's objects and rules: definition
+  validation and lifecycle, command adoption and envelopes, capability
+  negotiation, the event reducer, receipt integrity, and terminal-state
+  immutability.
+- **`scheduler_reliability`** covers the scheduling behavior on
+  [Automations scheduling](/docs/reference/automations-scheduling), plus
+  scheduler leadership fencing.
+- **`runtime_authority`** has a single suite, for holding a run on terminal
+  evidence during recovery. The rest of the Runtime Authority profile has no
+  audit suite yet, and the daemon does not wire it into dispatch.
+- **`continuity`**, **`privacy`**, and **`interoperability`** have no audit
+  suites, so the audit cannot report them.
+- **`full`** is an aggregate. The audit runner never claims it, and the
+  result verifier accepts `full` only when all six component profiles passed.
+
+## How upstream runs the audit
+
+The audit runs every suite against the native `coven` binary built from the
+exact checkout, through the daemon's own code paths on temporary stores. In
+upstream CI:
+
+- the Linux Rust test job runs the audit for each change that affects Rust
+  code, and uploads its result, provenance, and the protocol bundle as a
+  workflow artifact kept for 14 days;
+- the Rust test suites on Linux and Windows, and on macOS for pushes, also
+  require every suite to pass;
+- the runner's own unit tests run on every change.
+
+Nothing in CI publishes the audit result, signs it, or attaches it to a
+release. A `release_eligibility` result would also have to be signed with a
+trusted key and bound to an exact release policy, subject artifact, and
+environment.
+
+The two contract manifests also list the proof each profile will require
+before it can stabilize. Those lists use their own suite names, which do not
+map one-to-one onto the audit suites above.
+
+## Component ledger
+
+Every input the contract and the daemon depend on, with its exact revision
+at the reviewed commit. Every repository named is under OpenCoven, and each
+commit links to its full hash:
+
+<AutomationLedger />
+
+The Familiar Contract and Threads rows have two revisions each. The Runtime
+Authority specification was written against one revision of each upstream
+contract, and the daemon compiles a different one. Read a Runtime Authority
+claim against the specification revision.
+
+These components have no pinned revision in OpenCoven/coven, so this ledger
+reports no conformance for them:
+
+- the Psyche adapter, tracked in OpenCoven/psyche#18;
+- the SDK, tracked in OpenCoven/sdk#80;
+- Cave, tracked in OpenCoven/coven-cave#5217.
+
+## Release artifacts
+
+As of 2026-10-08, the latest Coven release, `v0.4.8` (published
+2026-10-03), attaches both contract bundles,
+`coven-automations-v1-contract-eb3273e19670d2ab5bf1374783d96c11a50b0be2.tar.gz`
+and the matching `coven-automations-authority-v1-contract-…` bundle, built
+from `eb3273e`, alongside the CLI archives and `SHA256SUMS`. That commit is
+older than the reviewed commit above, and the release attaches no conformance
+result. Upstream CI also builds both bundles for every commit as workflow
+artifacts.
+
+## Runtime Authority inputs
+
+The Runtime Authority profile pins the exact upstream files it was written
+against, by repository, commit, size, and SHA-256:
+
+<AutomationAuthorityArtifacts />
+
+## Related
+
+- [Automations lifecycle](/docs/reference/automations-lifecycle) for the state
+  machines and how the daemon's recorded states relate to them.
+- [Automations scheduling](/docs/reference/automations-scheduling) for the
+  scheduler-reliability cases, rendered from the same audit's vector files.

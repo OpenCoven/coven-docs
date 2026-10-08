@@ -1,0 +1,133 @@
+[package]
+name = "coven-cli"
+version = "0.0.0"
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+
+[[bin]]
+name = "coven"
+path = "src/main.rs"
+
+[features]
+default = []
+threads-test-clock = ["time/serde-well-known"]
+
+# `threads_e2e` drives a real daemon through full lifecycle journeys, and it is
+# the heaviest fixture in the suite. It used to run twice per platform: once
+# here via `cargo test --workspace`, and again from the explicit
+# `--features threads-test-clock` step in the same CI job. The `--workspace`
+# copy is the one that flakes (#1116): it competes with the rest of the
+# workspace suite for the runner, so daemon startup exceeds its health budget
+# and fails with `child=still-running ... last_readiness=connect-timeout`.
+#
+# Requiring the feature removes that duplicate run without losing coverage.
+# Every gate inside the file is a positive `cfg(feature = "threads-test-clock")`
+# and there are no `cfg(not(...))` gates, so the feature-enabled run is a strict
+# superset of what `--workspace` was executing. All three platforms keep a
+# feature-enabled run: Linux and macOS in `rust-test-*`, Windows in
+# `threads-test-windows`.
+[[test]]
+name = "threads_e2e"
+required-features = ["threads-test-clock"]
+
+# The sibling real-daemon journeys ran twice for the same reason and add the
+# same kind of contention: 11, 4 and 8 daemon call sites respectively. Neither
+# they nor `threads_e2e` contain a single `cfg(not(...))` gate, so the
+# feature-enabled run is a superset for `threads_identity_invariants` (4 gated
+# items) and behaviourally identical for the other two (no feature-conditional
+# code at all). All four are launched together by the one CI command that
+# passes `--features threads-test-clock`.
+[[test]]
+name = "threads_identity_invariants"
+required-features = ["threads-test-clock"]
+
+[[test]]
+name = "threads_protected_intake"
+required-features = ["threads-test-clock"]
+
+[[test]]
+name = "threads_terminal_recovery"
+required-features = ["threads-test-clock"]
+
+[dependencies]
+coven-afs = { path = "../coven-afs", version = "0.1.0" }
+coven-client = { package = "opencoven-coven-client", path = "../coven-client", version = "0.1.0" }
+anyhow = "1"
+base64 = "0.23"
+chrono = { version = "0.4", features = ["serde"] }
+clap = { version = "4", features = ["derive"] }
+clap_complete = "4"
+# Runtime capability model shared with the coven-runtimes registry. Pinned to
+# the reviewed 0.2.0 release tag; the daemon reads manifest-declared
+# capabilities and model-id transforms through these types instead of hardcoded
+# harness-id checks.
+coven-runtime-spec = { git = "https://github.com/OpenCoven/coven-runtimes", tag = "v0.2.0", version = "0.2.0" }
+# The authority-boundary gate layer for familiar protected surfaces
+# (PHASE-0-DESIGN.md in OpenCoven/coven-threads; RFC-0001 §5). The daemon is
+# the only caller: familiar-controlled processes never reach this crate.
+# Pinned through the admission-channel fix (coven-threads#72), preserving the
+# reviewed Phase 5 core and deployed audit fingerprints until its 0.2 tag lands.
+coven-threads-core = { git = "https://github.com/OpenCoven/coven-threads", rev = "78e47c9d2430582128679fd4a54f9966f2f4f976", version = "0.2.0" }
+# The Familiar Contract's own `familiar.embodiment_binding.v1` verifier, owned
+# and vector-tested in the contract repository (Runtime Authority Decision 2).
+# Pinned by revision: the crate embeds the contract's schemas and is never
+# published to crates.io.
+familiar-contract = { git = "https://github.com/OpenCoven/familiar-contract", rev = "93f486cf9e7b66f7f3a49131fbcfd003dd9da8ac", version = "0.7.0" }
+blake3 = "1"
+cap-fs-ext = "4.0.2"
+cap-std = "4.0.2"
+time = { version = "0.3", features = ["formatting"] }
+crossterm = "0.29"
+flate2 = "1"
+fs2 = "0.4"
+json5 = "1.3"
+portable-pty = "0.9"
+rand = "0.10"
+regex = "1"
+rustls = { version = "0.23.45", default-features = false, features = ["ring", "std", "tls12"] }
+rustls-pki-types = "1"
+rcgen = { version = "0.14", features = ["crypto", "pem", "ring"] }
+ring = "0.17"
+p256 = { version = "0.13", features = ["ecdsa", "pem", "pkcs8"] }
+qrcode = { version = "0.14", default-features = false }
+# Event replay uses SQLite 3.43+'s metadata-only octet_length() path before
+# loading payloads. Keep SQLite bundled so the locked library version provides it.
+rusqlite = { version = "0.40", features = ["bundled"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = { version = "1", features = ["arbitrary_precision", "raw_value"] }
+serde_jcs = "0.2"
+serde_yaml_ng = "0.10"
+sha2 = "0.11"
+similar = "3"
+toml = "1.1"
+toml_edit = { version = "0.25", features = ["serde"] }
+unicode-normalization = "0.1"
+url = "2"
+uuid = { version = "1", features = ["serde", "v4", "v5"] }
+zeroize = { version = "1", features = ["zeroize_derive"] }
+sysinfo = "0.39"
+dirs-next = "2"
+chacha20poly1305 = { version = "0.10", features = ["std", "rand_core"] }
+globset = "0.4"
+# Chat TUI
+ratatui = { version = "0.30", default-features = false, features = ["crossterm", "underline-color"] }
+unicode-width = "0.2"
+textwrap = "0.16"
+unicode-casefold = "0.2.0"
+chrono-tz = "0.10.4"
+iana-time-zone = "0.1.65"
+tempfile = "3"
+
+[target.'cfg(unix)'.dependencies]
+libc = "0.2"
+rustix = { version = "1", features = ["fs"] }
+
+[target.'cfg(windows)'.dependencies]
+interprocess = "2"
+widestring = "1"
+windows-sys = { version = "0.61", features = ["Win32_Foundation", "Win32_Security", "Win32_Security_Authorization", "Win32_Storage_FileSystem", "Win32_System_Console", "Win32_System_Diagnostics_ToolHelp", "Win32_System_Threading", "Win32_System_JobObjects", "Win32_System_SystemInformation"] }
+
+[dev-dependencies]
+jsonschema = { version = "0.58.0", default-features = false, features = ["arbitrary-precision"] }

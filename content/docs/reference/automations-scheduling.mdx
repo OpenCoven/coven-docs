@@ -15,7 +15,8 @@ daemon's own scheduling code with `coven automations conformance evaluate`,
 and its Rust tests require every case to pass. The conformance target refuses
 a vector file whose cases differ from its built-in scenarios, so these are the
 inputs CI executes. The target uses temporary stores, a pinned clock, and a
-stand-in runtime rather than a live daemon.
+stand-in runtime rather than a live daemon. Passing them is audit evidence,
+not certification; see [Automations conformance](/docs/reference/automations-conformance).
 </Callout>
 
 ## Schedules

@@ -73,7 +73,14 @@
         "conformance/automations/runner/occurrence-lease-recovery.vectors.json",
         "conformance/automations/runner/retry-backoff-timing.vectors.json",
         "conformance/automations/runner/retry-quarantine-recovery.vectors.json",
-        "conformance/automations/runner/cancellation-timeout-arbitration.vectors.json"
+        "conformance/automations/runner/cancellation-timeout-arbitration.vectors.json",
+        "conformance/automations/runner/inventory.json",
+        "spec/coven-automations/v1/protocol-version.json",
+        "spec/coven-automations/v1/conformance-result.schema.json",
+        "spec/coven-automations/authority/v1/conformance-manifest.json",
+        "spec/coven-automations/authority/v1/protocol-version.json",
+        "spec/coven-automations/authority/v1/upstream-artifacts.json",
+        "crates/coven-cli/Cargo.toml"
       ]
     }
   ]

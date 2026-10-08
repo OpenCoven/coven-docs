@@ -93,6 +93,15 @@ upstream path and Git blob at the `docs/source-lock.json` pin:
   page. Upstream CI executes these exact files against the daemon's scheduling
   code, and its conformance target refuses edited cases, so each table row is
   a tested case.
+- the audit inventory, both contract profiles' conformance manifests and
+  protocol versions, the result schema's profile list, the Runtime Authority
+  upstream-artifact pins, and `crates/coven-cli/Cargo.toml`, rendered by
+  `<AutomationProfiles>`, `<AutomationLedger>` and
+  `<AutomationAuthorityArtifacts>` on the Automations conformance page. Its
+  check refuses an audit scope other than `audit_only`, a profile the page
+  does not describe, and a compiled dependency without an exact `rev` or
+  `tag`, and it compares each Runtime Authority specification input with the
+  revision the daemon compiles.
 
 Never edit a copy. Run `pnpm capture:upstream-snapshots` after advancing the
 source lock; it reads the pinned files through the GitHub API (set
