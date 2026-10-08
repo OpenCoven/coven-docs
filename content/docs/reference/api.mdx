@@ -140,6 +140,56 @@ and the generated [API Reference](/docs/openapi). For every other route, use
 capability discovery and the owning first-party client's contract instead of
 copying an implementation detail into an external integration.
 
+## Skills: eval-loop
+
+`coven eval-loop` drives the held-out eval loop for a familiar's workspace. The
+CLI runs only the deterministic steps; the harness proposes changes and judges
+cases. Every subcommand takes `--track` (`synthesis`, `prompt`, or `memory`)
+and either `--workspace <path>` or `--familiar <id>`, resolved through
+`~/.coven/familiars.toml`; `--workspace` wins when both are given.
+
+```bash
+coven eval-loop init --workspace . --track prompt                    # scaffold evals/<track>/{cases.jsonl,judge.md,config.json}
+coven eval-loop noise start --workspace . --track prompt --runs 3    # plan repeated baseline scorings
+coven eval-loop noise finalize --workspace . --track prompt          # write noise.json and baseline.json
+coven eval-loop begin --familiar sage --track prompt                 # start one iteration and take the run lock
+coven eval-loop cases --familiar sage --track prompt --split train   # print the cases for a split
+coven eval-loop decide --familiar sage --track prompt                # apply the accept rule and release the lock
+coven eval-loop ack --familiar sage --track prompt                   # acknowledge the last iteration's trace
+coven eval-loop status --familiar sage --track prompt                # iteration history, noise, baseline, and lock state
+```
+
+Each command exits `0` on success, `3` when it refuses (with JSON
+`{ refused, detail }`), and `1` on error.
+
+- `init --test-pct` sets the share of cases held out as the test split
+  (default `30`).
+- `noise start --runs` (default `3`) returns fresh `write_test_passes_to` and
+  `write_train_to` paths. Write the scores to those paths, then run
+  `noise finalize`.
+- `begin` validates the track, checks headroom, noise, and baseline, takes the
+  run lock, and writes `context.json`. `--from-run-json` adopts a run the
+  daemon enqueued instead of creating one, and `--ack-unreviewed` proceeds when
+  the previous iteration's trace was not acknowledged. A refused `begin` is
+  logged in `eval-loop/skips.jsonl` and never counts as an iteration.
+- `cases --split test` requires `proposal.json`. In a Git workspace, commit the
+  proposal first: requesting the test split binds scoring to that commit and
+  the evaluation inputs, and `decide` refuses a dirty or changed proposal.
+- `decide` applies the accept rule and a leak check, records a row in
+  `results.tsv`, and releases the lock. If `noise finalize` or `decide` fails
+  while writing files, fix the filesystem error and rerun the same command; it
+  resumes without counting an acceptance twice.
+- Calibration and iteration state fingerprint the split configuration and the
+  judge rubric, so changing either requires recalibrating.
+
+The daemon never drives the loop; it reads what the CLI writes. Its
+`/api/v1/skills/eval-loop/:familiarId` routes (read the state, enqueue a run,
+clear a stale run lock) belong to the first-party `/skills/*` family described
+in the [control-plane surface map](#control-plane-surface-map), outside the
+stable `coven.daemon.v1` contract. Rows that `decide` writes report
+`metricBefore`, `metricAfter`, and `delta` on the held-out test split, along
+with the train-split metrics, the noise floor, and the eval-set hash.
+
 ## Version and privacy rules
 
 `GET /api/v1/health` advertises the named `coven.daemon.v1` contract.
