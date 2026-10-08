@@ -127,6 +127,7 @@ const requiredCommandMentions = [
   'coven hooks',
   'coven ward',
   'coven familiar-ledger',
+  'coven eval-loop',
   'coven adapter',
 ];
 

@@ -144,6 +144,11 @@
           "docsUrl": "https://docs.opencoven.ai/docs/cli/observe"
         },
         {
+          "name": "eval-loop",
+          "summary": "Drive the held-out eval loop for a familiar workspace (deterministic steps only; the harness proposes and judges)",
+          "docsUrl": "https://docs.opencoven.ai/docs/reference/api#skills-eval-loop"
+        },
+        {
           "name": "memory",
           "summary": "List familiar memory or open its private local dashboard",
           "docsUrl": "https://docs.opencoven.ai/docs/memory-models"

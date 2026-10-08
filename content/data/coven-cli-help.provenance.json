@@ -2,26 +2,26 @@
   "schemaVersion": 1,
   "sourceId": "coven-runtime-contract",
   "repo": "OpenCoven/coven",
-  "verifiedCommit": "c73bd80bb9b724dd12dde2a9ac1d3b7adae95449",
+  "verifiedCommit": "24445c964c6b15a01ff73ec803512988b6d8fac0",
   "capture": {
     "command": "coven help --all --json",
-    "cliVersion": "coven v0.4.8-37-gc73bd80b (engine coven-code 0.8.0, pinned 0.8.0)",
-    "sourceCommit": "c73bd80bb9b724dd12dde2a9ac1d3b7adae95449",
-    "sha256": "0dfbc6b2e1e5433d46cf94d6b3e8ae8f2fa29a2632488b977b788b45bac1295e",
+    "cliVersion": "coven v0.4.8-38-g24445c96 (engine coven-code 0.8.0, pinned 0.8.0)",
+    "sourceCommit": "24445c964c6b15a01ff73ec803512988b6d8fac0",
+    "sha256": "3584cb3c7be1784f4fda7a8d46e4d1341c7e389e287a43d8c9e3d83875f4c61e",
     "repeatOutputIdentical": true
   },
   "groupCount": 6,
-  "commandCount": 43,
+  "commandCount": 44,
   "sourceBlobs": [
     {
       "path": "crates/coven-cli/src/help.rs",
-      "verifiedBlob": "dfffab86948db8459f24825344b40d2a1b347b6d",
-      "capturedSourceBlob": "dfffab86948db8459f24825344b40d2a1b347b6d"
+      "verifiedBlob": "36d7d0b3269c0effd6d42216ccda55d7a05cb798",
+      "capturedSourceBlob": "36d7d0b3269c0effd6d42216ccda55d7a05cb798"
     },
     {
       "path": "crates/coven-cli/src/main.rs",
-      "verifiedBlob": "e4e153784a288fe2d16525f5e1c7febd188e24ec",
-      "capturedSourceBlob": "e4e153784a288fe2d16525f5e1c7febd188e24ec"
+      "verifiedBlob": "aa9900e497a7b7420f92c6552ca9fbb29dafb1f5",
+      "capturedSourceBlob": "aa9900e497a7b7420f92c6552ca9fbb29dafb1f5"
     }
   ]
 }
