@@ -32,7 +32,8 @@ info:
     prefix (`/overview`, `/cast`, `/cast-codes`, `/familiars/*`,
     `/threads/*`, `/skills/*`, `/coven-calls`, `/memory`, `/research`,
     `/store/vacuum`, `/travel/*`, `/scheduler/*`, `/hub/*`,
-    `/capabilities/harnesses`, `/capabilities/{harnessId}`). Those routes
+    `/main-session/*`, `/capabilities/harnesses`,
+    `/capabilities/{harnessId}`). Those routes
     are used by first-party clients (Cave, CastCodes), may evolve without a
     version bump, and are **intentionally out of scope for this spec** — see
     the [control-plane surface map](/docs/reference/api#control-plane-surface-map).
