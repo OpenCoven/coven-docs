@@ -1,0 +1,158 @@
+---
+title: Automations migration
+description: Move Codex-owned automations into Coven routines without changing the Codex files or running anything, then review, activate, or roll back.
+---
+
+Coven can import automations that Codex owns as Coven routines. The import
+is source-preserving: it only reads the Codex files and never modifies,
+moves, or deletes them. Every imported routine starts paused or as a draft,
+so nothing runs until you review and activate it.
+
+<Callout type="info" title="Import never runs anything">
+An import creates routines in the Coven store and records a
+`definition.imported` event for each one. It does not plan, claim, or launch
+anything, and it does not wake the scheduler. The scheduler never plans a
+paused or draft routine. The manual `coven.automations.run` action does not
+check a routine's status, but it refuses a routine without a `cwd`, and the
+import never sets one.
+</Callout>
+
+## Terms
+
+| Term | Meaning |
+| --- | --- |
+| Codex automation | A directory under `~/.codex/automations/` holding an `automation.toml`. Codex owns these files, and Coven only reads them. |
+| Routine | One Coven automation definition, stored by the daemon and changed through the `coven.automations.*` actions. |
+| Imported routine | A routine created from a Codex automation. Its `definition.imported` event records `importedFrom` as `codex-automation-toml`. |
+| Draft | The lifecycle state `legacy.import.v1` creates. A draft must be revised to `PAUSED` before it can be activated. |
+
+## What the import reads
+
+The import reads `automation.toml` from each directory in
+`.codex/automations` under your home directory: `HOME`, or `USERPROFILE`
+when `HOME` is not set. It does not read `CODEX_HOME`. A directory without an
+`automation.toml` is ignored, and a missing `.codex/automations` imports
+nothing.
+
+From each file it reads `id`, `name`, `rrule`, and `prompt`. Every other key,
+including `cwd` and `model`, is ignored, and `status` is read but not used.
+
+| Routine field | Imported value |
+| --- | --- |
+| `id` | The file's `id`, or the directory name |
+| `name` | The file's `name`, or the id |
+| `status` | `PAUSED`, always |
+| `rrule` | The file's `rrule`, normalized as below |
+| `timezone` | `local`, resolved to an exact zone when the routine is stored |
+| `prompt` | The file's `prompt` |
+| `runtime` | `coven-code` |
+| `misfire`, `overlap` | `latest`, `forbid` |
+| `timeoutMinutes` | `60` |
+| `retry` | One attempt, no automatic retry |
+| `cwd`, `model`, `familiarId`, `tags` | None |
+
+The time zone resolves the same way as any `local` input: on Unix a `TZ`
+override must itself be `utc` or an IANA name, and otherwise the host's zone
+is used. Check the stored zone after importing on a machine whose zone
+differs from where the routine should run.
+
+### Schedules
+
+Codex writes rules like `RRULE:FREQ=WEEKLY;BYHOUR=21;BYMINUTE=0;BYDAY=SU`.
+The import strips the `RRULE:` prefix, keeps `FREQ`, `BYHOUR`, and `BYDAY`,
+and drops `BYMINUTE=0` and `INTERVAL=1`, which match Coven's defaults. Any
+other key or value, such as `FREQ=HOURLY`, `BYMINUTE=30`, or `INTERVAL=2`,
+skips the routine instead of approximating its schedule. The result must
+also fit the subset on
+[Automations scheduling](/docs/reference/automations-scheduling#schedules).
+
+## What gets skipped or fails
+
+The report lists every source it did not import, with the reason:
+
+| Reported under | Reason |
+| --- | --- |
+| `skipped` | `<id>: no schedule` |
+| `skipped` | ``<id>: unsupported schedule `<rrule>` `` |
+| `skipped` | `<id>: no prompt` (missing or blank) |
+| `skipped` | `<id>: <validation error>`, for example an id over 96 characters or with characters other than letters, digits, `.`, `_`, and `-` |
+| `skipped` | `<id>: already exists` (`legacy.import.v1` only) |
+| `failures` | `<path>: could not read automation.toml: <error>` |
+| `failures` | `<path>: could not parse automation.toml: <error>` |
+| `failures` | `<id>: <error>`, when storing the routine fails |
+
+## Run the import
+
+There are two import actions, both owner-local only. Neither has a CLI command.
+
+**`coven.automations.legacy.import.v1`** is the one to use. It needs an
+`adoptionKey` and `source: "codex-automation-toml"`, and it takes an optional
+`dryRun`. Run it dry first: a dry run writes nothing and reports exactly what
+the real import would do.
+
+```json
+{
+  "action": "coven.automations.legacy.import.v1",
+  "adoptionKey": "codex-import-preview-0001",
+  "source": "codex-automation-toml",
+  "dryRun": true
+}
+```
+
+The result has `source`, `dryRun`, and `imported`, `skipped`, and `failures`
+lists. Run it again with `dryRun: false` and a new key to import. Each
+routine is created as a draft. An id already in the store is skipped as
+`already exists`, including a tombstoned id, so a second import changes
+nothing. An exact replay of a key returns the stored report without reading
+the files again, and reusing a key for a different request, such as flipping
+`dryRun`, returns `ADOPTION_REPLAY_MISMATCH`.
+
+**`coven.automations.import`** is the older action. It takes no fields and has
+no dry run or adoption key. It creates each routine as `PAUSED` and does not
+check for existing ids first, so an id that already exists is reported under
+`failures` and the existing routine is left unchanged.
+
+Upstream's design document describes the older action as an alias for
+`legacy.import.v1`; the daemon runs them as separate code paths with the
+differences above.
+
+## Review and activate
+
+For each imported routine:
+
+1. Read it with `coven.automations.definition.get.v1` and check its schedule,
+   resolved time zone, and prompt.
+2. Revise it with `coven.automations.definition.revise.v1`. Add a `cwd`,
+   which the import never sets and without which a run fails, and set the
+   runtime, model, timeout, retry policy, and familiar it should use. A draft
+   moves to `paused` only through a revise with `status: "PAUSED"`; activating
+   a draft directly returns `ILLEGAL_TRANSITION`.
+3. Activate it with `coven.automations.definition.activate.v1` when it is
+   ready.
+4. The Codex files stay as they were. Turn off the original on the Codex side
+   if it should not keep running there as well.
+
+## Roll back
+
+- To drop an imported routine, tombstone it with
+  `coven.automations.definition.tombstone.v1`. The row and its history stay
+  readable, and the tombstoned id is not imported again by
+  `legacy.import.v1`.
+- Nothing in the store is deleted by an import, a migration, or a tombstone.
+- When the store opens, any routine still stored with `timezone: "local"` is
+  resolved to an exact zone as a new revision. The previous definition is kept
+  in the store's time-zone migration ledger, and the change is recorded as a
+  `definition.revised` event.
+- Because the import never touches the Codex files, the originals are always
+  available to compare against or to import again under a new id.
+
+Upstream also documents running an earlier daemon, v0.4.6, on a store a newer
+daemon upgraded; see the
+[migration section of the automations design](https://github.com/OpenCoven/coven/blob/9c8498ef92f3c16225d3346e5ead4e1b32f56009/docs/architecture/coven-automations-v1.md#migration-from-816).
+
+## Cave compatibility facade
+
+Cave's compatibility facade for pre-automations routines has no retirement
+date. Its tracking issue, OpenCoven/coven-cave#5217, is open, waits on
+certification, and closes when "the pre-automations compatibility facade is
+retired or its remaining scope is documented."
