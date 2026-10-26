@@ -70,3 +70,10 @@ Run it when `coven sessions search` misbehaves or after unclean shutdowns.
 - [Doctor](/docs/cli/doctor) for setup checks rather than runtime state.
 - [Daemon observability](/docs/daemon/observability) for the daemon-side view.
 - [Sessions](/docs/cli/sessions) for status semantics and record management.
+
+
+## Create a familiar
+
+`coven familiar create <name>` (also `coven familiars create <name>`) adds a familiar to the roster and creates its workspace. Inspect `coven familiar create --help` for current template and output options before creating one. Roster membership is declared identity, not an execution authority grant. Existing `coven familiars` listing and per-familiar inspection remain available.
+
+For daemon-owned routine diagnostics and one-off familiar work, see [Operator diagnostics](/docs/reference/automations#operator-diagnostics) and [Familiar missions](/docs/reference/automations#familiar-missions).
