@@ -2,12 +2,12 @@
   "schemaVersion": 1,
   "sourceId": "coven-runtime-contract",
   "repo": "OpenCoven/coven",
-  "verifiedCommit": "24445c964c6b15a01ff73ec803512988b6d8fac0",
+  "verifiedCommit": "16847827f8629a8d7421777f72183ccff660cccf",
   "files": [
     {
       "path": "spec/coven-automations/v1/state-machines.json",
       "local": "content/data/upstream/coven-automations-v1/state-machines.json",
-      "blob": "a559ef34218e37f3a53190563149626787a2e177"
+      "blob": "244bbbc012fe0a889db0da05f87aae5574147654"
     },
     {
       "path": "conformance/automations/runner/rrule-vocabulary.vectors.json",
@@ -57,7 +57,7 @@
     {
       "path": "conformance/automations/runner/inventory.json",
       "local": "content/data/upstream/coven-automations-conformance/inventory.json",
-      "blob": "4de505dbb333b0c610296950e2ad4143075189fe"
+      "blob": "a537bf5ecf7582b13583c40df28c846b5500eaf2"
     },
     {
       "path": "spec/coven-automations/v1/conformance-manifest.json",
@@ -92,7 +92,7 @@
     {
       "path": "crates/coven-cli/Cargo.toml",
       "local": "content/data/upstream/coven-cli/Cargo.toml",
-      "blob": "9befa8ce9f63fce8cc3370bb0621e20440ac652b"
+      "blob": "9f54c138d230df37b16e13df2cfe63b57df35e91"
     }
   ]
 }
