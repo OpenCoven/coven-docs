@@ -7,7 +7,7 @@ import { Step, Steps } from 'fumadocs-ui/components/steps';
 import * as TabsComponents from 'fumadocs-ui/components/tabs';
 import { Accordion, Accordions } from 'fumadocs-ui/components/accordion';
 import { TypeTable } from 'fumadocs-ui/components/type-table';
-import type { OperationItem, WebhookItem } from 'fumadocs-openapi/ui';
+import type { OperationItem, WebhookItem } from 'fumadocs-openapi';
 import { Mermaid } from '@/components/mermaid';
 import { Platform } from '@/components/platform';
 import { PlatformMatrix } from '@/components/platform-matrix';
