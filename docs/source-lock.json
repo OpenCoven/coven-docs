@@ -5,8 +5,8 @@
       "id": "coven-runtime-contract",
       "repo": "OpenCoven/coven",
       "ref": "main",
-      "verifiedAt": "2026-10-08T18:25:38Z",
-      "verifiedCommit": "24445c964c6b15a01ff73ec803512988b6d8fac0",
+      "verifiedAt": "2026-10-26T23:00:36Z",
+      "verifiedCommit": "16847827f8629a8d7421777f72183ccff660cccf",
       "sections": [
         "guide",
         "cli",
@@ -83,7 +83,30 @@
         "crates/coven-cli/Cargo.toml",
         "crates/coven-cli/src/automations/import_legacy.rs",
         "crates/coven-cli/src/automations/command_adoption.rs",
-        "docs/roadmaps/coven-automations-v1.mapping.json"
+        "docs/roadmaps/coven-automations-v1.mapping.json",
+        "crates/coven-cli/src/automations/doctor.rs",
+        "crates/coven-cli/src/automations/doctor_cli.rs",
+        "crates/coven-cli/src/automations/explain.rs",
+        "crates/coven-cli/src/automations/leases.rs",
+        "crates/coven-cli/src/automations/lease_cli.rs",
+        "crates/coven-cli/src/automations/operator_cli.rs",
+        "crates/coven-cli/src/automations/retry_cli.rs",
+        "crates/coven-cli/src/automations/delivery.rs",
+        "crates/coven-cli/src/automations/missions.rs",
+        "crates/coven-cli/src/missions_cli.rs",
+        "crates/coven-cli/src/familiar_create.rs",
+        "crates/coven-cli/src/main_session.rs",
+        "crates/coven-cli/src/main_session_compaction.rs",
+        "crates/coven-cli/src/main_session_events.rs",
+        "crates/coven-cli/src/main_session_notices.rs",
+        "crates/coven-cli/src/main_session_routes.rs",
+        "crates/coven-cli/src/main_session_start.rs",
+        "crates/coven-cli/src/main_session_transcript.rs",
+        "crates/coven-cli/src/mobile_memory/policy_cli.rs",
+        "docs/architecture/coven-automations-missions.md",
+        ".github/release-support.json",
+        "crates/coven-cli/src/mobile_memory/introduction.rs",
+        "crates/coven-cli/src/mobile_memory/owner_policy.rs"
       ]
     }
   ]
