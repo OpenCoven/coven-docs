@@ -3,34 +3,21 @@ title: Automations lifecycle
 description: The proposed coven.automations.v1 state machines for definitions, occurrences, runs, and attempts, their invariants, and the states the daemon records today.
 ---
 
-The `coven.automations.v1` contract defines four state machines, and the
-invariants they preserve, in <AutomationStateMachinesSource />. The diagrams and
-tables on this page render from a byte-for-byte copy of that file at the
-reviewed upstream commit, so they cannot drift from it.
+The `coven.automations.v1` contract defines four state machines, and the invariants they preserve, in <AutomationStateMachinesSource />. The diagrams and tables on this page render from a byte-for-byte copy of that file at the reviewed upstream commit, so they cannot drift from it.
 
 <Callout type="warn" title="Proposed contract, partial implementation">
-The contract is proposed, not certified. Its conformance manifest records
-`releaseState: "proposed"` and `productionReady: false`. At the reviewed
-commit, upstream tests compare only the occurrence transitions of an operator
-retry against these machines; nothing checks the rest of the daemon against
-them. The daemon records a subset of these states, and in places a different
-one; each section below says which. Branch on the values the daemon returns, described in
-[Coven automations](/docs/reference/automations).
+The contract is proposed, not certified. Its conformance manifest records `releaseState: "proposed"` and `productionReady: false`. At the reviewed commit, upstream tests compare the occurrence transitions of an operator retry and the scheduler’s terminal-evidence settlement transitions for occurrences and runs against these machines. Those bounded checks do not establish conformance for every daemon transition. The daemon records a subset of these states, and in places a different one; each section below says which. Branch on the values the daemon returns, described in [Coven automations](/docs/reference/automations).
 </Callout>
 
 ## Reading the machines
 
-Clients never write state. Command handlers, the scheduler, the dispatcher,
-and workers commit every transition:
+Clients never write state. Command handlers, the scheduler, the dispatcher, and workers commit every transition:
 
 - `on` names the cause.
 - `actor` names who may commit the transition.
 - `guard` names the condition that must hold.
 
-Terminal states are drawn in bold, and no transition leaves one. Acceptance,
-dispatch, and success are separate states: an accepted run has not launched
-anything, a dispatched attempt has not proved anything, and only runtime
-evidence settles a run `succeeded`.
+Terminal states are drawn in bold, and no transition leaves one. Acceptance, dispatch, and success are separate states: an accepted run has not launched anything, a dispatched attempt has not proved anything, and only runtime evidence settles a run `succeeded`.
 
 ## Definition
 
@@ -38,16 +25,10 @@ evidence settles a run `succeeded`.
 
 What the daemon records today:
 
-- `lifecycleState` is `draft`, `paused`, `active`, `disabled`, or `invalid`.
-  A definition created with `definition.create.v1`, or imported from a legacy
-  source, starts in `draft`, and `definition.revise.v1` moves it to `paused`.
-- Tombstoning sets `tombstonedAt` instead of a lifecycle value. Events report
-  the change as `tombstoned`.
-- `invalid` comes only from the one-time migration of a stored legacy
-  definition that cannot be digested. No command moves an active definition to
-  `invalid`.
-- No versioned command re-enables a `disabled` definition yet:
-  `definition.activate.v1` requires `paused`.
+- `lifecycleState` is `draft`, `paused`, `active`, `disabled`, or `invalid`. A definition created with `definition.create.v1`, or imported from a legacy source, starts in `draft`, and `definition.revise.v1` moves it to `paused`.
+- Tombstoning sets `tombstonedAt` instead of a lifecycle value. Events report the change as `tombstoned`.
+- `invalid` comes only from the one-time migration of a stored legacy definition that cannot be digested. No command moves an active definition to `invalid`.
+- No versioned command re-enables a `disabled` definition yet: `definition.activate.v1` requires `paused`.
 
 ## Occurrence
 
@@ -55,27 +36,13 @@ What the daemon records today:
 
 What the daemon records today:
 
-- Occurrences are `planned`, `claimed`, `running`, or `recovery_required`, and
-  settle `succeeded`, `failed`, `cancelled`, or `skipped`. `skipped` marks a
-  slot collapsed by the misfire policy.
-- `eligible` is a read view over due `planned` occurrences
-  (`occurrence.list.v1` with `view: "eligible"`), not a stored state.
-- The daemon does not record `dispatching`, `recovering`, or `timed_out` on an
-  occurrence. A claim moves straight to `running` when the runtime starts, a
-  claim whose lease expires before dispatch settles `failed`, and a timeout
-  settles the occurrence `failed`.
-- `superseded` appears only on occurrences migrated from the legacy store,
-  where every legacy `skipped` row became `superseded`.
-- `occurrence.recover.v1` with `retry_with_new_attempt` returns the occurrence
-  to `planned` for dispatch rather than to `dispatching`.
-- `occurrence.cancel.v1` and `attempt.cancel.v1` settle a `planned` or
-  `claimed` occurrence `cancelled` directly, before anything is dispatched, as
-  the contract's `cancel_acknowledged` transitions allow.
-- When an ordinary run is held for an operator retry, its occurrence stays
-  `claimed` (the attempt failed before launch) or `running` (it failed after
-  start). `attempt.retry.v1` returns it to `planned`, the contract's
-  `operator_retry` transitions; if the run's deadline passes first, it settles
-  `failed`.
+- Occurrences are `planned`, `claimed`, `running`, or `recovery_required`, and settle `succeeded`, `failed`, `cancelled`, or `skipped`. `skipped` marks a slot collapsed by the misfire policy.
+- `eligible` is a read view over due `planned` occurrences (`occurrence.list.v1` with `view: "eligible"`), not a stored state.
+- The daemon does not record `dispatching`, `recovering`, or `timed_out` on an occurrence. A claim moves straight to `running` when the runtime starts, a claim whose lease expires before dispatch settles `failed`, and a timeout settles the occurrence `failed`.
+- `superseded` appears only on occurrences migrated from the legacy store, where every legacy `skipped` row became `superseded`.
+- `occurrence.recover.v1` with `retry_with_new_attempt` returns the occurrence to `planned` for dispatch rather than to `dispatching`.
+- `occurrence.cancel.v1` and `attempt.cancel.v1` settle a `planned` or `claimed` occurrence `cancelled` directly, before anything is dispatched, as the contract's `cancel_acknowledged` transitions allow.
+- When an ordinary run is held for an operator retry, its occurrence stays `claimed` (the attempt failed before launch) or `running` (it failed after start). `attempt.retry.v1` returns it to `planned`, the contract's `operator_retry` transitions; if the run's deadline passes first, it settles `failed`.
 
 ## Run
 
@@ -84,18 +51,10 @@ What the daemon records today:
 What the daemon records today, in the run's `status` field:
 
 - A run is created `running`. The daemon has no separate `accepted` status.
-- Runs settle `succeeded`, `failed`, or `cancelled`. A timeout settles the run
-  `failed`, and its attempt records `timed_out`.
-- Cancelling an attempt that is still `adopted` and waiting for its retry
-  settles the attempt and its run `cancelled` with no session to stop.
-- An ordinary run whose attempt failed with no automatic retry left stays `running`,
-  held for an operator retry, until its deadline; it then settles `failed`.
-  The failed attempt stays `failed` either way. See
-  [Operator retry](/docs/reference/automations#operator-retry).
-- The daemon never records `ambiguous` on a run. Ambiguous evidence either
-  settles the run `failed` or leaves it `running` with an `ambiguous` attempt
-  while its occurrence waits in `recovery_required`; see
-  [Manual runs and health](/docs/reference/automations#manual-runs-and-health).
+- Runs settle `succeeded`, `failed`, or `cancelled`. A timeout settles the run `failed`, and its attempt records `timed_out`.
+- Cancelling an attempt that is still `adopted` and waiting for its retry settles the attempt and its run `cancelled` with no session to stop.
+- An ordinary run whose attempt failed with no automatic retry left stays `running`, held for an operator retry, until its deadline; it then settles `failed`. The failed attempt stays `failed` either way. See [Operator retry](/docs/reference/automations#operator-retry).
+- The daemon never records `ambiguous` on a run. Ambiguous evidence either settles the run `failed` or leaves it `running` with an `ambiguous` attempt while its occurrence waits in `recovery_required`; see [Manual runs and health](/docs/reference/automations#manual-runs-and-health).
 
 ## Attempt
 
@@ -103,28 +62,21 @@ What the daemon records today, in the run's `status` field:
 
 What the daemon records today:
 
-- All nine attempt states, and a terminal attempt row can be neither updated
-  nor deleted.
-- A few transitions the contract does not list: a dispatch rolled back before
-  launch returns the attempt to `adopted`, and a confirmed cancellation or
-  timeout can settle a `dispatching` or `started` attempt directly.
+- All nine attempt states, and a terminal attempt row can be neither updated nor deleted.
+- A few transitions the contract does not list: a dispatch rolled back before launch returns the attempt to `adopted`, and a confirmed cancellation or timeout can settle a `dispatching` or `started` attempt directly.
 
 ## Invariants
 
 <AutomationInvariants />
 
-These are the contract's normative statements. Upstream's conformance manifest
-lists a `state-machine-property-tests` suite for them, but that suite does not
-exist at the reviewed commit, so read them as the design target rather than
-verified daemon behavior. Upstream's vector-driven suites cover parts of them: attempt
-terminal immutability, run terminal monotonicity, occurrence fence uniqueness,
-occurrence lease recovery, and definition lifecycle transitions (without
-`draft` or `invalid`).
+These are the contract's normative statements. Upstream's conformance manifest lists a `state-machine-property-tests` suite for them, but that suite does not exist at the reviewed commit, so read them as the design target rather than verified daemon behavior. Upstream's vector-driven suites cover parts of them: attempt terminal immutability, run terminal monotonicity, occurrence fence uniqueness, occurrence lease recovery, and definition lifecycle transitions (without `draft` or `invalid`).
+
+## Terminal evidence after an ambiguous stop
+
+The scheduler may move an occurrence from `recovery_required` to `failed` once the latest attempt, already immutable as `ambiguous` after an unconfirmed stop, has durable terminal session evidence and no run cancellation remains `requested` or `stopping`. It settles the run `failed` and releases the stop fence without opening work. This narrow automatic settlement does not retry the ambiguous attempt or grant an operator permission to rerun side effects; other recovery cases retain their explicit recovery gate.
 
 ## Related
 
-- [Coven automations](/docs/reference/automations) for the actions, their
-  results, and recovery.
-- [Automations conformance](/docs/reference/automations-conformance) for
-  what upstream tests against these machines and the other profiles.
+- [Coven automations](/docs/reference/automations) for the actions, their results, and recovery.
+- [Automations conformance](/docs/reference/automations-conformance) for what upstream tests against these machines and the other profiles.
 - [Coven local API](/docs/reference/api) for transport and trust rules.

@@ -67,9 +67,12 @@ coven-runtime-spec = { git = "https://github.com/OpenCoven/coven-runtimes", tag 
 # The authority-boundary gate layer for familiar protected surfaces
 # (PHASE-0-DESIGN.md in OpenCoven/coven-threads; RFC-0001 §5). The daemon is
 # the only caller: familiar-controlled processes never reach this crate.
-# Pinned through the admission-channel fix (coven-threads#72), preserving the
-# reviewed Phase 5 core and deployed audit fingerprints until its 0.2 tag lands.
-coven-threads-core = { git = "https://github.com/OpenCoven/coven-threads", rev = "78e47c9d2430582128679fd4a54f9966f2f4f976", version = "0.2.0" }
+# Pinned to coven-threads#89's merge, the first commit with the Automation
+# Authority profile's Rust port and its errata, which the trusted adapter
+# (#857) consumes. Since the admission-channel fix (coven-threads#72) it only
+# adds to the reviewed Phase 5 core and keeps the deployed audit fingerprints,
+# until its 0.2 tag lands.
+coven-threads-core = { git = "https://github.com/OpenCoven/coven-threads", rev = "7b5a9e688bff46bf9093e6065820921d119c4747", version = "0.2.0" }
 # The Familiar Contract's own `familiar.embodiment_binding.v1` verifier, owned
 # and vector-tested in the contract repository (Runtime Authority Decision 2).
 # Pinned by revision: the crate embeds the contract's schemas and is never
@@ -90,15 +93,15 @@ rustls = { version = "0.23.45", default-features = false, features = ["ring", "s
 rustls-pki-types = "1"
 rcgen = { version = "0.14", features = ["crypto", "pem", "ring"] }
 ring = "0.17"
-p256 = { version = "0.13", features = ["ecdsa", "pem", "pkcs8"] }
+p256 = { version = "0.14", features = ["ecdsa", "pem", "pkcs8"] }
 qrcode = { version = "0.14", default-features = false }
 # Event replay uses SQLite 3.43+'s metadata-only octet_length() path before
 # loading payloads. Keep SQLite bundled so the locked library version provides it.
-rusqlite = { version = "0.40", features = ["bundled"] }
+rusqlite = { version = "0.40", features = ["bundled", "functions", "hooks", "limits"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = { version = "1", features = ["arbitrary_precision", "raw_value"] }
 serde_jcs = "0.2"
-serde_yaml_ng = "0.10"
+serde-saphyr = { version = "2", default-features = false, features = ["deserialize"] }
 sha2 = "0.11"
 similar = "3"
 toml = "1.1"
@@ -127,7 +130,9 @@ rustix = { version = "1", features = ["fs"] }
 [target.'cfg(windows)'.dependencies]
 interprocess = "2"
 widestring = "1"
-windows-sys = { version = "0.61", features = ["Win32_Foundation", "Win32_Security", "Win32_Security_Authorization", "Win32_Storage_FileSystem", "Win32_System_Console", "Win32_System_Diagnostics_ToolHelp", "Win32_System_Threading", "Win32_System_JobObjects", "Win32_System_SystemInformation"] }
+windows-sys = { version = "0.61", features = ["Wdk_Foundation", "Wdk_Storage_FileSystem", "Win32_System_IO", "Win32_Foundation", "Win32_Security", "Win32_Security_Authorization", "Win32_Storage_FileSystem", "Win32_System_Console", "Win32_System_Diagnostics_ToolHelp", "Win32_System_Threading", "Win32_System_Performance", "Win32_System_JobObjects", "Win32_System_SystemInformation"] }
 
 [dev-dependencies]
+# Parse authority modules for dependency-direction guards; never linked into the CLI.
+syn = { version = "2", features = ["full", "visit"] }
 jsonschema = { version = "0.58.0", default-features = false, features = ["arbitrary-precision"] }

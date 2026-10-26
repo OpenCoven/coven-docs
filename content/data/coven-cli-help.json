@@ -135,7 +135,7 @@
       "commands": [
         {
           "name": "familiars",
-          "summary": "List the familiar roster from ~/.coven/familiars.toml",
+          "summary": "List the familiar roster from ~/.coven/familiars.toml, or create a familiar",
           "docsUrl": "https://docs.opencoven.ai/docs/cli/observe"
         },
         {
