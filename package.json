@@ -54,7 +54,7 @@
     "prepare": "git config core.hooksPath .githooks || true"
   },
   "dependencies": {
-    "@iconify/react": "^6.0.2",
+    "@iconify/react": "^6.0.3",
     "@vercel/analytics": "^2.0.1",
     "@vercel/og": "^1.0.3",
     "@vercel/speed-insights": "^2.0.0",
