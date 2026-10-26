@@ -8,7 +8,7 @@ read_when:
   - You are changing an enrolled device's grant or replacing the device
 ---
 
-`coven device` manages devices already enrolled with this `COVEN_HOME` and the grant each one holds. It does not pair new devices; enrollment happens through the mobile gateway's pairing flow (`coven memory mobile pair`).
+`coven device` manages devices already enrolled with this `COVEN_HOME` and the grant each one holds. Enrollment can use the mobile gateway pairing flow (`coven memory mobile pair`) or the owner-reviewed trusted-device introduction flow below.
 
 ```bash
 coven device list                    # id, status, grant status, and name (--json available)
@@ -46,3 +46,10 @@ Each reissue creates a new grant id and advances the device's revocation epoch, 
 ## Replace a device
 
 Pair the replacement device first. `coven device rotate <old-device> <replacement-device>` then revokes the old device and moves its grant policy to the replacement under a new grant id.
+
+
+## Trusted-device introduction policy
+
+`coven device owner-root generate --out <path>` creates the offline owner-root credential. Keep it offline and private. `coven device introduction-policy show --json` inspects the installed policy. `introduction-policy install` registers the first owner-root-backed policy; `replace` signs a replacement and may deliberately downgrade it. Both changes require `--root-key`, eligible `--introducer` device ids, allowed `--scope` values, and review of the grant lifetime, assurance, and step-up age. Read `coven device introduction-policy install --help` or `replace --help` for the complete current flags and defaults. The printed review requires typed confirmation unless the owner explicitly chooses `--yes`.
+
+`coven device introduce --request <envelope.json>` submits a reviewed enrollment request over the owner-local socket. The named trusted introducer must approve on its own device under the installed policy; possession of the request or owner-local transport alone is not approval. Review the displayed request before confirming. Do not copy an owner-root private credential into a request, client, or introduction envelope.
