@@ -131,6 +131,28 @@ test('POST /sessions validates like the daemon', () => {
   );
 });
 
+test('simulator refuses scoped writes without inventing a qualified launch', () => {
+  const sim = new DaemonSim();
+  assert.equal(HEALTH.capabilities.sessionClaudeWriteScope, false);
+  for (const writeScope of [null, {
+    version: 2,
+    primaryRoot: '/Users/you/code/your-repo',
+    writableRoots: ['/Users/you/code/your-repo'],
+    readOnlyRoots: [],
+    protectedRoots: [],
+  }]) {
+    const answer = sim.handle('POST', '/api/v1/sessions', launchBody({
+      harness: 'claude', launchMode: 'stream', writeScope,
+    }));
+    assert.equal(answer.status, 400);
+    assert.match((answer.json as { error: { message: string } }).error.message, /simulator/);
+  }
+  assert.deepEqual((sim.handle('GET', '/api/v1/sessions').json as { id: string }[]).map((session) => session.id), ['ses_demo_00']);
+  const normal = sim.handle('POST', '/api/v1/sessions', launchBody());
+  assert.equal(normal.status, 201);
+  assert.equal((normal.json as { id: string }).id, 'ses_demo_01');
+});
+
 test('GET /sessions/{id} returns the record or session_not_found', () => {
   const sim = new DaemonSim();
   const ok = sim.handle('GET', '/api/v1/sessions/ses_demo_00');
