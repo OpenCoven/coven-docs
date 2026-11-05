@@ -108,6 +108,11 @@ export class DaemonSim {
       return errorEnvelope(400, 'invalid_request', 'Request body must be a JSON object.');
     }
     const input = body as Record<string, unknown>;
+    // This simulation cannot qualify a native sandbox or enforce an owner
+    // grant. Never silently turn a scoped request into an ordinary demo launch.
+    if (Object.prototype.hasOwnProperty.call(input, 'writeScope')) {
+      return errorEnvelope(400, 'invalid_request', 'The documentation simulator does not qualify or execute Claude scoped writes. Use a compatible owner-local daemon.');
+    }
     for (const field of ['projectRoot', 'harness', 'prompt'] as const) {
       if (typeof input[field] !== 'string' || input[field] === '') {
         return errorEnvelope(400, 'invalid_request', `Missing required field: ${field}.`, {

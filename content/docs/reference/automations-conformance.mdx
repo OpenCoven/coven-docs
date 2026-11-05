@@ -17,7 +17,7 @@ A conformance result reports seven profiles separately, each `passed`, `failed`,
 
 - **`structural`** covers the contract's objects and rules: definition validation and lifecycle, command adoption and envelopes, capability negotiation, the event reducer, receipt integrity, and terminal-state immutability.
 - **`scheduler_reliability`** covers the scheduling behavior on [Automations scheduling](/docs/reference/automations-scheduling), plus scheduler leadership fencing, storage failures and transaction rollback, source-preserving import, result delivery, and process-crash recovery at command, launch, settlement, retry, cancellation, timeout, tick, receipt, and event-feed boundaries. The rendered suite table names the exact current inventory.
-- **`runtime_authority`** has a single suite, for holding a run on terminal evidence during recovery. The rest of the Runtime Authority profile has no audit suite yet, and the daemon does not wire it into dispatch.
+- **`runtime_authority`** has a single suite, for holding a run on terminal evidence during recovery. The rest of the Runtime Authority profile has no audit suite yet. Newer source builds wire declared scheduled routines through the trusted scoped-read adapter, but that implementation does not certify the profile; manual occurrences and M0 missions remain unavailable without their own authority path.
 - **`continuity`**, **`privacy`**, and **`interoperability`** have no audit suites, so the audit cannot report them.
 - **`full`** is an aggregate. The audit runner never claims it, and the result verifier accepts `full` only when all six component profiles passed.
 
@@ -49,7 +49,7 @@ These components have no pinned revision in OpenCoven/coven, so this ledger repo
 
 ## Release artifacts
 
-As of 2026-10-26, the latest Coven release, [`v0.4.10`](https://github.com/OpenCoven/coven/releases/tag/v0.4.10) (published 2026-10-14), attaches `coven-automations-v1-contract-d6afbffde4f815a538f65185c80da2d0ee951d2d.tar.gz` and the matching `coven-automations-authority-v1-contract-…` bundle, alongside CLI archives and `SHA256SUMS`. The bundle revision is older than the reviewed source pin. The release attaches no conformance result; contract bundles and passing audit suites alone do not certify a release. Upstream CI also builds both bundles as workflow artifacts.
+As of 2026-11-05, the latest published Coven release, [`v0.4.10`](https://github.com/OpenCoven/coven/releases/tag/v0.4.10) (published 2026-10-14), attaches `coven-automations-v1-contract-d6afbffde4f815a538f65185c80da2d0ee951d2d.tar.gz` and the matching `coven-automations-authority-v1-contract-…` bundle, alongside CLI archives and `SHA256SUMS`. The bundle revision is older than the reviewed source pin. The release attaches no conformance result; contract bundles and passing audit suites alone do not certify a release. Upstream CI also builds both bundles as workflow artifacts.
 
 ## Runtime Authority inputs
 

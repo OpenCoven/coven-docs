@@ -5,8 +5,8 @@
       "id": "coven-runtime-contract",
       "repo": "OpenCoven/coven",
       "ref": "main",
-      "verifiedAt": "2026-10-26T23:00:36Z",
-      "verifiedCommit": "16847827f8629a8d7421777f72183ccff660cccf",
+      "verifiedAt": "2026-11-05T04:08:00Z",
+      "verifiedCommit": "34a60ab5677ae46c3a03920870aa1b30614a90ce",
       "sections": [
         "guide",
         "cli",
@@ -106,7 +106,28 @@
         "docs/architecture/coven-automations-missions.md",
         ".github/release-support.json",
         "crates/coven-cli/src/mobile_memory/introduction.rs",
-        "crates/coven-cli/src/mobile_memory/owner_policy.rs"
+        "crates/coven-cli/src/mobile_memory/owner_policy.rs",
+        "crates/coven-cli/src/claude_write_scope.rs",
+        "crates/coven-cli/src/api/proposal_document.rs",
+        "crates/coven-cli/src/api/proposal_revision.rs",
+        "crates/coven-cli/src/api/proposal_apply_intent.rs",
+        "crates/coven-cli/src/automations/trusted_authority.rs",
+        "crates/coven-cli/src/automations/trusted_launch.rs",
+        "crates/coven-cli/src/automations/runtime_envelope.rs",
+        "crates/coven-cli/src/automations/scoped_read_settlement.rs",
+        "crates/coven-cli/src/automations/scoped_read/admission.rs",
+        "crates/coven-cli/src/automations/scoped_read/credential.rs",
+        "crates/coven-cli/src/automations/scoped_read/scope.rs",
+        "crates/coven-cli/src/mobile_memory/attestation.rs",
+        "crates/coven-cli/src/mobile_memory/passkey.rs",
+        "crates/coven-cli/src/mobile_memory/recovery.rs",
+        "crates/coven-cli/src/mobile_memory/enrollment.rs",
+        "crates/coven-cli/src/mobile_memory/relay.rs",
+        "crates/coven-cli/src/mobile_memory/transport/storage.rs",
+        "crates/coven-cli/src/mobile_memory/transport/authority.rs",
+        "crates/coven-cli/src/mobile_memory/transport/README.md",
+        "crates/coven-cli/src/mobile_memory/gateway/relay_runtime.rs",
+        "crates/coven-cli/src/mobile_memory/identity.rs"
       ]
     }
   ]

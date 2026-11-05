@@ -62,6 +62,7 @@ export const HEALTH = {
     executorDispatch: true,
     eventCursor: 'sequence',
     structuredErrors: true,
+    sessionClaudeWriteScope: false,
   },
   daemon: {
     pid: 424242,

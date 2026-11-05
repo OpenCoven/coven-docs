@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "sourceId": "coven-runtime-contract",
   "repo": "OpenCoven/coven",
-  "verifiedCommit": "16847827f8629a8d7421777f72183ccff660cccf",
+  "verifiedCommit": "34a60ab5677ae46c3a03920870aa1b30614a90ce",
   "files": [
     {
       "path": "spec/coven-automations/v1/state-machines.json",
@@ -92,7 +92,7 @@
     {
       "path": "crates/coven-cli/Cargo.toml",
       "local": "content/data/upstream/coven-cli/Cargo.toml",
-      "blob": "9f54c138d230df37b16e13df2cfe63b57df35e91"
+      "blob": "0bc8afd2443d8935f37523ac458963856ae42a6a"
     }
   ]
 }

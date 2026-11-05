@@ -2,11 +2,11 @@
   "schemaVersion": 1,
   "sourceId": "coven-runtime-contract",
   "repo": "OpenCoven/coven",
-  "verifiedCommit": "16847827f8629a8d7421777f72183ccff660cccf",
+  "verifiedCommit": "34a60ab5677ae46c3a03920870aa1b30614a90ce",
   "capture": {
     "command": "coven help --all --json",
-    "cliVersion": "coven v0.4.10-172-g16847827 (engine coven-code 0.8.0, pinned 0.8.0)",
-    "sourceCommit": "16847827f8629a8d7421777f72183ccff660cccf",
+    "cliVersion": "coven v0.4.11-3-g0637b84c (engine coven-code 0.8.0, pinned 0.8.0)",
+    "sourceCommit": "0637b84c9f8c2028c47f78e87834e750bbb81924",
     "sha256": "3c5eb5c42dcdd102dcad63aaeef3a500ac24c50c68839baa623d5f8ec0383905",
     "repeatOutputIdentical": true
   },
@@ -20,8 +20,8 @@
     },
     {
       "path": "crates/coven-cli/src/main.rs",
-      "verifiedBlob": "e99533360891c0ebba6baaa1f1add328c7e1eb8e",
-      "capturedSourceBlob": "e99533360891c0ebba6baaa1f1add328c7e1eb8e"
+      "verifiedBlob": "8c9f4fb32da55ffd2061a605c9c39f3345b51b80",
+      "capturedSourceBlob": "8c9f4fb32da55ffd2061a605c9c39f3345b51b80"
     }
   ]
 }

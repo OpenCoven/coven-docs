@@ -65,3 +65,7 @@ sequenceDiagram
 | Launch rejects cwd | `--cwd` escapes the project root | Use a cwd inside the project. |
 
 For shared setup rules, see [Install harness CLIs](/docs/harnesses/installing) and [Provider auth boundary](/docs/harnesses/provider-auth).
+
+## Owner-scoped writes
+
+The separate `--write-scope` source-build profile requires a qualified macOS Claude streamed launch, with no fallback to unrestricted Full. It confines shell and file-tool writes while leaving explicit limits around reads, networking, MCP servers and external actors. It does not load user/project native settings as extra permission sources. See [Claude scoped writes](/docs/cli/run#claude-scoped-writes) for the document, qualification checks and limits; provider login and ordinary interactive sessions keep their existing behavior.

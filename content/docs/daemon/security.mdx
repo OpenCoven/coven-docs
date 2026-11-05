@@ -11,7 +11,7 @@ Coven's daemon security model is local-first and deliberately narrow.
 
 1. The Rust daemon is the authority.
 2. The platform local IPC endpoint is same-user trust.
-3. Coven does not store provider credentials.
+3. Ordinary harness authentication stays with the provider CLI; experimental Runtime Authority has a separate explicit credential boundary.
 4. Destructive operations require explicit confirmation.
 
 For the broader product safety framing, see [Safety Model](/docs/reference/safety) and [Authentication and local access](/docs/reference/auth).
@@ -34,39 +34,28 @@ Client-side validation is useful for better forms and friendlier errors, but it 
 
 ## Same-user local IPC trust
 
-The daemon does not use OAuth, JWTs, bearer tokens, API keys, or browser
-cookies. Access uses:
+The daemon does not use OAuth, JWTs, bearer tokens, API keys, or browser cookies. Access uses:
 
 - `$COVEN_HOME/coven.sock` on Unix-like hosts; or
-- an owner-only named pipe reported by health and `coven daemon status` on
-  Windows.
+- an owner-only named pipe reported by health and `coven daemon status` on Windows.
 
-Anyone who can connect to that endpoint can act as a local Coven client. Keep
-`$COVEN_HOME` and the endpoint private to the user who owns the daemon.
+Anyone who can connect to that endpoint can act as a local Coven client. Keep `$COVEN_HOME` and the endpoint private to the user who owns the daemon.
 
 ## Optional loopback TCP
 
-On Unix-like hosts, `coven daemon serve --tcp <addr>` can also bind a TCP
-listener. The daemon refuses non-loopback bind addresses and checks the `Host`
-and `Origin` headers to reduce browser risk. Each `--allow-host <host>` entry
-trusts one proxied hostname, and a browser `Origin` for it must be exactly
-`https://<host[:port]>`; plain-HTTP or different-port origins are rejected.
+On Unix-like hosts, `coven daemon serve --tcp <addr>` can also bind a TCP listener. The daemon refuses non-loopback bind addresses and checks the `Host` and `Origin` headers to reduce browser risk. Each `--allow-host <host>` entry trusts one proxied hostname, and a browser `Origin` for it must be exactly `https://<host[:port]>`; plain-HTTP or different-port origins are rejected.
 
-TCP does not prove that the caller owns the daemon. Over TCP, the daemon
-refuses owner-only operations with HTTP `403`, including:
+TCP does not prove that the caller owns the daemon. Over TCP, the daemon refuses owner-only operations with HTTP `403`, including:
 
-- automation mutations and automation reads that return prompts, run logs,
-  receipts, or event checkpoints (`AUTHORITY_REQUIRED`);
-- restricted session launches and the `launchPolicy` launch field (`forbidden`);
+- automation mutations and automation reads that return prompts, run logs, receipts, or event checkpoints (`AUTHORITY_REQUIRED`);
+- restricted session launches and the `launchPolicy` or Claude `writeScope` launch fields (`forbidden`);
 - any request that carries a `contextAdmission` member.
 
-Health over TCP reports `sessionLaunchPolicy: false` and an empty
-`sessionPolicyContracts` list. Send owner-only requests over the local IPC
-endpoint.
+Health over TCP reports `sessionLaunchPolicy: false`, `sessionClaudeWriteScope: false`, and an empty `sessionPolicyContracts` list. Send owner-only requests over the local IPC endpoint.
 
 ## Provider credentials
 
-Coven does not own model-provider credentials. Harness CLIs keep using their own login and auth stores.
+Ordinary harness sessions keep using the provider CLI's own login and auth stores. The experimental Runtime Authority scoped-read path is separate: it can use an owner-supplied Anthropic API credential held in private local state. That path does not reuse a harness login or silently obtain a key, and its hidden engineering controls are not a supported provider-onboarding workflow. Do not infer production qualification from the presence of the adapter or its credential store.
 
 That boundary matters:
 
@@ -79,9 +68,7 @@ Coven records session metadata and output for replay and audit, so `$COVEN_HOME`
 
 ## Remote access
 
-Coven does not bind TCP by default. If you need a remote daemon, put an
-explicit authenticated transport in front of the platform local IPC endpoint
-and treat that transport as the auth layer.
+Coven does not bind TCP by default. If you need a remote daemon, put an explicit authenticated transport in front of the platform local IPC endpoint and treat that transport as the auth layer.
 
 Reasonable owner-operated patterns:
 
@@ -89,26 +76,13 @@ Reasonable owner-operated patterns:
 - Tailscale between your own devices.
 - A private gateway that adds authentication before touching the socket.
 
-Avoid exposing the daemon's local IPC endpoint directly to browsers, public
-networks, shared machines, or unauthenticated TCP bridges.
+Avoid exposing the daemon's local IPC endpoint directly to browsers, public networks, shared machines, or unauthenticated TCP bridges.
 
 ## Experimental agent filesystem boundary
 
-The experimental [Agent filesystem](/docs/experimental/agent-filesystem) crate
-has an opt-in NFSv3 export for engineering validation. It is not a Coven daemon
-route or a supported CLI workflow. Its example binds `127.0.0.1` only and uses
-an ephemeral port by default, but loopback NFS has no authentication: any local
-process that can reach the port can make unauthenticated requests to the
-export. Operating-system policy can still restrict a particular client's
-mounted-volume operations.
+The experimental [Agent filesystem](/docs/experimental/agent-filesystem) crate has an opt-in NFSv3 export for engineering validation. It is not a Coven daemon route or a supported CLI workflow. Its example binds `127.0.0.1` only and uses an ephemeral port by default, but loopback NFS has no authentication: any local process that can reach the port can make unauthenticated requests to the export. Operating-system policy can still restrict a particular client's mounted-volume operations.
 
-Do not treat the NFS spike as a sandbox or an access-control boundary. A mounted
-view does not stop a process from writing outside that view. A human-operated
-macOS Terminal pass confirmed loopback read/write behavior for one consented
-client, but the macOS privacy policy remains process-specific and other client
-processes may still be denied without explicit consent. Loopback exposure,
-access control, platform sandboxing, and recovery must be validated before a
-mount becomes a supported default.
+Do not treat the NFS spike as a sandbox or an access-control boundary. A mounted view does not stop a process from writing outside that view. A human-operated macOS Terminal pass confirmed loopback read/write behavior for one consented client, but the macOS privacy policy remains process-specific and other client processes may still be denied without explicit consent. Loopback exposure, access control, platform sandboxing, and recovery must be validated before a mount becomes a supported default.
 
 ## Destructive confirmations
 
