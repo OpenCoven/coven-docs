@@ -1,121 +1,51 @@
 # CLI help capture
 
-`coven-cli-help.json` is the unedited, pretty-printed output of
-`coven help --all --json`. It records 44 public commands in six groups. The
-companion provenance file records its SHA-256, the capture's CLI version and
-source commit, and the reviewed `docs/source-lock.json` pin.
+`coven-cli-help.json` is the unedited, pretty-printed output of `coven help --all --json`. It records 44 public commands in six groups. The companion provenance file records its SHA-256, the capture's CLI version and source commit, and the reviewed `docs/source-lock.json` pin.
 
-The current capture came from `coven v0.4.8-38-g24445c96`. Its CLI definition and
-help catalog have identical Git blobs at the captured source commit and the
-reviewed pin:
+The current capture came from `coven v0.4.11-3-g0637b84c`. Its CLI definition and help catalog have identical Git blobs at the captured source commit and the reviewed pin:
 
-- [CLI definition and command dispatch](https://github.com/OpenCoven/coven/blob/24445c964c6b15a01ff73ec803512988b6d8fac0/crates/coven-cli/src/main.rs)
-- [Help groups and serializer](https://github.com/OpenCoven/coven/blob/24445c964c6b15a01ff73ec803512988b6d8fac0/crates/coven-cli/src/help.rs)
-- [Owning help-disclosure tests](https://github.com/OpenCoven/coven/blob/24445c964c6b15a01ff73ec803512988b6d8fac0/crates/coven-cli/tests/help_disclosure.rs)
+- [CLI definition and command dispatch](https://github.com/OpenCoven/coven/blob/0637b84c9f8c2028c47f78e87834e750bbb81924/crates/coven-cli/src/main.rs)
+- [Help groups and serializer](https://github.com/OpenCoven/coven/blob/0637b84c9f8c2028c47f78e87834e750bbb81924/crates/coven-cli/src/help.rs)
+- [Owning help-disclosure tests](https://github.com/OpenCoven/coven/blob/0637b84c9f8c2028c47f78e87834e750bbb81924/crates/coven-cli/tests/help_disclosure.rs)
 
-This is a runtime capture checked against source, not a reproducible-build
-attestation. Local checks do not execute an arbitrary installed Coven binary or
-fetch upstream source. The hosted source-freshness gate separately watches the
-CLI definition and help catalog for upstream changes.
+This is an opaque source-build identity, not a published release claim. The runtime capture is checked against source, not a reproducible-build attestation. Local checks do not execute an arbitrary installed Coven binary or fetch upstream source. The hosted source-freshness gate separately watches the CLI definition and help catalog for upstream changes.
 
 ## Update the capture
 
-1. Review the CLI definition, help groups, serializer, and owning tests at the
-   source-lock pin. Establish the source commit for the CLI being captured.
-2. Run `coven help --all --json` twice and compare the outputs byte for byte.
-   Record `coven --version`; keep command names, summaries, URLs, and ordering
-   exactly as emitted. Do not rewrite upstream URLs to preferred site routes.
-3. Verify both `main.rs` and `help.rs` Git blobs at the captured source commit
-   match the reviewed pin. If they differ, use a CLI built from the reviewed
-   source or reconcile the source pin first. Record the blob ids, commits,
-   counts, and SHA-256 of the new capture in the provenance file.
-4. Review the full fixture diff and update reference pages, redirects, and the
-   CLI command map for every public command. Any preferred index destination
-   must point to the command's actual reference section.
-5. Run `pnpm verify` and `git diff --check`. Include immutable owning-source links
-   and capture evidence in the pull request.
+1. Review the CLI definition, help groups, serializer, and owning tests at the source-lock pin. Establish the source commit for the CLI being captured.
+2. Run `coven help --all --json` twice and compare the outputs byte for byte. Record `coven --version`; keep command names, summaries, URLs, and ordering exactly as emitted. Do not rewrite upstream URLs to preferred site routes.
+3. Verify both `main.rs` and `help.rs` Git blobs at the captured source commit match the reviewed pin. If they differ, use a CLI built from the reviewed source or reconcile the source pin first. Record the blob ids, commits, counts, and SHA-256 of the new capture in the provenance file.
+4. Review the full fixture diff and update reference pages, redirects, and the CLI command map for every public command. Any preferred index destination must point to the command's actual reference section.
+5. Run `pnpm verify` and `git diff --check`. Include immutable owning-source links and capture evidence in the pull request.
 
-`pnpm check:cli-docs` checks the capture hash (with CRLF normalized to LF), schema,
-source pin and watched paths, unique groups/commands, public-only entries,
-canonical docs origins, redirect destinations, heading fragments, and a linked
-command-map row for every command. Mutating the snapshot requires an explicit
-provenance update and review; the hash alone does not prove upstream correctness.
+`pnpm check:cli-docs` checks the capture hash (with CRLF normalized to LF), schema, source pin and watched paths, unique groups/commands, public-only entries, canonical docs origins, redirect destinations, heading fragments, and a linked command-map row for every command. Mutating the snapshot requires an explicit provenance update and review; the hash alone does not prove upstream correctness.
 
-Some index links are intentionally more specific than the help catalog:
-`help` links to discovery instructions, `config` and `reset` to their CLI section,
-`completions` and `kill` to their own examples, `memory` to the command's
-observability reference, and `familiar-ledger` to its section of the
-repo-workflow page. Both the unchanged upstream URL and the preferred
-index destination must resolve. The setup URL retains its existing redirect.
+Some index links are intentionally more specific than the help catalog: `help` links to discovery instructions, `config` and `reset` to their CLI section, `completions` and `kill` to their own examples, `memory` to the command's observability reference, and `familiar-ledger` to its section of the repo-workflow page. Both the unchanged upstream URL and the preferred index destination must resolve. The setup URL retains its existing redirect.
 
 # Platform data
 
-`platforms.json` lists the platforms Coven ships for, derived from upstream
-release metadata at the `docs/source-lock.json` pin rather than written by hand:
+`platforms.json` lists the platforms Coven ships for, derived from upstream release metadata at the `docs/source-lock.json` pin rather than written by hand:
 
-- `scripts/publish-npm.mjs`: the native npm packages, with each package's OS,
-  CPU, and Rust target;
-- `npm/coven/bin/coven.js` and `npm/coven/package.json`: the launcher's
-  platform-to-package map and the wrapper's optional dependencies, which must
-  agree with the release script;
-- `crates/coven-cli/engine.lock`: the Coven Code engine archives, which also
-  cover Linux arm64, where no native CLI package ships.
+- `scripts/publish-npm.mjs`: the native npm packages, with each package's OS, CPU, and Rust target;
+- `npm/coven/bin/coven.js` and `npm/coven/package.json`: the launcher's platform-to-package map and the wrapper's optional dependencies, which must agree with the release script;
+- `crates/coven-cli/engine.lock`: the Coven Code engine archives, which also cover Linux arm64, where no native CLI package ships.
 
-The docs own only each platform's label and display order (`PLATFORM_LABELS` in
-`scripts/platform-data.mjs`). The provenance records the pin and the Git blob of
-each source file, and all four paths stay in the source-lock watch.
+The docs own only each platform's label and display order (`PLATFORM_LABELS` in `scripts/platform-data.mjs`). The provenance records the pin and the Git blob of each source file, and all four paths stay in the source-lock watch.
 
 ## Update the platform data
 
-Run `pnpm capture:platform-data` after advancing the source lock. It reads the
-pinned files through the GitHub API (set `GITHUB_TOKEN` to raise the rate limit),
-refuses to write if the upstream files disagree with each other, and rewrites
-the file. Review the diff like any other upstream change. A platform upstream
-adds fails capture until it has a label.
+Run `pnpm capture:platform-data` after advancing the source lock. It reads the pinned files through the GitHub API (set `GITHUB_TOKEN` to raise the rate limit), refuses to write if the upstream files disagree with each other, and rewrites the file. Review the diff like any other upstream change. A platform upstream adds fails capture until it has a label.
 
-`pnpm check:platform-data` runs offline. It checks the schema, labels, order,
-the source pin and watched paths, and that the install-debugging package table,
-its `npm view` checks, and the Coven Code archive table name exactly the
-packages and archives upstream ships. The hosted freshness job re-runs the
-capture without `--write` and fails if the committed file is stale.
+`pnpm check:platform-data` runs offline. It checks the schema, labels, order, the source pin and watched paths, and that the install-debugging package table, its `npm view` checks, and the Coven Code archive table name exactly the packages and archives upstream ships. The hosted freshness job re-runs the capture without `--write` and fails if the committed file is stale.
 
 # Upstream snapshots
 
-`upstream/` holds byte-for-byte copies of upstream contract artifacts that
-pages render instead of retyping. `upstream/snapshots.json` records each copy's
-upstream path and Git blob at the `docs/source-lock.json` pin:
+`upstream/` holds byte-for-byte copies of upstream contract artifacts that pages render instead of retyping. `upstream/snapshots.json` records each copy's upstream path and Git blob at the `docs/source-lock.json` pin:
 
-- `spec/coven-automations/v1/state-machines.json`, rendered by
-  `<AutomationStateMachine>` and `<AutomationInvariants>` on the
-  Automations lifecycle reference page.
-- nine `conformance/automations/runner/*.vectors.json` suites, rendered by
-  `<AutomationVectors suite="…">` on the Automations scheduling reference
-  page. Upstream CI executes these exact files against the daemon's scheduling
-  code, and its conformance target refuses edited cases, so each table row is
-  a tested case.
-- the audit inventory, both contract profiles' conformance manifests and
-  protocol versions, the result schema's profile list, the Runtime Authority
-  upstream-artifact pins, and `crates/coven-cli/Cargo.toml`, rendered by
-  `<AutomationProfiles>`, `<AutomationLedger>` and
-  `<AutomationAuthorityArtifacts>` on the Automations conformance page. Its
-  check refuses an audit scope other than `audit_only`, a profile the page
-  does not describe, and a compiled dependency without an exact `rev` or
-  `tag`, and it compares each Runtime Authority specification input with the
-  revision the daemon compiles.
+- `spec/coven-automations/v1/state-machines.json`, rendered by `<AutomationStateMachine>` and `<AutomationInvariants>` on the Automations lifecycle reference page.
+- nine `conformance/automations/runner/*.vectors.json` suites, rendered by `<AutomationVectors suite="…">` on the Automations scheduling reference page. Upstream CI executes these exact files against the daemon's scheduling code, and its conformance target refuses edited cases, so each table row is a tested case.
+- the audit inventory, both contract profiles' conformance manifests and protocol versions, the result schema's profile list, the Runtime Authority upstream-artifact pins, and `crates/coven-cli/Cargo.toml`, rendered by `<AutomationProfiles>`, `<AutomationLedger>` and `<AutomationAuthorityArtifacts>` on the Automations conformance page. Its check refuses an audit scope other than `audit_only`, a profile the page does not describe, and a compiled dependency without an exact `rev` or `tag`, and it compares each Runtime Authority specification input with the revision the daemon compiles.
 
-Never edit a copy. Run `pnpm capture:upstream-snapshots` after advancing the
-source lock; it reads the pinned files through the GitHub API (set
-`GITHUB_TOKEN` to raise the rate limit), checks each one decodes to the blob
-GitHub reports, and rewrites the copies and the manifest. Review the diff like
-any other upstream change.
+Never edit a copy. Run `pnpm capture:upstream-snapshots` after advancing the source lock; it reads the pinned files through the GitHub API (set `GITHUB_TOKEN` to raise the rate limit), checks each one decodes to the blob GitHub reports, and rewrites the copies and the manifest. Review the diff like any other upstream change.
 
-`pnpm check:upstream-snapshots` runs offline. It hashes each copy the way Git
-does and compares it with the recorded blob, requires the manifest's pin to
-equal the source lock's, keeps every upstream path in the source-lock watch,
-and rejects a file its page cannot render faithfully: for state machines, an
-unknown field, an undeclared state, or a renamed machine; for vectors, a new
-case field, an unrecognized expectation, a new schema version, or a routine
-policy other than misfire `latest` and overlap `forbid`. The hosted freshness job
-re-runs the capture without `--write`. The lifecycle and scheduling pages' prose
-is hand-written from the daemon source at the pin, and the files it cites are
-in the source-lock watch so a change prompts review.
+`pnpm check:upstream-snapshots` runs offline. It hashes each copy the way Git does and compares it with the recorded blob, requires the manifest's pin to equal the source lock's, keeps every upstream path in the source-lock watch, and rejects a file its page cannot render faithfully: for state machines, an unknown field, an undeclared state, or a renamed machine; for vectors, a new case field, an unrecognized expectation, a new schema version, or a routine policy other than misfire `latest` and overlap `forbid`. The hosted freshness job re-runs the capture without `--write`. The lifecycle and scheduling pages' prose is hand-written from the daemon source at the pin, and the files it cites are in the source-lock watch so a change prompts review.

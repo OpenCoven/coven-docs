@@ -909,6 +909,10 @@ components:
           type: boolean
           description: Whether errors use the `ErrorEnvelope` shape (always `true` in `coven.daemon.v1`). The separately negotiated session-policy contract has its own closed refusal shape.
 
+        sessionClaudeWriteScope:
+          type: boolean
+          description: Owner-local parsing support for the separate Claude writeScope v1 contract (document version 2). Always false over TCP. Missing means unavailable; true is not a grant or local runtime qualification.
+
         sessionPolicyContracts:
           type: array
           description: |
@@ -1249,6 +1253,42 @@ components:
         familiarId:
           type: string
           description: Optional familiar id whose identity should be injected into the harness invocation. Unknown ids fail with `400 unknown_familiar`.
+        writeScope:
+          type: object
+          additionalProperties: false
+          description: Optional owner-local Claude scoped-write document. Requires harness claude and launchMode stream, cannot accompany launchPolicy, and is refused over TCP. Current execution qualification is macOS with Claude Code 2.1.318 or later and a functioning native sandbox. Confines shell/file-tool writes, not shell reads, networking, listed MCP tools, the per-user temporary directory or external actors. Roots must be existing absolute directories and obey the owning contract's overlap/alias rules. No fallback to unrestricted Full.
+          required: [version, primaryRoot, writableRoots, readOnlyRoots, protectedRoots]
+          dependentRequired:
+            mcpConfigFile: [mcpServerNames]
+            mcpServerNames: [mcpConfigFile]
+          properties:
+            version:
+              type: integer
+              const: 2
+            primaryRoot:
+              type: string
+              description: Must equal canonical launch cwd and be explicitly writable.
+            writableRoots:
+              type: array
+              items:
+                type: string
+            readOnlyRoots:
+              type: array
+              items:
+                type: string
+            protectedRoots:
+              type: array
+              items:
+                type: string
+            mcpConfigFile:
+              type: string
+              description: Absolute path to the owner-private MCP configuration file.
+            mcpServerNames:
+              type: array
+              minItems: 1
+              items:
+                type: string
+                pattern: '^[A-Za-z0-9_-]+$'
         callerFamiliarId:
           type: string
           description: Optional id of the familiar that spawned this session in a delegation; recorded in the Coven Calls ledger when set alongside `familiarId`.
