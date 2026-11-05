@@ -77,3 +77,9 @@ Run it when `coven sessions search` misbehaves or after unclean shutdowns.
 `coven familiar create <name>` (also `coven familiars create <name>`) adds a familiar to the roster and creates its workspace. Inspect `coven familiar create --help` for current template and output options before creating one. Roster membership is declared identity, not an execution authority grant. Existing `coven familiars` listing and per-familiar inspection remain available.
 
 For daemon-owned routine diagnostics and one-off familiar work, see [Operator diagnostics](/docs/reference/automations#operator-diagnostics) and [Familiar missions](/docs/reference/automations#familiar-missions).
+
+## Experimental relay reconnection
+
+The returning-device relay is experimental and may be absent from your installed build. In builds containing [Coven #1612](https://github.com/OpenCoven/coven/issues/1612), failed device policy checks and missing or invalid transport material retry with increasing delays, capped at thirty seconds plus up to 255 ms jitter and the one-second polling interval. After you repair material or restore a suspended device, allow its next retry to run. Restarting the daemon starts a fresh scheduler; it does not repair invalid state or change device authority.
+
+Revocation, suspension, expiry and changed grants still cancel affected connections; the retry delay does not postpone those policy checks. Every new connection and signed request checks current authority. Earlier authentication cannot clear a policy cancellation's retry history. Relay disable and trust changes retain their cancellation behavior, and the daemon retains its two-second stop contract. See the [source transport contract](https://github.com/OpenCoven/coven/blob/main/crates/coven-cli/src/mobile_memory/transport/README.md) for implementation and verification limits; local relay fixtures do not establish real mobile/network acceptance.
