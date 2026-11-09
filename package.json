@@ -58,7 +58,7 @@
     "@vercel/analytics": "^2.0.1",
     "@vercel/og": "^1.0.3",
     "@vercel/speed-insights": "^2.0.0",
-    "d3-force": "^3.0.0",
+    "d3-force": "^3.0.1",
     "fumadocs-core": "^16.17.1",
     "fumadocs-epub": "^1.2.3",
     "fumadocs-mdx": "^15.4.7",
