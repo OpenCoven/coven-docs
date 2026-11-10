@@ -72,9 +72,26 @@ export function checkCliHelpContract({ rawContract, provenance, sourceLock, redi
   assert(shaPattern.test(provenance.verifiedCommit), 'Provenance requires a full verified commit');
   const sourcePaths = ['crates/coven-cli/src/help.rs', 'crates/coven-cli/src/main.rs'];
   assert.deepEqual(provenance.sourceBlobs.map(({ path }) => path).sort(), sourcePaths, 'Record both CLI definition and help catalog blobs');
+  const changedCaptureSources = [];
   for (const blob of provenance.sourceBlobs) {
     assert(source.paths.includes(blob.path), `${blob.path} must remain in the upstream freshness watch`);
-    assert(shaPattern.test(blob.verifiedBlob) && blob.verifiedBlob === blob.capturedSourceBlob, `${blob.path} must match the captured CLI source`);
+    assert(shaPattern.test(blob.verifiedBlob) && shaPattern.test(blob.capturedSourceBlob), `${blob.path} must record full verified and captured source blobs`);
+    if (blob.verifiedBlob !== blob.capturedSourceBlob) changedCaptureSources.push(blob);
+  }
+  if (changedCaptureSources.length) {
+    assert.equal(changedCaptureSources.length, 1, 'Only the CLI definition may change without a new help capture');
+    const [changed] = changedCaptureSources;
+    assert.equal(changed.path, 'crates/coven-cli/src/main.rs', 'A changed help catalog requires a new capture');
+    const review = provenance.helpImpactReview;
+    exactKeys(review, ['path', 'capturedSourceBlob', 'verifiedBlob', 'verifiedCommit', 'reviewedCommit', 'impact'], 'Help impact review');
+    assert.equal(review.path, changed.path, 'Help impact review must name the changed CLI definition');
+    assert.equal(review.capturedSourceBlob, changed.capturedSourceBlob, 'Help impact review must identify the captured CLI definition');
+    assert.equal(review.verifiedBlob, changed.verifiedBlob, 'Help impact review must identify the reviewed CLI definition');
+    assert.equal(review.verifiedCommit, source.verifiedCommit, 'Help impact review must match the source-lock pin');
+    assert(shaPattern.test(review.reviewedCommit), 'Help impact review requires the commit that changed the CLI definition');
+    text(review.impact, 'Help impact review');
+  } else {
+    assert.equal(provenance.helpImpactReview, undefined, 'Do not retain a stale help impact review when source blobs match');
   }
 
   function internalHref(value) {
