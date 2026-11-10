@@ -26,7 +26,16 @@ project detection, daemon/socket status, and supported harness CLIs.
 | Daemon | Whether the daemon is running, stale, or stopped, and which local IPC endpoint it owns. |
 | Harnesses | Whether Codex, Claude Code, GitHub Copilot CLI, or the managed Coven Code engine is available. |
 | Engine | Which `coven-code` Coven will run and whether it meets the minimum version. In the CLI release that includes OpenCoven/coven#1124, an advisory `[--]` line names a `coven-code` that is first on `PATH` but is not the engine Coven runs; JSON reports the same condition as the path-free `engine:path` warning. |
+| Mobile connections | In source builds containing OpenCoven/coven#1694, coarse direct and relay connection observations, when the running daemon can provide them. |
 | Next steps | A provider-specific install, `coven setup <provider>`, or `coven run <harness> "..."` command. |
+
+In source builds containing OpenCoven/coven#1694, mobile connection states are
+`offline`, `connecting`, `authenticating`, or `online`; an unavailable or stale
+daemon may report the observation as unavailable. These are diagnostics only:
+an online connection does not authorize an application action or override
+device, grant, or policy checks. The JSON fields are `mobileDirectConnection`
+and `mobileRelayConnection`; each contains only `state` and `transport`, or
+`null` when the running daemon cannot provide a valid observation.
 
 `doctor` does not inspect provider credential stores and does not silently run a
 network verification turn. Provider verification can consume network access or

@@ -92,7 +92,7 @@
     {
       "path": "crates/coven-cli/Cargo.toml",
       "local": "content/data/upstream/coven-cli/Cargo.toml",
-      "blob": "0bc8afd2443d8935f37523ac458963856ae42a6a"
+      "blob": "56602d225421064347ff35169b6b01381a0d3d32"
     }
   ]
 }

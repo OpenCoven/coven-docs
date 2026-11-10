@@ -50,16 +50,46 @@ for (const [label, mutate, error] of [
   });
 }
 
-test('source updates require reconciliation, including identical capture-source blobs', () => {
+test('source updates require reconciliation, including captured source blobs', () => {
   const inputs = loadRepoCliHelpInputs();
   inputs.sourceLock.sources[0].verifiedCommit = 'a'.repeat(40);
   assert.throws(() => checkCliHelpContract(inputs), /source-lock pin/);
   const other = loadRepoCliHelpInputs();
-  other.provenance.sourceBlobs[0].capturedSourceBlob = 'a'.repeat(40);
-  assert.throws(() => checkCliHelpContract(other), /match the captured CLI source/);
+  const otherHelp = other.provenance.sourceBlobs.find(({ path }) => path.endsWith('/help.rs'));
+  const otherMain = other.provenance.sourceBlobs.find(({ path }) => path.endsWith('/main.rs'));
+  otherMain.verifiedBlob = otherMain.capturedSourceBlob;
+  delete other.provenance.helpImpactReview;
+  otherHelp.verifiedBlob = 'a'.repeat(40);
+  assert.throws(() => checkCliHelpContract(other), /changed help catalog requires a new capture/);
   const unwatched = loadRepoCliHelpInputs();
   unwatched.sourceLock.sources[0].paths = unwatched.sourceLock.sources[0].paths.filter((p) => !p.endsWith('/help.rs'));
   assert.throws(() => checkCliHelpContract(unwatched), /freshness watch/);
+});
+
+test('reviewed CLI-definition changes preserve the original capture provenance', () => {
+  const inputs = loadRepoCliHelpInputs();
+  const source = inputs.provenance.sourceBlobs.find(({ path }) => path.endsWith('/main.rs'));
+  const capturedSourceBlob = source.capturedSourceBlob;
+  source.verifiedBlob = 'b'.repeat(40);
+  inputs.provenance.verifiedCommit = 'c'.repeat(40);
+  inputs.sourceLock.sources[0].verifiedCommit = 'c'.repeat(40);
+  inputs.provenance.helpImpactReview = {
+    path: source.path,
+    capturedSourceBlob,
+    verifiedBlob: source.verifiedBlob,
+    verifiedCommit: 'c'.repeat(40),
+    reviewedCommit: 'd'.repeat(40),
+    impact: 'Only doctor diagnostics changed; the command registry and help output did not.',
+  };
+  assert.doesNotThrow(() => checkCliHelpContract(inputs));
+
+  const changedHelp = loadRepoCliHelpInputs();
+  const changedHelpSource = changedHelp.provenance.sourceBlobs.find(({ path }) => path.endsWith('/help.rs'));
+  const changedMain = changedHelp.provenance.sourceBlobs.find(({ path }) => path.endsWith('/main.rs'));
+  changedMain.verifiedBlob = changedMain.capturedSourceBlob;
+  delete changedHelp.provenance.helpImpactReview;
+  changedHelpSource.verifiedBlob = 'e'.repeat(40);
+  assert.throws(() => checkCliHelpContract(changedHelp), /changed help catalog requires a new capture/);
 });
 
 test('compact JSON is rejected independently of the capture hash', () => {

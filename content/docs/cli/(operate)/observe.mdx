@@ -91,4 +91,13 @@ coven memory mobile relay disable
 coven memory mobile relay remove --endpoint wss://relay.example.test/ws
 ```
 
-At most four endpoints are retained. An explicit CA list replaces public roots for that endpoint while retaining hostname checks; it never disables TLS verification or changes pinned device identities. `add` preserves current enablement, `remove` disables access when the last endpoint is removed, and `enable` requires an existing host identity. Enabling relay access on an already-running daemon requires restart; disable and endpoint/trust changes cancel affected live workers. Status reports configuration counts and enablement, not live connectivity, broker URLs, rooms, credentials, or successful device acceptance. Direct HTTPS listener configuration is separate. Native fixtures and the [source transport contract](https://github.com/OpenCoven/coven/blob/34a60ab5677ae46c3a03920870aa1b30614a90ce/crates/coven-cli/src/mobile_memory/transport/README.md) do not establish real mobile/network acceptance or waive independent review.
+At most four endpoints are retained. An explicit CA list replaces public roots for that endpoint while retaining hostname checks; it never disables TLS verification or changes pinned device identities. `add` preserves current enablement, `remove` disables access when the last endpoint is removed, and `enable` requires an existing host identity. Enabling relay access on an already-running daemon requires restart; disable and endpoint/trust changes cancel affected live workers. Status reports configuration counts and enablement, not live connectivity, broker URLs, rooms, credentials, or successful device acceptance. Direct HTTPS listener configuration is separate. Native fixtures and the [source transport contract](https://github.com/OpenCoven/coven/blob/33b366a7c81093d1e579306e136dc5d3aa7a9179/crates/coven-cli/src/mobile_memory/transport/README.md) do not establish real mobile/network acceptance or waive independent review.
+
+The current source implementation adds version-2 counter-based rendezvous
+routing and authenticated direct handover/recovery. The v1 protocol remains
+available only where no v2 handover has established its durable protocol floor;
+this is still experimental source-build behavior, not evidence of a shipped
+mobile client or real-device/network acceptance. Transport-owned buffers are
+zeroized where implemented, but Snow and serialized provisioning/handover copies
+are not guaranteed to be erased from process memory. Do not treat cancellation
+or buffer zeroization as protection against process-memory disclosure.

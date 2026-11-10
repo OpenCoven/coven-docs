@@ -2,10 +2,15 @@
 
 `coven-cli-help.json` is the unedited, pretty-printed output of `coven help --all --json`. It records 44 public commands in six groups. The companion provenance file records its SHA-256, the capture's CLI version and source commit, and the reviewed `docs/source-lock.json` pin.
 
-The current capture came from `coven v0.4.11-3-g0637b84c`. Its CLI definition and help catalog have identical Git blobs at the captured source commit and the reviewed pin:
+The capture came from `coven v0.4.11-3-g0637b84c` at source commit
+`0637b84c9f8c2028c47f78e87834e750bbb81924`; it has not been relabeled as a
+build from the current source pin. The current `help.rs` blob is unchanged.
+`main.rs` differs only in the reviewed Doctor diagnostics described in
+`helpImpactReview` in the provenance file.
 
-- [CLI definition and command dispatch](https://github.com/OpenCoven/coven/blob/0637b84c9f8c2028c47f78e87834e750bbb81924/crates/coven-cli/src/main.rs)
-- [Help groups and serializer](https://github.com/OpenCoven/coven/blob/0637b84c9f8c2028c47f78e87834e750bbb81924/crates/coven-cli/src/help.rs)
+- [Captured CLI definition](https://github.com/OpenCoven/coven/blob/0637b84c9f8c2028c47f78e87834e750bbb81924/crates/coven-cli/src/main.rs)
+- [Reviewed CLI definition](https://github.com/OpenCoven/coven/blob/33b366a7c81093d1e579306e136dc5d3aa7a9179/crates/coven-cli/src/main.rs)
+- [Help groups and serializer at the reviewed pin](https://github.com/OpenCoven/coven/blob/33b366a7c81093d1e579306e136dc5d3aa7a9179/crates/coven-cli/src/help.rs)
 - [Owning help-disclosure tests](https://github.com/OpenCoven/coven/blob/0637b84c9f8c2028c47f78e87834e750bbb81924/crates/coven-cli/tests/help_disclosure.rs)
 
 This is an opaque source-build identity, not a published release claim. The runtime capture is checked against source, not a reproducible-build attestation. Local checks do not execute an arbitrary installed Coven binary or fetch upstream source. The hosted source-freshness gate separately watches the CLI definition and help catalog for upstream changes.
@@ -14,7 +19,7 @@ This is an opaque source-build identity, not a published release claim. The runt
 
 1. Review the CLI definition, help groups, serializer, and owning tests at the source-lock pin. Establish the source commit for the CLI being captured.
 2. Run `coven help --all --json` twice and compare the outputs byte for byte. Record `coven --version`; keep command names, summaries, URLs, and ordering exactly as emitted. Do not rewrite upstream URLs to preferred site routes.
-3. Verify both `main.rs` and `help.rs` Git blobs at the captured source commit match the reviewed pin. If they differ, use a CLI built from the reviewed source or reconcile the source pin first. Record the blob ids, commits, counts, and SHA-256 of the new capture in the provenance file.
+3. Verify both `main.rs` and `help.rs` Git blobs at the captured source commit against the reviewed pin. A changed `help.rs` or a change to the command registry in `main.rs` requires a fresh capture from the reviewed source. If `main.rs` changed only outside the CLI definition/help surface, retain the original capture blob and source commit, record the current blob and reviewed change in `helpImpactReview`, and never relabel the old capture as a new build.
 4. Review the full fixture diff and update reference pages, redirects, and the CLI command map for every public command. Any preferred index destination must point to the command's actual reference section.
 5. Run `pnpm verify` and `git diff --check`. Include immutable owning-source links and capture evidence in the pull request.
 
