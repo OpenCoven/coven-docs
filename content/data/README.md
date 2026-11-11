@@ -4,9 +4,9 @@
 
 The current capture came from `coven v0.5.0-4-g1324d387`. Its CLI definition and help catalog have identical Git blobs at the captured source commit and the reviewed pin:
 
-- [CLI definition and command dispatch](https://github.com/OpenCoven/coven/blob/1324d38716fc8d0b27954faacc843d85131a58f8/crates/coven-cli/src/main.rs)
-- [Help groups and serializer](https://github.com/OpenCoven/coven/blob/1324d38716fc8d0b27954faacc843d85131a58f8/crates/coven-cli/src/help.rs)
-- [Owning help-disclosure tests](https://github.com/OpenCoven/coven/blob/1324d38716fc8d0b27954faacc843d85131a58f8/crates/coven-cli/tests/help_disclosure.rs)
+- [CLI definition and command dispatch](https://github.com/OpenCoven/coven/blob/09e656717f8d8c2e031847122edd979a4754ed90/crates/coven-cli/src/main.rs)
+- [Help groups and serializer](https://github.com/OpenCoven/coven/blob/09e656717f8d8c2e031847122edd979a4754ed90/crates/coven-cli/src/help.rs)
+- [Owning help-disclosure tests](https://github.com/OpenCoven/coven/blob/09e656717f8d8c2e031847122edd979a4754ed90/crates/coven-cli/tests/help_disclosure.rs)
 
 This is an opaque source-build identity, not a published release claim. The runtime capture is checked against source, not a reproducible-build attestation. Local checks do not execute an arbitrary installed Coven binary or fetch upstream source. The hosted source-freshness gate separately watches the CLI definition and help catalog for upstream changes.
 
