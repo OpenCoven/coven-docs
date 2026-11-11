@@ -44,7 +44,7 @@ Each command's empty state points at the file or flow that populates it, so a fr
 
 ## Relay configuration recovery
 
-The optional mobile relay transport is experimental. `coven memory mobile relay status --json` reports saved configuration rather than live connectivity. If `mobile/relay.json` under `COVEN_HOME` is corrupt, oversized or uses an unsupported version, configuration commands fail closed and name the recovery command.
+The optional mobile relay transport is experimental. `coven memory mobile relay status --json` reports saved configuration rather than live connectivity. If `mobile/relay.json` under `COVEN_HOME` is corrupt, oversized or uses an unsupported version, configuration commands fail closed and name the recovery command. JSON decoding errors report the category and line/column without reproducing saved field names or values.
 
 In a Coven build that includes the relay reset command, inspect its help and explicitly confirm discarding relay settings:
 
