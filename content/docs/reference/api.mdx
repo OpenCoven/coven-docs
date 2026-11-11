@@ -9,6 +9,12 @@ Use the API from a same-user local client when the CLI does not fit your workflo
 
 These details describe the current versioned source contract. Older installed builds may omit newer optional capabilities; negotiate with the running daemon rather than treating this page as proof that an upgrade has reached it.
 
+## Windows lifecycle capability
+
+Health has 18 common capability fields. Windows additionally advertises the optional 19th field, `lifecycleShutdown: "observed-workers-v1"`. Non-Windows and older Windows daemons omit it; unknown values or types fail closed. This is an additive lifecycle contract, not an authorization grant or evidence that an installed daemon has been upgraded.
+
+The first-party stop client requires an owner-validated, same-instance shutdown acknowledgement before waiting for exit within its original two-second deadline. A `202` response accepts shutdown and does not prove completion. See [Windows shutdown negotiation](/docs/daemon/socket-api#windows-shutdown-negotiation) for the identity and legacy fallback rules.
+
 ## Supported flow
 
 1. `GET /api/v1/health` — verify reachability and API compatibility.

@@ -16,16 +16,11 @@ coven daemon restart
 coven daemon stop
 ```
 
-`status` is the safest first command in scripts and support flows. It tells you
-whether the background process exists, which local IPC endpoint it owns, and
-which API contract it is serving.
+`status` is the safest first command in scripts and support flows. It tells you whether the background process exists, which local IPC endpoint it owns, and which API contract it is serving.
 
 ## Start
 
-`coven daemon start` creates `$COVEN_HOME` if needed, opens the SQLite store,
-binds the platform local IPC endpoint (`$COVEN_HOME/coven.sock` on Unix-like
-hosts or an owner-only named pipe on Windows), writes
-`$COVEN_HOME/daemon.json`, and begins serving `/api/v1`.
+`coven daemon start` creates `$COVEN_HOME` if needed, opens the SQLite store, binds the platform local IPC endpoint (`$COVEN_HOME/coven.sock` on Unix-like hosts or an owner-only named pipe on Windows), writes `$COVEN_HOME/daemon.json`, and begins serving `/api/v1`.
 
 Startup should fail closed when:
 
@@ -34,9 +29,7 @@ Startup should fail closed when:
 - The SQLite ledger cannot be opened.
 - Another live daemon already owns the local IPC endpoint.
 
-If local IPC metadata is stale after a crash, use
-[Recovery and upgrades](/docs/daemon/recovery-upgrades) before deleting
-anything by hand.
+If local IPC metadata is stale after a crash, use [Recovery and upgrades](/docs/daemon/recovery-upgrades) before deleting anything by hand.
 
 ## Status
 
@@ -66,13 +59,15 @@ export COVEN_HOME="$HOME/.local/share/coven"
 coven daemon restart
 ```
 
-Restart should drain the old listener, release the previous local IPC endpoint,
-reopen the store under the selected state directory, and serve the same
-`/api/v1` contract again.
+Restart should drain the old listener, release the previous local IPC endpoint, reopen the store under the selected state directory, and serve the same `/api/v1` contract again.
 
 ## Stop
 
 `stop` shuts down the background daemon. Live sessions should be treated conservatively: clients must not assume a stopped daemon means a harness completed its work. Reattach or inspect the session ledger after starting the daemon again.
+
+For experimental mobile access, stop success also requires observed cleanup of the daemon-owned mobile authority worker. A storage operation interrupted before its response can have an unknown outcome. If worker exit cannot be established within the lifecycle deadline, stop reports failure while the daemon retains its profile and serving ownership until cleanup completes. See [mobile startup and shutdown](/docs/cli/observe#mobile-startup-and-shutdown) before retrying an interrupted pairing or authority mutation.
+
+On Windows, `lifecycleShutdown: "observed-workers-v1"` requires the owner-validated shutdown handshake and observed exit within the same two-second stop deadline. A `202` acknowledgement means shutdown was accepted. A timeout or invalid acknowledgement reports failure and preserves daemon status; it cannot fall back to terminating a daemon that advertised this contract. Legacy root termination requires an absent capability and an authenticated explicit `404` or `405` from the same instance. See [Windows shutdown negotiation](/docs/daemon/socket-api#windows-shutdown-negotiation).
 
 ## Running under a service manager
 
@@ -89,10 +84,7 @@ launchd labels are conventionally reverse-DNS (which for this project would look
 
 </Platform>
 
-Whichever supervisor you use, keep single-instance discipline: the daemon
-refuses to take over a healthy local IPC endpoint and holds a serve lock, so
-let one supervisor own the process rather than mixing `coven daemon start`
-with a service unit.
+Whichever supervisor you use, keep single-instance discipline: the daemon refuses to take over a healthy local IPC endpoint and holds a serve lock, so let one supervisor own the process rather than mixing `coven daemon start` with a service unit.
 
 ## Client behavior during lifecycle changes
 
