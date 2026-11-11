@@ -42,6 +42,22 @@ coven calls <call-id>      # one call in detail
 
 Each command's empty state points at the file or flow that populates it, so a fresh install can navigate the ecosystem without reading source.
 
+## Relay configuration recovery
+
+The optional mobile relay transport is experimental. `coven memory mobile relay status --json` reports saved configuration rather than live connectivity. If `mobile/relay.json` under `COVEN_HOME` is corrupt, oversized or uses an unsupported version, configuration commands fail closed and name the recovery command. JSON decoding errors report the category and line/column without reproducing saved field names or values.
+
+In a Coven build that includes the relay reset command, inspect its help and explicitly confirm discarding relay settings:
+
+```bash
+coven memory mobile relay reset --help
+coven memory mobile relay reset --yes
+coven memory mobile relay status --json
+```
+
+`--yes` confirms removing all relay endpoints and their configured certificate trust. Reset writes a disabled configuration with no endpoints; running relay connections close when the daemon reloads it. Device keys, host identity, paired devices, grants and direct gateway settings are retained. Without `--yes`, reset refuses to change configuration. Filesystem protections still apply: reset rejects symlinks, non-regular files and unsafe permissions. It does not repair those conditions.
+
+After reset, add the intended WSS endpoint again with `coven memory mobile relay add --endpoint wss://relay.example.test/ws`. Relay access stays disabled until explicitly enabled with `coven memory mobile relay enable`, which requires an existing host identity. Restart the daemon to apply initial enablement. No relay endpoint is selected automatically.
+
 ## Log retention
 
 `coven logs prune` applies both local retention windows: raw artifacts (short window) and redacted session events.
