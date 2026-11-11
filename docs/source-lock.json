@@ -5,8 +5,8 @@
       "id": "coven-runtime-contract",
       "repo": "OpenCoven/coven",
       "ref": "main",
-      "verifiedAt": "2026-11-05T04:08:00Z",
-      "verifiedCommit": "34a60ab5677ae46c3a03920870aa1b30614a90ce",
+      "verifiedAt": "2026-11-11T08:37:26Z",
+      "verifiedCommit": "1324d38716fc8d0b27954faacc843d85131a58f8",
       "sections": [
         "guide",
         "cli",
@@ -127,7 +127,25 @@
         "crates/coven-cli/src/mobile_memory/transport/authority.rs",
         "crates/coven-cli/src/mobile_memory/transport/README.md",
         "crates/coven-cli/src/mobile_memory/gateway/relay_runtime.rs",
-        "crates/coven-cli/src/mobile_memory/identity.rs"
+        "crates/coven-cli/src/mobile_memory/identity.rs",
+        "crates/coven-cli/src/chat_workspace_policy.rs",
+        "crates/coven-cli/src/pty_runner.rs",
+        "crates/coven-cli/src/mobile_memory/mod.rs",
+        "crates/coven-cli/src/mobile_memory/gateway.rs",
+        "crates/coven-cli/src/mobile_memory/transport/connection.rs",
+        "crates/coven-cli/src/mobile_memory/transport/routing.rs",
+        "crates/coven-cli/src/mobile_memory/transport/routing/channel.rs",
+        "crates/coven-cli/src/mobile_memory/transport/migration.rs",
+        "crates/coven-cli/src/mobile_memory/transport/storage/v2.rs",
+        "crates/coven-cli/src/mobile_memory/transport/storage/v2/device.rs",
+        "crates/coven-cli/src/mobile_memory/transport/storage/v2/restore.rs",
+        "crates/coven-cli/src/mobile_memory/transport/storage/v2/restore/export.rs",
+        "crates/coven-cli/src/mobile_memory/transport/storage/v2/restore/install.rs",
+        "crates/coven-cli/src/mobile_memory/transport/storage/v2/restore/install/source.rs",
+        "crates/coven-cli/src/mobile_memory/gateway/relay_runtime/counter.rs",
+        "crates/coven-cli/src/mobile_memory/gateway/relay_runtime/budget.rs",
+        "crates/coven-client/src/discovery.rs",
+        "crates/coven-client/src/http.rs"
       ]
     }
   ]

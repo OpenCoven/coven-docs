@@ -3,11 +3,11 @@
   "provenance": {
     "sourceId": "coven-runtime-contract",
     "repo": "OpenCoven/coven",
-    "verifiedCommit": "34a60ab5677ae46c3a03920870aa1b30614a90ce",
+    "verifiedCommit": "1324d38716fc8d0b27954faacc843d85131a58f8",
     "sourceBlobs": [
       {
         "path": "crates/coven-cli/engine.lock",
-        "blob": "400382eb32ac67d9b2a7fd5dbab82734bb5cfc72"
+        "blob": "3cc61f5eeffa62bfd16594b32a69da179cbcbcb3"
       },
       {
         "path": "npm/coven/bin/coven.js",

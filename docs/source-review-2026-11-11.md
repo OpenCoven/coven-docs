@@ -1,0 +1,32 @@
+# Runtime source review for documentation freshness
+
+This review reconciles OpenCoven/coven-docs#182 from `34a60ab5677ae46c3a03920870aa1b30614a90ce` to signed runtime candidate `1324d38716fc8d0b27954faacc843d85131a58f8` in OpenCoven/coven#1722. The initial hosted report compared live main `9bd121afbbd8b370286bbb1ace0848d93d61c7be` and found thirteen changed watched paths. The relay reset candidate adds one further changed owner, `relay.rs`; all fourteen are accounted for below. Source freshness still requires the reviewed commit to be an ancestor of live main with matching watched identities. A candidate pin alone does not satisfy that gate or authorize delivery.
+
+## Changed watched paths
+
+| Path | Reviewed change and documentation disposition |
+| --- | --- |
+| `.github/release-support.json` | Support policy moves from release line 0.4 to 0.5. This is policy, not proof that a particular package or binary was published; no release availability is inferred. |
+| `crates/coven-cli/Cargo.toml` | Bundled rusqlite dependency advances from 0.40 to 0.41. Regenerated the byte-for-byte compiled dependency snapshot and its Git-blob manifest. |
+| `crates/coven-cli/engine.lock` | Source builds pin engine 0.9.0 with new per-platform checksums; contract remains 1. Updated source-qualified engine guidance and regenerated platform provenance. |
+| `crates/coven-cli/src/claude_write_scope.rs` | Passes the explicit provider identity to version detection. Existing document-version-2, macOS and Claude 2.1.318 qualification guidance remains correct; no scope/schema redesign. |
+| `crates/coven-cli/src/main.rs` | Adds mobile restore verbs, direct/relay Doctor observations and host-owned Chat workspace integration; preserves an optimized-build source-commit literal and adds relay reset. Updated the relevant public pages, kept Chat separate from daemon requests and Claude scoped writes, and re-captured the unchanged public help catalog. |
+| `crates/coven-cli/src/mobile_memory/gateway/relay_runtime.rs` | Integrates v2 counters, aggregate connection observations and the shared listener budget. Explained the 512 ceiling, downward-only configuration, retained existing listeners and connection-versus-authority boundary. |
+| `crates/coven-cli/src/mobile_memory/identity.rs` | Validates captured snapshot identity bytes and actual TLS key/certificate binding. Added this to the explicit offline restore ceremony. |
+| `crates/coven-cli/src/mobile_memory/owner_policy.rs` | Captures complete policy, approvals and root history; restore rejects removal, older revisions and conflicting same-revision digests. Updated restore preservation and anti-rollback guidance. |
+| `crates/coven-cli/src/mobile_memory/relay.rs` | Adds confirmed relay reset. Exact companion documentation is reviewed in OpenCoven/coven-docs#191; this freshness PR does not duplicate it. The combined #1613 outcome requires that page to land too. |
+| `crates/coven-cli/src/mobile_memory/transport/README.md` | Documents secret-memory limits, v2 counters/generations, authenticated direct controls, offline restore and direct/relay migration. Added operator guidance without equating local fixtures with independent security, physical-network, power-loss, native Windows or device acceptance. |
+| `crates/coven-cli/src/mobile_memory/transport/storage.rs` | Adds bounded listener configuration, v2 restore/downgrade guards and the reset path. Updated the v2 resource/protocol-floor explanations; reset remains explicitly confirmed and disabled. |
+| `crates/coven-cli/src/setup/mod.rs` | Required safe version metadata precedes billable verification; only completed verification publishes a report. Updated consent and successful-only certification wording. |
+| `crates/coven-cli/src/setup/process.rs` | Version parsing uses selected provider identity rather than the canonical executable filename. Documented loader/numeric-filename handling without altering provider-owned authentication. |
+| `docs/API-CONTRACT.md` | Adds owner-local internal mobile diagnostics and tighter Rust-client deadlines. Documented exact coarse shapes, 400/405 refusals, transport exclusion and unchanged authority/health semantics. The diagnostic and Chat CLI policy remain outside the stable OpenAPI subset. |
+
+## Owning source and captures
+
+Eighteen precise implementation-owner paths are added to the source watch for Chat policy/enforcement, connection tracking/probes, direct/relay routing and migration, v2 storage and restoration, listener/counter budgets, and Rust-client discovery/request deadlines. Public claims no longer rely solely on parent-module declarations or README changes to detect drift. No stable OpenAPI route or `CreateSession` field is added for internal diagnostics or CLI-only Chat policy.
+
+A native CLI built from clean candidate `1324d38716fc8d0b27954faacc843d85131a58f8` reports `coven v0.5.0-4-g1324d387 (engine coven-code 0.9.0, pinned 0.9.0)`. Two isolated `help --all --json` captures are byte-identical to each other and to the retained catalog: 44 commands in six groups, SHA-256 `3c5eb5c42dcdd102dcad63aaeef3a500ac24c50c68839baa623d5f8ec0383905`. Provenance records the actual capture commit and matching `main.rs`/`help.rs` blobs; the version is an opaque source-build identity, not a released-package claim.
+
+Official capture scripts regenerated all five platform rows and eighteen immutable upstream snapshots at the reviewed pin. The platform set and protocol/vector content remain unchanged; engine provenance and the compiled Cargo snapshot change. An anonymous API capture first failed with HTTP 403; retrying with the existing authenticated GitHub credential, scoped only to the capture process environment, succeeded. No credential is stored in the artifacts.
+
+Read-only review found no Critical or Important issues in the source dispositions or edited prose. Its listener-limit clarification was applied: reducing the cap does not evict already-owned listeners. Final local verification, exact hosted results, live-main identity comparison and deployment evidence are recorded on #182. Source review and deterministic/local test evidence do not substitute for remaining provider, physical-device, native-platform, power-loss or independent security acceptance.
