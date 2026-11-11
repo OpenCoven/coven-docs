@@ -909,6 +909,11 @@ components:
           type: boolean
           description: Whether errors use the `ErrorEnvelope` shape (always `true` in `coven.daemon.v1`). The separately negotiated session-policy contract has its own closed refusal shape.
 
+        lifecycleShutdown:
+          type: string
+          enum: [observed-workers-v1]
+          description: Optional Windows-only lifecycle contract. An advertised observed-workers-v1 requires an owner-validated same-instance 202 shutdown acknowledgement and observed exit within the original deadline. Omitted on non-Windows and older Windows daemons; unknown values or types do not permit legacy termination.
+
         sessionClaudeWriteScope:
           type: boolean
           description: Owner-local parsing support for the separate Claude writeScope v1 contract (document version 2). Always false over TCP. Missing means unavailable; true is not a grant or local runtime qualification.

@@ -33,3 +33,13 @@ Mission scopes are optional project-read declarations that are validated and sto
 In source builds with mobile transport, first-party clients use the owner-local internal diagnostic `POST /api/v1/internal/mobile/connections`. `{}` selects relay for compatibility; `{"transport":"direct"}` and `{"transport":"relay"}` select an ingress explicitly. The response contains exactly `state` (`offline`, `connecting`, `authenticating` or `online`) and `transport`. Unknown fields, malformed bodies and unknown transports return 400; other methods return 405. TCP and mobile ingress cannot dispatch this diagnostic.
 
 The result aggregates live channels, with online taking precedence over authenticating, connecting and offline. It does not enroll devices, change authority or authorize application actions; an online channel can still have its next request refused by current policy. This internal diagnostic is outside the stable OpenAPI subset. For operator output and unavailable-state semantics, see [Doctor](/docs/cli/doctor#mobile-connection-observations).
+
+## Windows shutdown negotiation
+
+Windows health advertises `capabilities.lifecycleShutdown: "observed-workers-v1"` in addition to the 18 common capability fields. The first-party stop client retains the authenticated daemon process HANDLE, opens another owner-validated pipe, and requires the same PID and process creation time. Its internal shutdown request carries the exact named API version and daemon identity from authenticated health; the route does not grant TCP or mobile authority.
+
+For an advertised contract, the client requires HTTP `202` with `ok: true`, the same named API version and daemon identity, `structuredErrors: true`, and the exact lifecycle contract. It then retains the pipe and HANDLE while awaiting exit within the original two-second deadline. The acknowledgement accepts shutdown; it is not evidence that the daemon or mobile worker has already exited.
+
+Timeouts, malformed replies, identity changes, and refusal of an advertised contract do not permit root termination or status clearing. Legacy root termination requires both an absent lifecycle capability and an authenticated explicit `404` or `405` from the same instance. An absent field alone is insufficient; unknown values or types fail closed.
+
+The [source Windows lifecycle contract](https://github.com/OpenCoven/coven/blob/ed710c9706693bd96b71c4dfcec34275ed9aa78c/docs/API-CONTRACT.md#windows-lifecycle-shutdown) defines this negotiation. Source and controlled native fixtures do not prove that an older installed daemon has been upgraded.
