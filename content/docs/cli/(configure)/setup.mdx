@@ -67,6 +67,8 @@ Report constraints are deliberate:
 - choose a destination that does not already exist;
 - treat publication failure or privacy-validation failure as an error.
 
+A report is published only after the requested verification completes successfully. Required, safe version metadata is established before the potentially billable verification turn; an unavailable or invalid version prevents that turn. Version detection uses the selected provider identity even when its canonical executable has an npm loader or numeric filename. Consent still precedes provider commands. Failed, declined, cancelled or timed-out actions do not produce a success report; use the command outcome for those cases.
+
 The report records bounded certification facts such as provider, candidate commit, version, duration, terminal outcome, and completion state. It does not serialize provider output, prompts, credentials, or the ephemeral verification workspace.
 
 ## Outcomes

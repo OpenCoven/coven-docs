@@ -27,3 +27,9 @@ For the local access posture, see [Daemon security](/docs/daemon/security).
 A newer owner-local daemon can advertise `sessionClaudeWriteScope: true` for the separate Claude `writeScope` launch document. TCP reports false and refuses the field. This flag describes parsing availability, not local runtime qualification or an authority grant; missing means unavailable. The document and execution profile are described under [Claude scoped writes](/docs/cli/run#claude-scoped-writes).
 
 Mission scopes are optional project-read declarations that are validated and stored without enabling M0 dispatch. See [Familiar missions](/docs/reference/automations#familiar-missions) for bounds and the unchanged unavailable outcome.
+
+## Internal mobile connection diagnostics
+
+In source builds with mobile transport, first-party clients use the owner-local internal diagnostic `POST /api/v1/internal/mobile/connections`. `{}` selects relay for compatibility; `{"transport":"direct"}` and `{"transport":"relay"}` select an ingress explicitly. The response contains exactly `state` (`offline`, `connecting`, `authenticating` or `online`) and `transport`. Unknown fields, malformed bodies and unknown transports return 400; other methods return 405. TCP and mobile ingress cannot dispatch this diagnostic.
+
+The result aggregates live channels, with online taking precedence over authenticating, connecting and offline. It does not enroll devices, change authority or authorize application actions; an online channel can still have its next request refused by current policy. This internal diagnostic is outside the stable OpenAPI subset. For operator output and unavailable-state semantics, see [Doctor](/docs/cli/doctor#mobile-connection-observations).

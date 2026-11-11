@@ -77,6 +77,8 @@ The generated OpenAPI reference covers the stable public `coven.daemon.v1` subse
 
 Treat a route as stable only when it appears in the versioned source contract and the generated [API Reference](/docs/openapi). For every other route, use capability discovery and the owning first-party client's contract instead of copying an implementation detail into an external integration.
 
+Source builds also expose an owner-local [internal mobile connection diagnostic](/docs/daemon/socket-api#internal-mobile-connection-diagnostics) for first-party clients. Its coarse observation never grants application authority and is outside this stable public subset.
+
 ## Skills: eval-loop
 
 `coven eval-loop` drives the held-out eval loop for a familiar's workspace. The CLI runs only the deterministic steps; the harness proposes changes and judges cases. Every subcommand takes `--track` (`synthesis`, `prompt`, or `memory`) and either `--workspace <path>` or `--familiar <id>`, resolved through `~/.coven/familiars.toml`; `--workspace` wins when both are given.
@@ -112,6 +114,8 @@ Broad event and log responses are redacted by default. Raw sensitive artifacts a
 ## Rust client and peer replacement
 
 For Rust integrations, prefer `opencoven-coven-client` (library `coven_client`) to composing HTTP over a hand-built socket or pipe path. Construct the endpoint with `DaemonEndpoint::discover(coven_home)`, then pass it to `DaemonClient::new`. The public client accepts no arbitrary URLs or endpoint paths, bounds response bodies to 4 MiB, and negotiates health before dependent operations. The crate lives in the `OpenCoven/coven` workspace; its crates.io release is gated on a signed `coven-client-v*` tag, so confirm a version is published before you add it as a registry dependency.
+
+For a tighter total wait, the Rust client exposes `DaemonEndpoint::discover_until` and `DaemonClient::request_json_until` with an absolute deadline. Caller deadlines may shorten existing discovery/request maxima, never extend them. Negotiated health, owner/instance binding, structured errors and request limits remain enforced, and failures never trigger automatic replay. Filesystem metadata still depends on the host filesystem and scheduler.
 
 Its negotiation is bound to the transport peer. If the daemon endpoint is replaced, the next dependent operation fails before sending request bytes and clears the cached negotiation. Call `health` again, re-check capabilities, and then decide whether a retry is appropriate. The client never replays a mutation automatically.
 
