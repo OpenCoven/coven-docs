@@ -2,11 +2,11 @@
 
 `coven-cli-help.json` is the unedited, pretty-printed output of `coven help --all --json`. It records 44 public commands in six groups. The companion provenance file records its SHA-256, the capture's CLI version and source commit, and the reviewed `docs/source-lock.json` pin.
 
-The current capture came from `coven v0.4.11-3-g0637b84c`. Its CLI definition and help catalog have identical Git blobs at the captured source commit and the reviewed pin:
+The current capture came from `coven v0.5.0-4-g1324d387`. Its CLI definition and help catalog have identical Git blobs at the captured source commit and the reviewed pin:
 
-- [CLI definition and command dispatch](https://github.com/OpenCoven/coven/blob/0637b84c9f8c2028c47f78e87834e750bbb81924/crates/coven-cli/src/main.rs)
-- [Help groups and serializer](https://github.com/OpenCoven/coven/blob/0637b84c9f8c2028c47f78e87834e750bbb81924/crates/coven-cli/src/help.rs)
-- [Owning help-disclosure tests](https://github.com/OpenCoven/coven/blob/0637b84c9f8c2028c47f78e87834e750bbb81924/crates/coven-cli/tests/help_disclosure.rs)
+- [CLI definition and command dispatch](https://github.com/OpenCoven/coven/blob/09e656717f8d8c2e031847122edd979a4754ed90/crates/coven-cli/src/main.rs)
+- [Help groups and serializer](https://github.com/OpenCoven/coven/blob/09e656717f8d8c2e031847122edd979a4754ed90/crates/coven-cli/src/help.rs)
+- [Owning help-disclosure tests](https://github.com/OpenCoven/coven/blob/09e656717f8d8c2e031847122edd979a4754ed90/crates/coven-cli/tests/help_disclosure.rs)
 
 This is an opaque source-build identity, not a published release claim. The runtime capture is checked against source, not a reproducible-build attestation. Local checks do not execute an arbitrary installed Coven binary or fetch upstream source. The hosted source-freshness gate separately watches the CLI definition and help catalog for upstream changes.
 

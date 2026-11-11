@@ -133,3 +133,9 @@ Before sharing output, follow [Support](/docs/reference/support) to redact priva
 
 For daemon-specific failures, continue with [Daemon commands](/docs/cli/daemon)
 and [Daemon observability](/docs/daemon/observability).
+
+## Mobile connection observations
+
+Source builds with returning-device transport report `Mobile relay connection` and `Mobile direct connection` independently. `coven doctor --json` exposes `mobileRelayConnection` and `mobileDirectConnection`, each containing exactly `state` and `transport`, or null when the running daemon cannot supply a valid observation. The states are `offline`, `connecting`, `authenticating` and `online`; concurrent channels report the highest active state. A stopped daemon reports offline, while stale or unavailable daemon evidence remains unavailable.
+
+These bounded owner-local probes do not change Doctor's health checks or exit status. An online channel is a connection observation, never a device grant or proof that the next operation will be authorized. No device ids, rooms, endpoints, keys or raw connection errors appear. Relay configuration status remains separate from connectivity; see [Experimental relay configuration](/docs/cli/observe#experimental-relay-configuration).
