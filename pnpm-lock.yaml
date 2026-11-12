@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@iconify/react':
-        specifier: ^6.0.3
-        version: 6.0.3(react@19.3.1)
+        specifier: ^6.0.4
+        version: 6.0.4(react@19.3.1)
       '@vercel/analytics':
         specifier: ^2.0.1
         version: 2.0.1(next@16.4.3(@types/node@26.6.5)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react@19.3.1)
@@ -449,8 +449,8 @@ packages:
       '@types/react':
         optional: true
 
-  '@iconify/react@6.0.3':
-    resolution: {integrity: sha512-2x7gVs+tpUG75aXYo/0c5wPOqrFy75YSGKmuJZyuHyrHMydzXpI/+i9/USIzWXJL9WWc2BCgPVnGY2FhbeiiDQ==}
+  '@iconify/react@6.0.4':
+    resolution: {integrity: sha512-7nKd1eF52E1QGIl46eDWfMNPuTQHUxsXoK2Evgtu5jr386jCWTuWFLHM9vfsTNbUcKp+uq6ao+3skNUalDhH/w==}
     peerDependencies:
       react: '>=18.0.0'
 
@@ -3637,7 +3637,7 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.3.0
 
-  '@iconify/react@6.0.3(react@19.3.1)':
+  '@iconify/react@6.0.4(react@19.3.1)':
     dependencies:
       '@iconify/types': 2.0.0
       react: 19.3.1
