@@ -1,0 +1,89 @@
+---
+title: Your first useful task
+description: Run a small Coven task, inspect its evidence, and choose an app without assuming cross-product parity.
+read_when:
+  - You want an end-to-end first-value checklist across the Coven ecosystem
+  - You want to distinguish a recorded harness session from familiar identity or cloud continuity
+---
+
+**Goal:** explain a disposable project, find the recorded result, and decide
+which interface to use next. This walkthrough reuses the canonical
+[getting-started guide](/docs/guide/getting-started); it does not introduce a
+second installation recipe or claim that every app shares every capability.
+
+## 1. Choose a safe starting point
+
+Use a throwaway repository containing no secrets or personal data. Read
+[Platforms](/docs/guide/platforms), then complete the install and provider login
+in [Getting started](/docs/guide/getting-started). You need only one supported
+harness, not every provider listed there. Provider usage may cost money.
+
+**Checkpoint:** `coven --version` works and `coven doctor` gives no unresolved
+setup failure for the path you chose. If it does, fix that failure before
+adding another app.
+
+## 2. Connect one harness, then ask for one small result
+
+Follow the guide's recorded-session loop in the disposable repository. For the
+first prompt, ask it to explain the repository in five bullets, without editing
+files, installing packages, or contacting external services beyond the provider
+needed for the response.
+
+A prompt is a request, not a security sandbox. Review the harness's permission
+settings and approval prompts; do not broaden permissions merely to finish the
+tutorial. Coven's project boundary is not a promise of process containment.
+See [Safety](/docs/reference/safety).
+
+**Checkpoint:** you receive a useful explanation and can identify the session
+that produced it. A running daemon or an accepted launch alone is not success.
+
+## 3. Inspect before doing more
+
+Use the guide's [inspection commands](/docs/guide/getting-started#4-inspect-the-result)
+to view the session, events, and log. Check the result against the repository
+and review any files the harness changed. Do not publish raw logs: harness
+output can contain sensitive information.
+
+**Checkpoint:** you can explain what ran, what it returned, whether it finished,
+and whether it stayed within the requested task. If you cannot, follow
+[Troubleshooting](/docs/reference/troubleshooting), rather than treating an
+ambiguous run as complete. No deletion or unattended automation is needed to
+finish this walkthrough.
+
+## 4. Choose a familiar-facing surface
+
+For conversation, follow [Chat's current setup](https://github.com/OpenCoven/chat).
+For the broader control room, follow [Cave's setup](https://github.com/OpenCoven/coven-cave#install).
+Use the app's documented flow to select or create a familiar, and inspect the
+displayed identity and connection state before sending a small, non-sensitive
+prompt. If the flow is unavailable on your platform or release, stop there and
+use the CLI path; do not assume an undocumented import or synchronization route.
+
+**Checkpoint:** you know which familiar and local connection the app is using.
+A provider login or a plain `coven run` session is not by itself proof of a
+portable familiar identity, shared memory, or full
+[Familiar Contract](https://github.com/OpenCoven/familiar-contract) conformance.
+Do not assume the earlier CLI session appears in another app unless that app
+documents and shows it.
+
+[Open Sesame](https://github.com/OpenCoven/open-sesame) is an optional workspace
+for notes, tasks, tools, and terminals. Follow its own supported setup rather
+than treating a browser preview as a working native Coven connection.
+
+## 5. Keep one piece of evidence and choose the next step
+
+Keep the product version, platform, task outcome, and a redacted error if a step
+failed. Share diagnostics only after reviewing them. This walkthrough requires
+no telemetry submission.
+
+- **Another task:** use [Next steps](/docs/guide/next-steps).
+- **Build an integration:** read the [Local API](/docs/reference/api).
+- **Help improve the journey:** use [Support](/docs/reference/support) and report
+  the first step that failed, expected result, actual result, and safe reproduction.
+- **Remote work:** read [Deployments](/docs/guide/deployments) before configuring
+  another host. A local session record does not prove always-on cloud execution
+  or unattended-action authority.
+
+This is a documentation-backed path, not a certification that every combination
+of app, provider, and platform has been exercised together. Product-specific
+installation and compatibility evidence stays with each owning repository.
