@@ -5,7 +5,9 @@
   "icon": "LuBookOpen",
   "pages": [
     "---Start---",
+    "start-here",
     "getting-started",
+    "first-value",
     "next-steps",
     "install",
     "platforms",
